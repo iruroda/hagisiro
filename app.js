@@ -1757,6 +1757,8 @@
           row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
           tog('anim', '화면 전환 애니메이션'),
           window.hagisiroWidget ? el('div', { class: 'pfs' }, '위젯') : null,
+          window.hagisiroWidget && S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
+            el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await window.hagisiroWidget.setZ(v); draw(); } }, l)))) : null,
           window.hagisiroWidget ? row('투명도', el('input', {
             type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '위젯 투명도',
             oninput: (e) => { PF.opacity = +e.target.value; savePf(); const o = m.querySelector('.opv'); if (o) o.textContent = PF.opacity + '%'; },
@@ -1765,6 +1767,7 @@
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', onclick: close }, '닫기'))));
     }
     draw();
+    if (window.hagisiroWidget && window.hagisiroWidget.getZ) window.hagisiroWidget.getZ().then((v) => { S.zmode = v; if (!m.hidden) draw(); });
     if (window.hagisiroWidget && window.hagisiroWidget.getAutoStart) window.hagisiroWidget.getAutoStart().then((v) => { S.autoStart = v; if (!m.hidden) draw(); });
   }
 

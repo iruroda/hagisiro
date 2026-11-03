@@ -6,5 +6,7 @@ contextBridge.exposeInMainWorld('hagisiroWidget', {
   getAutoStart: () => ipcRenderer.invoke('as-get'),
   setAutoStart: (v) => ipcRenderer.invoke('as-set', !!v),
   setMinWidth: (w) => ipcRenderer.send('min-w', w),
+  getZ: () => ipcRenderer.invoke('z-get'),
+  setZ: (v) => ipcRenderer.invoke('z-set', v),
   quit: () => ipcRenderer.send('quit'),
 });

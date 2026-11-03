@@ -47,6 +47,28 @@ ipcMain.on('wb-set', (e, b, mode) => { if (win && b) win.setBounds(snapBounds(b,
 ipcMain.handle('as-get', () => app.getLoginItemSettings().openAtLogin);
 ipcMain.handle('as-set', (e, v) => { app.setLoginItemSettings({ openAtLogin: !!v }); return app.getLoginItemSettings().openAtLogin; });
 ipcMain.on('min-w', (e, w) => { MINW = Math.max(240, Math.min(900, Math.round(+w) || 300)); if (win) { win.setMinimumSize(MINW, MINH); const b = win.getBounds(); if (b.width < MINW) win.setBounds({ ...b, width: MINW }); } });
+/* 창 순서: top(항상 맨 앞) · normal(일반) · bottom(항상 다른 창 뒤, 바탕화면 위) */
+const zmode = () => st.z || (st.top ? 'top' : 'normal');
+let zTimer = null;
+function sendBottom() {
+  if (!win || process.platform !== 'win32' || zmode() !== 'bottom') return;
+  clearTimeout(zTimer);
+  zTimer = setTimeout(() => {
+    try {
+      const h = win.getNativeWindowHandle().readBigUInt64LE(0).toString();
+      const ps = `Add-Type 'using System;using System.Runtime.InteropServices;public class Z{[DllImport("user32.dll")]public static extern bool SetWindowPos(IntPtr h,IntPtr a,int x,int y,int w,int c,uint f);}';[Z]::SetWindowPos([IntPtr]::new(${h}),[IntPtr]1,0,0,0,0,0x13)|Out-Null`;
+      require('child_process').spawn('powershell.exe', ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', ps], { windowsHide: true });
+    } catch (e) { /* noop */ }
+  }, 120);
+}
+function applyZ(z) {
+  st.z = z; delete st.top; save();
+  if (!win) return;
+  win.setAlwaysOnTop(z === 'top');
+  if (z === 'bottom') sendBottom();
+}
+ipcMain.handle('z-get', () => zmode());
+ipcMain.handle('z-set', (e, z) => { if (['top', 'normal', 'bottom'].includes(z)) applyZ(z); return zmode(); });
 ipcMain.on('quit', () => app.quit());
 ipcMain.on('wb-done', () => { if (win) { st.bounds = win.getBounds(); save(); } });
 
@@ -54,7 +76,7 @@ function create() {
   st = load();
   win = new BrowserWindow({
     ...bounds(), frame: false, transparent: true, hasShadow: false, resizable: false, skipTaskbar: true,
-    alwaysOnTop: !!st.top, backgroundColor: '#00000000', title: 'HAGISIRO',
+    alwaysOnTop: zmode() === 'top', backgroundColor: '#00000000', title: 'HAGISIRO',
     minWidth: 300, minHeight: 320,
     webPreferences: { contextIsolation: true, nodeIntegration: false, preload: path.join(__dirname, 'preload.js') },
   });
@@ -69,6 +91,8 @@ function create() {
   // 위젯 위에서 오른쪽 버튼 → 트레이와 같은 메뉴 (입력칸에서는 기본 메뉴)
   win.webContents.on('context-menu', (e, params) => { if (!params.isEditable) menu().popup({ window: win }); });
   win.on('moved', () => { st.bounds = win.getBounds(); save(); });
+  win.on('blur', sendBottom); win.on('show', sendBottom); win.on('restore', sendBottom);
+  win.webContents.on('did-finish-load', sendBottom);
   win.on('closed', () => { win = null; });
 }
 
@@ -77,7 +101,7 @@ function menu() {
   return Menu.buildFromTemplate([
     { label: '보이기 / 숨기기', click: () => (win.isVisible() ? win.hide() : (win.show(), win.focus())) },
     { label: '크기', submenu: Object.keys(SIZES).map((k) => ({ label: k, click: () => resize(k) })) },
-    { label: '항상 맨 위', type: 'checkbox', checked: !!st.top, click: (i) => { st.top = i.checked; win.setAlwaysOnTop(i.checked); save(); } },
+    { label: '창 순서', submenu: [['top', '맨 앞 (항상 위)'], ['normal', '일반'], ['bottom', '맨 뒤 (바탕화면)']].map(([k, l]) => ({ label: l, type: 'radio', checked: zmode() === k, click: () => applyZ(k) })) },
     { label: '윈도우 시작 시 자동 실행', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (i) => app.setLoginItemSettings({ openAtLogin: i.checked }) },
     { label: '새로고침', click: () => win.webContents.reload() },
     { type: 'separator' },
