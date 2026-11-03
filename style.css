@@ -585,3 +585,9 @@ body { font-variant-numeric: tabular-nums; }
 @keyframes popout { to { opacity: 0; transform: translateY(6px) scale(.985); } }
 #modal.closing .back { animation: fadeout .15s ease-in forwards; }
 #modal.closing .dlg, #sheet.closing > * { animation: popout .15s ease-in forwards; }
+
+/* 출결 칸: 빗금이 있든 없든 줄 높이 고정 */
+.dt tbody tr { height: 40px; }
+.dt .slc { height: 40px; padding-top: 0; padding-bottom: 0; line-height: 1; vertical-align: middle; overflow: hidden; }
+.dt .sl .ic svg { width: 16px; height: 16px; }
+.dt .sl .ic { height: 16px; align-items: center; }
