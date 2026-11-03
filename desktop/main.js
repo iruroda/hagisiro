@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, nativeImage, screen, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, nativeImage, screen, shell, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -21,12 +21,38 @@ function bounds() {
   return vis ? b : { width: b.width, height: b.height, x: wa.x + wa.width - b.width - 20, y: wa.y + 20 };
 }
 
+/* 이동·크기 변경: 화면(작업 영역) 가장자리에 자석처럼 붙임 */
+const SNAP = 16, MINW = 300, MINH = 320;
+function snapAxis(v, targets) { let best = null; for (const t of targets) { const d = t - v; if (Math.abs(d) <= SNAP && (best === null || Math.abs(d) < Math.abs(best))) best = d; } return best; }
+function snapBounds(b, mode) {
+  const was = screen.getAllDisplays().map((d) => d.workArea);
+  const xs = was.flatMap((w) => [w.x, w.x + w.width]), ys = was.flatMap((w) => [w.y, w.y + w.height]);
+  let { x, y, width, height } = b;
+  const e = mode === 'move' ? 'lrtb' : String(mode || '');
+  if (mode === 'move') {
+    const dl = snapAxis(x, xs), dr = snapAxis(x + width, xs);
+    const dx = dl !== null && (dr === null || Math.abs(dl) <= Math.abs(dr)) ? dl : dr; if (dx !== null) x += dx;
+    const dt = snapAxis(y, ys), db = snapAxis(y + height, ys);
+    const dy = dt !== null && (db === null || Math.abs(dt) <= Math.abs(db)) ? dt : db; if (dy !== null) y += dy;
+  } else {
+    if (e.includes('l')) { const d = snapAxis(x, xs); if (d !== null) { x += d; width -= d; } }
+    if (e.includes('r')) { const d = snapAxis(x + width, xs); if (d !== null) width += d; }
+    if (e.includes('t')) { const d = snapAxis(y, ys); if (d !== null) { y += d; height -= d; } }
+    if (e.includes('b')) { const d = snapAxis(y + height, ys); if (d !== null) height += d; }
+  }
+  return { x: Math.round(x), y: Math.round(y), width: Math.max(MINW, Math.round(width)), height: Math.max(MINH, Math.round(height)) };
+}
+ipcMain.handle('wb-get', () => (win ? win.getBounds() : null));
+ipcMain.on('wb-set', (e, b, mode) => { if (win && b) win.setBounds(snapBounds(b, mode)); });
+ipcMain.on('wb-done', () => { if (win) { st.bounds = win.getBounds(); save(); } });
+
 function create() {
   st = load();
   win = new BrowserWindow({
     ...bounds(), frame: false, transparent: true, hasShadow: false, resizable: false, skipTaskbar: true,
     alwaysOnTop: !!st.top, backgroundColor: '#00000000', title: 'HAGISIRO',
-    webPreferences: { contextIsolation: true, nodeIntegration: false },
+    minWidth: 300, minHeight: 320,
+    webPreferences: { contextIsolation: true, nodeIntegration: false, preload: path.join(__dirname, 'preload.js') },
   });
   win.webContents.setUserAgent(UA); // 구글 로그인이 내장 브라우저로 오인해 막는 것을 피함
   win.loadURL(URL);

@@ -11,7 +11,7 @@
     "appId": "com.iruroda.hagisiro",
     "productName": "HAGISIRO",
     "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["main.js", "package.json", "build/icon.png"],
+    "files": ["main.js", "preload.js", "package.json", "build/icon.png"],
     "win": { "target": "portable", "icon": "build/icon.png", "artifactName": "HAGISIRO.exe" }
   }
 }

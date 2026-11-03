@@ -13,7 +13,7 @@
   const { CATS, TYPES, KINDS, END } = P;
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   const byOrd = (a, b) => (a.ord || 0) - (b.ord || 0) || (a.created || 0) - (b.created || 0);
-  const isMobile = () => !!(window.matchMedia && window.matchMedia('(max-width:700px)').matches);
+  const isMobile = () => !/[?&]widget/.test(location.search) && !!(window.matchMedia && window.matchMedia('(max-width:700px)').matches);
   const md = (ds) => { const d = parseYmd(ds); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; };
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -59,6 +59,7 @@
     dot: '<circle cx="12" cy="12" r="4.2" class="f"/>',
     slash: '<path d="M8 19.5l8-15"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
+    move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
     tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
   };
   function icon(name) {
@@ -66,7 +67,7 @@
     s.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
     return s;
   }
-  const LOGO = '<svg viewBox="0 0 64 64" width="56" height="56"><rect width="64" height="64" rx="14" fill="#2563eb"/><rect x="14" y="16" width="36" height="32" rx="6" fill="none" stroke="#fff" stroke-width="3.5"/><path d="M14 25h36" stroke="#fff" stroke-width="3.5"/><path d="M24 36l5.5 5.5L41 31" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const LOGO = '<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="lg-bb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e9edfb"/></linearGradient><linearGradient id="lg-bg" gradientUnits="userSpaceOnUse" x1="8" y1="8" x2="56" y2="56"><stop offset="0" stop-color="#8b5cff"/><stop offset=".5" stop-color="#3b82f6"/><stop offset="1" stop-color="#1fd6c1"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg-bb)"/><rect x="33.5" y="6.5" width="24" height="24" rx="8" fill="url(#lg-bg)" opacity="0.24"/><rect x="6.5" y="33.5" width="24" height="24" rx="8" fill="url(#lg-bg)" opacity="0.24"/><rect x="6.5" y="6.5" width="24" height="24" rx="8" fill="url(#lg-bg)" opacity="1"/><rect x="33.5" y="33.5" width="24" height="24" rx="8" fill="url(#lg-bg)" opacity="1"/><path d="M12.4 10.9v15.3M24.6 10.9v15.3M12.4 18.5h12.2" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/><path d="M38.3 45.9l5.3 5.5 9.5-11.3" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* 한글 입력(IME) 중 엔터 처리: 마지막 글자가 확정된 뒤 한 번에 동작하도록 */
   function onEnter(inp, fn) {
@@ -1950,6 +1951,47 @@
     list();
   }
 
+  /* ================= 위젯 이동·크기 변경 (Electron) ================= */
+  function initWidgetEdit() {
+    if (!IS_WIDGET) return;
+    const api = window.hagisiroWidget;
+    const btn = el('button', { id: 'wmove', type: 'button', title: '이동·크기 변경', 'aria-label': '이동·크기 변경', onclick: () => toggle() }, icon('move'));
+    let layer = null;
+    function toggle() {
+      if (layer) { layer.remove(); layer = null; document.body.classList.remove('wedit'); return; }
+      document.body.classList.add('wedit');
+      layer = el('div', { id: 'wedit' }, ['n', 's', 'w', 'e', 'nw', 'ne', 'sw', 'se'].map((e) => el('i', { 'data-e': e })));
+      let drag = null;
+      layer.addEventListener('pointerdown', async (ev) => {
+        if (!api) return;
+        const mode = ev.target.dataset.e || 'move';
+        layer.setPointerCapture(ev.pointerId);
+        drag = { mode, sx: ev.screenX, sy: ev.screenY, b: null };
+        const b = await api.getBounds();
+        if (drag) drag.b = b;
+      });
+      layer.addEventListener('pointermove', (ev) => {
+        if (!drag || !drag.b) return;
+        const dx = ev.screenX - drag.sx, dy = ev.screenY - drag.sy, o = drag.b;
+        let { x, y, width, height } = o;
+        const m = drag.mode;
+        if (m === 'move') { x += dx; y += dy; } else {
+          const e = m.replace('n', 't').replace('s', 'b').replace('w', 'l').replace('e', 'r');
+          if (e.includes('l')) { x += dx; width -= dx; }
+          if (e.includes('r')) width += dx;
+          if (e.includes('t')) { y += dy; height -= dy; }
+          if (e.includes('b')) height += dy;
+        }
+        const map = { n: 't', s: 'b', w: 'l', e: 'r' };
+        api.setBounds({ x, y, width, height }, m === 'move' ? 'move' : m.split('').map((ch) => map[ch]).join(''));
+      });
+      const end = () => { if (drag && api) api.done(); drag = null; };
+      layer.addEventListener('pointerup', end); layer.addEventListener('pointercancel', end);
+      document.body.append(layer);
+    }
+    document.body.append(btn);
+  }
+
   /* ================= 토스트 / 키보드 ================= */
   let toastT;
   function toast(msg, undo) {
@@ -1977,5 +2019,6 @@
   });
 
   window.__haru = { S, Data, render, toast, lastOf }; // 디버깅용
+  initWidgetEdit();
   boot();
 })();
