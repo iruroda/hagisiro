@@ -544,3 +544,7 @@ input[type=checkbox] { transition: transform .15s, background-color .15s; }
 
 .rosdlg { width: min(340px, 92vw); }
 .perdlg { width: min(290px, 92vw); } .perdlg .pgrid .pc select { width: 108px; }
+
+/* 글자 폭이 바뀌어도 칩·제목 크기는 고정 */
+body { font-variant-numeric: tabular-nums; }
+.ttl, body.widget .ttl, body:not(.widget) .ttl { width: 6.2em; min-width: 6.2em; flex: none; text-align: center; white-space: nowrap; }
