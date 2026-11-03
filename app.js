@@ -304,8 +304,20 @@
       const b = box.getBoundingClientRect(), r = on.getBoundingClientRect();
       const x = r.left - b.left;
       const prev = pillPos[key];
-      if (prev && Math.abs(prev.x - x) > 2 && Math.abs(prev.w - b.width) < 14 && on !== prev.node && on.animate) {
-        on.animate([{ transform: `translateX(${prev.x - x}px)` }, { transform: 'none' }], { duration: 240, easing: 'cubic-bezier(.3,1.25,.4,1)' });
+      const opt = { duration: 240, easing: 'cubic-bezier(.3,1.25,.4,1)' };
+      if (prev && on !== prev.node && on.animate) {
+        const run = prev.run && performance.now() - prev.run.t0 < 240 && Math.abs(prev.run.to - x) < 2 ? prev.run : null; // 같은 이동 중에 화면이 한 번 더 그려진 경우: 이어서 재생
+        if (run) {
+          const an = on.animate([{ transform: `translateX(${run.from - x}px)` }, { transform: 'none' }], opt);
+          an.currentTime = performance.now() - run.t0;
+          seen[key] = { x, w: b.width, node: on, run };
+          return;
+        }
+        if (Math.abs(prev.x - x) > 2 && Math.abs(prev.w - b.width) < 14) {
+          on.animate([{ transform: `translateX(${prev.x - x}px)` }, { transform: 'none' }], opt);
+          seen[key] = { x, w: b.width, node: on, run: { from: prev.x, to: x, t0: performance.now() } };
+          return;
+        }
       }
       seen[key] = { x, w: b.width, node: on };
     });
