@@ -136,7 +136,7 @@
   function cloudErr(e) {
     console.error(e);
     const code = (e && e.code) || '';
-    toast(code === 'permission-denied' ? '권한 오류: firestore.rules 를 게시했는지 확인해 주세요' : '저장/불러오기 오류: ' + (code || (e && e.message)));
+    toast(code === 'permission-denied' ? '저장 권한 오류' : '저장 오류: ' + (code || (e && e.message)));
   }
 
   const Data = {
@@ -257,7 +257,7 @@
         return;
       } catch (e) {
         console.error(e);
-        toast('Firebase 연결 실패 — 이 기기에만 저장돼요');
+        toast('연결 실패 · 이 기기에만 저장');
       }
     }
     S.ready = true; enterLocal();
@@ -389,12 +389,12 @@
     if ($('#menu')) { closeMenu(); return; }
     const item = (label, fn) => el('button', { class: 'mi', onclick: () => { closeMenu(); fn(); } }, label);
     const m = el('div', { class: 'menu', id: 'menu' });
-    m.append(el('div', { class: 'mh' }, S.user ? (S.user.email || '로그인됨') : (S.cloudAvail ? '로그인 안 됨 · 이 기기에만 저장' : '이 기기에만 저장 중 (Firebase 미설정)')));
+    m.append(el('div', { class: 'mh' }, S.user ? (S.user.email || '로그인됨') : '이 기기에만 저장'));
     if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }));
     m.append(item('화면 설정', openPrefs));
-    m.append(item('출결 설정 (요일별 교시 수)', openSettings));
+    m.append(item('교시 설정', openSettings));
     if (S.user) {
-      m.append(item(gcalWanted() ? 'Google 캘린더 일정 끄기' : 'Google 캘린더 일정 함께 보기', () => {
+      m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
         if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal(false);
       }));
       m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }));
@@ -421,8 +421,8 @@
       logo,
       el('h1', {}, 'HAGISIRO'),
       el('p', { class: 'mut' }, '할 일과 출결을 한 화면에서'),
-      el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, 'Google로 시작'),
-      el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '로그인 없이 이 기기에서만 쓰기'));
+      el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, 'Google 로그인'),
+      el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '이 기기에만 저장'));
   }
 
   /* ================= 캘린더 ================= */
@@ -614,7 +614,7 @@
       return b;
     };
     bar.append(
-      btn('check', '취소선 (완료)', () => {
+      btn('check', '완료', () => {
         const ts = ctx.targets();
         if (!ts.length) { toast(NEED_PICK); return; }
         const to = !ts.every((t) => t.get().done);
@@ -859,7 +859,7 @@
     const body = el('div', { class: 'sbody' });
     let api;
     const noBlur = (b) => { b.addEventListener('mousedown', (e) => e.preventDefault()); return b; };
-    const add = noBlur(el('button', { class: 'addrow', type: 'button', onclick: () => api && api.addRow() }, icon('plus'), '항목 추가'));
+    const add = noBlur(el('button', { class: 'addrow', type: 'button', onclick: () => api && api.addRow() }, icon('plus'), '할 일 추가'));
     const close = noBlur(el('button', { class: 'ib', type: 'button', 'aria-label': '닫기', onclick: () => api && api.finish() }, icon('close')));
     const foot = el('div', { class: 'sfoot' }, add);
     const g = (S.gcal[ds] || []).map(gev);
@@ -947,18 +947,18 @@
       if (f.end && f.end < f.start) { toast('종료일이 시작일보다 빨라요'); return null; }
       if (st.kind === 'daily') f.skipWE = st.skipWE;
       if (st.kind === 'weekly') {
-        if (!st.dows.size) { toast('요일을 하나 이상 골라 주세요'); return null; }
+        if (!st.dows.size) { toast('요일을 하나 이상 골라주세요'); return null; }
         f.dows = [...st.dows].sort((a, b) => a - b);
       }
       if (st.kind === 'monthly') {
-        if (!(st.dom >= 1 && st.dom <= 31)) { toast('1~31 사이의 날짜를 넣어 주세요'); return null; }
+        if (!(st.dom >= 1 && st.dom <= 31)) { toast('1~31 사이의 날짜를 넣어주세요'); return null; }
         f.dom = st.dom;
       }
       if (st.kind === 'yearly') {
-        if (!(st.month >= 1 && st.month <= 12) || !(st.day >= 1 && st.day <= (st.lunar ? 30 : 31))) { toast('월·일을 확인해 주세요'); return null; }
+        if (!(st.month >= 1 && st.month <= 12) || !(st.day >= 1 && st.day <= (st.lunar ? 30 : 31))) { toast('월·일을 확인해주세요'); return null; }
         f.month = st.month; f.day = st.day; f.lunar = st.lunar;
       }
-      if (opt.withText) { if (!st.text.trim()) { toast('반복할 내용을 입력해 주세요'); return null; } f.text = st.text.trim(); }
+      if (opt.withText) { if (!st.text.trim()) { toast('반복할 내용을 입력해주세요'); return null; } f.text = st.text.trim(); }
       if (opt.withColors) { f.fg = st.fg; f.bg = st.bg; }
       return f;
     };
@@ -1021,7 +1021,7 @@
           el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = r; mode = 'form'; show(); } }, '수정'),
           el('button', { class: 'ghost sm danger', type: 'button', onclick: () => delRule(r) }, '삭제')));
       });
-      body.append(el('div', { class: 'dlgf' }, el('button', { class: 'ghost', type: 'button', onclick: () => { editing = null; mode = 'form'; show(); } }, icon('plus'), '새 반복'),
+      body.append(el('div', { class: 'dlgf' }, el('button', { class: 'ghost', type: 'button', onclick: () => { editing = null; mode = 'form'; show(); } }, icon('plus'), '반복 추가'),
         el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: close }, '닫기')));
     }
 
@@ -1039,7 +1039,7 @@
     }
 
     function delRule(r) {
-      if (!confirm('이 반복을 삭제할까요?\n달력에서 이 반복 항목이 모두 사라져요.')) return;
+      if (!confirm('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.')) return;
       const ovr = S.todos.filter((t) => t.rid === r.id);
       Data.del('repeats', r.id); ovr.forEach((t) => Data.del('todos', t.id));
       toast('반복을 삭제했어요', () => { Data.put('repeats', r); ovr.forEach((t) => Data.put('todos', t)); render(); });
@@ -1074,7 +1074,7 @@
       root.append(el('div', { class: 'empty' },
         el('p', {}, '아직 학급이 없어요'),
         el('p', { class: 'mut' }, '명단을 한 번만 붙여넣으면, 이후엔 문장으로 바로 기록돼요'),
-        el('button', { class: 'pri', onclick: () => openRoster(null) }, '학급 만들기')));
+        el('button', { class: 'pri', onclick: () => openRoster(null) }, '학급 추가')));
       return root;
     }
     S.clsId = cls.id;
@@ -1204,7 +1204,7 @@
       const c = e.target.closest('[data-d]');
       if (c) { setSel(c.dataset.d); setSub('day'); }
     });
-    if (!students.length) wrap.append(el('div', { class: 'empty mut' }, '이 주에는 출결 기록이 없어요 (전원 출석)'));
+    if (!students.length) wrap.append(el('div', { class: 'empty mut' }, '기록 없음'));
     else wrap.append(el('div', { class: 'mwrap' }, tbl));
 
     const cnt = TYPES.map((t) => [t, all.filter((a) => a.type === t).length]).filter((x) => x[1]).map((x) => `${x[0]} ${x[1]}`).join(' · ');
@@ -1284,7 +1284,7 @@
     wrap.append(el('div', { class: 'mwrap' }, el('table', { class: 'mt dt' }, el('thead', {}, head), tbody)));
     const cnt = recs.length
       ? TYPES.map((t) => `${t} ${recs.filter((a) => a.type === t).length}`).join(' · ')
-      : '이 날 기록 없음 (전원 출석)';
+      : '기록 없음';
     S.topSum = el('div', { class: 'msum' }, cnt);
     if (last === 0) wrap.append(el('div', { class: 'mut small' }, '수업이 없는 요일로 설정돼 있어요. 위에서 교시 수를 바꾸거나 “교시 설정”에서 기본값을 바꿔요'));
     return wrap;
@@ -1408,7 +1408,7 @@
     if (window.XLSX) return Promise.resolve(window.XLSX);
     if (!sheetJs) sheetJs = new Promise((res, rej) => {
       document.head.append(el('script', { src: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-        onload: () => res(window.XLSX), onerror: () => { sheetJs = null; rej(new Error('엑셀 변환 도구를 불러오지 못했어요. 인터넷 연결을 확인하거나 내용을 복사해 붙여넣어 주세요')); } }));
+        onload: () => res(window.XLSX), onerror: () => { sheetJs = null; rej(new Error('엑셀 변환 도구를 불러오지 못했어요. 인터넷 연결을 확인하거나 내용을 복사해 붙여넣어주세요')); } }));
     });
     return sheetJs;
   }
@@ -1473,7 +1473,7 @@
         const g = c.getContext('2d'); g.filter = 'grayscale(1) contrast(1.25)'; g.drawImage(im, 0, 0, c.width, c.height);
         res(c.toDataURL('image/png'));
       };
-      im.onerror = () => rej(new Error('이미지를 열 수 없어요'));
+      im.onerror = () => rej(new Error('이미지를 열지 못했어요'));
       im.src = src;
     });
   }
@@ -1499,9 +1499,9 @@
           max = Math.round(max * 0.8); q = Math.max(0.5, q - 0.06);
         }
         URL.revokeObjectURL(url);
-        if (out.length >= 900000) rej(new Error('이미지가 너무 커요. 더 작은 이미지로 올려 주세요')); else res(out);
+        if (out.length >= 900000) rej(new Error('이미지가 너무 커요. 더 작은 이미지로 올려주세요')); else res(out);
       };
-      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('이미지를 열 수 없어요')); };
+      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('이미지를 열지 못했어요')); };
       im.src = url;
     });
   }
@@ -1555,7 +1555,7 @@
             el('span', { class: 'mut dhint' }, draft.kind === 'image' ? '이미지가 그대로 보여요' : '또는 아래에 직접 입력')),
           body,
           el('div', { class: 'dlgf' },
-            cur ? el('button', { class: 'ghost sm danger', onclick: () => { if (confirm(meta[1] + ' 내용을 지울까요?')) { Data.del('docs', id); close(); } } }, icon('trash'), '지우기') : null,
+            cur ? el('button', { class: 'ghost sm danger', onclick: () => { if (confirm(meta[1] + ' 내용을 삭제할까요?')) { Data.del('docs', id); close(); } } }, icon('trash'), '삭제') : null,
             el('span', { class: 'grow' }),
             el('button', { class: 'ghost', onclick: () => { if (cur) { edit = false; drawView(); } else close(); } }, '취소'),
             el('button', { class: 'pri', onclick: save }, '저장'))));
@@ -1590,7 +1590,7 @@
         el('div', { class: 'dlg pfdlg' },
           el('div', { class: 'shead' }, el('b', {}, '화면 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
           el('div', { class: 'pfs' }, '캘린더'),
-          row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주 기준']], 'range')),
+          row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
           row('전체 주 개수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')),
           row('지나간 주 개수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')),
           el('div', { class: 'pfh' }, '이번 주 기준 보기에서만 쓰여요. 지나간 주는 전체 주보다 적게 정할 수 있어요.'),
@@ -1637,13 +1637,13 @@
           if (S.cloud) { removed = await S.cloud.clearAll('days'); S.days = []; }
           else { removed = S.days.slice(); S.days = []; Data.saveLocal(); }
         } catch (e) { cloudErr(e); }
-        if (removed.length) toast(`날짜별 개별 설정 ${removed.length}일을 지우고 기본값으로 통일했어요`, () => { removed.forEach((x) => Data.put('days', x)); render(); });
+        if (removed.length) toast(`날짜별 개별 설정 ${removed.length}일을 삭제하고 기본값으로 통일했어요`, () => { removed.forEach((x) => Data.put('days', x)); render(); });
       }
       render();
     };
     m.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, el('b', {}, '요일별 교시 수'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, el('b', {}, '교시 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         grid,
         el('label', { class: 'keepbox' }, keep, el('span', {}, '개별 설정한 날은 제외하고 덮어쓰기')),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', onclick: close }, '취소'), el('button', { class: 'pri', onclick: save }, '저장'))));
@@ -1729,7 +1729,7 @@
       if (res.status === 401 || res.status === 403) {
         try { sessionStorage.removeItem(GK); } catch (e) { /* noop */ }
         S.gcal = {}; render();
-        if (res.status === 403) toast('Google 캘린더 API가 꺼져 있거나 권한이 없어요 (README 참고)');
+        if (res.status === 403) toast('Google 캘린더 권한 오류');
         return;
       }
       const j = await res.json();
