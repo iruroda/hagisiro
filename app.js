@@ -41,7 +41,7 @@
     left: '<path d="M14.5 6l-6 6 6 6"/>',
     right: '<path d="M9.5 6l6 6-6 6"/>',
     check: '<path d="M5 12.8l4.6 4.6L19 7.4"/>',
-    done: '<defs><mask id="dm" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><rect width="24" height="24" fill="#fff"/><path d="M8.3 12.6l3.6 3.9L20.2 4.8" stroke="#000" stroke-width="6.4"/></mask></defs><rect x="3.6" y="8.4" width="12.6" height="12.2" rx="3.2" stroke-width="2.2" mask="url(#dm)"/><path d="M8.3 12.6l3.6 3.9L20.2 4.8"/>',
+    done: '<defs><mask id="dm" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><rect width="24" height="24" fill="#fff"/><path d="M7.3 12.6l3.6 3.9L19.2 4.8" stroke="#000" stroke-width="6.4"/></mask></defs><rect x="4.6" y="8.4" width="12.6" height="12.2" rx="3.2" stroke-width="2.2" mask="url(#dm)"/><path d="M7.3 12.6l3.6 3.9L19.2 4.8"/>',
     more: '<circle cx="5.5" cy="12" r="1.9" class="f"/><circle cx="12" cy="12" r="1.9" class="f"/><circle cx="18.5" cy="12" r="1.9" class="f"/>',
     close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
     download: '<path d="M12 4.5v10M7.5 10.5l4.5 4.5 4.5-4.5M5.5 19.5h13"/>',
