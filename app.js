@@ -1749,7 +1749,7 @@
   function toast(msg, undo) {
     const t = $('#toast');
     t.hidden = false;
-    t.replaceChildren(el('span', {}, msg), undo ? el('button', { onclick: () => { undo(); t.hidden = true; } }, '되돌리기') : null);
+    t.replaceChildren(...[el('span', {}, msg), undo ? el('button', { onclick: () => { undo(); t.hidden = true; } }, '되돌리기') : null].filter(Boolean));
     clearTimeout(toastT);
     toastT = setTimeout(() => { t.hidden = true; }, undo ? 7000 : 3500);
   }
