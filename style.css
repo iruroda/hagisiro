@@ -240,7 +240,7 @@ body.wedit #wmove { background: var(--accent); color: #fff; }
 .tilde .ic svg { width: 16px; height: 16px; }
 .dt .slc, .dt th.sl-h { min-width: 42px; width: 42px; }
 .dt .sl { color: var(--cc); font-weight: 700; font-size: 17px; background: color-mix(in srgb, var(--cc) 11%, transparent); }
-.dt th.rs-h, .dt td.rs { min-width: 210px; text-align: left; padding: 0 6px; }
+.dt th.rs-h, .dt td.rs { min-width: 76px; text-align: left; padding: 0 6px; }
 .rsw { display: flex; gap: 4px; align-items: center; }
 .rin { flex: 1; min-width: 0; font-size: 12px; padding: 3px 8px; border-radius: var(--r-sm); }
 .ksel[class*="c-"] { color: var(--cc); font-weight: 600; border-color: color-mix(in srgb, var(--cc) 45%, var(--line)); }
@@ -622,3 +622,7 @@ body { font-variant-numeric: tabular-nums; }
 #sheet .panel { overflow: hidden !important; display: flex; flex-direction: column; }
 #sheet .panel .sbody { flex: 1; min-height: 0; overflow-y: auto; }
 .dtxt, .dimg, .schres, .meals, .cgrid, .rbody, .dbody, .clist, .cform, .cdet { padding-right: 2px; }
+
+/* 출결 일별 표: 사유 칸이 남는 폭만큼 늘고 줄어요 (최소 5글자) → 가로 스크롤 최소화 */
+.mt.dt { width: 100%; }
+.dt .rin { width: 0; flex: 1 1 0; }
