@@ -108,7 +108,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -362,7 +362,7 @@
     const ib = (name, fn, label) => el('button', { class: 'ib', onclick: fn, 'aria-label': label, title: label, disabled: cv }, icon(name));
     const nav = el('div', { class: 'nav' },
       ib('left', () => go(-1), weekMode() ? '이전 주' : '이전 달'),
-      el('span', { class: 'ttl' + (cv ? '' : ' jump'), title: cv ? '' : '눌러서 연·월 직접 입력', onclick: cv ? null : (e) => editTtl(e.currentTarget) }, cv ? '상담' : weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
+      el('span', { class: 'ttl' + (cv ? ' off' : ' jump'), title: cv ? '' : '눌러서 연·월 직접 입력', onclick: cv ? null : (e) => editTtl(e.currentTarget) }, weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
       ib('right', () => go(1), weekMode() ? '다음 주' : '다음 달'),
       el('button', { class: 'ghost sm', disabled: cv, onclick: goToday }, '오늘'));
     const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
@@ -548,6 +548,10 @@
     const grid = el('div', { class: 'days', style: `grid-template-rows:repeat(${r.rows},minmax(0,1fr))` });
     const attBy = {}; S.att.forEach((a) => { attBy[a.date] = (attBy[a.date] || 0) + 1; });
 
+    const gapRows = new Set();
+    if (weekMode() && PF.mgap) {
+      for (let i = 7; i < r.rows * 7; i++) if (new Date(r.start.getFullYear(), r.start.getMonth(), r.start.getDate() + i).getDate() === 1) gapRows.add(Math.floor(i / 7));
+    }
     for (let i = 0; i < r.rows * 7; i++) {
       const d = new Date(r.start.getFullYear(), r.start.getMonth(), r.start.getDate() + i);
       const ds = ymd(d);
@@ -556,7 +560,7 @@
       const hn = holName(ds, d);
       const lu = PF.lunar && window.Lunar ? Lunar.lunarLabel(d) : '';
       const tm = PF.terms && window.Lunar ? Lunar.termOf(d) : '';
-      const cls = 'cell' + (!weekMode() && d.getMonth() !== S.m ? ' other' : '') + (hn ? ' hol' : '') + (ds === todayS ? ' today' : '') + (ds === S.sel ? ' sel' : '') +
+      const cls = 'cell' + (!weekMode() && d.getMonth() !== S.m ? ' other' : '') + (hn ? ' hol' : '') + (ds === todayS ? ' today' : '') + (ds === S.sel ? ' sel' : '') + (gapRows.has(Math.floor(i / 7)) ? ' mgap' : '') +
         (d.getDay() === 0 ? ' sun' : d.getDay() === 6 ? ' sat' : '');
       grid.append(el('div', { class: cls, 'data-date': ds },
         el('div', { class: 'ct' },
@@ -1741,6 +1745,7 @@
           row('전체 주 개수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')),
           row('지나간 주 개수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')),
           el('div', { class: 'pfh' }, '이번 주 기준 보기에서만 쓰여요. 지나간 주는 전체 주보다 적게 정할 수 있어요.'),
+          tog('mgap', '월 사이 간격 띄우기', '이번 주 보기에서 달이 바뀌는 줄 위에 간격을 둬요', 'render'),
           el('div', { class: 'pfs' }, '날짜 표시'),
           tog('lunar', '음력 날짜 표시'),
           tog('terms', '24절기 표시'),

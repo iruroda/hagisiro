@@ -3,14 +3,14 @@
   /* 글자 위계: 제목 16/700 · 본문 13 · 보조 12 · 캡션 11 (굵기: 제목 700, 강조 600, 보통 400~500) */
   --fs-1: 16px; --fs-2: 14px; --fs-3: 13px; --fs-4: 12px; --fs-5: 11px;
   --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 99px;
-  --bg: #ffffff; --bg2: #f5f6f8; --text: #1b1d21; --mut: #8b9098; --line: #ebedf0;
+  --bg: #ffffff; --bg2: #f5f6f8; --bg-s: #ffffff; --bg2-s: #f5f6f8; --text: #1b1d21; --mut: #8b9098; --line: #ebedf0;
   --accent: #6d4aff; --accent2: #12c9b3; --grad: linear-gradient(135deg, #7c4dff 0%, #2f6df6 55%, #12c9b3 100%); --sel: #f4f1ff; --sun: #e5484d; --sat: #2f6df6;
   --font: "SUITE", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
-:root[data-theme="dark"] { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --text: #e8eaed; --mut: #8a9099; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; }
+:root[data-theme="dark"] { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --bg-s: #16181c; --bg2-s: #1d2025; --text: #e8eaed; --mut: #8a9099; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; }
 :root[data-theme="light"] { color-scheme: light; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --text: #e8eaed; --mut: #8a9099; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; }
+  :root:not([data-theme="light"]) { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --bg-s: #16181c; --bg2-s: #1d2025; --text: #e8eaed; --mut: #8a9099; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; }
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -167,7 +167,8 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 
 /* 바탕화면 위젯 모드 (?widget=1) — 데스크톱 래퍼에서 사용 */
 html.widget, body.widget { background: transparent; }
-body.widget { --wbg: color-mix(in srgb, var(--bg) var(--wa, 90%), transparent); font-weight: 500; }
+body.widget { --bg: color-mix(in srgb, var(--bg-s) var(--wa, 90%), transparent); --bg2: color-mix(in srgb, var(--bg2-s) var(--wa, 90%), transparent); --wbg: var(--bg); font-weight: 500; }
+body.widget :is(.dlg, .menu, #toast, #sheet > *, .sbody) { --bg: var(--bg-s); --bg2: var(--bg2-s); }
 body.widget #app { background: none; padding: 3px; gap: 3px; }
 body.widget #top { background: var(--wbg); border: 0; border-radius: 6px 6px 0 0; padding-left: 40px; }
 body.widget .cal { gap: 3px; }
@@ -553,3 +554,6 @@ body { font-variant-numeric: tabular-nums; }
 .ttl.jump:hover { background: var(--bg2); }
 .ttin { font: inherit; font-weight: 700; text-align: center; border: 0; border-bottom: 2px solid var(--accent); background: transparent; color: var(--text); padding: 0; border-radius: 0; box-shadow: none; outline: 0; }
 .ttin.y { width: 3em; } .ttin.m { width: 1.6em; }
+
+.cell.mgap { margin-top: 10px; }
+.ttl.off { opacity: .35; }
