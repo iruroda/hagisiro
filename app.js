@@ -1335,7 +1335,7 @@
       if (!c) return;
       setSel(c.dataset.d); setSub('day');
     });
-    frag.append(el('div', { class: 'mwrap' }, tbl));
+    frag.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, tbl)));
     const cnt = TYPES.map((t) => `${t} ${recs.filter((a) => a.type === t).length}`).join(' · ');
     const cc = CATS.map((c) => `${c} ${recs.filter((a) => a.cat === c).length}`).join(' · ');
     S.topSum = el('div', { class: 'msum', title: '날짜를 누르면 일별 보기로 이동' }, el('b', {}, `${S.m + 1}월`), ' ', cnt, el('span', { class: 'sep' }), cc);
@@ -1398,7 +1398,7 @@
       if (c) { setSel(c.dataset.d); setSub('day'); }
     });
     if (!students.length) wrap.append(el('div', { class: 'empty mut' }, '기록 없음'));
-    else wrap.append(el('div', { class: 'mwrap' }, tbl));
+    else wrap.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, tbl)));
 
     const cnt = TYPES.map((t) => [t, all.filter((a) => a.type === t).length]).filter((x) => x[1]).map((x) => `${x[0]} ${x[1]}`).join(' · ');
     S.topSum = el('div', { class: 'msum', title: '칸을 누르면 일별 보기로 이동 · ←→ 로 주 이동' }, cnt || '기록 없음');
@@ -1463,7 +1463,7 @@
       if (!list.length) addRow(s, null, true);
     });
 
-    wrap.append(el('div', { class: 'mwrap' }, el('table', { class: 'mt dt' }, el('thead', {}, head), tbody)));
+    wrap.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, el('table', { class: 'mt dt' }, el('thead', {}, head), tbody))));
     const cnt = recs.length
       ? TYPES.map((t) => `${t} ${recs.filter((a) => a.type === t).length}`).join(' · ')
       : '기록 없음';
