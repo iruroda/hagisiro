@@ -526,3 +526,5 @@ body.widget #main > .vnext :is(.cell, .wk, .att, .cv) > * { animation: vnext .14
 body.widget #main > .vprev :is(.cell, .wk, .att, .cv) > * { animation: vprev .14s ease-out; }
 
 #wmove .ic svg { width: 20px; height: 20px; }
+
+.mhead { min-height: 28px; } .mhead .msum { margin-left: 0; }

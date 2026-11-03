@@ -319,7 +319,8 @@
     animateMain(main);
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
       const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
-      if (nx) nx.after(S.topSum); else if (main.firstElementChild) main.firstElementChild.prepend(S.topSum);
+      const mh = $('#main .mhead');
+      if (nx) nx.after(S.topSum); else if (mh) mh.append(S.topSum); else if (main.firstElementChild) main.firstElementChild.prepend(S.topSum);
     }
     S.topSum = null;
     if (keep) {
@@ -1188,6 +1189,7 @@
   /* ---------- 월별: 한눈에 보는 표 ---------- */
   function monthView(cls) {
     const frag = el('div', { class: 'mv' });
+    frag.append(el('div', { class: 'dhead mhead' }));
     const recs = monthRecs(cls);
     const by = {};
     recs.forEach((a) => { (by[a.studentId + '|' + a.date] = by[a.studentId + '|' + a.date] || []).push(a); });
