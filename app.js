@@ -98,13 +98,13 @@
     guest: ls.get('hagisiro:guest') === '1', ready: false, clsLoaded: true,
     clsId: ls.get('hagisiro:cls'),
     editing: null, unsubs: [], unsubStatic: [],
-    anchor: ymd(now), ghol: {},
+    anchor: ymd(now), ghol: {}, meal: {},
   };
 
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '' },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -202,7 +202,7 @@
       S.unsubs.push(S.cloud.watch('att', rg, (d) => { S.att = d.map(normRec); render(); }, cloudErr));
       S.unsubs.push(S.cloud.watch('days', rg, (d) => { S.days = d; render(); }, cloudErr));
     }
-    loadGcal(); loadGhol();
+    loadGcal(); loadGhol(); loadMeal();
   }
   function watchStatic() {
     S.unsubStatic.forEach((f) => f()); S.unsubStatic = [];
@@ -449,13 +449,16 @@
           el('span', { class: 'dn' }, d.getDate() === 1 ? `${d.getMonth() + 1}.1` : d.getDate()),
           hn || tm || lu ? el('span', { class: 'sb', title: [hn, tm, lu].filter(Boolean).join(' · ') },
             hn ? el('i', { class: 'hn' }, hn) : null, tm ? el('i', { class: 'tm' }, tm) : null, lu ? el('i', { class: 'lu' }, lu) : null) : null,
-          attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att', title: '출결 보기' }, `출결 ${attBy[ds]}`) : null),
+          attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att', title: '출결 보기' }, `출결 ${attBy[ds]}`) : null,
+          PF.meal && S.meal[ds] ? el('button', { class: 'ab mb', 'data-act': 'meal', title: '급식' }, '급식') : null),
         el('div', { class: 'tl' }, gl.map(gev), list.map(todoRow)),
         el('div', { class: 'dots' }, list.slice(0, 5).map((t) => el('i', { class: t.done ? 'on' : '' })), gl.length ? el('i', { class: 'g' }) : null)));
     }
 
     grid.addEventListener('click', (e) => {
       if (skipClick) return;
+      const mb = e.target.closest('[data-act="meal"]');
+      if (mb) { openMeal(mb.closest('.cell').dataset.date); return; }
       const ab = e.target.closest('[data-act="att"]');
       if (ab) { setSel(ab.closest('.cell').dataset.date); S.sub = 'day'; ls.set('hagisiro:sub', 'day'); setView('att'); return; }
       const cell = e.target.closest('.cell');
@@ -866,7 +869,8 @@
     sh.append(el('div', { class: 'back', onclick: () => api && api.finish() }),
       el('div', { class: 'panel' },
         el('div', { class: 'shead' }, el('b', {}, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`), el('span', { class: 'grow' }), close),
-        g.length ? el('div', { class: 'sg' }, g) : null, body, foot));
+        g.length ? el('div', { class: 'sg' }, g) : null,
+        PF.meal && S.meal[ds] ? el('button', { class: 'ghost sm mealbtn', type: 'button', onclick: () => openMeal(ds) }, '급식 보기') : null, body, foot));
     api = openEditor(body, ds, () => { sh.hidden = true; sh.replaceChildren(); }, { barHost: foot });
   }
 
@@ -1580,6 +1584,7 @@
     function commit(after) {
       savePf();
       if (after === 'range') watchRange();
+      if (after === 'meal') loadMeal();
       if (after === 'ghol') {
         if (PF.ghol && S.cloud && !gtoken()) connectGcal(!gcalWanted()); else loadGhol();
       }
@@ -1598,6 +1603,11 @@
           tog('terms', '24절기 표시'),
           tog('hol', '공휴일 표시 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
           tog('ghol', 'Google 캘린더 공휴일 연동', S.cloud ? '임시공휴일 등을 Google에서 가져와요' : 'Google 로그인 후 사용할 수 있어요', 'ghol', !S.cloud),
+          el('div', { class: 'pfs' }, '급식'),
+          tog('meal', '급식 표시', PF.school ? PF.school.name : '학교를 먼저 골라 주세요', 'meal', !PF.school),
+          row('학교', el('button', { type: 'button', class: 'ghost sm', onclick: () => openSchool(draw) }, PF.school ? PF.school.name : '학교 찾기')),
+          row('인증키', el('input', { type: 'text', class: 'keyin', value: PF.neisKey || '', placeholder: '선택 · 없으면 일부만 보여요', 'aria-label': '인증키',
+            onchange: (e) => { PF.neisKey = e.target.value.trim(); S.meal = {}; savePf(); loadMeal(); } })),
           el('div', { class: 'pfs' }, '할 일'),
           tog('sortDone', '완료한 할 일은 맨 아래로'),
           el('div', { class: 'pfs' }, '화면'),
@@ -1773,6 +1783,81 @@
       });
       S.ghol = g; render();
     } catch (e) { console.error(e); }
+  }
+
+  /* ================= 급식 (NEIS 교육정보 개방 포털) ================= */
+  const NEIS = 'https://open.neis.go.kr/hub/';
+  const neis = async (api, q) => {
+    const p = new URLSearchParams({ Type: 'json', pIndex: '1', pSize: '100', ...q });
+    if (PF.neisKey) p.set('KEY', PF.neisKey);
+    const res = await fetch(NEIS + api + '?' + p);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    if (j.RESULT) { if (j.RESULT.CODE === 'INFO-200') return []; throw new Error(j.RESULT.MESSAGE || j.RESULT.CODE); }
+    const blk = j[api];
+    return blk && blk[1] ? blk[1].row : [];
+  };
+  const ymdN = (ds) => ds.replace(/-/g, '');
+  let mealWarned = false;
+  async function loadMeal() {
+    if (!PF.meal || !PF.school) { if (Object.keys(S.meal).length) { S.meal = {}; render(); } return; }
+    const r = range();
+    try {
+      const rows = await neis('mealServiceDietInfo', {
+        ATPT_OFCDC_SC_CODE: PF.school.edu, SD_SCHUL_CODE: PF.school.code,
+        MLSV_FROM_YMD: ymdN(r.from), MLSV_TO_YMD: ymdN(r.to),
+      });
+      const m = {};
+      rows.forEach((x) => {
+        const k = x.MLSV_YMD.replace(/^(\d{4})(\d\d)(\d\d)$/, '$1-$2-$3');
+        (m[k] = m[k] || []).push({ kind: x.MMEAL_SC_NM, menu: String(x.DDISH_NM || '').split(/<br\s*\/?>/i).map((t) => t.trim()).filter(Boolean), cal: x.CAL_INFO || '' });
+      });
+      S.meal = m; render();
+    } catch (e) {
+      console.error(e);
+      if (!mealWarned) { mealWarned = true; toast('급식 정보를 불러오지 못했어요'); }
+    }
+  }
+  const allergyStrip = (t) => t.replace(/\s*\(?[\d.]+\)?\s*$/, '').replace(/\(\s*[\d.\s]+\)/g, '');
+  function openMeal(ds) {
+    const m = $('#modal');
+    m.hidden = false;
+    const close = () => { m.hidden = true; m.replaceChildren(); };
+    const d = parseYmd(ds);
+    const list = S.meal[ds] || [];
+    m.replaceChildren(el('div', { class: 'back', onclick: close }),
+      el('div', { class: 'dlg' },
+        el('div', { class: 'shead' }, el('b', {}, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        list.length ? el('div', { class: 'meals' }, list.map((x) => el('div', { class: 'meal' },
+          el('b', {}, x.kind, x.cal ? el('small', {}, ' ' + x.cal) : null),
+          el('ul', {}, x.menu.map((t) => el('li', {}, allergyStrip(t))))))) : el('div', { class: 'mut' }, '급식이 없어요')));
+  }
+  function openSchool(done) {
+    const m = $('#modal');
+    m.hidden = false;
+    const close = () => { m.hidden = true; m.replaceChildren(); if (done) openPrefs(); };
+    const res = el('div', { class: 'schres' });
+    const inp = el('input', { type: 'search', placeholder: '학교 이름', 'aria-label': '학교 이름' });
+    let busy = false;
+    const go = async () => {
+      const q = inp.value.trim();
+      if (!q || busy) return;
+      busy = true; res.replaceChildren(el('div', { class: 'mut' }, '불러오는 중…'));
+      try {
+        const rows = await neis('schoolInfo', { SCHUL_NM: q });
+        res.replaceChildren(...(rows.length ? rows.map((x) => el('button', { type: 'button', class: 'schrow', onclick: () => {
+          PF.school = { name: x.SCHUL_NM, edu: x.ATPT_OFCDC_SC_CODE, code: x.SD_SCHUL_CODE }; PF.meal = true; S.meal = {};
+          savePf(); loadMeal(); close();
+        } }, el('b', {}, x.SCHUL_NM), el('small', {}, ' ' + (x.ORG_RDNMA || x.LCTN_SC_NM || '')))) : [el('div', { class: 'mut' }, '찾는 학교가 없어요')]));
+      } catch (e) { res.replaceChildren(el('div', { class: 'mut' }, '학교를 불러오지 못했어요')); }
+      busy = false;
+    };
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+    m.replaceChildren(el('div', { class: 'back', onclick: close }),
+      el('div', { class: 'dlg' },
+        el('div', { class: 'shead' }, el('b', {}, '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'schq' }, inp, el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res));
+    setTimeout(() => inp.focus(), 30);
   }
 
   /* ================= 토스트 / 키보드 ================= */

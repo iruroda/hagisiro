@@ -384,3 +384,17 @@ body.widget #top .right { margin-left: auto; flex: none; }
 .seg button, .tab, .ghost, .ib, .pri, .mi, .dowb, .ab { transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s; }
 .cell { transition: background-color .12s; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* 급식 */
+.ab.mb { margin-left: 3px; }
+.mealbtn { align-self: flex-start; margin: 0 12px; }
+.meals { display: flex; flex-direction: column; gap: 10px; overflow: auto; }
+.meal ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+.meal small { color: var(--mut); font-weight: 400; }
+.schq { display: flex; gap: 6px; }
+.schq input { flex: 1; min-width: 0; }
+.schres { display: flex; flex-direction: column; gap: 4px; overflow: auto; max-height: 50vh; }
+.schrow { text-align: left; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--text); }
+.schrow:hover { border-color: var(--accent); }
+.schrow small { color: var(--mut); }
+.keyin { width: 100%; min-width: 0; }
