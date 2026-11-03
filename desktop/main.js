@@ -22,7 +22,7 @@ function bounds() {
 }
 
 /* 이동·크기 변경: 화면(작업 영역) 가장자리에 자석처럼 붙임 */
-const SNAP = 16, MINW = 300, MINH = 320;
+const SNAP = 16, MINH = 320; let MINW = 300;
 function snapAxis(v, targets) { let best = null; for (const t of targets) { const d = t - v; if (Math.abs(d) <= SNAP && (best === null || Math.abs(d) < Math.abs(best))) best = d; } return best; }
 function snapBounds(b, mode) {
   const was = screen.getAllDisplays().map((d) => d.workArea);
@@ -46,6 +46,7 @@ ipcMain.handle('wb-get', () => (win ? win.getBounds() : null));
 ipcMain.on('wb-set', (e, b, mode) => { if (win && b) win.setBounds(snapBounds(b, mode)); });
 ipcMain.handle('as-get', () => app.getLoginItemSettings().openAtLogin);
 ipcMain.handle('as-set', (e, v) => { app.setLoginItemSettings({ openAtLogin: !!v }); return app.getLoginItemSettings().openAtLogin; });
+ipcMain.on('min-w', (e, w) => { MINW = Math.max(240, Math.min(900, Math.round(+w) || 300)); if (win) { win.setMinimumSize(MINW, MINH); const b = win.getBounds(); if (b.width < MINW) win.setBounds({ ...b, width: MINW }); } });
 ipcMain.on('quit', () => app.quit());
 ipcMain.on('wb-done', () => { if (win) { st.bounds = win.getBounds(); save(); } });
 

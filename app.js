@@ -60,6 +60,7 @@
     slash: '<path d="M8 19.5l8-15"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
     refresh: '<path d="M19.2 12a7.2 7.2 0 11-2.3-5.3"/><path d="M19.5 4.8v4.2h-4.2"/>',
+    menu: '<path d="M4.5 7h15M4.5 12h15M4.5 17h15"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
     tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
   };
@@ -343,14 +344,56 @@
     const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
     const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloudAvail ? tab('consult', '상담') : null);
     const right = el('div', { class: 'right' });
-    right.append(el('button', { class: 'ib', id: 'syncBtn', title: '새로고침', 'aria-label': '새로고침', onclick: forceSync }, icon('refresh')));
-    DOCS.forEach(([id, label, ic]) => right.append(el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label))));
-    if (S.view === 'cal') right.append(el('div', { class: 'seg', role: 'group', 'aria-label': '보기 방식' },
-      el('button', { class: PF.cal === 'month' ? 'on' : '', onclick: () => setCalMode('month') }, '월별'),
-      el('button', { class: PF.cal === 'week' ? 'on' : '', onclick: () => setCalMode('week') }, '이번 주')));
-    if ((gcalWanted() || (PF.ghol && S.cloud)) && !gtoken()) right.append(el('button', { class: 'ghost sm', onclick: () => connectGcal(!gcalWanted()) }, 'Google 다시 연결'));
-    right.append(el('button', { class: 'ib', id: 'menuBtn', onclick: (e) => { e.stopPropagation(); openMenu(); }, 'aria-label': '메뉴', title: '메뉴' }, icon('more')));
+    // 오른쪽 도구들: 좁아지면 뒤에서부터 ⋯ 팝업으로 들어가요
+    const gc = (gcalWanted() || (PF.ghol && S.cloud)) && !gtoken();
+    const tools = [
+      { k: 'sync', label: '새로고침', run: forceSync, node: () => el('button', { class: 'ib', id: 'syncBtn', title: '새로고침', 'aria-label': '새로고침', onclick: forceSync }, icon('refresh')) },
+      ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, run: () => openDoc(id),
+        node: () => el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label)) })),
+      S.view === 'cal' ? { k: 'seg', menu: [['월별', PF.cal === 'month', () => setCalMode('month')], ['이번 주', PF.cal === 'week', () => setCalMode('week')]],
+        node: () => el('div', { class: 'seg', role: 'group', 'aria-label': '보기 방식' },
+          el('button', { class: PF.cal === 'month' ? 'on' : '', onclick: () => setCalMode('month') }, '월별'),
+          el('button', { class: PF.cal === 'week' ? 'on' : '', onclick: () => setCalMode('week') }, '이번 주')) } : null,
+      gc ? { k: 'gc', label: 'Google 다시 연결', run: () => connectGcal(!gcalWanted()), node: () => el('button', { class: 'ghost sm', onclick: () => connectGcal(!gcalWanted()) }, 'Google 다시 연결') } : null,
+    ].filter(Boolean);
+    S.tools = tools;
+    tools.forEach((x) => { const n = x.node(); n.dataset.ov = x.k; right.append(n); });
+    right.append(el('button', { class: 'ib', id: 'ovBtn', hidden: true, onclick: (e) => { e.stopPropagation(); openOverflow(); }, 'aria-label': '더 보기', title: '더 보기' }, icon('more')));
+    right.append(el('button', { class: 'ib', id: 'menuBtn', onclick: (e) => { e.stopPropagation(); openMenu(); }, 'aria-label': '메뉴', title: '메뉴' }, icon('menu')));
     t.append(nav, tabs, right);
+    fitTop();
+  }
+
+  /* 상단바가 좁아지면 오른쪽 도구를 뒤에서부터 숨기고 ⋯ 버튼으로 보여줘요 */
+  function fitTop() {
+    const t = $('#top');
+    if (!t || t.hidden) return;
+    const items = [...t.querySelectorAll('.right [data-ov]')], more = $('#ovBtn');
+    if (!more) return;
+    items.forEach((i) => { i.hidden = false; }); more.hidden = true;
+    const over = () => t.scrollWidth > t.clientWidth + 1;
+    let n = 0;
+    if (over()) { more.hidden = false; while (over() && n < items.length) { items[items.length - 1 - n].hidden = true; n++; } }
+    S.hiddenTools = items.filter((i) => i.hidden).map((i) => i.dataset.ov);
+    // 줄일 수 있는 가장 좁은 너비: 이동 아이콘 + 날짜 이동 + 탭 + ⋯ + 메뉴
+    const api = window.hagisiroWidget;
+    if (api && api.setMinWidth) {
+      const cs = getComputedStyle(t), nav = t.querySelector('.nav'), tabs = t.querySelector('.tabs'), r = t.querySelector('.right');
+      const g = parseFloat(cs.columnGap) || 6, rg = parseFloat(getComputedStyle(r).columnGap) || 4;
+      const need = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + nav.offsetWidth + tabs.offsetWidth + 2 * g + 2 * 28 + rg + 8;
+      const w = Math.ceil(need + (IS_WIDGET ? 6 : 0));
+      if (S.minW !== w) { S.minW = w; api.setMinWidth(w); }
+    }
+  }
+  function openOverflow() {
+    if ($('#menu')) { closeMenu(); return; }
+    const m = el('div', { class: 'menu', id: 'menu' });
+    const item = (label, fn, on) => el('button', { class: 'mi' + (on ? ' on' : ''), onclick: () => { closeMenu(); fn(); } }, label);
+    (S.tools || []).filter((x) => (S.hiddenTools || []).includes(x.k)).forEach((x) => {
+      if (x.menu) x.menu.forEach(([l, on, fn]) => m.append(item(l, fn, on))); else m.append(item(x.label, x.run));
+    });
+    $('#app').append(m);
+    setTimeout(() => document.addEventListener('click', onDocClick), 0);
   }
 
   function setView(v) { S.view = v; ls.set('hagisiro:view', v); if (PF.cal === 'week') watchRange(); render(); }
@@ -2072,5 +2115,6 @@
 
   window.__haru = { S, Data, render, toast, lastOf }; // 디버깅용
   initWidgetEdit();
+  { const tp = $('#top'); if (tp && window.ResizeObserver) new ResizeObserver(() => fitTop()).observe(tp); }
   boot();
 })();
