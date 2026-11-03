@@ -314,9 +314,9 @@
     if (needLogin()) main.append(loginView());
     else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
     animateMain(main);
-    if (S.topSum && S.view === 'att') { // 통계는 '오늘' 버튼 바로 오른쪽 (월별=상단바, 일별·주별=날짜 줄)
-      const btn = S.sub === 'month' ? $('#top .nav .ghost') : $('#main .dhead .tdbtn');
-      if (btn) btn.after(S.topSum);
+    if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
+      const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
+      if (nx) nx.after(S.topSum); else if (main.firstElementChild) main.firstElementChild.prepend(S.topSum);
     }
     S.topSum = null;
     if (keep) {
@@ -331,12 +331,13 @@
     closeMenu();
     if (needLogin()) { t.hidden = true; return; }
     t.hidden = false;
-    const ib = (name, fn, label) => el('button', { class: 'ib', onclick: fn, 'aria-label': label, title: label }, icon(name));
+    const cv = S.view === 'consult';
+    const ib = (name, fn, label) => el('button', { class: 'ib', onclick: fn, 'aria-label': label, title: label, disabled: cv }, icon(name));
     const nav = el('div', { class: 'nav' },
       ib('left', () => go(-1), weekMode() ? '이전 주' : '이전 달'),
-      el('span', { class: 'ttl' }, weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
+      el('span', { class: 'ttl' }, cv ? '상담' : weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
       ib('right', () => go(1), weekMode() ? '다음 주' : '다음 달'),
-      S.view === 'att' && S.sub !== 'month' ? null : el('button', { class: 'ghost sm', onclick: goToday }, '오늘'));
+      el('button', { class: 'ghost sm', disabled: cv, onclick: goToday }, '오늘'));
     const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
     const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloudAvail ? tab('consult', '상담') : null);
     const right = el('div', { class: 'right' });
@@ -346,7 +347,6 @@
       el('button', { class: PF.cal === 'week' ? 'on' : '', onclick: () => setCalMode('week') }, '이번 주')));
     if ((gcalWanted() || (PF.ghol && S.cloud)) && !gtoken()) right.append(el('button', { class: 'ghost sm', onclick: () => connectGcal(!gcalWanted()) }, 'Google 다시 연결'));
     right.append(el('button', { class: 'ib', id: 'menuBtn', onclick: (e) => { e.stopPropagation(); openMenu(); }, 'aria-label': '메뉴', title: '메뉴' }, icon('more')));
-    if (S.view === 'consult') nav.replaceChildren();
     t.append(nav, tabs, right);
   }
 
@@ -1173,7 +1173,6 @@
       el('button', { class: 'ib', 'aria-label': '이전 주', onclick: () => shiftW(-1) }, icon('left')),
       el('b', { class: 'dttl wttl' }, `${mon.getMonth() + 1}월 ${mon.getDate()}일 ~ ${fri.getMonth() + 1}월 ${fri.getDate()}일`),
       el('button', { class: 'ib', 'aria-label': '다음 주', onclick: () => shiftW(1) }, icon('right')),
-      el('button', { class: 'ghost sm tdbtn', onclick: () => { setSel(ymd(new Date())); render(); } }, '이번 주'),
       el('span', { class: 'grow' }),
       el('button', { class: 'ghost sm', onclick: () => { S.weekAll = !S.weekAll; ls.set('hagisiro:weekall', S.weekAll ? '1' : ''); render(); } }, S.weekAll ? '기록 있는 학생만' : '전체 학생')));
 
@@ -1238,7 +1237,6 @@
       el('button', { class: 'ib', 'aria-label': '이전 날', onclick: () => shift(-1) }, icon('left')),
       el('b', { class: 'dttl' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
-      el('button', { class: 'ghost sm tdbtn', onclick: () => { const n = new Date(); setSel(ymd(n)); render(); } }, '오늘'),
       el('span', { class: 'grow' }),
       el('span', { class: 'mut small' }, ovr ? `기본 ${def ? def + '교시' : '수업 없음'} → 이 날만` : '이 날 교시 수'),
       cntSel,

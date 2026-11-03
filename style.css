@@ -448,3 +448,5 @@ body.widget #top .right { margin-left: auto; flex: none; }
 .cvh { display: flex; align-items: center; gap: 6px; font-size: 16px; }
 .cvm { margin: auto; }
 .cv .cgrid { max-height: none; }
+
+#top button:disabled { opacity: .35; cursor: default; pointer-events: none; }
