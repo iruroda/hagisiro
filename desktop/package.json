@@ -1,0 +1,17 @@
+{
+  "name": "hagisiro-widget",
+  "version": "1.0.0",
+  "description": "HAGISIRO 바탕화면 위젯",
+  "main": "main.js",
+  "author": "iruroda",
+  "license": "MIT",
+  "scripts": { "start": "electron .", "dist": "electron-builder --win portable --publish never" },
+  "devDependencies": { "electron": "33.2.1", "electron-builder": "25.1.8" },
+  "build": {
+    "appId": "com.iruroda.hagisiro",
+    "productName": "HAGISIRO",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "package.json", "build/icon.png"],
+    "win": { "target": "portable", "icon": "build/icon.png", "artifactName": "HAGISIRO.exe" }
+  }
+}
