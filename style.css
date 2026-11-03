@@ -454,7 +454,7 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 #top .seg button.on { background: none; box-shadow: none; color: var(--accent); }
 
 /* 상담 탭 화면 */
-.cv { height: 100%; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; max-width: 620px; margin: 0 auto; width: 100%; }
+.cv { height: 100%; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .cvh { display: flex; align-items: center; gap: 6px; font-size: 16px; }
 .cvm { margin: auto; }
 .cv .cgrid { max-height: none; }
@@ -557,3 +557,17 @@ body { font-variant-numeric: tabular-nums; }
 
 .cell.mgap { margin-top: 10px; }
 .ttl.off { opacity: .35; }
+
+/* 상담표 만들기 */
+.cnew { align-self: stretch; justify-content: center; padding: 10px 14px; display: inline-flex; gap: 6px; align-items: center; }
+.cdc { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-lg); }
+.cdc .cday { margin: 0; }
+.cchips { display: flex; flex-wrap: wrap; gap: 4px; }
+.cchip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: var(--r-pill); background: var(--sel); color: var(--accent); font-size: var(--fs-4); font-weight: 600; }
+.cchip .ic svg { width: 11px; height: 11px; }
+.cchip.off { background: var(--bg2); color: var(--mut); text-decoration: line-through; font-weight: 500; }
+.cchip.bk { background: var(--accent); color: #fff; opacity: 1; text-decoration: none; }
+.cchip small { font-size: 11px; opacity: .9; }
+.cregen { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.cform .crow2 input[type=time], .cform .crow2 input[type=date] { width: auto; }
+.pri.sm { padding: 3px 10px; font-size: var(--fs-4); }
