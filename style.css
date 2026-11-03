@@ -403,7 +403,8 @@ body.widget #top .right { margin-left: auto; flex: none; }
 #toast.opening { animation: pop .16s ease-out; }
 .seg button, .tab, .ghost, .ib, .pri, .mi, .dowb, .ab { transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s; }
 .cell { transition: background-color .12s; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* 애니메이션은 기본으로 켜져 있고, 화면 설정에서 끌 수 있어요 (윈도우의 '애니메이션 효과' 설정과 무관) */
+html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !important; transition: none !important; }
 
 /* 급식 */
 .ab.mb { margin-left: 3px; }

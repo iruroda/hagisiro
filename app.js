@@ -107,7 +107,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '' },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -121,6 +121,7 @@
     const h = document.documentElement;
     if (PF.theme === 'auto') h.removeAttribute('data-theme'); else h.setAttribute('data-theme', PF.theme);
     h.style.setProperty('--wa', PF.opacity + '%');
+    h.classList.toggle('noanim', PF.anim === false);
   }
   function savePf() { applyPf(); ls.set(PFK, JSON.stringify(PF)); }
   applyPf();
@@ -1642,6 +1643,7 @@
           tog('sortDone', '완료한 할 일은 맨 아래로'),
           el('div', { class: 'pfs' }, '화면'),
           row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
+          tog('anim', '화면 전환 애니메이션'),
           row('위젯 투명도', el('input', {
             type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '위젯 투명도',
             oninput: (e) => { PF.opacity = +e.target.value; savePf(); const o = m.querySelector('.opv'); if (o) o.textContent = PF.opacity + '%'; },
