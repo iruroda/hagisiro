@@ -84,10 +84,12 @@ function create() {
   win.loadURL(URL);
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/accounts\.google\.com|firebaseapp\.com|google\.com\/o\/oauth/.test(url)) {
-      return { action: 'allow', overrideBrowserWindowOptions: { width: 480, height: 640, frame: true, transparent: false, autoHideMenuBar: true, parent: win, modal: false } };
+      return { action: 'allow', overrideBrowserWindowOptions: { width: 480, height: 640, frame: true, transparent: false, backgroundColor: '#ffffff', hasShadow: true, roundedCorners: true, thickFrame: true, resizable: true, skipTaskbar: false, alwaysOnTop: false, autoHideMenuBar: true, parent: win, modal: false } };
     }
     shell.openExternal(url); return { action: 'deny' };
   });
+  // 로그인 팝업에도 같은 UA 적용(안 하면 구글이 다른 화면을 내려줘 깨져 보임)
+  win.webContents.on('did-create-window', (child) => { child.webContents.setUserAgent(UA); child.setMenuBarVisibility(false); });
   // 위젯 위에서 오른쪽 버튼 → 트레이와 같은 메뉴 (입력칸에서는 기본 메뉴)
   win.webContents.on('context-menu', (e, params) => { if (!params.isEditable) menu().popup({ window: win }); });
   win.on('moved', () => { st.bounds = win.getBounds(); save(); });
