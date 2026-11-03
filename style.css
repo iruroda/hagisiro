@@ -368,3 +368,19 @@ body.widget .ttl { font-size: 14px; }
 body.widget .tab { padding: 3px 6px; font-size: 12px; }
 body.widget .dbtn { padding: 3px 6px; }
 body.widget #top .right { margin-left: auto; flex: none; }
+
+/* 전환 애니메이션 (짧고 가볍게: 투명도·위치만 바꿔서 GPU가 처리) */
+@keyframes vin { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes vnext { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+@keyframes vprev { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.vin { animation: vin .14s ease-out; }
+.vnext { animation: vnext .14s ease-out; }
+.vprev { animation: vprev .14s ease-out; }
+#modal.opening .back { animation: fadein .14s ease-out; }
+#modal.opening .dlg, #sheet.opening > *, .menu { animation: pop .14s ease-out; }
+#toast.opening { animation: pop .16s ease-out; }
+.seg button, .tab, .ghost, .ib, .pri, .mi, .dowb, .ab { transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s; }
+.cell { transition: background-color .12s; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

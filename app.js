@@ -264,6 +264,36 @@
   }
   const needLogin = () => S.ready && S.cloudAvail && !S.user && !S.guest;
 
+  /* ================= 전환 애니메이션 =================
+   * 화면 종류(캘린더/출결, 일·주·월, 월별/이번 주)가 바뀌면 살짝 페이드, 같은 화면에서 달·주·날을 넘기면 방향대로 밀려 들어와요.
+   * 데이터가 들어와서 다시 그릴 땐 움직이지 않아요. (시스템의 '애니메이션 줄이기' 설정을 따라가요) */
+  const dayNum = (ds) => Math.floor(parseYmd(ds).getTime() / 864e5);
+  const viewKey = () => `${S.view}|${S.view === 'att' ? S.sub : PF.cal}`;
+  function scopeNum() {
+    if (S.view === 'cal') return PF.cal === 'week' ? dayNum(S.anchor) : S.y * 12 + S.m;
+    if (S.sub === 'month') return S.y * 12 + S.m;
+    if (S.sub === 'week') return dayNum(S.sel) - parseYmd(S.sel).getDay();
+    return dayNum(S.sel);
+  }
+  function animateMain(main) {
+    const k = viewKey(), sc = scopeNum();
+    const c = main.firstElementChild;
+    if (S.lastKey != null && c && !needLogin()) {
+      if (k !== S.lastKey) c.classList.add('vin');
+      else if (sc !== S.lastSc) c.classList.add(sc > S.lastSc ? 'vnext' : 'vprev');
+    }
+    S.lastKey = k; S.lastSc = sc;
+  }
+  /* 팝업·메뉴·알림이 나타날 때만 효과를 줘요 (안의 내용만 다시 그릴 땐 그대로) */
+  ['modal', 'toast', 'sheet'].forEach((id) => {
+    const n = document.getElementById(id);
+    if (!n) return;
+    new MutationObserver(() => {
+      if (n.hidden) return;
+      n.classList.remove('opening'); void n.offsetWidth; n.classList.add('opening');
+    }).observe(n, { attributes: true, attributeFilter: ['hidden'] });
+  });
+
   /* ================= 렌더 ================= */
   function render() {
     if (S.editing) return; // 편집 중엔 화면을 갈아엎지 않음 (끝나면 다시 그림)
@@ -278,6 +308,7 @@
     main.replaceChildren();
     if (needLogin()) main.append(loginView());
     else main.append(S.view === 'att' ? attView() : calView());
+    animateMain(main);
     if (S.topSum && S.view === 'att') { // 통계는 '오늘' 버튼 바로 오른쪽 (월별=상단바, 일별·주별=날짜 줄)
       const btn = S.sub === 'month' ? $('#top .nav .ghost') : $('#main .dhead .tdbtn');
       if (btn) btn.after(S.topSum);
