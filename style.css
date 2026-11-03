@@ -523,9 +523,9 @@ input[type=text]:focus, input[type=number]:focus, input[type=date]:focus, input[
 /* 위젯: 화면 전환 때 창·칸 배경은 그대로 두고 글자·아이콘만 슬며시 나타나요 (배경화면이 비치지 않게) */
 @keyframes tin { from { color: transparent; } }
 @keyframes tinup { from { color: transparent; transform: translateY(4px); } }
-body.widget #main > .vin, body.widget #main > .vnext, body.widget #main > .vprev { animation: none; }
-body.widget #main > .vin *, body.widget #main > .vnext *, body.widget #main > .vprev * { animation: tin .32s ease-out; }
-body.widget #main > .vnext :is(.dttl, .msum, .cvh b), body.widget #main > .vprev :is(.dttl, .msum, .cvh b) { animation: tinup .32s ease-out; }
+body.widget .vin, body.widget .vnext, body.widget .vprev { animation: none; }
+body.widget .vin *, body.widget .vnext *, body.widget .vprev * { animation: tin .32s ease-out; }
+body.widget .vnext :is(.dttl, .msum, .cvh b), body.widget .vprev :is(.dttl, .msum, .cvh b) { animation: tinup .32s ease-out; }
 
 /* 모든 곳의 작은 움직임 */
 button:not(:disabled):active, .tab:active, .ib:active, .ghost:active { transform: scale(.93); }

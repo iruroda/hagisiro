@@ -287,8 +287,10 @@
     const k = viewKey(), sc = scopeNum();
     const c = main.firstElementChild;
     if (S.lastKey != null && c && !needLogin()) {
-      if (k !== S.lastKey) c.classList.add('vin');
-      else if (sc !== S.lastSc) c.classList.add(sc > S.lastSc ? 'vnext' : 'vprev');
+      // 출결 안에서 일·주·월을 바꾸거나 날짜를 넘길 땐 학급 버튼·입력칸은 그대로 두고 아래 표만 움직여요
+      const t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
+      if (k !== S.lastKey) t.classList.add('vin');
+      else if (sc !== S.lastSc) t.classList.add(sc > S.lastSc ? 'vnext' : 'vprev');
     }
     S.lastKey = k; S.lastSc = sc;
   }
