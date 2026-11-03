@@ -247,7 +247,11 @@ body.wedit #wmove { background: var(--accent); color: #fff; }
 .dt tr.has td.c1, .dt tr.has td.c2 { font-weight: 600; }
 
 /* ===== 설정 모달 ===== */
-.pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 10px; }
+.pgrid { display: flex; flex-direction: column; gap: 6px; }
+.pgrid .pc { flex-direction: row; align-items: center; justify-content: space-between; font-size: var(--fs-3); color: var(--text); }
+.pgrid .pc.we span { color: var(--sun); }
+.pgrid .pc:nth-child(6) span { color: var(--sat); }
+.pgrid .pc select { width: 128px; }
 .pc { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--mut); }
 .pc.we span { color: var(--sun); }
 .pc select { width: 100%; }
