@@ -89,7 +89,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .pfdlg select { font-family: var(--font); font-size: 13px; padding: 3px 6px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
 .ab { font-size: 10px; color: var(--mut); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; line-height: 14px; }
 .ab:hover { color: var(--accent); border-color: var(--accent); }
-.tl { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.tl { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 .td { display: flex; gap: 5px; align-items: flex-start; font-size: 12px; line-height: 1.4; padding: 1px 0; }
 .tt { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; color: var(--tfg, inherit); background: var(--tbg, transparent); border-radius: 3px; padding: 0 3px; margin: 0 -3px; }
 .td.done .tt { text-decoration: line-through; opacity: .55; }
@@ -458,3 +458,14 @@ body.widget #top .right { margin-left: auto; flex: none; }
 .dt .slc.tg:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
 #syncBtn.spin .ic svg { animation: spin .6s ease; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* 얇고 둥근 미니멀 스크롤바 (기본 모양 대신) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--mut) 42%, transparent); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; min-height: 28px; transition: background-color .15s; }
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--mut) 75%, transparent); background-clip: padding-box; }
+::-webkit-scrollbar-button { display: none; }
+.cell, .cell .tl, .cell .td { min-width: 0; }
+.cell { overflow-x: hidden; }
+/* 이동·크기 변경 중에는 글자 선택·끌기(금지 표시) 막기 */
+body.wedit, body.wedit * { user-select: none !important; -webkit-user-drag: none; }

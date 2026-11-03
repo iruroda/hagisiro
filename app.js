@@ -1990,7 +1990,10 @@
       document.body.classList.add('wedit');
       layer = el('div', { id: 'wedit' }, ['n', 's', 'w', 'e', 'nw', 'ne', 'sw', 'se'].map((e) => el('i', { 'data-e': e })));
       let drag = null;
+      ['dragstart', 'selectstart', 'contextmenu'].forEach((t) => layer.addEventListener(t, (ev) => ev.preventDefault()));
       layer.addEventListener('pointerdown', async (ev) => {
+        ev.preventDefault();
+        window.getSelection && window.getSelection().removeAllRanges();
         if (!api) return;
         const mode = ev.target.dataset.e || 'move';
         layer.setPointerCapture(ev.pointerId);
