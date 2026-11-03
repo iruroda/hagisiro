@@ -769,7 +769,7 @@
     host.replaceChildren(box);
     const cell = host.closest('.cell');
     if (cell) cell.classList.add('editing');
-    let closed = false, selDrag = null, bar = null;
+    let closed = false, selDrag = null, bar = null, rowDrag = null;
     const rows = () => [...box.children].filter((c) => c.classList.contains('td'));
     const focusEnd = (row) => { const i = row.querySelector('input'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); };
     const paint = (row) => {
@@ -784,13 +784,29 @@
       if (!rs.length) { const f = rows().find((r) => r.contains(document.activeElement)); if (f) rs = [f]; }
       return rs.filter((r) => r._it.text.trim()).map((r) => ({ id: r._it.id, get: () => r._it, set: (p) => { Object.assign(r._it, p); paint(r); } }));
     };
+    // 글자 칸에서 끌어서 줄을 넘어가면, 글자 선택 대신 지나간 줄 전체를 선택
+    const rowAt = (y) => {
+      const rs = rows();
+      return rs.find((r) => { const b = r.getBoundingClientRect(); return y >= b.top && y <= b.bottom; }) || (y < rs[0].getBoundingClientRect().top ? rs[0] : rs[rs.length - 1]);
+    };
     const onMove = (e) => {
+      if (rowDrag && !selDrag) {
+        const cur = rowAt(e.clientY);
+        if (cur !== rowDrag.row) rowDrag.on = true;
+        if (rowDrag.on) {
+          box.classList.add('rowsel');
+          if (window.getSelection) window.getSelection().removeAllRanges();
+          const rs = rows(), a = rs.indexOf(rowDrag.row), b = rs.indexOf(cur), lo = Math.min(a, b), hi = Math.max(a, b);
+          rs.forEach((r, i) => r.classList.toggle('picked', i >= lo && i <= hi));
+        }
+        return;
+      }
       if (!selDrag) return;
       const t = document.elementFromPoint(e.clientX, e.clientY);
       const r = t && t.closest && t.closest('.td');
       if (r && box.contains(r) && r.classList.contains('picked') !== selDrag.state) r.classList.toggle('picked', selDrag.state);
     };
-    const onUp = () => { selDrag = null; };
+    const onUp = () => { selDrag = null; if (rowDrag) { rowDrag = null; box.classList.remove('rowsel'); } };
     document.addEventListener('pointermove', onMove);
     document.addEventListener('pointerup', onUp);
 
@@ -821,7 +837,7 @@
         row.classList.toggle('picked', state);
         selDrag = { state };
       });
-      inp.addEventListener('mousedown', clearPicks);
+      inp.addEventListener('mousedown', (e) => { clearPicks(); if (e.button === 0) rowDrag = { row, on: false }; });
       inp.addEventListener('input', () => { it.text = inp.value; });
       onEnter(inp, () => {
         if (inp.value.trim() === '' && row === rows().at(-1)) { finish(); return; }

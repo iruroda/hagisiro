@@ -470,3 +470,8 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 .cell { overflow-x: hidden; }
 /* 이동·크기 변경 중에는 글자 선택·끌기(금지 표시) 막기 */
 body.wedit, body.wedit * { user-select: none !important; -webkit-user-drag: none; }
+
+/* 글자 드래그는 입력칸 안에서만. 그 밖은 선택되지 않게 */
+body { -webkit-user-select: none; user-select: none; }
+input, textarea, .docdlg, .docdlg * { -webkit-user-select: text; user-select: text; }
+.rowsel input { user-select: none; cursor: default; }
