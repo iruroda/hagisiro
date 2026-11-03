@@ -50,6 +50,7 @@
     table: '<rect x="4" y="5" width="16" height="14" rx="3.2"/><path d="M4 10.5h16M10 10.5V19"/>',
     upload: '<path d="M12 14.5v-10M7.5 8.5l4.5-4.5 4.5 4.5M5.5 19.5h13"/>',
     edit: '<path d="M5.5 18.5l.9-3.6L15 6.3a2 2 0 012.8 2.8l-8.6 8.6-3.7.8z"/>',
+    scan: '<path d="M5 8.5V6.5a1.5 1.5 0 011.5-1.5h2M15.5 5h2A1.5 1.5 0 0119 6.5v2M19 15.5v2a1.5 1.5 0 01-1.5 1.5h-2M8.5 19h-2A1.5 1.5 0 015 17.5v-2M5 12h14"/>',
     trash: '<path d="M5 7h14M10 7V5h4v2M7 7l.9 11.5a1 1 0 001 .9h6.2a1 1 0 001-.9L17 7"/>',
     clock: '<circle cx="12" cy="12" r="8.2"/><path d="M12 7.6V12l3.2 2"/>',
     enter: '<path d="M19.5 5.5v7a3 3 0 01-3 3H5.5"/><path d="M10 10.5l-4.5 5 4.5 5"/>',
@@ -1403,6 +1404,56 @@
     }
     throw new Error('엑셀(.xlsx/.xls/.csv)이나 이미지 파일만 올릴 수 있어요');
   }
+  /* 이미지 → 글자(OCR). 브라우저 안에서 Tesseract.js 로 읽고, 글자 위치로 행·열을 만들어요 */
+  let ocrLib = null;
+  function loadTesseract() {
+    if (window.Tesseract) return Promise.resolve(window.Tesseract);
+    if (!ocrLib) ocrLib = new Promise((res, rej) => {
+      document.head.append(el('script', { src: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
+        onload: () => res(window.Tesseract), onerror: () => { ocrLib = null; rej(new Error('글자 인식 도구를 불러오지 못했어요')); } }));
+    });
+    return ocrLib;
+  }
+  function wordsToTsv(words) {
+    const ws = words.filter((w) => w.text.trim() && w.confidence > 25).map((w) => ({
+      t: w.text.trim(), x0: w.bbox.x0, x1: w.bbox.x1, y: (w.bbox.y0 + w.bbox.y1) / 2, h: w.bbox.y1 - w.bbox.y0 }));
+    if (!ws.length) return '';
+    const hs = ws.map((w) => w.h).sort((a, b) => a - b); const mh = hs[hs.length >> 1] || 20;
+    ws.sort((a, b) => a.y - b.y);
+    const rows = [];
+    ws.forEach((w) => {
+      const r = rows[rows.length - 1];
+      if (r && Math.abs(w.y - r.y) < mh * 0.6) { r.w.push(w); r.y = (r.y * (r.w.length - 1) + w.y) / r.w.length; } else rows.push({ y: w.y, w: [w] });
+    });
+    return rows.map((r) => {
+      r.w.sort((a, b) => a.x0 - b.x0);
+      const cells = []; let cur = null, last = 0;
+      r.w.forEach((w) => { if (cur !== null && w.x0 - last < mh * 0.9) cur += ' ' + w.t; else { if (cur !== null) cells.push(cur); cur = w.t; } last = w.x1; });
+      cells.push(cur);
+      return cells.join('\t');
+    }).join('\n');
+  }
+  function upscale(src) { // 작은 글씨는 키워서 흑백으로 읽으면 훨씬 잘 읽혀요
+    return new Promise((res, rej) => {
+      const im = new Image();
+      im.onload = () => {
+        const k = Math.max(1, Math.min(2.5, 2400 / im.width));
+        const c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+        const g = c.getContext('2d'); g.filter = 'grayscale(1) contrast(1.25)'; g.drawImage(im, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/png'));
+      };
+      im.onerror = () => rej(new Error('이미지를 열 수 없어요'));
+      im.src = src;
+    });
+  }
+  async function ocrImage(src) {
+    const T = await loadTesseract();
+    const w = await T.createWorker('kor', 1, { langPath: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/kor/4.0.0_best_int' });
+    try {
+      const { data } = await w.recognize(await upscale(src));
+      return wordsToTsv(data.words || []);
+    } finally { await w.terminate(); }
+  }
   function compressImage(file) {
     return new Promise((res, rej) => {
       const url = URL.createObjectURL(file); const im = new Image();
@@ -1461,6 +1512,14 @@
         el('div', { class: 'dlg docdlg' }, head(),
           el('div', { class: 'dsrc' },
             el('button', { class: 'ghost sm', type: 'button', onclick: () => file.click() }, icon('upload'), '엑셀·이미지 올리기'), file,
+            draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: async (e) => {
+              const b = e.currentTarget; b.disabled = true; b.lastChild.textContent = '읽는 중…';
+              try {
+                const t = await ocrImage(draft.img);
+                if (!t.trim()) { toast('글자를 찾지 못했어요'); b.disabled = false; b.lastChild.textContent = '글자로 읽기'; return; }
+                draft = { kind: 'text', text: t }; drawEdit();
+              } catch (er) { toast(er.message || '글자를 읽지 못했어요'); b.disabled = false; b.lastChild.textContent = '글자로 읽기'; }
+            } }, icon('scan'), el('span', {}, '글자로 읽기')) : null,
             draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, '글자로 입력') : null,
             el('span', { class: 'mut dhint' }, draft.kind === 'image' ? '이미지가 그대로 보여요' : '또는 아래에 직접 입력')),
           body,
