@@ -487,3 +487,6 @@ textarea::-webkit-scrollbar { width: 14px; height: 14px; }
 textarea::-webkit-scrollbar-track { margin: 8px 0; background: transparent; }
 textarea::-webkit-scrollbar-thumb { border: 5px solid transparent; background-clip: padding-box; min-height: 24px; }
 textarea::-webkit-resizer { display: none; }
+
+/* 출결 표: 가로 스크롤바가 맨 아래 학생을 가리지 않게 표 아래에 여백을 둠 */
+.mwrap { overflow-y: hidden; padding-bottom: 10px; }
