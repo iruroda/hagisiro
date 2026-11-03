@@ -1602,9 +1602,9 @@
       const rows = parseTsv(text).filter((r) => r.some((c) => c.trim()));
       const w = Math.max(...rows.map((r) => r.length));
       const cell = (tag, c) => el(tag, {}, linkify(c.trim()));
-      return el('div', { class: 'dtw' }, el('table', { class: 'dt2' },
+      return el('div', { class: 'dtw' }, el('div', { class: 'mbox' }, el('table', { class: 'dt2' },
         el('thead', {}, el('tr', {}, Array.from({ length: w }, (_, i) => cell('th', rows[0][i] || '')))),
-        el('tbody', {}, rows.slice(1).map((r) => el('tr', {}, Array.from({ length: w }, (_, i) => cell('td', r[i] || '')))))));
+        el('tbody', {}, rows.slice(1).map((r) => el('tr', {}, Array.from({ length: w }, (_, i) => cell('td', r[i] || ''))))))));
     }
     return el('div', { class: 'dtxt' }, text.split('\n').map((l) => el('div', {}, linkify(l) , l ? null : el('br'))));
   }
@@ -1890,7 +1890,7 @@
         S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await W.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작할 때 함께 시작')),
       ],
     };
-    const tabBar = el('div', { class: 'seg ptabs' });
+    const tabBar = el('div', { class: 'pnav' });
     const body = el('div', { class: 'pbody' });
     let shown = null;
     function draw() {
@@ -1902,7 +1902,7 @@
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg pfdlg' },
         el('div', { class: 'shead' }, el('b', {}, '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        tabBar, body,
+        el('div', { class: 'pmain' }, tabBar, body),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', onclick: close }, '닫기'))));
     draw();
     if (W && W.getZ) W.getZ().then((v) => { S.zmode = v; if (!m.hidden) draw(); });

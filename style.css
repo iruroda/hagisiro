@@ -602,3 +602,23 @@ body { font-variant-numeric: tabular-nums; }
 .pbody { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
 ::-webkit-scrollbar-track { background: transparent; margin: 8px; }
 ::-webkit-scrollbar-corner { background: transparent; }
+
+/* 설정: 왼쪽 큰 메뉴 + 오른쪽 세부 설정 */
+.pfdlg { width: min(580px, 94vw); height: min(460px, 90vh); }
+.pmain { flex: 1; min-height: 0; display: flex; gap: 14px; }
+.pnav { flex: none; width: 104px; display: flex; flex-direction: column; gap: 2px; padding-right: 10px; border-right: 1px solid var(--line); }
+.pnav button { text-align: left; padding: 8px 10px; border-radius: var(--r); font-size: var(--fs-2); color: var(--mut); font-weight: 600; }
+.pnav button:hover { background: var(--bg2); color: var(--text); }
+.pnav button.on { background: var(--sel); color: var(--accent); }
+.pmain .pbody { padding-right: 6px; }
+@media (max-width: 520px) {
+  .pmain { flex-direction: column; gap: 8px; }
+  .pnav { width: auto; flex-direction: row; border-right: 0; padding: 0; overflow-x: auto; }
+  .pnav button { flex: 1; text-align: center; }
+}
+
+/* 스크롤바는 둥근 박스 '안쪽 칸'이 아니라 박스 바깥/안쪽 여백에서만 움직여요 (전체 공통) */
+.dtw { border: 0 !important; border-radius: 0 !important; }
+#sheet .panel { overflow: hidden !important; display: flex; flex-direction: column; }
+#sheet .panel .sbody { flex: 1; min-height: 0; overflow-y: auto; }
+.dtxt, .dimg, .schres, .meals, .cgrid, .rbody, .dbody, .clist, .cform, .cdet { padding-right: 2px; }
