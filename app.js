@@ -308,7 +308,7 @@
     if (S.view === 'cal') right.append(el('div', { class: 'seg', role: 'group', 'aria-label': '보기 방식' },
       el('button', { class: PF.cal === 'month' ? 'on' : '', onclick: () => setCalMode('month') }, '월별'),
       el('button', { class: PF.cal === 'week' ? 'on' : '', onclick: () => setCalMode('week') }, '이번 주')));
-    if ((gcalWanted() || (PF.ghol && S.cloud)) && !gtoken()) right.append(el('button', { class: 'ghost sm', onclick: () => connectGcal(!gcalWanted()) }, '구글 다시 연결'));
+    if ((gcalWanted() || (PF.ghol && S.cloud)) && !gtoken()) right.append(el('button', { class: 'ghost sm', onclick: () => connectGcal(!gcalWanted()) }, 'Google 다시 연결'));
     right.append(el('button', { class: 'ib', id: 'menuBtn', onclick: (e) => { e.stopPropagation(); openMenu(); }, 'aria-label': '메뉴', title: '메뉴' }, icon('more')));
     t.append(nav, tabs, right);
   }
@@ -363,7 +363,7 @@
     m.append(item('화면 설정', openPrefs));
     m.append(item('출결 설정 (요일별 교시 수)', openSettings));
     if (S.user) {
-      m.append(item(gcalWanted() ? '구글 캘린더 일정 끄기' : '구글 캘린더 일정 함께 보기', () => {
+      m.append(item(gcalWanted() ? 'Google 캘린더 일정 끄기' : 'Google 캘린더 일정 함께 보기', () => {
         if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal(false);
       }));
       m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }));
@@ -1566,7 +1566,7 @@
           tog('lunar', '음력 날짜 표시'),
           tog('terms', '24절기 표시'),
           tog('hol', '공휴일 표시 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
-          tog('ghol', '구글 캘린더 공휴일 연동', S.cloud ? '임시공휴일 등을 구글에서 가져와요' : 'Google 로그인 후 사용할 수 있어요', 'ghol', !S.cloud),
+          tog('ghol', 'Google 캘린더 공휴일 연동', S.cloud ? '임시공휴일 등을 Google에서 가져와요' : 'Google 로그인 후 사용할 수 있어요', 'ghol', !S.cloud),
           el('div', { class: 'pfs' }, '할 일'),
           tog('sortDone', '완료한 할 일은 맨 아래로'),
           el('div', { class: 'pfs' }, '화면'),
@@ -1666,7 +1666,7 @@
     (c ? ta : name).focus();
   }
 
-  /* ================= 구글 캘린더 (선택, 읽기 전용) ================= */
+  /* ================= Google 캘린더 (선택, 읽기 전용) ================= */
   const GK = 'hagisiro:gtok';
   function gtoken() {
     try { const o = JSON.parse(sessionStorage.getItem(GK) || 'null'); if (o && o.exp > Date.now()) return o.t; } catch (e) { /* noop */ }
@@ -1681,7 +1681,7 @@
       if (!holOnly) ls.set('hagisiro:gcal', '1');
       await Promise.all([loadGcal(), loadGhol()]);
       render();
-      toast(holOnly ? '구글 공휴일을 연결했어요' : '구글 캘린더 일정을 함께 표시해요');
+      toast(holOnly ? 'Google 공휴일을 연결했어요' : 'Google 캘린더 일정을 함께 표시해요');
     } catch (e) { toast('연동 실패: ' + ((e && (e.code || e.message)) || '')); }
   }
   async function loadGcal() {
@@ -1698,7 +1698,7 @@
       if (res.status === 401 || res.status === 403) {
         try { sessionStorage.removeItem(GK); } catch (e) { /* noop */ }
         S.gcal = {}; render();
-        if (res.status === 403) toast('구글 캘린더 API가 꺼져 있거나 권한이 없어요 (README 참고)');
+        if (res.status === 403) toast('Google 캘린더 API가 꺼져 있거나 권한이 없어요 (README 참고)');
         return;
       }
       const j = await res.json();
@@ -1718,7 +1718,7 @@
     } catch (e) { console.error(e); }
   }
 
-  /* 구글 '대한민국의 휴일' 캘린더 (임시공휴일 등 반영) */
+  /* Google '대한민국의 휴일' 캘린더 (임시공휴일 등 반영) */
   let gholWarned = false;
   async function loadGhol() {
     if (!PF.ghol || !S.cloud) { if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
@@ -1731,7 +1731,7 @@
     try {
       const res = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
       if (!res.ok) {
-        if (!gholWarned) { gholWarned = true; toast('구글 공휴일을 불러오지 못했어요 (내장 공휴일만 표시)'); }
+        if (!gholWarned) { gholWarned = true; toast('Google 공휴일을 불러오지 못했어요 (내장 공휴일만 표시)'); }
         return;
       }
       const j = await res.json(); const g = {};
