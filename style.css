@@ -519,12 +519,25 @@ input[type=text]:focus, input[type=number]:focus, input[type=date]:focus, input[
 .ttl, .dttl, .cvh b, .cday { font-size: var(--fs-1); font-weight: 700; }
 .pfs, .cday + * { letter-spacing: .02em; }
 
-/* 위젯: 화면 전환 때 창·칸 배경은 그대로 두고 안쪽 내용만 움직여요 (배경화면이 비치지 않게) */
+/* 위젯: 화면 전환 때 창·칸 배경은 그대로 두고 글자·아이콘만 슬며시 나타나요 (배경화면이 비치지 않게) */
+@keyframes tin { from { color: transparent; } }
+@keyframes tinup { from { color: transparent; transform: translateY(4px); } }
 body.widget #main > .vin, body.widget #main > .vnext, body.widget #main > .vprev { animation: none; }
-body.widget #main > .vin :is(.cell, .wk, .att, .cv) > * { animation: vin .14s ease-out; }
-body.widget #main > .vnext :is(.cell, .wk, .att, .cv) > * { animation: vnext .14s ease-out; }
-body.widget #main > .vprev :is(.cell, .wk, .att, .cv) > * { animation: vprev .14s ease-out; }
+body.widget #main > .vin *, body.widget #main > .vnext *, body.widget #main > .vprev * { animation: tin .32s ease-out; }
+body.widget #main > .vnext :is(.dttl, .msum, .cvh b), body.widget #main > .vprev :is(.dttl, .msum, .cvh b) { animation: tinup .32s ease-out; }
 
+/* 모든 곳의 작은 움직임 */
+button:not(:disabled):active, .tab:active, .ib:active, .ghost:active { transform: scale(.93); }
+.pri:not(:disabled):hover, .qgo:hover { filter: brightness(1.08); }
+.ib:hover .ic, .ghost:hover .ic { transform: scale(1.1); }
+.ic { transition: transform .15s; }
+input[type=checkbox] { transition: transform .15s, background-color .15s; }
+.pfr.tg, .mi, .cell, .crow, .td, .dt .sl { transition: background-color .15s, border-color .15s, opacity .2s; }
+.cell:hover, .mi:hover { transition-duration: .08s; }
+@keyframes rowin { from { opacity: 0; transform: translateY(3px); } }
+.menu .mi { animation: rowin .2s ease-out backwards; }
+.menu .mi:nth-child(2) { animation-delay: .02s; } .menu .mi:nth-child(3) { animation-delay: .04s; } .menu .mi:nth-child(4) { animation-delay: .06s; } .menu .mi:nth-child(5) { animation-delay: .08s; } .menu .mi:nth-child(6) { animation-delay: .1s; }
+.tabs .tab.on, .seg button.on { transition: background-color .2s, color .2s, box-shadow .2s; }
 #wmove .ic svg { width: 20px; height: 20px; }
 
 .mhead { min-height: 28px; } .mhead .msum { margin-left: 0; }

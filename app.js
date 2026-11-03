@@ -290,6 +290,29 @@
     }
     S.lastKey = k; S.lastSc = sc;
   }
+  /* 토글(탭·분할 버튼)을 바꾸면 켜진 칸이 이전 자리에서 미끄러져 와요 */
+  const pillPos = {};
+  function slidePills() {
+    if (document.documentElement.classList.contains('noanim')) return;
+    const seen = {};
+    document.querySelectorAll('.tabs, .seg').forEach((box, i) => {
+      const on = box.querySelector(':scope > .on');
+      if (!on) return;
+      const key = (box.classList.contains('tabs') ? 't' : 's') + (box.closest('#modal') ? 'm' : box.closest('#top') ? 'top' : 'main') + i;
+      const b = box.getBoundingClientRect(), r = on.getBoundingClientRect();
+      const x = r.left - b.left;
+      const prev = pillPos[key];
+      if (prev && Math.abs(prev.x - x) > 2 && Math.abs(prev.w - b.width) < 14 && on !== prev.node && on.animate) {
+        on.animate([{ transform: `translateX(${prev.x - x}px)` }, { transform: 'none' }], { duration: 240, easing: 'cubic-bezier(.3,1.25,.4,1)' });
+      }
+      seen[key] = { x, w: b.width, node: on };
+    });
+    Object.keys(pillPos).forEach((k) => delete pillPos[k]);
+    Object.assign(pillPos, seen);
+  }
+  let pillRaf = 0;
+  new MutationObserver(() => { cancelAnimationFrame(pillRaf); pillRaf = requestAnimationFrame(slidePills); })
+    .observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   /* 팝업·메뉴·알림이 나타날 때만 효과를 줘요 (안의 내용만 다시 그릴 땐 그대로) */
   ['modal', 'toast', 'sheet'].forEach((id) => {
     const n = document.getElementById(id);
