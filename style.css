@@ -595,3 +595,10 @@ body { font-variant-numeric: tabular-nums; }
 /* 출결 표: 둥근 박스는 표만 감싸고, 가로 스크롤은 박스 바깥(아래)에 둬요 */
 .mwrap { border: 0 !important; border-radius: 0 !important; padding-bottom: 0 !important; overflow-x: auto; overflow-y: hidden; }
 .mbox { border: 1px solid var(--line); border-radius: var(--r); overflow: clip; width: max-content; min-width: 100%; box-sizing: border-box; }
+
+/* 설정 팝업: 제목·탭·버튼은 고정, 내용만 스크롤 / 스크롤바는 둥근 모서리에서 안쪽으로 */
+.pfdlg { overflow: hidden !important; width: min(380px, 92vw); height: min(560px, 90vh); }
+.pfdlg .ptabs { align-self: flex-start; }
+.pbody { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
+::-webkit-scrollbar-track { background: transparent; margin: 8px; }
+::-webkit-scrollbar-corner { background: transparent; }

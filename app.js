@@ -1834,6 +1834,9 @@
     const m = $('#modal');
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); };
+    const W = window.hagisiroWidget;
+    const TABS = [['cal', '캘린더'], ['view', '표시'], ['meal', '급식'], ...(W ? [['wg', '위젯']] : [])];
+    if (!TABS.some((t) => t[0] === S.pfTab)) S.pfTab = 'cal';
     const seg = (key, opts, after) => el('div', { class: 'seg' }, opts.map(([v, label]) =>
       el('button', { type: 'button', class: PF[key] === v ? 'on' : '', onclick: () => { PF[key] = v; commit(after); } }, label)));
     const sel = (key, vals, fmt, after) => el('select', { onchange: (e) => { PF[key] = +e.target.value; commit(after); } },
@@ -1851,44 +1854,59 @@
       }
       render(); draw();
     }
+    const pages = {
+      cal: () => [
+        row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
+        row('전체 주 개수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')),
+        row('지나간 주 개수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')),
+        el('div', { class: 'pfh' }, '“이번 주” 보기에서만 쓰여요. 지나간 주는 전체 주보다 적게 정할 수 있어요.'),
+        tog('mgap', '월 사이 간격 띄우기', '“이번 주” 보기에서 달이 바뀌는 줄 위에 간격을 둬요', 'render'),
+        el('div', { class: 'pfs' }, '날짜에 함께 표시'),
+        tog('lunar', '음력 날짜'),
+        tog('terms', '24절기'),
+        tog('hol', '공휴일 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
+        tog('ghol', 'Google 캘린더 공휴일 연동', S.cloud ? '임시공휴일 등을 Google에서 가져와요' : 'Google 로그인 후 사용할 수 있어요', 'ghol', !S.cloud),
+      ],
+      view: () => [
+        el('div', { class: 'pfs' }, '화면'),
+        row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
+        tog('anim', '화면 전환 애니메이션'),
+        el('div', { class: 'pfs' }, '할 일'),
+        tog('sortDone', '완료한 할 일은 맨 아래로'),
+      ],
+      meal: () => [
+        tog('meal', '급식 표시', PF.school ? PF.school.name : '학교를 먼저 골라 주세요', 'meal', !PF.school),
+        row('학교', el('button', { type: 'button', class: 'ghost sm', onclick: () => openSchool(draw) }, PF.school ? PF.school.name : '학교 찾기')),
+        row('인증키', el('input', { type: 'text', class: 'keyin', value: PF.neisKey || '', placeholder: '선택 · 없으면 일부만 보여요', 'aria-label': '인증키',
+          onchange: (e) => { PF.neisKey = e.target.value.trim(); S.meal = {}; savePf(); loadMeal(); } })),
+      ],
+      wg: () => [
+        S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
+          el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await W.setZ(v); draw(); } }, l)))) : null,
+        row('투명도', el('input', {
+          type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '위젯 투명도',
+          oninput: (e) => { PF.opacity = +e.target.value; savePf(); const o = m.querySelector('.opv'); if (o) o.textContent = PF.opacity + '%'; },
+        }), el('b', { class: 'opv' }, PF.opacity + '%')),
+        S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await W.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작할 때 함께 시작')),
+      ],
+    };
+    const tabBar = el('div', { class: 'seg ptabs' });
+    const body = el('div', { class: 'pbody' });
+    let shown = null;
     function draw() {
-      m.replaceChildren(el('div', { class: 'back', onclick: close }),
-        el('div', { class: 'dlg pfdlg' },
-          el('div', { class: 'shead' }, el('b', {}, '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-          el('div', { class: 'pfs' }, '캘린더'),
-          row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
-          row('전체 주 개수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')),
-          row('지나간 주 개수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')),
-          el('div', { class: 'pfh' }, '이번 주 기준 보기에서만 쓰여요. 지나간 주는 전체 주보다 적게 정할 수 있어요.'),
-          tog('mgap', '월 사이 간격 띄우기', '이번 주 보기에서 달이 바뀌는 줄 위에 간격을 둬요', 'render'),
-          el('div', { class: 'pfs' }, '날짜 표시'),
-          tog('lunar', '음력 날짜 표시'),
-          tog('terms', '24절기 표시'),
-          tog('hol', '공휴일 표시 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
-          tog('ghol', 'Google 캘린더 공휴일 연동', S.cloud ? '임시공휴일 등을 Google에서 가져와요' : 'Google 로그인 후 사용할 수 있어요', 'ghol', !S.cloud),
-          el('div', { class: 'pfs' }, '급식'),
-          tog('meal', '급식 표시', PF.school ? PF.school.name : '학교를 먼저 골라 주세요', 'meal', !PF.school),
-          row('학교', el('button', { type: 'button', class: 'ghost sm', onclick: () => openSchool(draw) }, PF.school ? PF.school.name : '학교 찾기')),
-          row('인증키', el('input', { type: 'text', class: 'keyin', value: PF.neisKey || '', placeholder: '선택 · 없으면 일부만 보여요', 'aria-label': '인증키',
-            onchange: (e) => { PF.neisKey = e.target.value.trim(); S.meal = {}; savePf(); loadMeal(); } })),
-          el('div', { class: 'pfs' }, '할 일'),
-          tog('sortDone', '완료한 할 일은 맨 아래로'),
-          el('div', { class: 'pfs' }, '화면'),
-          row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
-          tog('anim', '화면 전환 애니메이션'),
-          window.hagisiroWidget ? el('div', { class: 'pfs' }, '위젯') : null,
-          window.hagisiroWidget && S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
-            el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await window.hagisiroWidget.setZ(v); draw(); } }, l)))) : null,
-          window.hagisiroWidget ? row('투명도', el('input', {
-            type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '위젯 투명도',
-            oninput: (e) => { PF.opacity = +e.target.value; savePf(); const o = m.querySelector('.opv'); if (o) o.textContent = PF.opacity + '%'; },
-          }), el('b', { class: 'opv' }, PF.opacity + '%')) : null,
-          S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await window.hagisiroWidget.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작할 때 함께 시작')),
-          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', onclick: close }, '닫기'))));
+      const keep = shown === S.pfTab ? body.scrollTop : 0;
+      tabBar.replaceChildren(...TABS.map(([k, l]) => el('button', { type: 'button', class: S.pfTab === k ? 'on' : '', onclick: () => { S.pfTab = k; draw(); } }, l)));
+      body.replaceChildren(...pages[S.pfTab]().filter(Boolean));
+      body.scrollTop = keep; shown = S.pfTab;
     }
+    m.replaceChildren(el('div', { class: 'back', onclick: close }),
+      el('div', { class: 'dlg pfdlg' },
+        el('div', { class: 'shead' }, el('b', {}, '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        tabBar, body,
+        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', onclick: close }, '닫기'))));
     draw();
-    if (window.hagisiroWidget && window.hagisiroWidget.getZ) window.hagisiroWidget.getZ().then((v) => { S.zmode = v; if (!m.hidden) draw(); });
-    if (window.hagisiroWidget && window.hagisiroWidget.getAutoStart) window.hagisiroWidget.getAutoStart().then((v) => { S.autoStart = v; if (!m.hidden) draw(); });
+    if (W && W.getZ) W.getZ().then((v) => { S.zmode = v; if (!m.hidden) draw(); });
+    if (W && W.getAutoStart) W.getAutoStart().then((v) => { S.autoStart = v; if (!m.hidden) draw(); });
   }
 
   /* ---------- 설정: 요일별 기본 교시 수 ---------- */
