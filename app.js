@@ -59,6 +59,7 @@
     dot: '<circle cx="12" cy="12" r="4.2" class="f"/>',
     slash: '<path d="M8 19.5l8-15"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
+    refresh: '<path d="M19.2 12a7.2 7.2 0 11-2.3-5.3"/><path d="M19.5 4.8v4.2h-4.2"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
     tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
   };
@@ -341,6 +342,7 @@
     const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
     const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloudAvail ? tab('consult', '상담') : null);
     const right = el('div', { class: 'right' });
+    right.append(el('button', { class: 'ib', id: 'syncBtn', title: '새로고침', 'aria-label': '새로고침', onclick: forceSync }, icon('refresh')));
     DOCS.forEach(([id, label, ic]) => right.append(el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label))));
     if (S.view === 'cal') right.append(el('div', { class: 'seg', role: 'group', 'aria-label': '보기 방식' },
       el('button', { class: PF.cal === 'month' ? 'on' : '', onclick: () => setCalMode('month') }, '월별'),
@@ -386,6 +388,17 @@
     const n = new Date();
     S.y = n.getFullYear(); S.m = n.getMonth(); S.sel = ymd(n); S.anchor = ymd(n); S.extra = {};
     watchRange(); render();
+  }
+
+  /* 새로고침: 구독을 다시 걸어 서버 내용으로 덮어써요 */
+  function forceSync() {
+    const b = $('#syncBtn');
+    if (b) { b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin'); }
+    if (S.cloud) {
+      stopWatches(); watchStatic(); watchRange();
+      loadMeal();
+    } else { Data.loadLocal(); render(); }
+    toast('새로 불러왔어요');
   }
 
   /* ---------- 메뉴 ---------- */
@@ -1135,7 +1148,7 @@
         const arr = by[s.id + '|' + ds];
         const td = el('td', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (ds === todayS ? ' tdy' : ''), 'data-d': ds });
         if (arr) {
-          td.append(el('span', { class: 'mk t-' + arr[0].type, title: arr.map((a) => `${kindLabel(a)} ${P.rangeLabel(a.from, a.to)}${a.reason ? ' · ' + a.reason : ''}`).join('\n') }, arr.map((a) => SHORT[a.type]).join('')));
+          td.append(el('span', { class: 'mk t-' + arr[0].type, title: arr.map((a) => `${kindLabel(a)} ${recLabel(a)}${a.reason ? ' · ' + a.reason : ''}`).join('\n') }, arr.map((a) => SHORT[a.type]).join('')));
         }
         tr.append(td);
       }
@@ -1201,7 +1214,7 @@
         const td = el('td', { class: 'wc go' + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i] });
         arr.forEach((a) => td.append(el('div', { class: 'wi' },
           el('div', { class: 'wkd c-' + a.cat }, kindLabel(a)),
-          el('div', { class: 'wg' }, P.rangeLabel(a.from, a.to)),
+          el('div', { class: 'wg' }, recLabel(a)),
           a.reason ? el('div', { class: 'wr2 mut' }, a.reason) : null)));
         tr.append(td);
       });
@@ -1247,14 +1260,10 @@
 
     const slotN = last + 2; // 조회 + 교시들 + 종례
     const head = el('tr', {},
-      el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '성명'), el('th', { class: 'kc' }, '종류'), el('th', { class: 'rc' }, '교시 범위'),
+      el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '성명'), el('th', { class: 'kc' }, '종류'),
       Array.from({ length: slotN }, (_, i) => el('th', { class: 'sl-h' }, i === 0 ? '조회' : i === slotN - 1 ? '종례' : `${i}교시`)),
       el('th', { class: 'rs-h' }, '사유'));
     const tbody = el('tbody');
-
-    const rangeOpts = (cur) => [0, ...Array.from({ length: last }, (_, i) => i + 1), END].map((v) =>
-      el('option', { value: v, selected: v === cur }, v === 0 ? '조회' : v === END ? '종례' : `${v}교시`));
-    const disp = (x) => (x >= END ? END : Math.min(x, last));
 
     function addRow(s, rec, first) {
       const cells = [el('td', { class: 'c1' }, first ? s.no : ''), el('td', { class: 'c2' }, first ? s.name : '')];
@@ -1264,20 +1273,14 @@
       ksel.addEventListener('change', () => setKind(s, rec, ksel.value, ds, cls));
       cells.push(el('td', { class: 'kc' }, ksel));
       if (rec) {
-        const f = el('select', { class: 'rsel', 'aria-label': '시작' }, rangeOpts(disp(rec.from)));
-        const t = el('select', { class: 'rsel', 'aria-label': '끝' }, rangeOpts(disp(rec.to)));
-        f.addEventListener('change', () => setRange(rec, 'from', +f.value));
-        t.addEventListener('change', () => setRange(rec, 'to', +t.value));
-        cells.push(el('td', { class: 'rc' }, f, el('span', { class: 'tilde' }, icon('tilde')), t));
-        const a = resSlot(rec.from, last), b = resSlot(rec.to, last);
-        for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc' + (i >= a && i <= b ? ' sl c-' + rec.cat : ''), title: i >= a && i <= b ? `${kindLabel(rec)}` : null }, i >= a && i <= b ? icon('slash') : ''));
+        const on = new Set(recCols(rec, last));
+        for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc tg' + (on.has(i) ? ' sl c-' + rec.cat : ''), title: on.has(i) ? kindLabel(rec) : null, onclick: () => toggleSlot(s, rec, i, ds, cls) }, on.has(i) ? icon('slash') : ''));
         const rin = el('input', { type: 'text', class: 'rin', value: rec.reason || '', placeholder: '사유', 'aria-label': `${s.name} 사유`, spellcheck: 'false' });
         rin.addEventListener('change', () => Data.put('att', { ...rec, reason: rin.value.trim() }));
         rin.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) rin.blur(); });
         cells.push(el('td', { class: 'rs' }, el('div', { class: 'rsw' }, rin)));
       } else {
-        cells.push(el('td', { class: 'rc' }));
-        for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc' }));
+        for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc tg', onclick: () => toggleSlot(s, null, i, ds, cls) }));
         cells.push(el('td', { class: 'rs' }));
       }
       tbody.append(el('tr', { class: rec ? 'has' : '', 'data-sid': s.id }, cells));
@@ -1306,7 +1309,7 @@
     }
     if (rec) {
       const r = { ...rec, cat: k.cat, type: k.type };
-      if (k.type !== rec.type) { const [f, t] = P.defaultRange(k.type, null, null, lastOf(ds)); r.from = f; r.to = t; }
+      if (k.type !== rec.type) { const [f, t] = P.defaultRange(k.type, null, null, lastOf(ds)); r.from = f; r.to = t; delete r.slots; }
       Data.put('att', r);
     } else {
       const [f, t] = P.defaultRange(k.type, null, null, lastOf(ds));
@@ -1314,12 +1317,35 @@
     }
     render();
   }
-  function setRange(rec, which, v) {
-    let f = rec.from, t = rec.to;
-    if (which === 'from') { f = v; if (f > t) t = f; } else { t = v; if (f > t) f = t; }
-    Data.put('att', { ...rec, from: f, to: t });
+  /* 교시 칸: 눌러서 빗금 켜고 끄기 (바로 저장) */
+  const colVal = (i, last) => (i === 0 ? 0 : i === last + 1 ? END : i);
+  function recCols(rec, last) {
+    if (rec.slots && rec.slots.length) return rec.slots.map((v) => resSlot(v, last));
+    const a = resSlot(rec.from, last), b = resSlot(rec.to, last), o = [];
+    for (let i = a; i <= b; i++) o.push(i);
+    return o;
+  }
+  function toggleSlot(s, rec, i, ds, cls) {
+    const last = lastOf(ds);
+    if (!rec) {
+      const k = KINDS.find((x) => x.cat === '미인정' && x.type === '결과');
+      const v = colVal(i, last);
+      Data.put('att', { id: uid(), classId: cls.id, studentId: s.id, name: s.name, no: s.no, date: ds, type: k.type, cat: k.cat, from: v, to: v, slots: [v], reason: '', created: Date.now() });
+      render(); return;
+    }
+    const set = new Set(recCols(rec, last));
+    if (set.has(i)) set.delete(i); else set.add(i);
+    if (!set.size) { Data.del('att', rec.id); toast('출석으로 바꿨어요', () => { Data.put('att', rec); render(); }); render(); return; }
+    const vals = [...set].sort((x, y) => x - y).map((c) => colVal(c, last));
+    Data.put('att', { ...rec, slots: vals, from: vals[0], to: vals[vals.length - 1] });
     render();
   }
+  const recLabel = (a) => {
+    if (!(a.slots && a.slots.length)) return P.rangeLabel(a.from, a.to);
+    const v = a.slots.slice().sort((x, y) => x - y);
+    const run = v.every((x, i) => i === 0 || x === v[i - 1] + 1 || (x === END && v[i - 1] >= 0));
+    return run && v.length > 1 && v[v.length - 1] !== END ? P.rangeLabel(v[0], v[v.length - 1]) : v.map(P.slotName).join(', ');
+  };
 
   /* ---------- 문장 입력 ---------- */
   const chipText = (it) => `${it.no} ${it.name} · ${md(it.date)} · ${it.cat}${it.type} ${P.rangeLabel(it.from, it.to)}${it.reason ? ' · ' + it.reason : ''}`;
@@ -1376,7 +1402,7 @@
     const rows = [['날짜', '요일', '번호', '이름', '종류', '사유구분', '구분', '교시범위', '사유']];
     monthRecs(cls).sort((a, b) => a.date.localeCompare(b.date) || (a.no || 0) - (b.no || 0)).forEach((a) => {
       const st = cls.students.find((x) => x.id === a.studentId);
-      rows.push([a.date, DOW[parseYmd(a.date).getDay()], st ? st.no : a.no, st ? st.name : a.name, kindLabel(a), a.cat, a.type, P.rangeLabel(a.from, a.to), a.reason || '']);
+      rows.push([a.date, DOW[parseYmd(a.date).getDay()], st ? st.no : a.no, st ? st.name : a.name, kindLabel(a), a.cat, a.type, recLabel(a), a.reason || '']);
     });
     const csv = '﻿' + rows.map((r) => r.map((c) => `"${String(c == null ? '' : c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
     download(`${cls.name}_${S.y}-${pad(S.m + 1)}_출결.csv`, csv, 'text/csv;charset=utf-8');

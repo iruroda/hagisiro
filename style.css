@@ -450,3 +450,9 @@ body.widget #top .right { margin-left: auto; flex: none; }
 .cv .cgrid { max-height: none; }
 
 #top button:disabled { opacity: .35; cursor: default; pointer-events: none; }
+
+/* 교시 칸 토글 */
+.dt .slc.tg { cursor: pointer; transition: background-color .1s; }
+.dt .slc.tg:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+#syncBtn.spin .ic svg { animation: spin .6s ease; }
+@keyframes spin { to { transform: rotate(360deg); } }
