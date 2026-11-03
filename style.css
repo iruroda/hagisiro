@@ -398,3 +398,23 @@ body.widget #top .right { margin-left: auto; flex: none; }
 .schrow:hover { border-color: var(--accent); }
 .schrow small { color: var(--mut); }
 .keyin { width: 100%; min-width: 0; }
+
+/* 상담 신청 (선생님) */
+.cdlg { width: min(460px, 94vw); }
+.clist, .cform, .cdet { display: flex; flex-direction: column; gap: 8px; overflow: auto; }
+.crow { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 10px; padding: 2px 6px 2px 2px; transition: border-color .12s; }
+.crow:hover { border-color: var(--accent); }
+.ctitle { flex: 1; text-align: left; padding: 9px 10px; background: none; color: var(--text); }
+.ctitle small { color: var(--mut); }
+.crow2 { display: flex; align-items: center; gap: 6px; }
+.cgrid { display: flex; flex-direction: column; gap: 4px; overflow: auto; max-height: 56vh; }
+.cday { font-weight: 700; margin-top: 8px; }
+.cslot { display: flex; align-items: center; gap: 10px; padding: 3px 4px 3px 8px; border-radius: 8px; min-height: 32px; }
+.cslot.on { background: var(--sel); }
+.cslot .ct2 { width: 44px; color: var(--mut); font-variant-numeric: tabular-nums; }
+.cslot .cn { flex: 1; } .cslot .cn small { color: var(--mut); }
+.cslot > .mut { flex: 1; }
+.cform input, .cform select { min-width: 0; }
+.cform .pc2 { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.dsel { display: flex; }
+.dsel button { flex: 1; }

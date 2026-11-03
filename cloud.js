@@ -6,7 +6,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  collection, doc, setDoc, deleteDoc, onSnapshot, query, where, getDocs, writeBatch,
+  collection, doc, setDoc, deleteDoc, onSnapshot, query, where, getDocs, writeBatch, addDoc, updateDoc,
 } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 
 let app, auth, db, user = null;
@@ -73,4 +73,33 @@ export async function clearAll(name) {
     await b.commit();
   }
   return out;
+}
+
+/* ================= 상담 신청 (선생님 쪽) ================= */
+
+export async function consultList() {
+  const snap = await getDocs(query(collection(db, 'consults'), where('owner', '==', user.uid)));
+  return snap.docs.map((d) => ({ ...d.data(), id: d.id })).sort((a, b) => (b.created || 0) - (a.created || 0));
+}
+export async function consultCreate(data) {
+  const r = await addDoc(collection(db, 'consults'), { ...data, owner: user.uid, created: Date.now() });
+  return r.id;
+}
+export function consultUpdate(id, data) { return updateDoc(doc(db, 'consults', id), data); }
+export async function consultDelete(id) {
+  for (const sub of ['books', 'taken']) {
+    const snap = await getDocs(collection(db, 'consults', id, sub));
+    for (let i = 0; i < snap.docs.length; i += 400) {
+      const b = writeBatch(db); snap.docs.slice(i, i + 400).forEach((d) => b.delete(d.ref)); await b.commit();
+    }
+  }
+  await deleteDoc(doc(db, 'consults', id));
+}
+export function consultWatchBooks(id, cb, err) {
+  return onSnapshot(collection(db, 'consults', id, 'books'), (s) => cb(s.docs.map((d) => ({ ...d.data(), id: d.id }))), err);
+}
+export async function consultRemoveBooking(cid, sid) {
+  const b = writeBatch(db);
+  b.delete(doc(db, 'consults', cid, 'books', sid)); b.delete(doc(db, 'consults', cid, 'taken', sid));
+  await b.commit();
 }

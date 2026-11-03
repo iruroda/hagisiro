@@ -1,9 +1,56 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 로그인한 본인(uid)만 자기 데이터를 읽고 쓸 수 있어요. 그 외는 전부 차단.
+
+    // 내 데이터: 로그인한 본인(uid)만 읽고 쓸 수 있어요.
     match /users/{uid}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 상담 신청표: 링크(문서 ID)를 아는 사람은 표를 볼 수 있고, 목록은 만든 선생님만 볼 수 있어요.
+    match /consults/{cid} {
+      function cdoc() { return get(/databases/$(database)/documents/consults/$(cid)).data; }
+      function isOwner() { return request.auth != null && request.auth.uid == cdoc().owner; }
+      function isOpen() { return cdoc().closeAt == 0 || request.time.toMillis() < cdoc().closeAt; }
+
+      allow get: if true;
+      allow list: if request.auth != null && resource.data.owner == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid;
+
+      // 신청된 시간 표시 (이름 없음 — 누구나 볼 수 있어요)
+      match /taken/{sid} {
+        allow get, list: if true;
+        allow create: if sid in cdoc().slots && isOpen()
+                      && request.resource.data.keys().hasOnly(['t'])
+                      && existsAfter(/databases/$(database)/documents/consults/$(cid)/books/$(sid));
+        allow delete: if isOwner()
+                      || getAfter(/databases/$(database)/documents/consults/$(cid)/books/$(sid)).data.cancelled == true;
+      }
+
+      // 신청 내용 (이름·비밀번호 포함 — 선생님만 읽을 수 있어요)
+      match /books/{sid} {
+        function valid() {
+          return sid in cdoc().slots && isOpen()
+              && request.resource.data.keys().hasOnly(['name', 'info', 'pin', 'at', 'cancelled'])
+              && request.resource.data.cancelled == false
+              && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 20
+              && request.resource.data.info is string && request.resource.data.info.size() <= 30
+              && request.resource.data.pin is string && request.resource.data.pin.size() == 4
+              && existsAfter(/databases/$(database)/documents/consults/$(cid)/taken/$(sid));
+        }
+        allow read: if isOwner();
+        allow delete: if isOwner();
+        allow create: if valid();
+        // 취소된 칸은 다시 신청 가능
+        allow update: if (resource.data.cancelled == true && valid())
+        // 비밀번호가 맞을 때만 취소 가능 (읽지 않고도 확인돼요)
+                      || (resource.data.cancelled == false
+                          && request.resource.data.cancelled == true
+                          && request.resource.data.pin == resource.data.pin
+                          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cancelled']))
+                      || isOwner();
+      }
     }
   }
 }

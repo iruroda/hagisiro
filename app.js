@@ -58,6 +58,7 @@
     repeat: '<path d="M16.5 3.5l3.2 3.2-3.2 3.2"/><path d="M4.3 12v-1.3a4 4 0 014-4h11.4"/><path d="M7.5 20.5l-3.2-3.2 3.2-3.2"/><path d="M19.7 12v1.3a4 4 0 01-4 4H4.3"/>',
     dot: '<circle cx="12" cy="12" r="4.2" class="f"/>',
     slash: '<path d="M8 19.5l8-15"/>',
+    link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
     tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
   };
   function icon(name) {
@@ -393,6 +394,7 @@
     if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }));
     m.append(item('화면 설정', openPrefs));
     m.append(item('교시 설정', openSettings));
+    if (S.user) m.append(item('상담 신청', openConsults));
     if (S.user) {
       m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
         if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal(false);
@@ -1858,6 +1860,94 @@
         el('div', { class: 'shead' }, el('b', {}, '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         el('div', { class: 'schq' }, inp, el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res));
     setTimeout(() => inp.focus(), 30);
+  }
+
+  /* ================= 상담 신청 (선생님) ================= */
+  const bookUrl = (id) => new URL('book.html?c=' + id, location.href).href;
+  const copyText = async (t) => { try { await navigator.clipboard.writeText(t); toast('링크를 복사했어요'); } catch (e) { window.prompt('링크를 복사하세요', t); } };
+  const sidLabel = (sid) => `${sid.slice(4, 6)}/${sid.slice(6, 8)} ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
+  function openConsults() {
+    const m = $('#modal');
+    m.hidden = false;
+    let unsub = null;
+    const close = () => { if (unsub) unsub(); m.hidden = true; m.replaceChildren(); };
+    const shell = (title, body, back) => m.replaceChildren(el('div', { class: 'back', onclick: close }),
+      el('div', { class: 'dlg cdlg' },
+        el('div', { class: 'shead' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title), el('span', { class: 'grow' }),
+          el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))), body));
+    async function list() {
+      if (unsub) { unsub(); unsub = null; }
+      shell('상담 신청', el('div', { class: 'mut' }, '불러오는 중…'));
+      let rows = [];
+      try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); shell('상담 신청', el('div', { class: 'mut' }, '불러오지 못했어요')); return; }
+      shell('상담 신청', el('div', { class: 'clist' },
+        rows.length ? rows.map((c) => el('div', { class: 'crow' },
+          el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
+          el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(bookUrl(c.id)) }, icon('link')))) : el('div', { class: 'mut' }, '아직 상담표가 없어요'),
+        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', onclick: () => form() }, '새 상담표'))));
+    }
+    function form() {
+      const today = ymd(new Date());
+      const f = {
+        title: el('input', { placeholder: '제목 (예: 2학기 진로 상담)', maxlength: 40 }),
+        note: el('input', { placeholder: '안내 (선택)', maxlength: 200 }),
+        from: el('input', { type: 'date', value: today }), to: el('input', { type: 'date', value: ymd(new Date(Date.now() + 6 * 864e5)) }),
+        t1: el('input', { type: 'time', value: '16:00' }), t2: el('input', { type: 'time', value: '18:00' }),
+        step: el('select', {}, [10, 15, 20, 30, 40, 60].map((n) => el('option', { value: n, selected: n === 20 }, n + '분'))),
+        close: el('input', { type: 'datetime-local' }),
+      };
+      const dows = [1, 2, 3, 4, 5].reduce((o, d) => { o[d] = true; return o; }, {});
+      const dbtn = el('div', { class: 'seg dsel' }, [1, 2, 3, 4, 5, 6, 0].map((d) => el('button', { type: 'button', class: dows[d] ? 'on' : '', onclick: (e) => { dows[d] = !dows[d]; e.currentTarget.classList.toggle('on', !!dows[d]); } }, DOW[d])));
+      const r = (l, ...c) => el('div', { class: 'pfr' }, el('span', { class: 'pl' }, l), el('div', { class: 'pc2' }, c));
+      shell('새 상담표', el('div', { class: 'cform' },
+        f.title, f.note, r('날짜', f.from, '~', f.to), el('div', { class: 'pfr' }, dbtn),
+        r('시간', f.t1, '~', f.t2), r('간격', f.step), r('신청 마감', f.close),
+        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', onclick: async (e) => {
+          const a = parseYmd(f.from.value || today), z = parseYmd(f.to.value || today);
+          const [h1, m1] = (f.t1.value || '16:00').split(':').map(Number), [h2, m2] = (f.t2.value || '18:00').split(':').map(Number);
+          const step = +f.step.value, slots = [];
+          for (let d = new Date(a); d <= z && slots.length < 400; d.setDate(d.getDate() + 1)) {
+            if (!dows[d.getDay()]) continue;
+            for (let t = h1 * 60 + m1; t + step <= h2 * 60 + m2 && slots.length < 400; t += step) slots.push(`${ymd(d).replace(/-/g, '')}_${pad(Math.floor(t / 60))}${pad(t % 60)}`);
+          }
+          if (!slots.length) { toast('만들어지는 시간이 없어요'); return; }
+          e.currentTarget.disabled = true;
+          try {
+            const id = await S.cloud.consultCreate({ title: f.title.value.trim() || '상담 신청', note: f.note.value.trim(), slots, closeAt: f.close.value ? new Date(f.close.value).getTime() : 0 });
+            const c = (await S.cloud.consultList()).find((x) => x.id === id); detail(c);
+          } catch (er) { console.error(er); toast('저장하지 못했어요'); e.currentTarget.disabled = false; }
+        } }, '만들기'))), list);
+    }
+    function detail(c) {
+      const draw = (books) => {
+        const by = {}; books.filter((b) => !b.cancelled).forEach((b) => { by[b.id] = b; });
+        const days = {};
+        c.slots.slice().sort().forEach((sid) => { (days[sid.slice(0, 8)] = days[sid.slice(0, 8)] || []).push(sid); });
+        const n = Object.keys(by).length;
+        shell(c.title || '상담', el('div', { class: 'cdet' },
+          el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `신청 ${n} / ${c.slots.length}`), el('span', { class: 'grow' }),
+            el('button', { class: 'ghost sm', type: 'button', onclick: () => copyText(bookUrl(c.id)) }, icon('link'), '링크 복사'),
+            el('button', { class: 'ib', type: 'button', title: '상담표 삭제', 'aria-label': '상담표 삭제', onclick: async () => {
+              if (!confirm('이 상담표를 삭제할까요?\n신청 내용도 모두 사라져요.')) return;
+              try { await S.cloud.consultDelete(c.id); toast('삭제했어요'); list(); } catch (e) { toast('삭제하지 못했어요'); }
+            } }, icon('trash'))),
+          el('div', { class: 'cgrid' }, Object.keys(days).map((k) => {
+            const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
+            return [el('div', { class: 'cday' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
+              days[k].map((sid) => { const b = by[sid]; return el('div', { class: 'cslot' + (b ? ' on' : '') },
+                el('span', { class: 'ct2' }, `${sid.slice(9, 11)}:${sid.slice(11, 13)}`),
+                b ? el('span', { class: 'cn' }, el('b', {}, b.name), b.info ? el('small', {}, ' ' + b.info) : null) : el('span', { class: 'mut' }, '—'),
+                b ? el('button', { class: 'ib', type: 'button', title: '신청 지우기', 'aria-label': '신청 지우기', onclick: async () => {
+                  if (!confirm(`${b.name} 학생의 신청을 지울까요?`)) return;
+                  try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { toast('지우지 못했어요'); }
+                } }, icon('close')) : null); })];
+          }))), list);
+      };
+      if (unsub) unsub();
+      draw([]);
+      unsub = S.cloud.consultWatchBooks(c.id, draw, () => toast('불러오지 못했어요'));
+    }
+    list();
   }
 
   /* ================= 토스트 / 키보드 ================= */
