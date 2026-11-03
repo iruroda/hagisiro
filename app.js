@@ -1771,7 +1771,7 @@
       render();
     };
     m.append(el('div', { class: 'back', onclick: close }),
-      el('div', { class: 'dlg' },
+      el('div', { class: 'dlg perdlg' },
         el('div', { class: 'shead' }, el('b', {}, '교시 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         grid,
         el('label', { class: 'keepbox' }, keep, el('span', {}, '개별 설정한 날은 제외하고 덮어쓰기')),
@@ -1815,7 +1815,7 @@
       Data.del('classes', c.id); S.clsId = null; close(); render();
     }
     m.append(el('div', { class: 'back', onclick: close }),
-      el('div', { class: 'dlg' },
+      el('div', { class: 'dlg rosdlg' },
         el('div', { class: 'shead' }, el('b', {}, c ? '학급 수정' : '학급 추가'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         name, ta,
         el('div', { class: 'dlgf' },

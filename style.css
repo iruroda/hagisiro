@@ -541,3 +541,6 @@ input[type=checkbox] { transition: transform .15s, background-color .15s; }
 #wmove .ic svg { width: 20px; height: 20px; }
 
 .mhead { min-height: 28px; } .mhead .msum { margin-left: 0; }
+
+.rosdlg { width: min(340px, 92vw); }
+.perdlg { width: min(290px, 92vw); } .perdlg .pgrid .pc select { width: 108px; }
