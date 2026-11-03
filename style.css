@@ -571,3 +571,9 @@ body { font-variant-numeric: tabular-nums; }
 .cregen { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .cform .crow2 input[type=time], .cform .crow2 input[type=date] { width: auto; }
 .pri.sm { padding: 3px 10px; font-size: var(--fs-4); }
+
+.askw { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; }
+.askw .back { position: absolute; inset: 0; background: rgba(0,0,0,.35); animation: fadein .14s; }
+.askd { width: min(320px, 90vw); animation: pop .14s ease-out; --bg: var(--bg-s); --bg2: var(--bg2-s); }
+.askm { display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-3); word-break: break-all; padding: 4px 2px; }
+.pri.danger { background: var(--sun); color: #fff; }

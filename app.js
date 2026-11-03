@@ -237,10 +237,11 @@
     const n = COLS.reduce((a, c) => a + (d[c] || []).length, 0);
     ls.set(key, '1');
     if (!n) return;
-    if (confirm(`이 기기에 저장돼 있던 데이터(${n}건)를 내 계정으로 옮길까요?`)) {
+    ask(`이 기기에 저장돼 있던 데이터(${n}건)를 내 계정으로 옮길까요?`, '옮기기', false).then((yes) => {
+      if (!yes) return;
       COLS.forEach((c) => (d[c] || []).forEach((x) => S.cloud.save(c, x).catch(cloudErr)));
       toast('내 계정으로 옮겼어요');
-    }
+    });
   }
   async function boot() {
     if (/[?&]widget/.test(location.search)) document.body.classList.add('widget');
@@ -323,6 +324,22 @@
       n.classList.remove('opening'); void n.offsetWidth; n.classList.add('opening');
     }).observe(n, { attributes: true, attributeFilter: ['hidden'] });
   });
+
+  /* 윈도우 기본 팝업 대신 앱 안의 확인창 */
+  function ask(msg, ok = '삭제', danger = true) {
+    return new Promise((res) => {
+      const done = (v) => { w.remove(); document.removeEventListener('keydown', key, true); res(v); };
+      const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); done(false); } else if (e.key === 'Enter') { e.stopPropagation(); done(true); } };
+      const w = el('div', { class: 'askw' }, el('div', { class: 'back', onclick: () => done(false) }),
+        el('div', { class: 'dlg askd', role: 'alertdialog' },
+          el('div', { class: 'askm' }, String(msg).split('\n').map((l) => el('div', {}, l))),
+          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: () => done(false) }, '취소'),
+            el('button', { class: danger ? 'pri danger' : 'pri', type: 'button', onclick: () => done(true) }, ok))));
+      document.addEventListener('keydown', key, true);
+      document.body.append(w);
+      w.querySelector('.pri').focus();
+    });
+  }
 
   /* ================= 렌더 ================= */
   function render() {
@@ -1179,8 +1196,8 @@
       setTimeout(() => form.focus(), 0);
     }
 
-    function delRule(r) {
-      if (!confirm('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.')) return;
+    async function delRule(r) {
+      if (!(await ask('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.'))) return;
       const ovr = S.todos.filter((t) => t.rid === r.id);
       Data.del('repeats', r.id); ovr.forEach((t) => Data.del('todos', t.id));
       toast('반복을 삭제했어요', () => { Data.put('repeats', r); ovr.forEach((t) => Data.put('todos', t)); render(); });
@@ -1708,7 +1725,7 @@
             el('span', { class: 'mut dhint' }, draft.kind === 'image' ? '이미지가 그대로 보여요' : '또는 아래에 직접 입력')),
           body,
           el('div', { class: 'dlgf' },
-            cur ? el('button', { class: 'ghost sm danger', onclick: () => { if (confirm(meta[1] + ' 내용을 삭제할까요?')) { Data.del('docs', id); close(); } } }, icon('trash'), '삭제') : null,
+            cur ? el('button', { class: 'ghost sm danger', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { Data.del('docs', id); close(); } } }, icon('trash'), '삭제') : null,
             el('span', { class: 'grow' }),
             el('button', { class: 'ghost', onclick: () => { if (cur) { edit = false; drawView(); } else close(); } }, '취소'),
             el('button', { class: 'pri', onclick: save }, '저장'))));
@@ -1848,8 +1865,8 @@
       S.clsId = id; ls.set('hagisiro:cls', id);
       close(); render();
     }
-    function remove() {
-      if (!confirm('이 학급을 삭제할까요? (출결 기록은 남아 있어요)')) return;
+    async function remove() {
+      if (!(await ask('이 학급을 삭제할까요?\n출결 기록은 남아 있어요.'))) return;
       Data.del('classes', c.id); S.clsId = null; close(); render();
     }
     m.append(el('div', { class: 'back', onclick: close }),
@@ -2019,7 +2036,7 @@
 
   /* ================= 상담 신청 (선생님) ================= */
   const bookUrl = (id) => new URL('book.html?c=' + id, location.href).href;
-  const copyText = async (t) => { try { await navigator.clipboard.writeText(t); toast('링크를 복사했어요'); } catch (e) { window.prompt('링크를 복사하세요', t); } };
+  const copyText = async (t) => { try { await navigator.clipboard.writeText(t); toast('링크를 복사했어요'); } catch (e) { ask('아래 링크를 길게 눌러 복사하세요\n' + t, '닫기', false); } };
   const sidLabel = (sid) => `${sid.slice(4, 6)}/${sid.slice(6, 8)} ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
   function consultView() {
     const host = el('div', { class: 'cv' });
@@ -2056,7 +2073,7 @@
           el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))) : el('div', { class: 'mut' }, '아직 만든 테이블이 없어요')));
     }
     async function del(c) {
-      if (!confirm(`“${c.title || '상담'}” 테이블을 삭제할까요?\n신청 내용도 모두 사라져요.`)) return;
+      if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?\n신청 내용도 모두 사라져요.`))) return;
       try { await S.cloud.consultDelete(c.id); toast('삭제했어요'); list(); } catch (e) { toast('삭제하지 못했어요'); }
     }
 
@@ -2179,7 +2196,7 @@
                 el('span', { class: 'ct2' }, hm(sid)),
                 b ? el('span', { class: 'cn' }, el('b', {}, b.name), b.info ? el('small', {}, ' ' + b.info) : null) : el('span', { class: 'mut' }, '—'),
                 b ? el('button', { class: 'ib', type: 'button', title: '신청 지우기', 'aria-label': '신청 지우기', onclick: async () => {
-                  if (!confirm(`${b.name} 학생의 신청을 지울까요?`)) return;
+                  if (!(await ask(`${b.name} 학생의 신청을 지울까요?`, '지우기'))) return;
                   try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { toast('지우지 못했어요'); }
                 } }, icon('close')) : null); })]))), list);
       };
