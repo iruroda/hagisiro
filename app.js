@@ -102,7 +102,8 @@
 
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
-  const PF = Object.assign({ cal: 'month', weeks: 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false },
+  const IS_WIDGET = /[?&]widget/.test(location.search);
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));

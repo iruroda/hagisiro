@@ -351,3 +351,21 @@ button, input, select, textarea { font-family: inherit; }
 .dhint { font-size: 12px; }
 .dta { min-height: 280px !important; flex: 1; white-space: pre; font-family: var(--font); }
 @media (max-width: 1100px) { .dbtn .lb { display: none; } }
+
+/* 위젯 모드: 상단바는 항상 한 줄 */
+body.widget #top { flex-wrap: nowrap; gap: 6px; padding: 6px 8px; }
+body.widget .dbtn .lb { display: none; }
+body.widget .ttl { min-width: 0; font-size: 15px; white-space: nowrap; }
+body.widget .tabs { margin-left: 0; }
+body.widget .tab { padding: 3px 8px; }
+body.widget .right { gap: 4px; }
+body.widget .nav { gap: 2px; }
+body.widget .seg button { padding: 2px 6px; font-size: 11px; }
+body.widget #top button, body.widget .ttl { white-space: nowrap; }
+body.widget .seg { display: none; }
+body.widget .nav .ghost { padding: 3px 7px; }
+body.widget .nav { flex-wrap: nowrap; flex: none; }
+body.widget .ttl { font-size: 14px; }
+body.widget .tab { padding: 3px 6px; font-size: 12px; }
+body.widget .dbtn { padding: 3px 6px; }
+body.widget #top .right { margin-left: auto; flex: none; }
