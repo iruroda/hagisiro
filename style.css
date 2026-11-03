@@ -518,3 +518,9 @@ input[type=text]:focus, input[type=number]:focus, input[type=date]:focus, input[
 .shead b { font-size: var(--fs-1); font-weight: 700; }
 .ttl, .dttl, .cvh b, .cday { font-size: var(--fs-1); font-weight: 700; }
 .pfs, .cday + * { letter-spacing: .02em; }
+
+/* 위젯: 화면 전환 때 창·칸 배경은 그대로 두고 안쪽 내용만 움직여요 (배경화면이 비치지 않게) */
+body.widget #main > .vin, body.widget #main > .vnext, body.widget #main > .vprev { animation: none; }
+body.widget #main > .vin :is(.cell, .wk, .att, .cv) > * { animation: vin .14s ease-out; }
+body.widget #main > .vnext :is(.cell, .wk, .att, .cv) > * { animation: vnext .14s ease-out; }
+body.widget #main > .vprev :is(.cell, .wk, .att, .cv) > * { animation: vprev .14s ease-out; }
