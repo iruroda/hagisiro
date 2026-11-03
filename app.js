@@ -1336,7 +1336,7 @@
       if (rec) {
         const on = new Set(recCols(rec, last));
         for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc tg' + (on.has(i) ? ' sl c-' + rec.cat : ''), title: on.has(i) ? kindLabel(rec) : null, onclick: () => toggleSlot(s, rec, i, ds, cls) }, on.has(i) ? icon('slash') : ''));
-        const rin = el('input', { type: 'text', class: 'rin', value: rec.reason || '', placeholder: '사유', 'aria-label': `${s.name} 사유`, spellcheck: 'false' });
+        const rin = el('input', { type: 'text', class: 'rin', value: rec.reason || '', 'aria-label': `${s.name} 사유`, spellcheck: 'false' });
         rin.addEventListener('change', () => Data.put('att', { ...rec, reason: rin.value.trim() }));
         rin.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) rin.blur(); });
         cells.push(el('td', { class: 'rs' }, el('div', { class: 'rsw' }, rin)));
