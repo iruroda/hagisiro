@@ -166,14 +166,16 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 html.widget, body.widget { background: transparent; }
 body.widget { --wbg: color-mix(in srgb, var(--bg) var(--wa, 90%), transparent); font-weight: 500; }
 body.widget #app { background: none; padding: 3px; gap: 3px; }
-body.widget #top { background: var(--wbg); border: 0; border-radius: 10px; padding-left: 40px; }
+body.widget #top { background: var(--wbg); border: 0; border-radius: 6px 6px 0 0; padding-left: 40px; }
 body.widget .cal { gap: 3px; }
-body.widget .wk { background: var(--wbg); border-radius: 8px; }
+body.widget .wk { background: var(--wbg); border-radius: 0; }
 body.widget .days { gap: 3px; border: 0; }
-body.widget .cell { border: 0; border-radius: 8px; background: var(--wbg); }
+body.widget .cell { border: 0; border-radius: 0; background: var(--wbg); }
+body.widget .cell:nth-last-child(7) { border-bottom-left-radius: 6px; }
+body.widget .cell:last-child { border-bottom-right-radius: 6px; }
 body.widget .cell.sel { background: color-mix(in srgb, var(--sel) var(--wa, 90%), transparent); }
 body.widget .cell.editing { background: var(--bg); }
-body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 10px; }
+body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 6px 6px; }
 /* 이동·크기 변경 모드 */
 #wmove { position: fixed; left: 8px; top: 8px; z-index: 80; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: var(--mut); transition: background-color .12s, color .12s; }
 #wmove:hover { background: var(--bg2); color: var(--text); }
