@@ -180,7 +180,7 @@ body.widget .cell.sel { background: color-mix(in srgb, var(--sel) var(--wa, 90%)
 body.widget .cell.editing { background: var(--bg); }
 body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 6px 6px; }
 /* 이동·크기 변경 모드 */
-#wmove { position: fixed; left: 8px; top: 8px; z-index: 80; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: var(--mut); transition: background-color .12s, color .12s; }
+#wmove { position: fixed; left: 8px; top: 9px; z-index: 80; width: 32px; height: 32px; border-radius: var(--r-md); display: grid; place-items: center; color: var(--mut); transition: background-color .12s, color .12s; }
 #wmove:hover { background: var(--bg2); color: var(--text); }
 body.wedit #wmove { background: var(--accent); color: #fff; }
 #wedit { position: fixed; inset: 0; z-index: 70; cursor: move; background: color-mix(in srgb, var(--accent) 7%, transparent); box-shadow: inset 0 0 0 2px var(--accent); border-radius: 12px; animation: fadein .15s; touch-action: none; }
@@ -524,3 +524,5 @@ body.widget #main > .vin, body.widget #main > .vnext, body.widget #main > .vprev
 body.widget #main > .vin :is(.cell, .wk, .att, .cv) > * { animation: vin .14s ease-out; }
 body.widget #main > .vnext :is(.cell, .wk, .att, .cv) > * { animation: vnext .14s ease-out; }
 body.widget #main > .vprev :is(.cell, .wk, .att, .cv) > * { animation: vprev .14s ease-out; }
+
+#wmove .ic svg { width: 20px; height: 20px; }

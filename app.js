@@ -59,8 +59,8 @@
     dot: '<circle cx="12" cy="12" r="4.2" class="f"/>',
     slash: '<path d="M8 19.5l8-15"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
-    refresh: '<path d="M19.2 12a7.2 7.2 0 11-2.3-5.3"/><path d="M19.5 4.8v4.2h-4.2"/>',
-    menu: '<path d="M4.5 7h15M4.5 12h15M4.5 17h15"/>',
+    refresh: '<path d="M19.4 11A7.5 7.5 0 1113.6 4.7"/><path d="M11.2 2.3l2.4 2.4-2.4 2.4"/>',
+    menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
     tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
   };
@@ -454,8 +454,7 @@
     const m = el('div', { class: 'menu', id: 'menu' });
     m.append(el('div', { class: 'mh' }, S.user ? (S.user.email || '로그인됨') : '이 기기에만 저장'));
     if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }));
-    m.append(item('화면 설정', openPrefs));
-    m.append(item('교시 설정', openSettings));
+    m.append(item('설정', openPrefs));
     if (S.user) {
       m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
         if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal(false);
@@ -1684,12 +1683,13 @@
     function draw() {
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg pfdlg' },
-          el('div', { class: 'shead' }, el('b', {}, '화면 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+          el('div', { class: 'shead' }, el('b', {}, '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
           el('div', { class: 'pfs' }, '캘린더'),
           row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
           row('전체 주 개수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')),
           row('지나간 주 개수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')),
           el('div', { class: 'pfh' }, '이번 주 기준 보기에서만 쓰여요. 지나간 주는 전체 주보다 적게 정할 수 있어요.'),
+          el('div', { class: 'pfs' }, '날짜 표시'),
           tog('lunar', '음력 날짜 표시'),
           tog('terms', '24절기 표시'),
           tog('hol', '공휴일 표시 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
@@ -1704,12 +1704,12 @@
           el('div', { class: 'pfs' }, '화면'),
           row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
           tog('anim', '화면 전환 애니메이션'),
-          S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await window.hagisiroWidget.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작할 때 함께 시작')),
-          row('위젯 투명도', el('input', {
+          window.hagisiroWidget ? el('div', { class: 'pfs' }, '위젯') : null,
+          window.hagisiroWidget ? row('투명도', el('input', {
             type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '위젯 투명도',
             oninput: (e) => { PF.opacity = +e.target.value; savePf(); const o = m.querySelector('.opv'); if (o) o.textContent = PF.opacity + '%'; },
-          }), el('b', { class: 'opv' }, PF.opacity + '%')),
-          el('div', { class: 'pfh' }, '바탕화면 위젯 모드에서만 적용돼요.'),
+          }), el('b', { class: 'opv' }, PF.opacity + '%')) : null,
+          S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await window.hagisiroWidget.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작할 때 함께 시작')),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', onclick: close }, '닫기'))));
     }
     draw();
