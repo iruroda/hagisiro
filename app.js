@@ -1634,13 +1634,29 @@
       return cells.join('\t');
     }).join('\n');
   }
-  function upscale(src) { // 작은 글씨는 키워서 흑백으로 읽으면 훨씬 잘 읽혀요
+  function upscale(src) { // 키우기 → 흑백 → 표 선 지우기: 글자만 남겨야 훨씬 잘 읽혀요
     return new Promise((res, rej) => {
       const im = new Image();
       im.onload = () => {
-        const k = Math.max(1, Math.min(2.5, 2400 / im.width));
-        const c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
-        const g = c.getContext('2d'); g.filter = 'grayscale(1) contrast(1.25)'; g.drawImage(im, 0, 0, c.width, c.height);
+        const k = Math.max(1, Math.min(3, 2600 / im.width));
+        const W = Math.round(im.width * k), H = Math.round(im.height * k);
+        const c = document.createElement('canvas'); c.width = W; c.height = H;
+        const g = c.getContext('2d', { willReadFrequently: true });
+        g.fillStyle = '#fff'; g.fillRect(0, 0, W, H); g.imageSmoothingQuality = 'high'; g.drawImage(im, 0, 0, W, H);
+        try {
+          const id = g.getImageData(0, 0, W, H), d = id.data, n = W * H, gray = new Uint8Array(n), hist = new Array(256).fill(0);
+          for (let i = 0; i < n; i++) { const v = (d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114) | 0; gray[i] = v; hist[v]++; }
+          let sum = 0; for (let t = 0; t < 256; t++) sum += t * hist[t];
+          let sb = 0, wb = 0, best = 0, th = 128;
+          for (let t = 0; t < 256; t++) { wb += hist[t]; if (!wb) continue; const wf = n - wb; if (!wf) break; sb += t * hist[t]; const mb = sb / wb, mf = (sum - sb) / wf, v = wb * wf * (mb - mf) * (mb - mf); if (v > best) { best = v; th = t; } }
+          const bin = new Uint8Array(n); for (let i = 0; i < n; i++) bin[i] = gray[i] < th ? 1 : 0; // 1 = 글자/선
+          const minRun = Math.max(70, Math.round(Math.min(W, H) * 0.12)); // 이보다 길게 이어진 가로·세로 줄은 표 선으로 보고 지움
+          const kill = new Uint8Array(n);
+          for (let y = 0; y < H; y++) { let s0 = -1; for (let x = 0; x <= W; x++) { const on = x < W && bin[y * W + x]; if (on && s0 < 0) s0 = x; else if (!on && s0 >= 0) { if (x - s0 >= minRun) for (let q = s0; q < x; q++) kill[y * W + q] = 1; s0 = -1; } } }
+          for (let x = 0; x < W; x++) { let s0 = -1; for (let y = 0; y <= H; y++) { const on = y < H && bin[y * W + x]; if (on && s0 < 0) s0 = y; else if (!on && s0 >= 0) { if (y - s0 >= minRun) for (let q = s0; q < y; q++) kill[q * W + x] = 1; s0 = -1; } } }
+          for (let i = 0; i < n; i++) { const v = bin[i] && !kill[i] ? 0 : 255; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v; d[i * 4 + 3] = 255; }
+          g.putImageData(id, 0, 0);
+        } catch (e) { /* 실패하면 그냥 키운 그림으로 */ }
         res(c.toDataURL('image/png'));
       };
       im.onerror = () => rej(new Error('이미지를 열지 못했어요'));
@@ -1651,6 +1667,7 @@
     const T = await loadTesseract();
     const w = await T.createWorker('kor', 1, { langPath: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/kor/4.0.0_best_int' });
     try {
+      await w.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' });
       const { data } = await w.recognize(await upscale(src));
       return wordsToTsv(data.words || []);
     } finally { await w.terminate(); }
@@ -1674,6 +1691,24 @@
       im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('이미지를 열지 못했어요')); };
       im.src = url;
     });
+  }
+  /* 한글·워드·웹에서 복사한 표(HTML)를 탭으로 구분된 글자로 바꿔요 (엑셀은 원래 탭으로 와요) */
+  function htmlTableToTsv(html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const tb = doc.querySelector('table'); if (!tb) return '';
+    const grid = [];
+    [...tb.rows].forEach((tr, ri) => {
+      grid[ri] = grid[ri] || []; let ci = 0;
+      [...tr.cells].forEach((td) => {
+        while (grid[ri][ci] !== undefined) ci++;
+        const txt = td.innerText !== undefined && td.innerText ? td.innerText : td.textContent;
+        const t = String(txt).replace(/\u00a0/g, ' ').replace(/\s*\n\s*/g, ' ').replace(/\t/g, ' ').trim();
+        const cs = Math.max(1, +td.colSpan || 1), rs = Math.max(1, +td.rowSpan || 1);
+        for (let r2 = 0; r2 < rs; r2++) for (let c2 = 0; c2 < cs; c2++) { grid[ri + r2] = grid[ri + r2] || []; grid[ri + r2][ci + c2] = (r2 === 0 && c2 === 0) ? t : ''; }
+        ci += cs;
+      });
+    });
+    return grid.map((r) => Array.from(r, (x) => x || '').join('\t').replace(/\t+$/, '')).filter((l, i, arr) => l || arr[i + 1]).join('\n');
   }
   function openDoc(id, forceEdit) {
     const meta = DOCS.find((x) => x[0] === id);
@@ -1700,6 +1735,15 @@
       const ta = el('textarea', { class: 'dta', placeholder: '여기에 직접 입력하거나, 엑셀에서 복사해 붙여넣으세요.\n(탭으로 구분된 내용은 표로 보여줘요)', spellcheck: 'false' });
       ta.value = draft.text || '';
       ta.addEventListener('input', () => { draft.text = ta.value; });
+      ta.addEventListener('paste', (e) => {
+        const cd = e.clipboardData; if (!cd) return;
+        const html = cd.getData('text/html');
+        if (!html || !/<table/i.test(html)) return; // 표가 아니면 그대로 붙여넣기
+        const t = htmlTableToTsv(html); if (!t.trim()) return;
+        e.preventDefault();
+        ta.setRangeText(t, ta.selectionStart, ta.selectionEnd, 'end');
+        draft.text = ta.value;
+      });
       const body = draft.kind === 'image'
         ? el('div', { class: 'dbody' }, el('div', { class: 'dimg' }, el('img', { src: draft.img, alt: '' })))
         : ta;
