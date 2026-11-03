@@ -379,7 +379,7 @@ body.widget .right { gap: 4px; }
 body.widget .nav { gap: 2px; }
 body.widget .seg button { padding: 2px 6px; font-size: 11px; }
 body.widget #top button, body.widget .ttl { white-space: nowrap; }
-body.widget .seg { display: none; }
+body.widget #top .seg { display: none; }
 body.widget .nav .ghost { padding: 3px 7px; }
 body.widget .nav { flex-wrap: nowrap; flex: none; }
 body.widget .ttl { font-size: 14px; }
@@ -442,3 +442,9 @@ body.widget #top .right { margin-left: auto; flex: none; }
 #top .ghost:hover { background: var(--bg2); }
 #top .seg { background: none; padding: 0; }
 #top .seg button.on { background: none; box-shadow: none; color: var(--accent); }
+
+/* 상담 탭 화면 */
+.cv { height: 100%; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; max-width: 620px; margin: 0 auto; width: 100%; }
+.cvh { display: flex; align-items: center; gap: 6px; font-size: 16px; }
+.cvm { margin: auto; }
+.cv .cgrid { max-height: none; }

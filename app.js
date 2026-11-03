@@ -272,6 +272,7 @@
   const dayNum = (ds) => Math.floor(parseYmd(ds).getTime() / 864e5);
   const viewKey = () => `${S.view}|${S.view === 'att' ? S.sub : PF.cal}`;
   function scopeNum() {
+    if (S.view === 'consult') return 0;
     if (S.view === 'cal') return PF.cal === 'week' ? dayNum(S.anchor) : S.y * 12 + S.m;
     if (S.sub === 'month') return S.y * 12 + S.m;
     if (S.sub === 'week') return dayNum(S.sel) - parseYmd(S.sel).getDay();
@@ -299,6 +300,8 @@
   /* ================= 렌더 ================= */
   function render() {
     if (S.editing) return; // 편집 중엔 화면을 갈아엎지 않음 (끝나면 다시 그림)
+    { const ae = document.activeElement; if (S.view === 'consult' && ae && ae.closest && ae.closest('.cv') && ae.matches('input,select')) return; }
+    if (S.cleanup) { S.cleanup(); S.cleanup = null; }
     if (!S.ready) return;
     clearPicked();
     document.body.classList.remove('booting');
@@ -309,7 +312,7 @@
     const main = $('#main');
     main.replaceChildren();
     if (needLogin()) main.append(loginView());
-    else main.append(S.view === 'att' ? attView() : calView());
+    else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
     animateMain(main);
     if (S.topSum && S.view === 'att') { // 통계는 '오늘' 버튼 바로 오른쪽 (월별=상단바, 일별·주별=날짜 줄)
       const btn = S.sub === 'month' ? $('#top .nav .ghost') : $('#main .dhead .tdbtn');
@@ -335,7 +338,7 @@
       ib('right', () => go(1), weekMode() ? '다음 주' : '다음 달'),
       S.view === 'att' && S.sub !== 'month' ? null : el('button', { class: 'ghost sm', onclick: goToday }, '오늘'));
     const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
-    const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'));
+    const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloudAvail ? tab('consult', '상담') : null);
     const right = el('div', { class: 'right' });
     DOCS.forEach(([id, label, ic]) => right.append(el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label))));
     if (S.view === 'cal') right.append(el('div', { class: 'seg', role: 'group', 'aria-label': '보기 방식' },
@@ -343,6 +346,7 @@
       el('button', { class: PF.cal === 'week' ? 'on' : '', onclick: () => setCalMode('week') }, '이번 주')));
     if ((gcalWanted() || (PF.ghol && S.cloud)) && !gtoken()) right.append(el('button', { class: 'ghost sm', onclick: () => connectGcal(!gcalWanted()) }, 'Google 다시 연결'));
     right.append(el('button', { class: 'ib', id: 'menuBtn', onclick: (e) => { e.stopPropagation(); openMenu(); }, 'aria-label': '메뉴', title: '메뉴' }, icon('more')));
+    if (S.view === 'consult') nav.replaceChildren();
     t.append(nav, tabs, right);
   }
 
@@ -395,7 +399,6 @@
     if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }));
     m.append(item('화면 설정', openPrefs));
     m.append(item('교시 설정', openSettings));
-    if (S.user) m.append(item('상담 신청', openConsults));
     if (S.user) {
       m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
         if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal(false);
@@ -1095,7 +1098,7 @@
       el('button', { class: 'ghost sm', onclick: () => openRoster(cls.id) }, icon('users'), '학급 수정'),
       el('button', { class: 'ghost sm', onclick: () => openRoster(null) }, icon('plus'), '학급 추가'),
       el('button', { class: 'ghost sm', onclick: openSettings }, icon('clock'), '교시 설정'),
-      el('button', { class: 'ghost sm', onclick: () => exportCsv(cls) }, icon('download'), 'CSV')));
+      el('button', { class: 'ghost sm', onclick: () => exportCsv(cls) }, icon('download'), '파일로 저장')));
 
     const q = el('input', { id: 'q', type: 'text', placeholder: '출결 입력', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'done', 'aria-label': '출결 입력' });
     q.addEventListener('input', preview);
@@ -1867,16 +1870,15 @@
   const bookUrl = (id) => new URL('book.html?c=' + id, location.href).href;
   const copyText = async (t) => { try { await navigator.clipboard.writeText(t); toast('링크를 복사했어요'); } catch (e) { window.prompt('링크를 복사하세요', t); } };
   const sidLabel = (sid) => `${sid.slice(4, 6)}/${sid.slice(6, 8)} ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
-  function openConsults() {
-    const m = $('#modal');
-    m.hidden = false;
+  function consultView() {
+    const host = el('div', { class: 'cv' });
+    if (!S.cloud) { host.append(el('div', { class: 'cvm mut' }, 'Google 로그인 후 사용할 수 있어요')); return host; }
     let unsub = null;
-    const close = () => { if (unsub) unsub(); m.hidden = true; m.replaceChildren(); };
-    const shell = (title, body, back) => m.replaceChildren(el('div', { class: 'back', onclick: close }),
-      el('div', { class: 'dlg cdlg' },
-        el('div', { class: 'shead' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title), el('span', { class: 'grow' }),
-          el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))), body));
+    S.cleanup = () => { if (unsub) unsub(); unsub = null; };
+    const shell = (title, body, back) => host.replaceChildren(
+      el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body);
     async function list() {
+      S.cs = null;
       if (unsub) { unsub(); unsub = null; }
       shell('상담 신청', el('div', { class: 'mut' }, '불러오는 중…'));
       let rows = [];
@@ -1920,6 +1922,7 @@
         } }, '만들기'))), list);
     }
     function detail(c) {
+      S.cs = { c };
       const draw = (books) => {
         const by = {}; books.filter((b) => !b.cancelled).forEach((b) => { by[b.id] = b; });
         const days = {};
@@ -1948,7 +1951,8 @@
       draw([]);
       unsub = S.cloud.consultWatchBooks(c.id, draw, () => toast('불러오지 못했어요'));
     }
-    list();
+    if (S.cs && S.cs.c) detail(S.cs.c); else list();
+    return host;
   }
 
   /* ================= 위젯 이동·크기 변경 (Electron) ================= */
