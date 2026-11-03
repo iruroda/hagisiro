@@ -372,7 +372,7 @@ button, input, select, textarea { font-family: inherit; }
 @media (max-width: 1100px) { .dbtn .lb { display: none; } }
 
 /* 위젯 모드: 상단바는 항상 한 줄 */
-body.widget #top { flex-wrap: nowrap; gap: 6px; padding: 6px 8px; }
+body.widget #top { flex-wrap: nowrap; gap: 6px; padding: 6px 8px 6px 42px; }
 body.widget .dbtn .lb { display: none; }
 body.widget .ttl { min-width: 0; font-size: 15px; white-space: nowrap; }
 body.widget .tabs { margin-left: 0; }
