@@ -110,7 +110,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .sbody .td { font-size: 16px; padding: 5px 0; align-items: center; }
 .sbody .sbody .addrow { display: flex; gap: 6px; align-items: center; color: var(--mut); padding: 8px 0 2px; font-size: 14px; }
 .dlg { position: relative; width: min(430px, 92vw); max-height: 90vh; background: var(--bg); border-radius: 14px; padding: 14px; box-shadow: 0 16px 48px rgba(0,0,0,.25); display: flex; flex-direction: column; gap: 10px; }
-.dlg textarea { resize: vertical; font-family: var(--font); font-size: 13px; min-height: 180px; }
+.dlg textarea { resize: none; font-family: var(--font); font-size: 13px; min-height: 180px; }
 .dlgf { display: flex; gap: 8px; align-items: center; }
 .dlgf .pri { padding: 6px 16px; } .dlgf .ghost { padding: 6px 14px; }
 
@@ -480,3 +480,10 @@ input, textarea, .docdlg, .docdlg * { -webkit-user-select: text; user-select: te
 #top > * { flex: none; }
 #top .right { gap: 4px; }
 .mi.on { color: var(--accent); font-weight: 600; }
+
+/* 입력칸(textarea) 스크롤바: 안쪽으로 들여서 위·아래·오른쪽 여백을 주고, 크기 조절 손잡이는 없앰 */
+textarea { resize: none !important; }
+textarea::-webkit-scrollbar { width: 14px; height: 14px; }
+textarea::-webkit-scrollbar-track { margin: 8px 0; background: transparent; }
+textarea::-webkit-scrollbar-thumb { border: 5px solid transparent; background-clip: padding-box; min-height: 24px; }
+textarea::-webkit-resizer { display: none; }
