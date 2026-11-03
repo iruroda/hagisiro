@@ -44,6 +44,9 @@ function snapBounds(b, mode) {
 }
 ipcMain.handle('wb-get', () => (win ? win.getBounds() : null));
 ipcMain.on('wb-set', (e, b, mode) => { if (win && b) win.setBounds(snapBounds(b, mode)); });
+ipcMain.handle('as-get', () => app.getLoginItemSettings().openAtLogin);
+ipcMain.handle('as-set', (e, v) => { app.setLoginItemSettings({ openAtLogin: !!v }); return app.getLoginItemSettings().openAtLogin; });
+ipcMain.on('quit', () => app.quit());
 ipcMain.on('wb-done', () => { if (win) { st.bounds = win.getBounds(); save(); } });
 
 function create() {
@@ -62,6 +65,8 @@ function create() {
     }
     shell.openExternal(url); return { action: 'deny' };
   });
+  // 위젯 위에서 오른쪽 버튼 → 트레이와 같은 메뉴 (입력칸에서는 기본 메뉴)
+  win.webContents.on('context-menu', (e, params) => { if (!params.isEditable) menu().popup({ window: win }); });
   win.on('moved', () => { st.bounds = win.getBounds(); save(); });
   win.on('closed', () => { win = null; });
 }

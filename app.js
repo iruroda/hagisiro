@@ -420,6 +420,7 @@
       m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }));
     }
     if (!S.cloud) m.append(item('백업 내보내기 (JSON)', exportJson));
+    if (window.hagisiroWidget && window.hagisiroWidget.quit) m.append(item('종료', () => window.hagisiroWidget.quit()));
     $('#app').append(m);
     setTimeout(() => document.addEventListener('click', onDocClick), 0);
   }
@@ -1660,6 +1661,7 @@
           el('div', { class: 'pfs' }, '화면'),
           row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
           tog('anim', '화면 전환 애니메이션'),
+          S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await window.hagisiroWidget.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작할 때 함께 시작')),
           row('위젯 투명도', el('input', {
             type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '위젯 투명도',
             oninput: (e) => { PF.opacity = +e.target.value; savePf(); const o = m.querySelector('.opv'); if (o) o.textContent = PF.opacity + '%'; },
@@ -1668,6 +1670,7 @@
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', onclick: close }, '닫기'))));
     }
     draw();
+    if (window.hagisiroWidget && window.hagisiroWidget.getAutoStart) window.hagisiroWidget.getAutoStart().then((v) => { S.autoStart = v; if (!m.hidden) draw(); });
   }
 
   /* ---------- 설정: 요일별 기본 교시 수 ---------- */
