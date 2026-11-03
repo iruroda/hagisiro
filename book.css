@@ -1,5 +1,5 @@
-:root { color-scheme: light dark; --bg:#fff; --bg2:#f5f6f8; --text:#1b1d21; --mut:#8b9098; --line:#ebedf0; --accent:#2563eb; --sun:#e5484d; }
-@media (prefers-color-scheme: dark) { :root { --bg:#16181c; --bg2:#1d2025; --text:#e8eaed; --mut:#8a9099; --line:#2a2e35; --accent:#5b8def; --sun:#ff6b6f; } }
+:root { color-scheme: light dark; --bg:#fff; --bg2:#f5f6f8; --text:#1b1d21; --mut:#8b9098; --line:#ebedf0; --accent:#6d4aff; --sun:#e5484d; }
+@media (prefers-color-scheme: dark) { :root { --bg:#16181c; --bg2:#1d2025; --text:#e8eaed; --mut:#8a9099; --line:#2a2e35; --accent:#9b82ff; --sun:#ff6b6f; } }
 * { box-sizing: border-box; }
 @font-face { font-family: SUITE; src: url(fonts/SUITE-Variable.woff2) format('woff2'); font-weight: 100 900; font-display: swap; }
 body { margin: 0; font: 15px/1.5 SUITE, system-ui, -apple-system, 'Segoe UI', 'Noto Sans KR', sans-serif; color: var(--text); background: var(--bg); }

@@ -69,7 +69,7 @@
     s.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
     return s;
   }
-  const LOGO = '<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="lg-bb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e9edfb"/></linearGradient><linearGradient id="lg-bg" gradientUnits="userSpaceOnUse" x1="8" y1="8" x2="56" y2="56"><stop offset="0" stop-color="#8b5cff"/><stop offset=".5" stop-color="#3b82f6"/><stop offset="1" stop-color="#1fd6c1"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg-bb)"/><rect x="33.5" y="6.5" width="24" height="24" rx="8" fill="url(#lg-bg)" opacity="0.24"/><rect x="6.5" y="33.5" width="24" height="24" rx="8" fill="url(#lg-bg)" opacity="0.24"/><rect x="6.5" y="6.5" width="24" height="24" rx="8" fill="url(#lg-bg)" opacity="1"/><rect x="33.5" y="33.5" width="24" height="24" rx="8" fill="url(#lg-bg)" opacity="1"/><path d="M12.4 10.9v15.3M24.6 10.9v15.3M12.4 18.5h12.2" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/><path d="M38.3 45.9l5.3 5.5 9.5-11.3" fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const LOGO = '<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="lg-g" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#7c4dff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient></defs><rect x="34" y="0" width="30" height="30" rx="9" fill="url(#lg-g)" opacity="0.62"/><rect x="0" y="34" width="30" height="30" rx="9" fill="url(#lg-g)" opacity="0.62"/><rect x="0" y="0" width="30" height="30" rx="9" fill="url(#lg-g)"/><rect x="34" y="34" width="30" height="30" rx="9" fill="url(#lg-g)"/><path d="M8.7 6.5v17M21.3 6.5v17M8.7 15h12.6" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round"/><path d="M40 49.5l6.4 6.6 12-14.2" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* 한글 입력(IME) 중 엔터 처리: 마지막 글자가 확정된 뒤 한 번에 동작하도록 */
   function onEnter(inp, fn) {
@@ -630,7 +630,7 @@
   }
 
   /* ---------- 글자색 · 배경색 팔레트 ---------- */
-  const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#2563eb', '파랑'], ['#8b5cf6', '보라'], ['#d6409f', '분홍'], ['#8b9098', '회색']];
+  const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#2f6df6', '파랑'], ['#8b5cf6', '보라'], ['#d6409f', '분홍'], ['#8b9098', '회색']];
   const BGC = [['', '없음'], ['rgba(250,204,21,.38)', '노랑'], ['rgba(251,146,60,.32)', '주황'], ['rgba(239,68,68,.24)', '빨강'], ['rgba(34,197,94,.26)', '초록'], ['rgba(59,130,246,.26)', '파랑'], ['rgba(139,92,246,.26)', '보라'], ['rgba(236,72,153,.24)', '분홍'], ['rgba(128,128,128,.28)', '회색']];
   function swatches(onPick, cur) {
     const wrap = el('div', { class: 'sw' });
