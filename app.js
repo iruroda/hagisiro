@@ -109,7 +109,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: false, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -426,7 +426,7 @@
     const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloudAvail ? tab('consult', '상담') : null);
     const right = el('div', { class: 'right' });
     // 오른쪽 도구들: 좁아지면 뒤에서부터 ⋯ 팝업으로 들어가요
-    const gc = (gcalWanted() || (PF.ghol && S.cloud)) && !gtoken();
+    const gc = gcalWanted() && !gtoken();
     const tools = [
       { k: 'sync', label: '새로고침', run: forceSync, node: () => el('button', { class: 'ib', id: 'syncBtn', title: '새로고침', 'aria-label': '새로고침', onclick: forceSync }, icon('refresh')) },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, run: () => openDoc(id),
@@ -435,7 +435,7 @@
         node: () => el('div', { class: 'seg', role: 'group', 'aria-label': '보기 방식' },
           el('button', { class: PF.cal === 'month' ? 'on' : '', onclick: () => setCalMode('month') }, '월별'),
           el('button', { class: PF.cal === 'week' ? 'on' : '', onclick: () => setCalMode('week') }, '이번 주')) } : null,
-      gc ? { k: 'gc', label: 'Google 다시 연결', run: () => connectGcal(!gcalWanted()), node: () => el('button', { class: 'ghost sm', onclick: () => connectGcal(!gcalWanted()) }, 'Google 다시 연결') } : null,
+      gc ? { k: 'gc', label: 'Google 다시 연결', run: () => connectGcal(), node: () => el('button', { class: 'ghost sm', onclick: () => connectGcal() }, 'Google 다시 연결') } : null,
     ].filter(Boolean);
     S.tools = tools;
     tools.forEach((x) => { const n = x.node(); n.dataset.ov = x.k; right.append(n); });
@@ -565,7 +565,7 @@
     m.append(item('설정', openPrefs));
     if (S.user) {
       m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
-        if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal(false);
+        if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal();
       }));
       m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }));
     }
@@ -1852,7 +1852,7 @@
       if (after === 'range') watchRange();
       if (after === 'meal') loadMeal();
       if (after === 'ghol') {
-        if (PF.ghol && S.cloud && !gtoken()) connectGcal(!gcalWanted()); else loadGhol();
+        loadGhol();
       }
       render(); draw();
     }
@@ -1867,7 +1867,7 @@
         tog('lunar', '음력 날짜'),
         tog('terms', '24절기'),
         tog('hol', '공휴일 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
-        tog('ghol', 'Google 캘린더 공휴일 연동', S.cloud ? '임시공휴일 등을 Google에서 가져와요' : 'Google 로그인 후 사용할 수 있어요', 'ghol', !S.cloud),
+        tog('ghol', '임시공휴일 자동 반영', 'Google 공개 공휴일 캘린더에서 가져와요 · 로그인 필요 없음', 'ghol'),
       ],
       view: () => [
         el('div', { class: 'pfs' }, '화면'),
@@ -2003,15 +2003,15 @@
     return null;
   }
   const gcalWanted = () => !!S.cloud && ls.get('hagisiro:gcal') === '1';
-  async function connectGcal(holOnly) {
+  async function connectGcal() {
     try {
       const t = await S.cloud.calendarToken();
       if (!t) throw new Error('토큰을 받지 못했어요');
       try { sessionStorage.setItem(GK, JSON.stringify({ t, exp: Date.now() + 50 * 60e3 })); } catch (e) { /* noop */ }
-      if (!holOnly) ls.set('hagisiro:gcal', '1');
-      await Promise.all([loadGcal(), loadGhol()]);
+      ls.set('hagisiro:gcal', '1');
+      await loadGcal();
       render();
-      toast(holOnly ? 'Google 공휴일을 연결했어요' : 'Google 캘린더 일정을 함께 표시해요');
+      toast('Google 캘린더 일정을 함께 표시해요');
     } catch (e) { toast('연동 실패: ' + ((e && (e.code || e.message)) || '')); }
   }
   async function loadGcal() {
@@ -2048,18 +2048,21 @@
     } catch (e) { console.error(e); }
   }
 
-  /* Google '대한민국의 휴일' 캘린더 (임시공휴일 등 반영) */
+  /* Google '대한민국의 휴일' 공개 캘린더 (임시공휴일 등 반영) — 로그인·권한 없이 공개 키로 읽어요 */
   let gholWarned = false;
   async function loadGhol() {
-    if (!PF.ghol || !S.cloud) { if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
+    if (!PF.ghol) { if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
+    const key = window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey;
     const tok = gtoken();
-    if (!tok) return;
+    if (!key && !tok) return;
     const r = range();
     const end = parseYmd(r.to); end.setDate(end.getDate() + 1);
-    const url = 'https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent('ko.south_korea#holiday@group.v.calendar.google.com') + '/events?' +
-      new URLSearchParams({ timeMin: r.start.toISOString(), timeMax: end.toISOString(), singleEvents: 'true', maxResults: '100' });
+    const q = { timeMin: r.start.toISOString(), timeMax: end.toISOString(), singleEvents: 'true', maxResults: '100' };
+    if (key) q.key = key;
+    const url = 'https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent('ko.south_korea#holiday@group.v.calendar.google.com') + '/events?' + new URLSearchParams(q);
     try {
-      const res = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
+      let res = await fetch(url);
+      if (!res.ok && tok) res = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } }); // 키로 안 되면 로그인 권한으로 한 번 더
       if (!res.ok) {
         if (!gholWarned) { gholWarned = true; toast('Google 공휴일을 불러오지 못했어요 (내장 공휴일만 표시)'); }
         return;
