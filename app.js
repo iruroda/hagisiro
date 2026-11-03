@@ -325,6 +325,29 @@
     }).observe(n, { attributes: true, attributeFilter: ['hidden'] });
   });
 
+  /* 팝업이 닫힐 때도 부드럽게: hidden=true 를 잠깐 미뤄서 사라지는 효과를 먼저 보여줘요 */
+  ['modal', 'sheet'].forEach((id) => {
+    const n = document.getElementById(id);
+    if (!n) return;
+    const desc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'hidden');
+    const rc = n.replaceChildren.bind(n);
+    let logical = n.hidden, timer = null;
+    const cancel = () => { if (timer) { clearTimeout(timer); timer = null; n.classList.remove('closing'); } };
+    Object.defineProperty(n, 'hidden', {
+      get() { return logical; },
+      set(v) {
+        v = !!v;
+        if (!v) { cancel(); logical = false; desc.set.call(n, false); return; }
+        if (logical) return;
+        logical = true;
+        if (document.documentElement.classList.contains('noanim')) { desc.set.call(n, true); return; }
+        n.classList.add('closing');
+        timer = setTimeout(() => { timer = null; n.classList.remove('closing'); if (logical) { desc.set.call(n, true); rc(); } }, 150);
+      },
+    });
+    n.replaceChildren = (...k) => { if (timer && !k.length) return; if (k.length) cancel(); rc(...k); };
+  });
+
   /* 윈도우 기본 팝업 대신 앱 안의 확인창 */
   function ask(msg, ok = '삭제', danger = true) {
     return new Promise((res) => {
@@ -1719,15 +1742,15 @@
     let draft = cur ? { kind: cur.kind, text: cur.text || '', img: cur.img || '' } : { kind: 'text', text: '' };
     let edit = !!forceEdit || !cur;
     const head = (...extra) => el('div', { class: 'shead' }, el('b', {}, meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
-    function drawView() {
+    let drawView = function () {
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
-        el('div', { class: 'dlg docdlg' }, head(),
+        el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(),
           el('div', { class: 'dbody' }, docView(cur)),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
             el('button', { class: 'ghost', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정'),
             el('button', { class: 'pri', onclick: close }, '닫기'))));
-    }
-    function drawEdit() {
+    };
+    let drawEdit = function () {
       const file = el('input', { type: 'file', hidden: true, accept: '.xlsx,.xls,.xlsm,.csv,.tsv,.txt,image/*', onchange: async (e) => {
         const f = e.target.files[0]; if (!f) return;
         try { draft = await fileToDraft(f); drawEdit(); } catch (er) { toast(er.message || '파일을 읽지 못했어요'); }
@@ -1751,10 +1774,10 @@
         if (draft.kind === 'text' && !draft.text.trim()) { if (cur) Data.del('docs', id); close(); return; }
         if (draft.kind === 'text' && draft.text.length > 300000) { toast('내용이 너무 길어요'); return; }
         const o = draft.kind === 'image' ? { id, kind: 'image', img: draft.img, updated: Date.now() } : { id, kind: 'text', text: draft.text, updated: Date.now() };
-        Data.put('docs', o); close();
+        Data.put('docs', o); cur = docOf(id) || o; edit = false; drawView(); toast('저장했어요');
       };
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
-        el('div', { class: 'dlg docdlg' }, head(),
+        el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(),
           el('div', { class: 'dsrc' },
             el('button', { class: 'ghost sm', type: 'button', onclick: () => file.click() }, icon('upload'), '엑셀·이미지 올리기'), file,
             draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: async (e) => {
@@ -1774,7 +1797,23 @@
             el('button', { class: 'ghost', onclick: () => { if (cur) { edit = false; drawView(); } else close(); } }, '취소'),
             el('button', { class: 'pri', onclick: save }, '저장'))));
       if (draft.kind === 'text') ta.focus();
+    };
+    function fitImg() { // 사진 크기에 맞춰 팝업 폭을 줄이고, 화면(세로)에 들어가도록 줄여요
+      const d = m.querySelector('.imgdlg'), img = d && d.querySelector('img');
+      if (!img) return;
+      const run = () => {
+        const nw = img.naturalWidth, nh = img.naturalHeight; if (!nw) return;
+        const hasSrc = d.querySelector('.dsrc') ? 56 : 0;
+        const availW = window.innerWidth * 0.94 - 28, availH = window.innerHeight * 0.9 - 150 - hasSrc;
+        const k = Math.min(1, availW / nw, availH / nh);
+        const w = Math.round(nw * k);
+        img.style.width = w + 'px'; img.style.height = 'auto';
+        d.style.width = Math.max(Math.min(340, window.innerWidth * 0.94), w + 28) + 'px';
+      };
+      if (img.complete && img.naturalWidth) run(); else img.addEventListener('load', run, { once: true });
     }
+    const _de = drawEdit, _dv = drawView;
+    drawEdit = function () { _de(); fitImg(); }; drawView = function () { _dv(); fitImg(); };
     if (edit) drawEdit(); else drawView();
   }
 
