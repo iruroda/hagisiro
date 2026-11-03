@@ -362,7 +362,7 @@
     const ib = (name, fn, label) => el('button', { class: 'ib', onclick: fn, 'aria-label': label, title: label, disabled: cv }, icon(name));
     const nav = el('div', { class: 'nav' },
       ib('left', () => go(-1), weekMode() ? '이전 주' : '이전 달'),
-      el('span', { class: 'ttl' }, cv ? '상담' : weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
+      el('span', { class: 'ttl' + (cv ? '' : ' jump'), title: cv ? '' : '눌러서 연·월 직접 입력', onclick: cv ? null : (e) => editTtl(e.currentTarget) }, cv ? '상담' : weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
       ib('right', () => go(1), weekMode() ? '다음 주' : '다음 달'),
       el('button', { class: 'ghost sm', disabled: cv, onclick: goToday }, '오늘'));
     const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
@@ -451,6 +451,33 @@
     if (sd.getFullYear() !== S.y || sd.getMonth() !== S.m) S.sel = ymd(new Date(S.y, S.m, 1));
     S.extra = {};
     watchRange(); render();
+  }
+  function jumpTo(y, m) {
+    const sd = parseYmd(S.sel);
+    const dim = new Date(y, m + 1, 0).getDate();
+    const d = new Date(y, m, Math.min(sd.getDate(), dim));
+    S.y = y; S.m = m; S.sel = ymd(d); S.anchor = ymd(d); S.extra = {};
+    watchRange(); render();
+  }
+  function editTtl(span) {
+    if (span.querySelector('input')) return;
+    const ref = weekMode() ? parseYmd(S.anchor) : new Date(S.y, S.m, 1);
+    const yi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 4, class: 'ttin y', value: ref.getFullYear(), 'aria-label': '연도' });
+    const mi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 2, class: 'ttin m', value: ref.getMonth() + 1, 'aria-label': '월' });
+    let done = false;
+    const finish = (ok) => {
+      if (done) return; done = true;
+      const y = parseInt(yi.value, 10), m = parseInt(mi.value, 10);
+      if (ok && y >= 1900 && y <= 2200 && m >= 1 && m <= 12) jumpTo(y, m - 1); else render();
+    };
+    [yi, mi].forEach((i) => {
+      i.addEventListener('input', () => { i.value = i.value.replace(/\D/g, ''); if (i === yi && i.value.length === 4) { mi.focus(); mi.select(); } });
+      i.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true); else if (e.key === 'Escape') finish(false); e.stopPropagation(); });
+      i.addEventListener('focus', () => i.select());
+    });
+    span.replaceChildren(yi, '년 ', mi, '월');
+    span.addEventListener('focusout', () => setTimeout(() => { if (!span.contains(document.activeElement)) finish(true); }, 0));
+    yi.focus();
   }
   function goToday() {
     const n = new Date();

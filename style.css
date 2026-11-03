@@ -548,3 +548,8 @@ input[type=checkbox] { transition: transform .15s, background-color .15s; }
 /* 글자 폭이 바뀌어도 칩·제목 크기는 고정 */
 body { font-variant-numeric: tabular-nums; }
 .ttl, body.widget .ttl, body:not(.widget) .ttl { width: 6.2em; min-width: 6.2em; flex: none; text-align: center; white-space: nowrap; }
+
+.ttl.jump { cursor: pointer; border-radius: var(--r-md); transition: background-color .12s; }
+.ttl.jump:hover { background: var(--bg2); }
+.ttin { font: inherit; font-weight: 700; text-align: center; border: 0; border-bottom: 2px solid var(--accent); background: transparent; color: var(--text); padding: 0; border-radius: 0; box-shadow: none; outline: 0; }
+.ttin.y { width: 3em; } .ttin.m { width: 1.6em; }
