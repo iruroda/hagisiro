@@ -923,7 +923,7 @@
     const szr = el('div', { class: 'swr' }, el('span', { class: 'swl' }, '크기'));
     const seg = el('div', { class: 'seg szseg' });
     SIZES.forEach(([val, name]) => {
-      const b = el('button', { type: 'button', class: (cur && (cur.sz || PF.tsz || 's') === val) ? 'on' : '', 'aria-label': `글씨 크기 ${name}`, onclick: (e) => {
+      const b = el('button', { type: 'button', class: (cur && (cur.sz || PF.tsz || 's') === val) ? 'on' : '', 'aria-label': `글자 크기 ${name}`, onclick: (e) => {
         e.stopPropagation(); seg.querySelectorAll('button').forEach((x) => x.classList.remove('on')); b.classList.add('on'); onPick({ sz: val });
       } }, name);
       seg.append(b);
@@ -954,7 +954,6 @@
   }
 
   /* ---------- 아이콘 막대: ✓ 취소선 · 팔레트 · 반복 ---------- */
-  const NEED_PICK = '먼저 할 일을 고르세요 (불릿을 누르거나 끌어서 선택)';
   function makeBar(ctx) {
     const bar = el('div', { class: 'tbar ' + (ctx.cls || '') });
     bar.addEventListener('mousedown', (e) => e.preventDefault()); // 막대를 눌러도 입력창 포커스 유지
@@ -966,19 +965,19 @@
     bar.append(
       btn('done', '완료', () => {
         const ts = ctx.targets();
-        if (!ts.length) { toast(NEED_PICK); return; }
+        if (!ts.length) return;
         const to = !ts.every((t) => t.get().done);
         if (ctx.setDone) ctx.setDone(ts, to); else ts.forEach((t) => t.set({ done: to }));
         if (ctx.after) ctx.after(false);
       }),
       btn('palette', '글자색 · 배경색', (b) => {
-        if (!ctx.targets().length) { toast(NEED_PICK); return; }
-        openPalette(b, (patch) => { ctx.targets().forEach((t) => t.set(patch)); if (ctx.after) ctx.after(true); }, ctx.targets()[0].get());
+        if (!ctx.targets(true).length) return;
+        openPalette(b, (patch) => { ctx.targets(true).forEach((t) => t.set(patch)); if (ctx.after) ctx.after(true); }, ctx.targets(true)[0].get());
       }),
       btn('repeat', '반복', () => ctx.repeat(ctx.targets())),
       btn('dday', 'D-day', () => {
         const ts = ctx.targets();
-        if (!ts.length) { toast(NEED_PICK); return; }
+        if (!ts.length) return;
         const to = !ts.every((t) => t.get().dday);
         ts.forEach((t) => t.set({ dday: to ? true : '' }));
         if (ctx.after) ctx.after(false);
@@ -1118,10 +1117,10 @@
     };
     const clearPicks = () => rows().forEach((r) => r.classList.remove('picked'));
     // 선택한 줄이 있으면 그 줄들, 없으면 커서가 있는 줄
-    const targets = () => {
+    const targets = (incEmpty) => { // incEmpty: 아직 글자를 안 쓴 줄도 포함 (색·크기는 미리 정할 수 있게)
       let rs = rows().filter((r) => r.classList.contains('picked'));
       if (!rs.length) { const f = rows().find((r) => r.contains(document.activeElement)); if (f) rs = [f]; }
-      return rs.filter((r) => r._it.text.trim()).map((r) => ({ id: r._it.id, get: () => r._it, set: (p) => { if ('done' in p) r._it.kill = !!(p.done && !r._it.done && PF.autoDel); Object.assign(r._it, p); paint(r); } }));
+      return rs.filter((r) => incEmpty || r._it.text.trim()).map((r) => ({ id: r._it.id, get: () => r._it, set: (p) => { if ('done' in p) r._it.kill = !!(p.done && !r._it.done && PF.autoDel); Object.assign(r._it, p); paint(r); } }));
     };
     // 글자 칸에서 끌어서 줄을 넘어가면, 글자 선택 대신 지나간 줄 전체를 선택
     const rowAt = (y) => {
@@ -2095,7 +2094,7 @@
           onclick: () => { PF[key] = val; commit('render'); } })));
         return [
           el('div', { class: 'pfs' }, '기본 모양 (할 일마다 따로 바꾼 것이 우선)'),
-          row('글씨 크기', el('div', { class: 'seg szseg' }, SIZES.map(([v, l]) => el('button', { type: 'button', class: (PF.tsz || 's') === v ? 'on' : '', onclick: () => { PF.tsz = v === 's' ? '' : v; commit('render'); } }, l)))),
+          row('글자 크기', el('div', { class: 'seg szseg' }, SIZES.map(([v, l]) => el('button', { type: 'button', class: (PF.tsz || 's') === v ? 'on' : '', onclick: () => { PF.tsz = v === 's' ? '' : v; commit('render'); } }, l)))),
           row('글자색', dots('tfg', FG)),
           row('바탕색', dots('tbg', BGC)),
           row('줄 간격', el('div', { class: 'seg szseg' }, [[0, '아주 좁게'], [1, '좁게'], [2, '보통'], [3, '넓게'], [4, '아주 넓게']].map(([v, l]) => el('button', { type: 'button', class: PF.tlh === v ? 'on' : '', onclick: () => { PF.tlh = v; commit('render'); } }, l)))),
