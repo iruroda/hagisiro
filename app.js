@@ -462,10 +462,6 @@
       { k: 'sync', label: '새로고침', run: forceSync, node: () => el('button', { class: 'ib', id: 'syncBtn', title: '새로고침', 'aria-label': '새로고침', onclick: forceSync }, icon('refresh')) },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, run: () => openDoc(id),
         node: () => el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label)) })),
-      S.view === 'cal' ? { k: 'seg', menu: [['월별', PF.cal === 'month', () => setCalMode('month')], ['이번 주', PF.cal === 'week', () => setCalMode('week')]],
-        node: () => el('div', { class: 'seg', role: 'group', 'aria-label': '보기 방식' },
-          el('button', { class: PF.cal === 'month' ? 'on' : '', onclick: () => setCalMode('month') }, '월별'),
-          el('button', { class: PF.cal === 'week' ? 'on' : '', onclick: () => setCalMode('week') }, '이번 주')) } : null,
       gc ? { k: 'gc', label: 'Google 다시 연결', run: () => connectGcal(), node: () => el('button', { class: 'ghost sm', onclick: () => connectGcal() }, 'Google 다시 연결') } : null,
     ].filter(Boolean);
     S.tools = tools;
@@ -603,6 +599,8 @@
     m.append(el('div', { class: 'mh' }, S.user ? (S.user.email || '로그인됨') : '이 기기에만 저장'));
     if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }));
     m.append(item('할 일 검색', openSearch));
+    m.append(item('새로고침', forceSync));
+    DOCS.forEach(([id, label]) => m.append(item(label, () => openDoc(id))));
     m.append(item('설정', openPrefs));
     if (S.user) {
       m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
