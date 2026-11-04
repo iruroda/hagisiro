@@ -272,7 +272,7 @@ button, input, select, textarea { font-family: inherit; }
 .qgo { flex: none; width: 46px; border-radius: var(--r-md); background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; }
 .qgo .ic svg { width: 20px; height: 20px; }
 .qgo:hover { filter: brightness(1.08); }
-.pv { background: var(--bg2); border-radius: var(--r-lg); padding: 7px 12px; min-height: 34px; margin-top: 8px; }
+.pv { border-radius: var(--r-lg); padding: 7px 12px; min-height: 34px; margin-top: 8px; }
 
 /* 통계: 상단바 '오늘' 버튼 오른쪽 */
 .nav .msum { margin-left: 12px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 52vw; }
