@@ -49,8 +49,8 @@
     left: '<path d="M14.5 6l-6 6 6 6"/>',
     right: '<path d="M9.5 6l6 6-6 6"/>',
     check: '<path d="M5 12.8l4.6 4.6L19 7.4"/>',
-    done: '<path d="M18 15V18.4A3 3 0 0 1 15 21.4H7A3 3 0 0 1 4 18.4V10.4A3 3 0 0 1 7 7.4H12.2" stroke-width="2.2"/><path d="M8.5 13l3.2 3.5L18 6.8"/>',
-    dday: '<rect x="4.5" y="5.5" width="15" height="14" rx="3.2"/><path d="M8.5 3.8v3.4M15.5 3.8v3.4M8.8 13.2l2.5 2.5 4.4-5"/>',
+    done: '<path d="M18 15V18.4A3 3 0 0 1 15 21.4H7A3 3 0 0 1 4 18.4V10.4A3 3 0 0 1 7 7.4H12.2"/><path d="M8.5 13l3.2 3.5L18 6.8"/>',
+    dday: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M9.4 8.2v7.6h2.3a3.8 3.8 0 000-7.6z"/>',
     search: '<circle cx="10.5" cy="10.5" r="7"/><path d="M16 16l5 5"/>',
     gear: '<path d="M12.00 2.70 L12.32 2.71 L12.65 2.74 L12.97 2.79 L13.28 2.88 L13.58 3.04 L13.84 3.35 L14.04 3.83 L14.17 4.42 L14.30 4.91 L14.46 5.23 L14.66 5.43 L14.86 5.57 L15.07 5.70 L15.29 5.82 L15.50 5.94 L15.71 6.06 L15.92 6.19 L16.14 6.31 L16.36 6.41 L16.63 6.48 L16.99 6.46 L17.48 6.33 L18.05 6.15 L18.57 6.08 L18.97 6.15 L19.26 6.33 L19.49 6.56 L19.70 6.81 L19.88 7.07 L20.05 7.35 L20.21 7.64 L20.35 7.93 L20.46 8.23 L20.54 8.55 L20.55 8.89 L20.41 9.27 L20.09 9.68 L19.65 10.09 L19.29 10.45 L19.10 10.75 L19.02 11.01 L19.00 11.26 L19.00 11.51 L19.00 11.76 L19.00 12.00 L19.00 12.24 L19.00 12.49 L19.00 12.74 L19.02 12.99 L19.10 13.25 L19.29 13.55 L19.65 13.91 L20.09 14.32 L20.41 14.73 L20.55 15.11 L20.54 15.45 L20.46 15.77 L20.35 16.07 L20.21 16.36 L20.05 16.65 L19.88 16.93 L19.70 17.19 L19.49 17.44 L19.26 17.67 L18.97 17.85 L18.57 17.92 L18.05 17.85 L17.48 17.67 L16.99 17.54 L16.63 17.52 L16.36 17.59 L16.14 17.69 L15.92 17.81 L15.71 17.94 L15.50 18.06 L15.29 18.18 L15.07 18.30 L14.86 18.43 L14.66 18.57 L14.46 18.77 L14.30 19.09 L14.17 19.58 L14.04 20.17 L13.84 20.65 L13.58 20.96 L13.28 21.12 L12.97 21.21 L12.65 21.26 L12.32 21.29 L12.00 21.30 L11.68 21.29 L11.35 21.26 L11.03 21.21 L10.72 21.12 L10.42 20.96 L10.16 20.65 L9.96 20.17 L9.83 19.58 L9.70 19.09 L9.54 18.77 L9.34 18.57 L9.14 18.43 L8.93 18.30 L8.71 18.18 L8.50 18.06 L8.29 17.94 L8.08 17.81 L7.86 17.69 L7.64 17.59 L7.37 17.52 L7.01 17.54 L6.52 17.67 L5.95 17.85 L5.43 17.92 L5.03 17.85 L4.74 17.67 L4.51 17.44 L4.30 17.19 L4.12 16.93 L3.95 16.65 L3.79 16.36 L3.65 16.07 L3.54 15.77 L3.46 15.45 L3.45 15.11 L3.59 14.73 L3.91 14.32 L4.35 13.91 L4.71 13.55 L4.90 13.25 L4.98 12.99 L5.00 12.74 L5.00 12.49 L5.00 12.24 L5.00 12.00 L5.00 11.76 L5.00 11.51 L5.00 11.26 L4.98 11.01 L4.90 10.75 L4.71 10.45 L4.35 10.09 L3.91 9.68 L3.59 9.27 L3.45 8.89 L3.46 8.55 L3.54 8.23 L3.65 7.93 L3.79 7.64 L3.95 7.35 L4.12 7.07 L4.30 6.81 L4.51 6.56 L4.74 6.33 L5.03 6.15 L5.43 6.08 L5.95 6.15 L6.52 6.33 L7.01 6.46 L7.37 6.48 L7.64 6.41 L7.86 6.31 L8.08 6.19 L8.29 6.06 L8.50 5.94 L8.71 5.82 L8.93 5.70 L9.14 5.57 L9.34 5.43 L9.54 5.23 L9.70 4.91 L9.83 4.42 L9.96 3.83 L10.16 3.35 L10.42 3.04 L10.72 2.88 L11.03 2.79 L11.35 2.74 L11.68 2.71z"/><circle cx="12" cy="12" r="2.7"/>',
     google: '<path stroke="none" fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path stroke="none" fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path stroke="none" fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path stroke="none" fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>',
@@ -469,7 +469,7 @@
       { k: 'sync', label: '새로고침', run: forceSync, node: () => el('button', { class: 'ib', id: 'syncBtn', title: '새로고침', 'aria-label': '새로고침', onclick: forceSync }, icon('refresh')) },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, run: () => openDoc(id),
         node: () => el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label)) })),
-      gc ? { k: 'gc', label: 'Google 다시 연결', run: () => connectGcal(), node: () => el('button', { class: 'ghost sm', onclick: () => connectGcal() }, 'Google 다시 연결') } : null,
+      gc ? { k: 'gc', label: '구글 캘린더 다시 연결', run: () => connectGcal(), node: () => el('button', { class: 'ib', title: '구글 캘린더 다시 연결', 'aria-label': '구글 캘린더 다시 연결', onclick: () => connectGcal() }, icon('google')) } : null,
     ].filter(Boolean);
     S.tools = tools;
     tools.forEach((x) => { const n = x.node(); n.dataset.ov = x.k; right.append(n); });
@@ -617,19 +617,23 @@
     if ($('#menu')) { closeMenu(); return; }
     const item = (label, fn, ic) => el('button', { class: 'mi mic', onclick: () => { closeMenu(); fn(); } }, ic ? icon(ic) : null, el('span', {}, label));
     const m = el('div', { class: 'menu', id: 'menu' });
-    m.append(el('div', { class: 'mh' }, S.user ? (S.user.email || '로그인됨') : '이 기기에만 저장'));
-    if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }, 'google'));
+    const sep = () => m.append(el('div', { class: 'msep' }));
+    if (S.user) { m.append(el('div', { class: 'mh' }, S.user.email || '')); sep(); }
+    else if (S.cloudAvail) { m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }, 'google')); sep(); }
+    else { m.append(el('div', { class: 'mh' }, '이 기기에만 저장')); sep(); }
     m.append(item('할 일 검색', openSearch, 'search'));
     m.append(item('새로고침', forceSync, 'refresh'));
+    sep();
+    m.append(item('반복 관리', () => openRepeat({ tab: 'manage' }), 'repeat'));
+    m.append(item('D-day 관리', openDdays, 'dday'));
+    sep();
     DOCS.forEach(([id, label, ic]) => m.append(item(label, () => openDoc(id), ic)));
+    sep();
     m.append(item('설정', openPrefs, 'gear'));
-    if (S.user) {
-      m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
-        if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal();
-      }, 'google'));
-      m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout'));
-    }
-    if (!S.cloud) m.append(item('백업 내보내기 (JSON)', exportJson, 'download'));
+    sep();
+    if (S.user) m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout'));
+    if (!S.cloud) m.append(item('백업 저장', exportJson, 'download'));
+    if ((S.user || !S.cloud) && window.hagisiroWidget && (window.hagisiroWidget.hide || window.hagisiroWidget.quit)) sep();
     if (window.hagisiroWidget && window.hagisiroWidget.hide) m.append(item('숨기기', () => window.hagisiroWidget.hide(), 'minimize'));
     if (window.hagisiroWidget && window.hagisiroWidget.quit) m.append(item('종료', () => window.hagisiroWidget.quit(), 'power'));
     $('#app').append(m);
@@ -641,6 +645,35 @@
     S.y = d.getFullYear(); S.m = d.getMonth(); S.sel = ds; S.anchor = ds; S.extra = {};
     S.view = 'cal'; ls.set('hagisiro:view', 'cal');
     watchRange(); render();
+  }
+  /* ---------- D-day 관리 ---------- */
+  function openDdays() {
+    const m = $('#modal');
+    m.hidden = false; m.replaceChildren();
+    const close = () => { m.hidden = true; m.replaceChildren(); };
+    const list = el('div', { class: 'srl' });
+    const dlg = el('div', { class: 'dlg sdlg' },
+      el('div', { class: 'shead' }, el('b', {}, 'D-day'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      list);
+    m.append(el('div', { class: 'back', onclick: close }), dlg);
+    const draw = () => {
+      const today = dayNum(ymd(new Date()));
+      const all = (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && t.text && t.date)
+        .map((t) => ({ t, n: dayNum(t.date) - today }))
+        .sort((a, b) => (a.n >= 0) !== (b.n >= 0) ? (a.n >= 0 ? -1 : 1) : (a.n >= 0 ? a.n - b.n : b.n - a.n));
+      list.replaceChildren();
+      if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, 'D-day가 없어요')); return; }
+      all.forEach(({ t, n }) => {
+        const d = parseYmd(t.date);
+        list.append(el('div', { class: 'srow' + (n < 0 ? ' done' : '') },
+          el('button', { type: 'button', class: 'sgo', onclick: () => { close(); gotoDate(t.date); } },
+            el('span', { class: 'sd' }, n === 0 ? 'D-DAY' : n > 0 ? `D-${n}` : `D+${-n}`),
+            el('span', { class: 'st' }, t.text),
+            el('span', { class: 'mut small' }, `${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`)),
+          el('button', { type: 'button', class: 'ib', 'aria-label': 'D-day 끄기', title: 'D-day 끄기', onclick: () => { Data.put('todos', clean({ ...t, dday: '' })); setTimeout(draw, 60); } }, icon('close'))));
+      });
+    };
+    draw();
   }
   let searchAll = null;
   async function openSearch() {
@@ -943,13 +976,13 @@
         openPalette(b, (patch) => { ctx.targets().forEach((t) => t.set(patch)); if (ctx.after) ctx.after(true); }, ctx.targets()[0].get());
       }),
       btn('repeat', '반복', () => ctx.repeat(ctx.targets())),
-      btn('dday', 'D-day (달력 맨 아래에 남은 날 표시)', () => {
+      btn('dday', 'D-day', () => {
         const ts = ctx.targets();
         if (!ts.length) { toast(NEED_PICK); return; }
         const to = !ts.every((t) => t.get().dday);
         ts.forEach((t) => t.set({ dday: to ? true : '' }));
         if (ctx.after) ctx.after(false);
-        toast(to ? 'D-day로 표시해요' : 'D-day를 껐어요');
+        toast(to ? 'D-day 켬' : 'D-day 끔');
       }));
     return bar;
   }
@@ -1146,7 +1179,7 @@
       inp.addEventListener('mousedown', (e) => { clearPicks(); if (e.button === 0) rowDrag = { row, on: false }; });
       inp.addEventListener('input', () => { it.text = inp.value; });
       onEnter(inp, () => {
-        if (inp.value.trim() === '' && row === rows().at(-1)) { finish(); return; }
+        if (inp.value.trim() === '' && row === rows().at(-1)) { if (!opt.barHost) finish(); return; } // 팝업에서는 빈 줄 엔터로 닫히지 않아요
         const nr = mkRow({ text: '', done: false });
         row.after(nr); nr.querySelector('input').focus();
       });
@@ -1166,6 +1199,7 @@
 
     items.forEach((it) => box.append(mkRow(it)));
     box.addEventListener('focusout', () => setTimeout(() => {
+      if (opt.barHost && document.activeElement === document.body) return; // 팝업 안 빈 곳을 눌러서 포커스가 풀린 경우는 닫지 않아요
       if (!closed && !box.contains(document.activeElement)) finish();
     }, 0));
 
@@ -1204,15 +1238,15 @@
     const body = el('div', { class: 'sbody' });
     let api;
     const noBlur = (b) => { b.addEventListener('mousedown', (e) => e.preventDefault()); return b; };
-    const add = noBlur(el('button', { class: 'addrow', type: 'button', onclick: () => api && api.addRow() }, icon('plus'), '할 일 추가'));
     const close = noBlur(el('button', { class: 'ib', type: 'button', 'aria-label': '닫기', onclick: () => api && api.finish() }, icon('close')));
-    const foot = el('div', { class: 'sfoot' }, add);
+    const foot = el('div', { class: 'sfoot' });
     const g = (S.gcal[ds] || []).map(gev);
     sh.append(el('div', { class: 'back', onclick: () => api && api.finish() }),
       el('div', { class: 'panel' },
         el('div', { class: 'shead' }, el('b', {}, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`), el('span', { class: 'grow' }), close),
         g.length ? el('div', { class: 'sg' }, g) : null,
         PF.meal && S.meal[ds] ? el('button', { class: 'ghost sm mealbtn', type: 'button', onclick: () => openMeal(ds) }, '급식 보기') : null, body, foot));
+    sh.querySelector('.panel').addEventListener('mousedown', (e) => { if (!e.target.closest('input, textarea, select, button')) e.preventDefault(); });
     api = openEditor(body, ds, () => { sh.hidden = true; sh.replaceChildren(); }, { barHost: foot, focusId: opt.focusId });
   }
 
@@ -1566,6 +1600,26 @@
     if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ro.observe(w); ro.observe(box); }
     return w;
   }
+  /* 팝업 제목줄을 잡아 끌면 팝업이 이동 (뒤에 있는 내용을 볼 수 있게) */
+  document.addEventListener('mousedown', (e) => {
+    const h = e.target.closest && e.target.closest('.shead');
+    if (!h || e.button !== 0 || e.target.closest('button, input, select, textarea')) return;
+    const dlg = h.closest('.dlg, .panel');
+    if (!dlg) return;
+    const x0 = e.clientX, y0 = e.clientY, tx = dlg._tx || 0, ty = dlg._ty || 0;
+    const mv = (ev) => {
+      dlg._tx = tx + ev.clientX - x0; dlg._ty = ty + ev.clientY - y0;
+      dlg.style.translate = `${dlg._tx}px ${dlg._ty}px`;
+      const r = dlg.getBoundingClientRect();
+      let fx = 0, fy = 0;
+      if (r.top < 0) fy = -r.top; else if (r.top > innerHeight - 40) fy = innerHeight - 40 - r.top;
+      if (r.right < 60) fx = 60 - r.right; else if (r.left > innerWidth - 60) fx = innerWidth - 60 - r.left;
+      if (fx || fy) { dlg._tx += fx; dlg._ty += fy; dlg.style.translate = `${dlg._tx}px ${dlg._ty}px`; }
+    };
+    const up = () => { document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', up); };
+    document.addEventListener('mousemove', mv); document.addEventListener('mouseup', up);
+    e.preventDefault();
+  });
   /* ---------- 일별: 조회 · 1~N교시 · 종례 에 빗금 ---------- */
   function dayView(cls) {
     const ds = S.sel;
@@ -2023,7 +2077,13 @@
         tog('lunar', '음력 날짜'),
         tog('terms', '24절기'),
         tog('hol', '공휴일 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
-        tog('ghol', '임시공휴일 자동 반영', 'Google 공개 공휴일 캘린더에서 가져와요 · 로그인 필요 없음', 'ghol'),
+        tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
+        S.cloud ? el('label', { class: 'pfr tg' },
+          el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
+            const cb = e.target;
+            if (cb.checked) connectGcal().finally(() => { cb.checked = gcalWanted(); });
+            else { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); }
+          } }), el('span', {}, 'Google 캘린더 연동')) : null,
       ],
       view: () => [
         el('div', { class: 'pfs' }, '화면'),

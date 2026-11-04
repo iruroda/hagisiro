@@ -30,7 +30,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .ib { width: 28px; height: 28px; border-radius: var(--r-md); display: inline-grid; place-items: center; color: var(--mut); flex: none; }
 .ib:hover { background: var(--bg2); color: var(--text); }
 .ib.sm { width: 24px; height: 24px; }
-.ghost { padding: 4px 10px; border-radius: var(--r-md); border: 1px solid var(--line); display: inline-flex; gap: 5px; align-items: center; background: var(--bg); }
+.ghost { padding: 4px 10px; border-radius: var(--r-md); border: 0; display: inline-flex; gap: 5px; align-items: center; background: none; }
 .ghost:hover { background: var(--bg2); }
 .ghost.sm { font-size: 12px; padding: 3px 9px; }
 .ghost .ic svg { width: 14px; height: 14px; }
@@ -54,6 +54,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
 .menu { position: absolute; top: 42px; right: 10px; z-index: 20; min-width: 220px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: 0 8px 24px rgba(0,0,0,.14); padding: 4px; }
 .mh { padding: 8px 10px; font-size: 12px; color: var(--mut); }
+.msep { height: 1px; background: var(--line); margin: 4px 6px; }
 .mi { display: block; width: 100%; text-align: left; padding: 8px 10px; border-radius: var(--r-sm); }
 .mi:hover { background: var(--bg2); }
 
@@ -702,3 +703,9 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 .dv > .mwrap::-webkit-scrollbar, .wv > .mwrap::-webkit-scrollbar, .mv > .mwrap::-webkit-scrollbar { width: 16px; height: 8px; }
 .dv > .mwrap::-webkit-scrollbar-track:vertical, .wv > .mwrap::-webkit-scrollbar-track:vertical, .mv > .mwrap::-webkit-scrollbar-track:vertical { margin: 0; }
 .dv > .mwrap::-webkit-scrollbar-thumb:vertical, .wv > .mwrap::-webkit-scrollbar-thumb:vertical, .mv > .mwrap::-webkit-scrollbar-thumb:vertical { border-width: 0 2px 0 8px; }
+
+/* D-day 관리 목록: 행 전체를 눌러 이동, 오른쪽 X로 끄기 */
+.srow .sgo { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; text-align: left; }
+/* 팝업 제목줄을 잡아서 이동 */
+.shead { cursor: move; user-select: none; }
+.shead button, .shead input { cursor: pointer; }
