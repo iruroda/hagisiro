@@ -675,3 +675,11 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 .srow .st { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .sempty { padding: 10px 4px; text-align: center; }
 .pdots { flex-wrap: wrap; justify-content: flex-end; gap: 6px; } .pfdlg .szseg { flex-wrap: wrap; }
+
+.ttf { position: relative; }
+.ttf::after { content: ""; position: absolute; right: 7px; top: 50%; width: 5px; height: 5px; margin-top: -4px; border-right: 1.8px solid var(--mut); border-bottom: 1.8px solid var(--mut); transform: rotate(45deg); pointer-events: none; }
+.ttpop .ttin { padding-right: 18px; }
+.ttdd { position: absolute; left: 0; top: calc(100% + 4px); min-width: 100%; max-height: 190px; overflow-y: auto; scrollbar-gutter: stable; z-index: 2; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 8px 24px rgba(0,0,0,.22); padding: 4px; display: flex; flex-direction: column; gap: 1px; }
+.ttdo { padding: 4px 8px; border-radius: var(--r-sm); font-size: 13px; font-variant-numeric: tabular-nums; text-align: left; white-space: nowrap; }
+.ttdo:hover { background: var(--bg2); } .ttdo.on { color: var(--accent); font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.ttpop .ttin.y { width: 3.4em; box-sizing: content-box; } .ttpop .ttin.m { width: 1.6em; box-sizing: content-box; }

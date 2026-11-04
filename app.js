@@ -549,8 +549,20 @@
     const yi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 4, class: 'ttin y', value: ref.getFullYear(), 'aria-label': '연도' });
     const mi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 2, class: 'ttin m', value: ref.getMonth() + 1, 'aria-label': '월' });
     const go = el('button', { type: 'button', class: 'pri sm', 'aria-label': '이동' }, icon('enter'));
-    const pop = el('div', { class: 'ttpop' }, yi, el('span', {}, '년'), mi, el('span', {}, '월'), go);
-    let done = false;
+    const fy = el('div', { class: 'ttf' }, yi), fm = el('div', { class: 'ttf' }, mi);
+    const pop = el('div', { class: 'ttpop' }, fy, el('span', {}, '년'), fm, el('span', {}, '월'), go);
+    let done = false, dd = null;
+    const closeDD = () => { if (dd) { dd.remove(); dd = null; } };
+    const openDD = (inp, vals, onPick) => { // 직접 입력도 되고, 목록에서 골라도 돼요
+      closeDD();
+      dd = el('div', { class: 'ttdd' }, vals.map((v) => el('button', { type: 'button', class: 'ttdo' + (String(v) === inp.value ? ' on' : ''), onclick: () => { closeDD(); onPick(v); } }, v)));
+      inp.parentElement.append(dd);
+      const on = dd.querySelector('.on'); if (on) dd.scrollTop = Math.max(0, on.offsetTop - 70);
+    };
+    const cy = new Date().getFullYear();
+    const years = Array.from({ length: 21 }, (_, i) => cy - 10 + i); // 지난 10년 ~ 앞으로 10년
+    const showY = () => openDD(yi, years, (v) => { yi.value = v; mi.focus(); mi.select(); });
+    const showM = () => openDD(mi, Array.from({ length: 12 }, (_, i) => i + 1), (v) => { mi.value = v; finish(true); });
     const close = () => { if (done) return; done = true; document.removeEventListener('pointerdown', off, true); pop.remove(); };
     const finish = (ok) => {
       const y = parseInt(yi.value, 10), m = parseInt(mi.value, 10);
@@ -558,11 +570,13 @@
       close();
       if (ok) jumpTo(y, m - 1);
     };
-    const off = (e) => { if (!pop.contains(e.target)) close(); };
+    const off = (e) => { if (!pop.contains(e.target)) close(); else if (dd && !dd.contains(e.target) && !e.target.closest('.ttin')) closeDD(); };
     [yi, mi].forEach((i) => {
-      i.addEventListener('input', () => { i.value = i.value.replace(/\D/g, ''); if (i === yi && i.value.length === 4) { mi.focus(); mi.select(); } });
-      i.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true); else if (e.key === 'Escape') close(); e.stopPropagation(); });
-      i.addEventListener('focus', () => i.select());
+      const show = i === yi ? showY : showM;
+      i.addEventListener('input', () => { closeDD(); i.value = i.value.replace(/\D/g, ''); if (i === yi && i.value.length === 4) { mi.focus(); mi.select(); } });
+      i.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true); else if (e.key === 'Escape') { if (dd) closeDD(); else close(); } else if (e.key === 'ArrowDown' && !dd) show(); e.stopPropagation(); });
+      i.addEventListener('focus', () => { i.select(); show(); });
+      i.addEventListener('click', () => { if (!dd || !i.parentElement.contains(dd)) show(); });
     });
     go.addEventListener('click', () => finish(true));
     document.body.append(pop);
