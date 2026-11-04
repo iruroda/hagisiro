@@ -51,6 +51,13 @@
     check: '<path d="M5 12.8l4.6 4.6L19 7.4"/>',
     done: '<path d="M17.20 15.23 L17.20 15.52 L17.20 15.81 L17.20 16.10 L17.20 16.39 L17.20 16.68 L17.20 16.97 L17.20 17.26 L17.20 17.40 L17.16 17.90 L17.04 18.39 L16.85 18.85 L16.59 19.28 L16.26 19.66 L15.88 19.99 L15.45 20.25 L14.99 20.44 L14.50 20.56 L14.00 20.60 L13.85 20.60 L13.54 20.60 L13.22 20.60 L12.91 20.60 L12.61 20.60 L12.29 20.60 L11.98 20.60 L11.68 20.60 L11.37 20.60 L11.05 20.60 L10.74 20.60 L10.44 20.60 L10.12 20.60 L9.81 20.60 L9.50 20.60 L9.20 20.60 L8.88 20.60 L8.57 20.60 L8.27 20.60 L7.96 20.60 L7.80 20.60 L7.30 20.56 L6.81 20.44 L6.35 20.25 L5.92 19.99 L5.54 19.66 L5.21 19.28 L4.95 18.85 L4.76 18.39 L4.64 17.90 L4.60 17.40 L4.60 17.26 L4.60 16.97 L4.60 16.68 L4.60 16.39 L4.60 16.10 L4.60 15.81 L4.60 15.52 L4.60 15.23 L4.60 14.94 L4.60 14.65 L4.60 14.36 L4.60 14.07 L4.60 13.78 L4.60 13.49 L4.60 13.20 L4.60 12.91 L4.60 12.62 L4.60 12.33 L4.60 12.04 L4.60 11.75 L4.60 11.60 L4.64 11.10 L4.76 10.61 L4.95 10.15 L5.21 9.72 L5.54 9.34 L5.92 9.01 L6.35 8.75 L6.81 8.56 L7.30 8.44 L7.80 8.40 L7.96 8.40 L8.27 8.40 L8.57 8.40 L8.88 8.40 L9.20 8.40 L9.50 8.40 L9.81 8.40 L10.12 8.40 L10.44 8.40 L10.74 8.40 L11.05 8.40 L11.37 8.40 L11.68 8.40 L11.98 8.40 L12.14 8.40" stroke-width="2.2"/><path d="M8.5 13l3.2 3.5L19.2 4.8"/>',
     dday: '<rect x="4.5" y="5.5" width="15" height="14" rx="3.2"/><path d="M4.5 10.5h15M8.5 3.8v3.4M15.5 3.8v3.4"/><circle cx="12" cy="15" r="1.6" class="f"/>',
+    search: '<circle cx="10.5" cy="10.5" r="5.8"/><path d="M15 15l5 5"/>',
+    gear: '<path d="M10.05 2.81 L13.95 2.81 L14.58 5.60 L16.25 6.56 L18.99 5.71 L20.94 9.10 L18.83 11.04 L18.83 12.96 L20.94 14.90 L18.99 18.29 L16.25 17.44 L14.58 18.40 L13.95 21.19 L10.05 21.19 L9.42 18.40 L7.75 17.44 L5.01 18.29 L3.06 14.90 L5.17 12.96 L5.17 11.04 L3.06 9.10 L5.01 5.71 L7.75 6.56 L9.42 5.60z"/><circle cx="12" cy="12" r="2.7"/>',
+    google: '<path stroke="none" fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path stroke="none" fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path stroke="none" fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path stroke="none" fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>',
+    logout: '<path d="M10 5.5H7a2 2 0 00-2 2v9a2 2 0 002 2h3"/><path d="M14.5 8.5L18 12l-3.5 3.5M18 12H9.5"/>',
+    power: '<path d="M12 3.8v7.2"/><path d="M7.2 6.7a7.2 7.2 0 109.6 0"/>',
+    eyeoff: '<path d="M3.5 12s3-5.5 8.5-5.5S20.5 12 20.5 12s-3 5.5-8.5 5.5S3.5 12 3.5 12z"/><circle cx="12" cy="12" r="2.4"/><path d="M5 19L19 5"/>',
+    sliders: '<path d="M4.5 8h7M17.5 8h2M4.5 16h2M12.5 16h7"/><circle cx="14.5" cy="8" r="2.6"/><circle cx="9.5" cy="16" r="2.6"/>',
     more: '<circle cx="5.5" cy="12" r="1.9" class="f"/><circle cx="12" cy="12" r="1.9" class="f"/><circle cx="18.5" cy="12" r="1.9" class="f"/>',
     close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
     download: '<path d="M12 4.5v10M7.5 10.5l4.5 4.5 4.5-4.5M5.5 19.5h13"/>',
@@ -608,23 +615,23 @@
   function onDocClick(e) { const m = $('#menu'); if (m && !m.contains(e.target)) closeMenu(); }
   function openMenu() {
     if ($('#menu')) { closeMenu(); return; }
-    const item = (label, fn) => el('button', { class: 'mi', onclick: () => { closeMenu(); fn(); } }, label);
+    const item = (label, fn, ic) => el('button', { class: 'mi mic', onclick: () => { closeMenu(); fn(); } }, ic ? icon(ic) : null, el('span', {}, label));
     const m = el('div', { class: 'menu', id: 'menu' });
     m.append(el('div', { class: 'mh' }, S.user ? (S.user.email || '로그인됨') : '이 기기에만 저장'));
-    if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }));
-    m.append(item('할 일 검색', openSearch));
-    m.append(item('새로고침', forceSync));
-    DOCS.forEach(([id, label]) => m.append(item(label, () => openDoc(id))));
-    m.append(item('설정', openPrefs));
+    if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }, 'google'));
+    m.append(item('할 일 검색', openSearch, 'search'));
+    m.append(item('새로고침', forceSync, 'refresh'));
+    DOCS.forEach(([id, label, ic]) => m.append(item(label, () => openDoc(id), ic)));
+    m.append(item('설정', openPrefs, 'gear'));
     if (S.user) {
       m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
         if (gcalWanted()) { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); } else connectGcal();
-      }));
-      m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }));
+      }, 'google'));
+      m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout'));
     }
-    if (!S.cloud) m.append(item('백업 내보내기 (JSON)', exportJson));
-    if (window.hagisiroWidget && window.hagisiroWidget.hide) m.append(item('숨기기', () => window.hagisiroWidget.hide()));
-    if (window.hagisiroWidget && window.hagisiroWidget.quit) m.append(item('종료', () => window.hagisiroWidget.quit()));
+    if (!S.cloud) m.append(item('백업 내보내기 (JSON)', exportJson, 'download'));
+    if (window.hagisiroWidget && window.hagisiroWidget.hide) m.append(item('숨기기', () => window.hagisiroWidget.hide(), 'eyeoff'));
+    if (window.hagisiroWidget && window.hagisiroWidget.quit) m.append(item('종료', () => window.hagisiroWidget.quit(), 'power'));
     $('#app').append(m);
     setTimeout(() => document.addEventListener('click', onDocClick), 0);
   }
@@ -1426,7 +1433,7 @@
       el('span', { class: 'grow' }),
       el('button', { class: 'ghost sm', onclick: () => openRoster(cls.id) }, icon('users'), '학급 수정'),
       el('button', { class: 'ghost sm', onclick: () => openRoster(null) }, icon('plus'), '학급 추가'),
-      el('button', { class: 'ghost sm', onclick: openSettings }, icon('clock'), '교시 설정'),
+      el('button', { class: 'ghost sm', onclick: openSettings }, icon('sliders'), '교시 설정'),
       el('button', { class: 'ghost sm', onclick: () => exportCsv(cls) }, icon('download'), '파일로 저장')));
 
     const q = el('input', { id: 'q', type: 'text', placeholder: '출결 입력', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'done', 'aria-label': '출결 입력' });

@@ -683,3 +683,4 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 .ttdo { padding: 4px 8px; border-radius: var(--r-sm); font-size: 13px; font-variant-numeric: tabular-nums; text-align: left; white-space: nowrap; }
 .ttdo:hover { background: var(--bg2); } .ttdo.on { color: var(--accent); font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .ttpop .ttin.y { width: 3.4em; box-sizing: content-box; } .ttpop .ttin.m { width: 1.6em; box-sizing: content-box; }
+.mic { display: flex; align-items: center; gap: 10px; } .mic .ic { flex: none; width: 18px; display: grid; place-items: center; color: var(--mut); } .mic .ic svg { width: 17px; height: 17px; } .mic:hover .ic { color: var(--accent); }
