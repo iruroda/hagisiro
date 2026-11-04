@@ -9,6 +9,14 @@
   const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const parseYmd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+  /* 결석·지각·조퇴·결과 개수 (0은 생략, 일·주·월 모두 같은 모양, 색은 표의 색과 동일) */
+  function sumLine(recs) {
+    const parts = TYPES.map((t) => [t, recs.filter((a) => a.type === t).length]).filter((x) => x[1]);
+    if (!parts.length) return '기록 없음';
+    const out = [];
+    parts.forEach((x, i) => { if (i) out.push(' · '); out.push(el('span', { class: 'sc t-' + x[0] }, `${x[0]} ${x[1]}`)); });
+    return out;
+  }
   const SHORT = { 결석: '결', 지각: '지', 조퇴: '조', 결과: '과' };
   const { CATS, TYPES, KINDS, END } = P;
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -60,7 +68,7 @@
     dot: '<circle cx="12" cy="12" r="4.2" class="f"/>',
     slash: '<path d="M8 19.5l8-15"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
-    refresh: '<path d=\"M19.43 13.58A7.6 7.6 0 1 1 13.32 4.52\"/><path d=\"M12.17 7.56L17.06 5.18L13.28 1.26z\" fill=\"currentColor\" stroke-width=\"1.6\"/>',
+    refresh: '<path d="M18.58 15.80A7.6 7.6 0 1 1 15.80 5.42"/><path d="M13.05 7.99L18.74 7.12L16.65 1.75z" fill="currentColor" stroke-width="1.6"/>',
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
     lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
@@ -290,45 +298,59 @@
     if (S.lastKey != null && c && !needLogin()) {
       // 출결 안에서 일·주·월을 바꾸거나 날짜를 넘길 땐 학급 버튼·입력칸은 그대로 두고 아래 표만 움직여요
       const t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
-      if (k !== S.lastKey) t.classList.add('vin');
-      else if (sc !== S.lastSc) t.classList.add(sc > S.lastSc ? 'vnext' : 'vprev');
+      let cls = null;
+      if (k !== S.lastKey) cls = 'vin';
+      else if (sc !== S.lastSc) cls = sc > S.lastSc ? 'vnext' : 'vprev';
+      const now = performance.now();
+      if (cls) S.anim = { cls, t0: now };
+      else if (S.anim && now - S.anim.t0 < 340) cls = S.anim.cls; // 움직이는 도중에 다시 그려져도 처음부터 다시 재생하지 않고 이어서
+      if (cls) {
+        t.classList.add(cls);
+        const el0 = Math.round(now - S.anim.t0);
+        if (el0 > 0) t.style.setProperty('--ad', `-${el0}ms`);
+        clearTimeout(S.animT); S.animT = setTimeout(() => { S.anim = null; document.querySelectorAll('.vin, .vnext, .vprev').forEach((n) => n.classList.remove('vin', 'vnext', 'vprev')); }, 360 - el0);
+      }
     }
     S.lastKey = k; S.lastSc = sc;
   }
-  /* 토글(탭·분할 버튼)을 바꾸면 켜진 칸이 이전 자리에서 미끄러져 와요 */
+  /* 토글(탭·분할 버튼)을 바꾸면 뒤쪽 알약만 이전 자리에서 미끄러져 와요 (글씨는 앞에 그대로) */
   const pillPos = {};
   function slidePills() {
     if (document.documentElement.classList.contains('noanim')) return;
     const seen = {};
     document.querySelectorAll('.tabs, .seg').forEach((box, i) => {
+      if (box.closest('#top') && box.classList.contains('seg')) return; // 위쪽 분할 버튼은 알약 없이 글자색만
       const on = box.querySelector(':scope > .on');
       if (!on) return;
       const key = (box.classList.contains('tabs') ? 't' : 's') + (box.closest('#modal') ? 'm' : box.closest('#top') ? 'top' : 'main') + i;
       const b = box.getBoundingClientRect(), r = on.getBoundingClientRect();
-      const x = r.left - b.left;
+      const g = { l: r.left - b.left - box.clientLeft, w: r.width };
+      let pill = box.querySelector(':scope > .pill');
+      const fresh = !pill;
+      if (!pill) { pill = el('span', { class: 'pill', 'aria-hidden': 'true' }); box.prepend(pill); }
+      if (!box.classList.contains('has-pill')) box.classList.add('has-pill');
+      Object.assign(pill.style, { left: g.l + 'px', top: (r.top - b.top - box.clientTop) + 'px', width: g.w + 'px', height: r.height + 'px' });
       const prev = pillPos[key];
       const opt = { duration: 240, easing: 'cubic-bezier(.3,1.25,.4,1)' };
-      if (prev && on !== prev.node && on.animate) {
-        const run = prev.run && performance.now() - prev.run.t0 < 240 && Math.abs(prev.run.to - x) < 2 ? prev.run : null; // 같은 이동 중에 화면이 한 번 더 그려진 경우: 이어서 재생
-        if (run) {
-          const an = on.animate([{ transform: `translateX(${run.from - x}px)` }, { transform: 'none' }], opt);
-          an.currentTime = performance.now() - run.t0;
-          seen[key] = { x, w: b.width, node: on, run };
-          return;
-        }
-        if (Math.abs(prev.x - x) > 2 && Math.abs(prev.w - b.width) < 14) {
-          on.animate([{ transform: `translateX(${prev.x - x}px)` }, { transform: 'none' }], opt);
-          seen[key] = { x, w: b.width, node: on, run: { from: prev.x, to: x, t0: performance.now() } };
+      const idx = [...box.children].indexOf(on);
+      if (prev && prev.idx !== idx && pill.animate) {
+        const run = prev.run && performance.now() - prev.run.t0 < 240 && Math.abs(prev.run.to - g.l) < 2 ? prev.run : null; // 이동 중에 다시 그려진 경우: 이어서 재생
+        const from = run ? run.from : prev.g;
+        if (run || Math.abs(prev.g.l - g.l) > 2) {
+          const an = pill.animate([{ left: from.l + 'px', width: from.w + 'px' }, { left: g.l + 'px', width: g.w + 'px' }], opt);
+          const t0 = run ? run.t0 : performance.now();
+          if (run) an.currentTime = performance.now() - run.t0;
+          seen[key] = { g, idx, run: { from, to: g.l, t0 } };
           return;
         }
       }
-      seen[key] = { x, w: b.width, node: on };
+      seen[key] = { g, idx, run: prev && prev.idx === idx ? prev.run : null };
     });
     Object.keys(pillPos).forEach((k) => delete pillPos[k]);
     Object.assign(pillPos, seen);
   }
   let pillRaf = 0;
-  new MutationObserver(() => { cancelAnimationFrame(pillRaf); pillRaf = requestAnimationFrame(slidePills); })
+  new MutationObserver((ms) => { if (ms.every((m) => [...m.addedNodes, ...m.removedNodes].every((n) => n.classList && n.classList.contains('pill')))) return; cancelAnimationFrame(pillRaf); pillRaf = requestAnimationFrame(slidePills); })
     .observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   /* 팝업·메뉴·알림이 나타날 때만 효과를 줘요 (안의 내용만 다시 그릴 땐 그대로) */
   ['modal', 'toast', 'sheet'].forEach((id) => {
@@ -1339,9 +1361,7 @@
       setSel(c.dataset.d); setSub('day');
     });
     frag.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, tbl)));
-    const cnt = TYPES.map((t) => `${t} ${recs.filter((a) => a.type === t).length}`).join(' · ');
-    const cc = CATS.map((c) => `${c} ${recs.filter((a) => a.cat === c).length}`).join(' · ');
-    S.topSum = el('div', { class: 'msum', title: '날짜를 누르면 일별 보기로 이동' }, el('b', {}, `${S.m + 1}월`), ' ', cnt, el('span', { class: 'sep' }), cc);
+    S.topSum = el('div', { class: 'msum', title: '날짜를 누르면 일별 보기로 이동' }, el('b', {}, `${S.m + 1}월`), ' ', sumLine(recs));
     return frag;
   }
 
@@ -1361,7 +1381,10 @@
       el('b', { class: 'dttl wttl' }, `${mon.getMonth() + 1}월 ${mon.getDate()}일 ~ ${fri.getMonth() + 1}월 ${fri.getDate()}일`),
       el('button', { class: 'ib', 'aria-label': '다음 주', onclick: () => shiftW(1) }, icon('right')),
       el('span', { class: 'grow' }),
-      el('button', { class: 'ghost sm', onclick: () => { S.weekAll = !S.weekAll; ls.set('hagisiro:weekall', S.weekAll ? '1' : ''); render(); } }, S.weekAll ? '기록 있는 학생만' : '전체 학생')));
+      (() => {
+        const setAll = (v) => { if (S.weekAll === v) return; S.weekAll = v; ls.set('hagisiro:weekall', v ? '1' : ''); render(); };
+        return el('div', { class: 'seg' }, el('button', { type: 'button', class: S.weekAll ? 'on' : '', onclick: () => setAll(true) }, '전체 학생'), el('button', { type: 'button', class: S.weekAll ? '' : 'on', onclick: () => setAll(false) }, '기록 있는 학생'));
+      })()));
 
     const all = S.att.filter((a) => a.classId === cls.id && keys.includes(a.date));
     const by = {};
@@ -1395,7 +1418,7 @@
       tr.append(el('td', { class: 'sum' + (n ? ' has' : '') }, n || ''));
       tbody.append(tr);
     });
-    const tbl = el('table', { class: 'mt wt' }, el('thead', {}, head), tbody);
+    const tbl = el('table', { class: 'mt wt', style: `width:${36 + 76 + cols.length * 118 + 44}px;min-width:100%` }, el('thead', {}, head), tbody);
     tbl.addEventListener('click', (e) => {
       const c = e.target.closest('[data-d]');
       if (c) { setSel(c.dataset.d); setSub('day'); }
@@ -1403,8 +1426,7 @@
     if (!students.length) wrap.append(el('div', { class: 'empty mut' }, '기록 없음'));
     else wrap.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, tbl)));
 
-    const cnt = TYPES.map((t) => [t, all.filter((a) => a.type === t).length]).filter((x) => x[1]).map((x) => `${x[0]} ${x[1]}`).join(' · ');
-    S.topSum = el('div', { class: 'msum', title: '칸을 누르면 일별 보기로 이동 · ←→ 로 주 이동' }, cnt || '기록 없음');
+    S.topSum = el('div', { class: 'msum', title: '칸을 누르면 일별 보기로 이동 · ←→ 로 주 이동' }, sumLine(all));
     return wrap;
   }
 
@@ -1467,10 +1489,7 @@
     });
 
     wrap.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, el('table', { class: 'mt dt' }, el('thead', {}, head), tbody))));
-    const cnt = recs.length
-      ? TYPES.map((t) => `${t} ${recs.filter((a) => a.type === t).length}`).join(' · ')
-      : '기록 없음';
-    S.topSum = el('div', { class: 'msum' }, cnt);
+    S.topSum = el('div', { class: 'msum' }, sumLine(recs));
     if (last === 0) wrap.append(el('div', { class: 'mut small' }, '수업이 없는 요일로 설정돼 있어요. 위에서 교시 수를 바꾸거나 “교시 설정”에서 기본값을 바꿔요'));
     return wrap;
   }

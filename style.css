@@ -289,8 +289,10 @@ button, input, select, textarea { font-family: inherit; }
 /* 주별: 학생 × 요일 */
 .wv { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
 .wttl { min-width: 150px; }
-.wt { table-layout: auto; }
-.wt th.wcol { min-width: 118px; font-size: 12px; }
+.wt { table-layout: fixed; }
+.wt th.c1 { width: 36px; } .wt th.c2 { width: 76px; } .wt th.sum { width: 44px; }
+.wt td.wc { overflow-wrap: anywhere; }
+.wt th.wcol { width: 118px; font-size: 12px; }
 .wt th.wcol.tdy { color: var(--accent); font-weight: 700; }
 .wt td.wc { height: auto; min-height: 46px; vertical-align: top; text-align: left; padding: 5px 8px; cursor: pointer; }
 .wt td.wc:hover { background: var(--sel); }
@@ -402,9 +404,9 @@ body.widget #top .right { margin-left: auto; flex: none; }
 @keyframes vprev { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
 @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
 @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
-.vin { animation: vin .14s ease-out; }
-.vnext { animation: vnext .14s ease-out; }
-.vprev { animation: vprev .14s ease-out; }
+.vin { animation: vin .14s ease-out var(--ad, 0s); }
+.vnext { animation: vnext .14s ease-out var(--ad, 0s); }
+.vprev { animation: vprev .14s ease-out var(--ad, 0s); }
 #modal.opening .back { animation: fadein .14s ease-out; }
 #modal.opening .dlg, #sheet.opening > *, .menu { animation: pop .14s ease-out; }
 #toast.opening { animation: pop .16s ease-out; }
@@ -524,8 +526,8 @@ input[type=text]:focus, input[type=number]:focus, input[type=date]:focus, input[
 @keyframes tin { from { color: transparent; } }
 @keyframes tinup { from { color: transparent; transform: translateY(4px); } }
 body.widget .vin, body.widget .vnext, body.widget .vprev { animation: none; }
-body.widget .vin *, body.widget .vnext *, body.widget .vprev * { animation: tin .32s ease-out; }
-body.widget .vnext :is(.dttl, .msum, .cvh b), body.widget .vprev :is(.dttl, .msum, .cvh b) { animation: tinup .32s ease-out; }
+body.widget .vin *, body.widget .vnext *, body.widget .vprev * { animation: tin .32s ease-out var(--ad, 0s); }
+body.widget .vnext :is(.dttl, .msum, .cvh b), body.widget .vprev :is(.dttl, .msum, .cvh b) { animation: tinup .32s ease-out var(--ad, 0s); }
 
 /* 모든 곳의 작은 움직임 */
 button:not(:disabled):active, .tab:active, .ib:active, .ghost:active { transform: scale(.93); }
@@ -627,3 +629,11 @@ body { font-variant-numeric: tabular-nums; }
 /* 출결 일별 표: 사유 칸이 남는 폭만큼 늘고 줄어요 (최소 5글자) → 가로 스크롤 최소화 */
 .mt.dt { width: 100%; }
 .dt .rin { width: 0; flex: 1 1 0; }
+
+/* 토글 알약: 글씨는 앞, 알약만 뒤에서 움직임 */
+.tabs, .seg { position: relative; }
+.tabs > .tab, .seg > button { position: relative; z-index: 1; }
+.pill { position: absolute; z-index: 0; background: var(--bg); box-shadow: 0 0 0 1px var(--line); border-radius: var(--r-sm); pointer-events: none; }
+.has-pill > .on { background: none !important; box-shadow: none !important; }
+body.widget #main > .login { border-radius: var(--r); }
+.msum .sc { color: var(--tc); font-weight: 600; }
