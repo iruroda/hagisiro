@@ -171,9 +171,9 @@ body.widget { --bg: color-mix(in srgb, var(--bg-s) var(--wa, 90%), transparent);
 body.widget :is(.dlg, .menu, #toast, #sheet > *, .sbody) { --bg: var(--bg-s); --bg2: var(--bg2-s); }
 body.widget #app { background: none; padding: 3px; gap: 3px; }
 body.widget #top { background: var(--wbg); border: 0; border-radius: var(--r) var(--r) 0 0; padding-left: 40px; }
-body.widget .cal { gap: 3px; }
+body.widget .cal { gap: 2px; }
 body.widget .wk { background: var(--wbg); border-radius: 0; }
-body.widget .days { gap: 3px; border: 0; }
+body.widget .days { gap: 2px; border: 0; }
 body.widget .cell { border: 0; border-radius: 0; background: var(--wbg); }
 body.widget .cell:nth-last-child(7) { border-bottom-left-radius: 6px; }
 body.widget .cell:last-child { border-bottom-right-radius: 6px; }
