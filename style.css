@@ -645,3 +645,31 @@ body.widget #main > .login { border-radius: var(--r); }
 .ttpop .pri { width: 32px; height: 30px; padding: 0; display: grid; place-items: center; }
 /* 스크롤바가 생기거나 없어져도 폭·위치가 변하지 않게 자리를 항상 확보 */
 html, .tl, .att, .cv, .pfdlg, .pbody, .rbody, .dbody, .dtw, .dtxt, .dimg, .meals, .schres, .clist, .cform, .cdet, .cgrid, .sbody, textarea { scrollbar-gutter: stable; }
+
+/* 글씨 크기 5단계: 아주 작게 · 작게(기본) · 보통 · 크게 · 아주 크게 */
+.td[data-sz="xs"], .ed .td[data-sz="xs"] input { font-size: 10px; }
+.td[data-sz="m"], .ed .td[data-sz="m"] input { font-size: 14px; }
+.td[data-sz="l"], .ed .td[data-sz="l"] input { font-size: 16px; }
+.td[data-sz="xl"], .ed .td[data-sz="xl"] input { font-size: 19px; }
+.szseg { flex: none; } .szseg { gap: 0; } .szseg button { padding: 2px 5px; font-size: 10.5px; white-space: nowrap; }
+.ddm { flex: none; align-self: center; font-size: 9px; font-weight: 800; line-height: 12px; padding: 0 3px; border-radius: 3px; color: #fff; background: var(--accent); }
+/* 달력 맨 아래 D-day 줄 */
+.ddbar { flex: none; display: flex; align-items: center; gap: 12px; height: 28px; padding: 0 12px; overflow: hidden; white-space: nowrap; font-size: 12px; border-top: 1px solid var(--line); background: var(--bg); }
+.ddc { color: var(--tfg, var(--text)); flex: none; } .ddc b { color: var(--accent); font-weight: 800; }
+body.widget .ddbar { border: 0; background: var(--wbg); border-radius: 0 0 var(--r) var(--r); }
+body.widget .cal.hasdd .cell { border-radius: 0 !important; }
+/* 더블클릭 팝업: 데스크톱·위젯에서는 가운데 팝업, 모바일은 아래에서 올라오는 시트 그대로 */
+body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; width: min(430px, 92vw); height: fit-content; max-height: 82vh; border-radius: var(--r); padding-bottom: 14px; }
+@media (min-width: 701px) { body:not(.widget) #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; width: min(430px, 92vw); height: fit-content; max-height: 82vh; border-radius: var(--r); padding-bottom: 14px; } }
+
+/* 할 일 검색 */
+.sdlg { width: min(430px, 92vw); }
+.sq { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-s); color: var(--text); }
+.sq:focus { border-color: var(--accent); outline: 0; }
+.srl { display: flex; flex-direction: column; gap: 2px; height: 300px; overflow-y: auto; scrollbar-gutter: stable; }
+.srow { display: flex; align-items: center; gap: 8px; text-align: left; padding: 7px 8px; border-radius: var(--r); font-size: 13px; flex: none; }
+.srow:hover { background: var(--bg2); }
+.srow.done .st { text-decoration: line-through; opacity: .55; }
+.srow .sd { flex: none; width: 82px; color: var(--mut); font-size: 12px; font-variant-numeric: tabular-nums; }
+.srow .st { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.sempty { padding: 10px 4px; text-align: center; }

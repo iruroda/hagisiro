@@ -50,6 +50,7 @@
     right: '<path d="M9.5 6l6 6-6 6"/>',
     check: '<path d="M5 12.8l4.6 4.6L19 7.4"/>',
     done: '<path d="M17.20 15.23 L17.20 15.52 L17.20 15.81 L17.20 16.10 L17.20 16.39 L17.20 16.68 L17.20 16.97 L17.20 17.26 L17.20 17.40 L17.16 17.90 L17.04 18.39 L16.85 18.85 L16.59 19.28 L16.26 19.66 L15.88 19.99 L15.45 20.25 L14.99 20.44 L14.50 20.56 L14.00 20.60 L13.85 20.60 L13.54 20.60 L13.22 20.60 L12.91 20.60 L12.61 20.60 L12.29 20.60 L11.98 20.60 L11.68 20.60 L11.37 20.60 L11.05 20.60 L10.74 20.60 L10.44 20.60 L10.12 20.60 L9.81 20.60 L9.50 20.60 L9.20 20.60 L8.88 20.60 L8.57 20.60 L8.27 20.60 L7.96 20.60 L7.80 20.60 L7.30 20.56 L6.81 20.44 L6.35 20.25 L5.92 19.99 L5.54 19.66 L5.21 19.28 L4.95 18.85 L4.76 18.39 L4.64 17.90 L4.60 17.40 L4.60 17.26 L4.60 16.97 L4.60 16.68 L4.60 16.39 L4.60 16.10 L4.60 15.81 L4.60 15.52 L4.60 15.23 L4.60 14.94 L4.60 14.65 L4.60 14.36 L4.60 14.07 L4.60 13.78 L4.60 13.49 L4.60 13.20 L4.60 12.91 L4.60 12.62 L4.60 12.33 L4.60 12.04 L4.60 11.75 L4.60 11.60 L4.64 11.10 L4.76 10.61 L4.95 10.15 L5.21 9.72 L5.54 9.34 L5.92 9.01 L6.35 8.75 L6.81 8.56 L7.30 8.44 L7.80 8.40 L7.96 8.40 L8.27 8.40 L8.57 8.40 L8.88 8.40 L9.20 8.40 L9.50 8.40 L9.81 8.40 L10.12 8.40 L10.44 8.40 L10.74 8.40 L11.05 8.40 L11.37 8.40 L11.68 8.40 L11.98 8.40 L12.14 8.40" stroke-width="2.2"/><path d="M8.5 13l3.2 3.5L19.2 4.8"/>',
+    dday: '<rect x="4.5" y="5.5" width="15" height="14" rx="3.2"/><path d="M4.5 10.5h15M8.5 3.8v3.4M15.5 3.8v3.4"/><circle cx="12" cy="15" r="1.6" class="f"/>',
     more: '<circle cx="5.5" cy="12" r="1.9" class="f"/><circle cx="12" cy="12" r="1.9" class="f"/><circle cx="18.5" cy="12" r="1.9" class="f"/>',
     close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
     download: '<path d="M12 4.5v10M7.5 10.5l4.5 4.5 4.5-4.5M5.5 19.5h13"/>',
@@ -105,7 +106,7 @@
     view: ls.get('hagisiro:view') === 'att' ? 'att' : 'cal',
     sub: ['month', 'week'].includes(ls.get('hagisiro:sub')) ? ls.get('hagisiro:sub') : 'day',
     y: now.getFullYear(), m: now.getMonth(), sel: ymd(now),
-    todos: [], classes: [], att: [], settings: [], days: [], repeats: [], docs: [], gcal: {},
+    ddays: [], todos: [], classes: [], att: [], settings: [], days: [], repeats: [], docs: [], gcal: {},
     extra: {},
     weekAll: ls.get('hagisiro:weekall') === '1',
     user: null, cloud: null, cloudMod: null, cloudAvail: false,
@@ -224,6 +225,7 @@
     S.clsLoaded = false;
     S.unsubStatic.push(S.cloud.watch('classes', null, (d) => { S.classes = d.sort(byOrd); S.clsLoaded = true; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watch('settings', null, (d) => { S.settings = d; render(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watchDday((d) => { S.ddays = d; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watch('repeats', null, (d) => { S.repeats = d; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watch('docs', null, (d) => { S.docs = d; if (!$('#modal .docdlg')) render(); }, cloudErr));
   }
@@ -594,6 +596,7 @@
     const m = el('div', { class: 'menu', id: 'menu' });
     m.append(el('div', { class: 'mh' }, S.user ? (S.user.email || '로그인됨') : '이 기기에만 저장'));
     if (S.cloudAvail && !S.user) m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }));
+    m.append(item('할 일 검색', openSearch));
     m.append(item('설정', openPrefs));
     if (S.user) {
       m.append(item(gcalWanted() ? 'Google 캘린더 일정 숨기기' : 'Google 캘린더 일정 표시', () => {
@@ -602,9 +605,57 @@
       m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }));
     }
     if (!S.cloud) m.append(item('백업 내보내기 (JSON)', exportJson));
+    if (window.hagisiroWidget && window.hagisiroWidget.hide) m.append(item('숨기기', () => window.hagisiroWidget.hide()));
     if (window.hagisiroWidget && window.hagisiroWidget.quit) m.append(item('종료', () => window.hagisiroWidget.quit()));
     $('#app').append(m);
     setTimeout(() => document.addEventListener('click', onDocClick), 0);
+  }
+  /* ---------- 할 일 검색 ---------- */
+  function gotoDate(ds) {
+    const d = parseYmd(ds);
+    S.y = d.getFullYear(); S.m = d.getMonth(); S.sel = ds; S.anchor = ds; S.extra = {};
+    S.view = 'cal'; ls.set('hagisiro:view', 'cal');
+    watchRange(); render();
+  }
+  let searchAll = null;
+  async function openSearch() {
+    const m = $('#modal');
+    m.hidden = false; m.replaceChildren();
+    const close = () => { m.hidden = true; m.replaceChildren(); };
+    const q = el('input', { type: 'text', class: 'sq', placeholder: '찾을 할 일을 입력하세요', spellcheck: 'false', autocomplete: 'off', 'aria-label': '할 일 검색' });
+    const list = el('div', { class: 'srl' });
+    const dlg = el('div', { class: 'dlg sdlg' },
+      el('div', { class: 'shead' }, el('b', {}, '할 일 검색'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      q, list);
+    m.append(el('div', { class: 'back', onclick: close }), dlg);
+    q.focus();
+    let all = S.todos;
+    if (S.cloud) {
+      list.replaceChildren(el('div', { class: 'mut small sempty' }, '불러오는 중…'));
+      try { all = await S.cloud.getAll('todos'); } catch (e) { all = S.todos; }
+    }
+    const today = ymd(new Date());
+    const run = () => {
+      const k = q.value.trim().toLowerCase();
+      list.replaceChildren();
+      if (!k) { list.append(el('div', { class: 'mut small sempty' }, '입력한 할 일을 찾아서, 누르면 그 날짜로 이동해요')); return; }
+      const hit = all.filter((t) => !t.skip && t.text && t.text.toLowerCase().includes(k))
+        .sort((a, b) => { const fa = a.date >= today, fb = b.date >= today; return fa !== fb ? (fa ? -1 : 1) : (fa ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)); });
+      const rules = S.repeats.filter((r) => r.text && r.text.toLowerCase().includes(k));
+      if (!hit.length && !rules.length) { list.append(el('div', { class: 'mut small sempty' }, '찾는 할 일이 없어요')); return; }
+      hit.slice(0, 100).forEach((t) => {
+        const d = parseYmd(t.date);
+        list.append(el('button', { type: 'button', class: 'srow' + (t.done ? ' done' : ''), onclick: () => { close(); gotoDate(t.date); } },
+          el('span', { class: 'sd' }, `${d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '.' : ''}${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`),
+          el('span', { class: 'st' }, t.text), t.dday ? el('span', { class: 'ddm' }, 'D') : null, t.rid ? el('span', { class: 'rpt' }, icon('repeat')) : null));
+      });
+      rules.forEach((r) => list.append(el('button', { type: 'button', class: 'srow', onclick: () => { close(); openRepeat({ tab: 'manage' }); } },
+        el('span', { class: 'sd' }, '반복'), el('span', { class: 'st' }, r.text), el('span', { class: 'mut small' }, ruleSummary(r)))));
+      if (hit.length > 100) list.append(el('div', { class: 'mut small sempty' }, `위 100개만 보여요 (전체 ${hit.length}개)`));
+    };
+    q.addEventListener('input', run);
+    q.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); else if (e.key === 'Enter') { const f = list.querySelector('.srow'); if (f) f.click(); } e.stopPropagation(); });
+    run();
   }
   const loginErr = (e) => toast('로그인 실패: ' + ((e && (e.code || e.message)) || ''));
 
@@ -679,10 +730,23 @@
       if (!cell) return;
       const row = e.target.closest('.td');
       selectDate(cell.dataset.date);
-      openEditor(cell.querySelector('.tl'), cell.dataset.date, null, { focusId: row && row.dataset.id });
+      openSheet(cell.dataset.date, { focusId: row && row.dataset.id }); // 칸 안에서 바로 고치지 않고 따로 팝업
     });
     wrap.append(grid);
+    const dd = ddayList();
+    if (dd.length) {
+      wrap.classList.add('hasdd');
+      wrap.append(el('div', { class: 'ddbar', title: dd.map((x) => `${x.label} ${x.t.text}`).join('\n') },
+        dd.map((x) => el('span', { class: 'ddc', style: x.t.fg ? `--tfg:${x.t.fg};` : null }, el('b', {}, x.label), ' ', x.t.text))));
+    }
     return wrap;
+  }
+  /* D-day로 표시한 할 일 중 오늘 이후(완료한 것 제외)를 가까운 날부터 */
+  function ddayList() {
+    const today = dayNum(ymd(new Date()));
+    return (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && !t.done && t.text && t.date && dayNum(t.date) >= today)
+      .map((t) => { const n = dayNum(t.date) - today; return { t, n, label: n === 0 ? 'D-DAY' : `D-${n}` }; })
+      .sort((a, b) => a.n - b.n || byOrd(a.t, b.t));
   }
 
   function holName(ds, d) {
@@ -734,7 +798,7 @@
       default: return false;
     }
   }
-  const virtualOf = (r, ds) => ({ id: vid(r.id, ds), virtual: true, rid: r.id, date: ds, text: r.text, done: false, fg: r.fg, bg: r.bg });
+  const virtualOf = (r, ds) => ({ id: vid(r.id, ds), virtual: true, rid: r.id, date: ds, text: r.text, done: false, fg: r.fg, bg: r.bg, sz: r.sz });
   const cellSort = (a, b) => (PF.sortDone ? (a.done ? 1 : 0) - (b.done ? 1 : 0) : 0) || (a.rid ? 0 : 1) - (b.rid ? 0 : 1) || byOrd(a, b);
   /** 그 날짜에 보여줄 항목 = 저장된 할 일 + 계산으로 생기는 반복 항목 */
   function itemsOn(ds) {
@@ -750,7 +814,7 @@
   }
   function patchItem(id, patch) {
     const it = getItem(id); if (!it) return;
-    if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, ord: 0, created: Date.now(), ...patch }));
+    if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, dday: it.dday, ord: 0, created: Date.now(), ...patch }));
     else Data.put('todos', clean({ ...it, ...patch }));
   }
   const KIND_LABEL = { daily: '매일', weekly: '매주', monthly: '매달', yearly: '매년' };
@@ -767,14 +831,16 @@
   /* ---------- 달력 칸의 할 일 한 줄: 불릿 + 글자 ---------- */
   const colorVars = (t) => (t.fg ? `--tfg:${t.fg};` : '') + (t.bg ? `--tbg:${t.bg};` : '');
   function todoRow(t) {
-    return el('div', { class: 'td' + (t.done ? ' done' : '') + (t.rid ? ' rep' : ''), 'data-id': t.id, style: colorVars(t) || null },
+    return el('div', { class: 'td' + (t.done ? ' done' : '') + (t.rid ? ' rep' : ''), 'data-id': t.id, 'data-sz': t.sz || null, style: colorVars(t) || null },
       el('span', { class: 'bl' }, icon('dot')), el('span', { class: 'tt', title: t.text }, t.text),
+      t.dday ? el('span', { class: 'ddm', title: 'D-day' }, 'D') : null,
       t.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null);
   }
 
   /* ---------- 글자색 · 배경색 팔레트 ---------- */
   const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#2f6df6', '파랑'], ['#8b5cf6', '보라'], ['#d6409f', '분홍'], ['#8b9098', '회색']];
   const BGC = [['', '없음'], ['rgba(250,204,21,.38)', '노랑'], ['rgba(251,146,60,.32)', '주황'], ['rgba(239,68,68,.24)', '빨강'], ['rgba(34,197,94,.26)', '초록'], ['rgba(59,130,246,.26)', '파랑'], ['rgba(139,92,246,.26)', '보라'], ['rgba(236,72,153,.24)', '분홍'], ['rgba(128,128,128,.28)', '회색']];
+  const SIZES = [['xs', '아주 작게'], ['', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
   function swatches(onPick, cur) {
     const wrap = el('div', { class: 'sw' });
     const row = (label, key, list) => {
@@ -790,7 +856,16 @@
       });
       return r;
     };
-    wrap.append(row('글자색', 'fg', FG), row('배경색', 'bg', BGC));
+    const szr = el('div', { class: 'swr' }, el('span', { class: 'swl' }, '크기'));
+    const seg = el('div', { class: 'seg szseg' });
+    SIZES.forEach(([val, name]) => {
+      const b = el('button', { type: 'button', class: (cur && (cur.sz || '') === val) ? 'on' : '', 'aria-label': `글씨 크기 ${name}`, onclick: (e) => {
+        e.stopPropagation(); seg.querySelectorAll('button').forEach((x) => x.classList.remove('on')); b.classList.add('on'); onPick({ sz: val });
+      } }, name);
+      seg.append(b);
+    });
+    szr.append(seg);
+    wrap.append(row('글자색', 'fg', FG), row('배경색', 'bg', BGC), szr);
     return wrap;
   }
   let palEl = null, palOff = null;
@@ -798,10 +873,10 @@
     if (palEl) { palEl.remove(); palEl = null; }
     if (palOff) { document.removeEventListener('pointerdown', palOff); palOff = null; }
   }
-  function openPalette(anchor, onPick) {
+  function openPalette(anchor, onPick, cur) {
     if (palEl && palEl._anchor === anchor) { closePal(); return; }
     closePal();
-    palEl = el('div', { class: 'pal' }, swatches(onPick));
+    palEl = el('div', { class: 'pal' }, swatches(onPick, cur));
     palEl._anchor = anchor;
     palEl.addEventListener('mousedown', (e) => e.preventDefault()); // 입력창 포커스 유지
     document.body.append(palEl);
@@ -809,6 +884,7 @@
     let top = r.bottom + 6; if (top + h > innerHeight - 4) top = r.top - h - 6;
     palEl.style.left = Math.max(4, Math.min(r.left, innerWidth - w - 4)) + 'px';
     palEl.style.top = Math.max(4, top) + 'px';
+    const r2 = palEl.getBoundingClientRect(); if (r2.right > innerWidth - 4) palEl.style.left = Math.max(4, innerWidth - 4 - r2.width) + 'px';
     palOff = (e) => { if (palEl && !palEl.contains(e.target) && !anchor.contains(e.target)) closePal(); };
     setTimeout(() => { if (palOff) document.addEventListener('pointerdown', palOff); }, 0);
   }
@@ -833,9 +909,17 @@
       }),
       btn('palette', '글자색 · 배경색', (b) => {
         if (!ctx.targets().length) { toast(NEED_PICK); return; }
-        openPalette(b, (patch) => { ctx.targets().forEach((t) => t.set(patch)); if (ctx.after) ctx.after(true); });
+        openPalette(b, (patch) => { ctx.targets().forEach((t) => t.set(patch)); if (ctx.after) ctx.after(true); }, ctx.targets()[0].get());
       }),
-      btn('repeat', '반복', () => ctx.repeat(ctx.targets())));
+      btn('repeat', '반복', () => ctx.repeat(ctx.targets())),
+      btn('dday', 'D-day (달력 맨 아래에 남은 날 표시)', () => {
+        const ts = ctx.targets();
+        if (!ts.length) { toast(NEED_PICK); return; }
+        const to = !ts.every((t) => t.get().dday);
+        ts.forEach((t) => t.set({ dday: to ? true : '' }));
+        if (ctx.after) ctx.after(false);
+        toast(to ? 'D-day로 표시해요' : 'D-day를 껐어요');
+      }));
     return bar;
   }
   function placeBar(bar, x, y) {
@@ -927,16 +1011,16 @@
       if (it.virtual) { // 계산으로 생긴 반복 항목: 고친 게 있을 때만 그날 기록으로 저장
         const r = ruleOf(it.rid); if (!r) return;
         seen.add(it.rid);
-        const changed = text !== r.text || it.done || (it.fg || '') !== (r.fg || '') || (it.bg || '') !== (r.bg || '');
-        if (changed) Data.put('todos', clean({ id: oid(it.rid, ds), rid: it.rid, date: ds, text, done: !!it.done, fg: it.fg, bg: it.bg, ord: idx, created: Date.now() }));
+        const changed = text !== r.text || it.done || !!it.dday || (it.fg || '') !== (r.fg || '') || (it.bg || '') !== (r.bg || '') || (it.sz || '') !== (r.sz || '');
+        if (changed) Data.put('todos', clean({ id: oid(it.rid, ds), rid: it.rid, date: ds, text, done: !!it.done, fg: it.fg, bg: it.bg, sz: it.sz, dday: it.dday || '', ord: idx, created: Date.now() }));
         return;
       }
       if (!it.id) it.id = uid();
       keep.add(it.id);
       if (it.rid) seen.add(it.rid);
       const o = old.find((x) => x.id === it.id);
-      const rec = clean({ ...(o || {}), id: it.id, date: ds, text, done: !!it.done, fg: it.fg || '', bg: it.bg || '', ord: idx, created: (o && o.created) || Date.now() });
-      if (!o || o.text !== rec.text || !!o.done !== rec.done || (o.fg || '') !== (rec.fg || '') || (o.bg || '') !== (rec.bg || '') || o.ord !== rec.ord) Data.put('todos', rec);
+      const rec = clean({ ...(o || {}), id: it.id, date: ds, text, done: !!it.done, fg: it.fg || '', bg: it.bg || '', sz: it.sz || '', dday: it.dday ? true : '', ord: idx, created: (o && o.created) || Date.now() });
+      if (!o || o.text !== rec.text || !!o.done !== rec.done || (o.fg || '') !== (rec.fg || '') || (o.bg || '') !== (rec.bg || '') || (o.sz || '') !== (rec.sz || '') || !!o.dday !== !!rec.dday || o.ord !== rec.ord) Data.put('todos', rec);
     });
     old.forEach((o) => {
       if (keep.has(o.id) || o.skip) return;
@@ -950,7 +1034,7 @@
 
   function openEditor(host, ds, onDone, opt = {}) {
     const box = el('div', { class: 'ed' });
-    const items = itemsOn(ds).map((t) => ({ id: t.id, virtual: !!t.virtual, rid: t.rid, text: t.text, done: !!t.done, fg: t.fg, bg: t.bg }));
+    const items = itemsOn(ds).map((t) => ({ id: t.id, virtual: !!t.virtual, rid: t.rid, text: t.text, done: !!t.done, fg: t.fg, bg: t.bg, sz: t.sz, dday: t.dday }));
     const origVirtual = items.filter((i) => i.virtual).map((i) => i.rid);
     items.push({ text: '', done: false });
     host.replaceChildren(box);
@@ -962,6 +1046,8 @@
     const paint = (row) => {
       const it = row._it;
       row.classList.toggle('done', !!it.done);
+      if (it.sz) row.dataset.sz = it.sz; else delete row.dataset.sz;
+      row.classList.toggle('dd', !!it.dday);
       ['fg', 'bg'].forEach((k) => { if (it[k]) row.style.setProperty('--t' + k, it[k]); else row.style.removeProperty('--t' + k); });
     };
     const clearPicks = () => rows().forEach((r) => r.classList.remove('picked'));
@@ -1078,7 +1164,7 @@
   }
 
   /* ---------- 모바일: 날짜 누르면 아래에서 올라오는 시트 ---------- */
-  function openSheet(ds) {
+  function openSheet(ds, opt = {}) {
     const sh = $('#sheet');
     sh.hidden = false; sh.replaceChildren();
     const d = parseYmd(ds);
@@ -1094,7 +1180,7 @@
         el('div', { class: 'shead' }, el('b', {}, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`), el('span', { class: 'grow' }), close),
         g.length ? el('div', { class: 'sg' }, g) : null,
         PF.meal && S.meal[ds] ? el('button', { class: 'ghost sm mealbtn', type: 'button', onclick: () => openMeal(ds) }, '급식 보기') : null, body, foot));
-    api = openEditor(body, ds, () => { sh.hidden = true; sh.replaceChildren(); }, { barHost: foot });
+    api = openEditor(body, ds, () => { sh.hidden = true; sh.replaceChildren(); }, { barHost: foot, focusId: opt.focusId });
   }
 
   /* ================= 반복 설정 · 관리 팝업 ================= */
@@ -1226,7 +1312,7 @@
           el('button', { class: 'pri', type: 'button', onclick: () => {
             const f = form.read(); if (!f) return;
             fresh.forEach((it) => {
-              const rule = clean({ id: uid(), created: Date.now(), text: it.text, fg: it.fg, bg: it.bg, ...f });
+              const rule = clean({ id: uid(), created: Date.now(), text: it.text, fg: it.fg, bg: it.bg, sz: it.sz, ...f });
               Data.put('repeats', rule);
               if (occursOn(rule, it.date)) { // 한 번짜리 항목은 반복 항목으로 바꿔치기 (완료 표시는 유지)
                 Data.del('todos', it.id);
@@ -1259,7 +1345,7 @@
           el('button', { class: 'ghost', type: 'button', onclick: () => { mode = 'manage'; editing = null; show(); } }, '취소'),
           el('button', { class: 'pri', type: 'button', onclick: () => {
             const f = form.read(); if (!f) return;
-            Data.put('repeats', clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), ...f }));
+            Data.put('repeats', clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', ...f }));
             mode = 'manage'; editing = null; show(); render();
           } }, '저장')));
       setTimeout(() => form.focus(), 0);

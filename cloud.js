@@ -54,6 +54,16 @@ export function watch(name, range, onData, onError) {
   return onSnapshot(q, (snap) => onData(snap.docs.map((d) => ({ ...d.data(), id: d.id }))), onError);
 }
 
+// D-day로 표시한 할 일만 (날짜 범위와 상관없이)
+export function watchDday(onData, onError) {
+  return onSnapshot(query(colRef('todos'), where('dday', '==', true)), (snap) => onData(snap.docs.map((d) => ({ ...d.data(), id: d.id }))), onError);
+}
+// 한 번 전체 읽기 (검색용)
+export async function getAll(name) {
+  const snap = await getDocs(colRef(name));
+  return snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+}
+
 export function save(name, obj) {
   const { id, ...rest } = obj;
   return setDoc(doc(db, 'users', user.uid, name, id), JSON.parse(JSON.stringify(rest)));

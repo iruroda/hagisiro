@@ -70,6 +70,7 @@ function applyZ(z) {
 ipcMain.handle('z-get', () => zmode());
 ipcMain.handle('z-set', (e, z) => { if (['top', 'normal', 'bottom'].includes(z)) applyZ(z); return zmode(); });
 ipcMain.on('quit', () => app.quit());
+ipcMain.on('hide', () => { if (win) win.hide(); });
 ipcMain.on('wb-done', () => { if (win) { st.bounds = win.getBounds(); save(); } });
 
 function create() {
