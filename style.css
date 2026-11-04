@@ -596,7 +596,7 @@ body { font-variant-numeric: tabular-nums; }
 
 /* 출결 표: 둥근 박스는 표만 감싸고, 가로 스크롤은 박스 바깥(아래)에 둬요 */
 .mwrap { border: 0 !important; border-radius: 0 !important; padding-bottom: 0 !important; overflow-x: auto; overflow-y: hidden; }
-.mbox { border: 1px solid var(--line); border-radius: var(--r); overflow: clip; width: max-content; min-width: 100%; box-sizing: border-box; }
+.mbox { width: max-content; min-width: 100%; box-sizing: border-box; }
 
 /* 설정 팝업: 제목·탭·버튼은 고정, 내용만 스크롤 / 스크롤바는 둥근 모서리에서 안쪽으로 */
 .pfdlg { overflow: hidden !important; width: min(380px, 92vw); height: min(560px, 90vh); }
@@ -687,8 +687,18 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 /* 출결: 위쪽(학급 줄·입력란·날짜 줄)은 고정, 아래 표 영역만 스크롤 */
 .att { overflow: hidden; }
 .att > .dv, .att > .wv, .att > .mv { flex: 1 1 auto; min-height: 0; }
-.dv > .mwrap, .wv > .mwrap, .mv > .mwrap { flex: 0 1 auto; min-height: 0; overflow: auto !important; scrollbar-gutter: stable; padding-bottom: 10px !important; }
+.dv > .mwrap, .wv > .mwrap, .mv > .mwrap { flex: 0 1 auto; min-height: 0; overflow: auto !important; scrollbar-gutter: stable; padding-bottom: 0 !important; }
 .mt thead th { position: sticky; top: 0; z-index: 4; }
 .mt thead th.c1, .mt thead th.c2 { z-index: 6; }
 .mt thead th, .mt thead th.c1, .mt thead th.c2 { background: var(--bg2-s); }
 .mt tbody .c1, .mt tbody .c2 { background: var(--bg-s); }
+
+/* 출결 표 틀: 테두리·모서리는 고정, 스크롤바는 틀 바깥으로 간격을 두고 위아래 끝까지 */
+.dv > .mwrap, .wv > .mwrap, .mv > .mwrap { border-radius: var(--r); position: relative; }
+.mfr { position: sticky; top: 0; left: 0; width: 100%; height: 0; z-index: 8; pointer-events: none; }
+.mfr > i { position: absolute; top: 0; left: 0; right: 0; height: var(--mh, 0); box-sizing: border-box; border: 1px solid var(--line); border-radius: var(--r); }
+.mt thead th:first-child { border-top-left-radius: var(--r); }
+.mt thead th:last-child { border-top-right-radius: var(--r); }
+.dv > .mwrap::-webkit-scrollbar, .wv > .mwrap::-webkit-scrollbar, .mv > .mwrap::-webkit-scrollbar { width: 16px; height: 8px; }
+.dv > .mwrap::-webkit-scrollbar-track:vertical, .wv > .mwrap::-webkit-scrollbar-track:vertical, .mv > .mwrap::-webkit-scrollbar-track:vertical { margin: 0; }
+.dv > .mwrap::-webkit-scrollbar-thumb:vertical, .wv > .mwrap::-webkit-scrollbar-thumb:vertical, .mv > .mwrap::-webkit-scrollbar-thumb:vertical { border-width: 0 2px 0 8px; }

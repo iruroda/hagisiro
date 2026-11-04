@@ -1488,7 +1488,7 @@
       if (!c) return;
       setSel(c.dataset.d); setSub('day');
     });
-    frag.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, tbl)));
+    frag.append(mkWrap(tbl));
     S.topSum = el('div', { class: 'msum', title: '날짜를 누르면 일별 보기로 이동' }, el('b', {}, `${S.m + 1}월`), ' ', sumLine(recs));
     return frag;
   }
@@ -1552,12 +1552,20 @@
       if (c) { setSel(c.dataset.d); setSub('day'); }
     });
     if (!students.length) wrap.append(el('div', { class: 'empty mut' }, '기록 없음'));
-    else wrap.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, tbl)));
+    else wrap.append(mkWrap(tbl));
 
     S.topSum = el('div', { class: 'msum', title: '칸을 누르면 일별 보기로 이동 · ←→ 로 주 이동' }, sumLine(all));
     return wrap;
   }
 
+  /* 표 영역: 스크롤바는 틀 바깥(오른쪽)에 두고, 틀(테두리·둥근 모서리)은 스크롤돼도 제자리에 고정 */
+  function mkWrap(tbl) {
+    const box = el('div', { class: 'mbox' }, tbl);
+    const w = el('div', { class: 'mwrap' }, el('div', { class: 'mfr' }, el('i')), box);
+    const fit = () => { const pb = parseFloat(getComputedStyle(w).paddingBottom) || 0; w.style.setProperty('--mh', Math.max(0, w.clientHeight - pb) + 'px'); };
+    if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ro.observe(w); ro.observe(box); }
+    return w;
+  }
   /* ---------- 일별: 조회 · 1~N교시 · 종례 에 빗금 ---------- */
   function dayView(cls) {
     const ds = S.sel;
@@ -1616,7 +1624,7 @@
       if (!list.length) addRow(s, null, true);
     });
 
-    wrap.append(el('div', { class: 'mwrap' }, el('div', { class: 'mbox' }, el('table', { class: 'mt dt' }, el('thead', {}, head), tbody))));
+    wrap.append(mkWrap(el('table', { class: 'mt dt' }, el('thead', {}, head), tbody)));
     S.topSum = el('div', { class: 'msum' }, sumLine(recs));
     if (last === 0) wrap.append(el('div', { class: 'mut small' }, '수업이 없는 요일로 설정돼 있어요. 위에서 교시 수를 바꾸거나 “교시 설정”에서 기본값을 바꿔요'));
     return wrap;
