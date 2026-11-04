@@ -93,10 +93,10 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .ab { font-size: 11px; color: var(--mut); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 0 7px; line-height: 15px; }
 .ab:hover { color: var(--accent); border-color: var(--accent); }
 .tl { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
-.td { display: flex; gap: 5px; align-items: flex-start; font-size: 12px; line-height: 1.4; padding: 1px 0; }
-.tt { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; color: var(--tfg, inherit); background: var(--tbg, transparent); border-radius: var(--r-xs); padding: 0 3px; margin: 0 -3px; }
+.td { display: flex; gap: 5px; align-items: flex-start; font-size: var(--td-fs, 12px); line-height: var(--td-lh, 1.4); padding: var(--td-pad, 1px) 0; }
+.tt { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; color: var(--tfg, var(--tfg-d, inherit)); background: var(--tbg, var(--tbg-d, transparent)); border-radius: var(--r-xs); padding: 0 3px; margin: 0 -3px; }
 .td.done .tt { text-decoration: line-through; opacity: .55; }
-.ed .td input { flex: 1; min-width: 0; border: 0; outline: 0; background: var(--tbg, transparent); font: inherit; color: var(--tfg, inherit); padding: 0 3px; border-radius: var(--r-xs); }
+.ed .td input { flex: 1; min-width: 0; border: 0; outline: 0; background: var(--tbg, var(--tbg-d, transparent)); font: inherit; color: var(--tfg, var(--tfg-d, inherit)); padding: 0 3px; border-radius: var(--r-xs); }
 .ed .td.done input { text-decoration: line-through; opacity: .55; }
 .gev { font-size: 11px; color: #0b8f80; background: color-mix(in srgb, #0b8f80 11%, transparent); border-radius: var(--r-xs); padding: 0 4px; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 :root[data-theme="dark"] .gev { color: #3fe0cc; }
@@ -309,7 +309,7 @@ button, input, select, textarea { font-family: inherit; }
 .dhead .msum { margin-left: 8px; font-size: 12px; }
 
 /* 불릿 · 반복 표시 */
-.bl { flex: none; width: 10px; height: 1.4em; display: flex; align-items: center; justify-content: center; color: var(--mut); user-select: none; }
+.bl { flex: none; width: 10px; height: calc(var(--td-lh, 1.4) * 1em); display: flex; align-items: center; justify-content: center; color: var(--mut); user-select: none; }
 .bl .ic svg { width: 12px; height: 12px; }
 .ed .td .bl { cursor: pointer; width: 16px; margin-left: -3px; touch-action: none; }
 .ed .td .bl:hover { color: var(--accent); }
@@ -648,6 +648,7 @@ html, .tl, .att, .cv, .pfdlg, .pbody, .rbody, .dbody, .dtw, .dtxt, .dimg, .meals
 
 /* 글씨 크기 5단계: 아주 작게 · 작게(기본) · 보통 · 크게 · 아주 크게 */
 .td[data-sz="xs"], .ed .td[data-sz="xs"] input { font-size: 10px; }
+.td[data-sz="s"], .ed .td[data-sz="s"] input { font-size: 12px; }
 .td[data-sz="m"], .ed .td[data-sz="m"] input { font-size: 14px; }
 .td[data-sz="l"], .ed .td[data-sz="l"] input { font-size: 16px; }
 .td[data-sz="xl"], .ed .td[data-sz="xl"] input { font-size: 19px; }
@@ -664,8 +665,8 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 
 /* 할 일 검색 */
 .sdlg { width: min(430px, 92vw); }
-.sq { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-s); color: var(--text); }
-.sq:focus { border-color: var(--accent); outline: 0; }
+.sqi { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-s); color: var(--text); }
+.sqi:focus { border-color: var(--accent); outline: 0; }
 .srl { display: flex; flex-direction: column; gap: 2px; height: 300px; overflow-y: auto; scrollbar-gutter: stable; }
 .srow { display: flex; align-items: center; gap: 8px; text-align: left; padding: 7px 8px; border-radius: var(--r); font-size: 13px; flex: none; }
 .srow:hover { background: var(--bg2); }
@@ -673,3 +674,4 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 .srow .sd { flex: none; width: 82px; color: var(--mut); font-size: 12px; font-variant-numeric: tabular-nums; }
 .srow .st { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .sempty { padding: 10px 4px; text-align: center; }
+.pdots { flex-wrap: wrap; justify-content: flex-end; gap: 6px; } .pfdlg .szseg { flex-wrap: wrap; }

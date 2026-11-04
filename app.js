@@ -119,7 +119,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -134,6 +134,12 @@
     if (PF.theme === 'auto') h.removeAttribute('data-theme'); else h.setAttribute('data-theme', PF.theme);
     h.style.setProperty('--wa', PF.opacity + '%');
     h.classList.toggle('noanim', PF.anim === false);
+    const FS = { xs: 10, m: 14, l: 16, xl: 19 }, LH = [[1.2, 0], [1.3, 1], [1.4, 1], [1.55, 2], [1.75, 3]];
+    const lh = LH[PF.tlh] || LH[2];
+    h.style.setProperty('--td-fs', (FS[PF.tsz] || 12) + 'px');
+    h.style.setProperty('--td-lh', lh[0]); h.style.setProperty('--td-pad', lh[1] + 'px');
+    if (PF.tfg) h.style.setProperty('--tfg-d', PF.tfg); else h.style.removeProperty('--tfg-d');
+    if (PF.tbg) h.style.setProperty('--tbg-d', PF.tbg); else h.style.removeProperty('--tbg-d');
   }
   function savePf() { applyPf(); ls.set(PFK, JSON.stringify(PF)); }
   applyPf();
@@ -622,7 +628,7 @@
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
-    const q = el('input', { type: 'text', class: 'sq', placeholder: '찾을 할 일을 입력하세요', spellcheck: 'false', autocomplete: 'off', 'aria-label': '할 일 검색' });
+    const q = el('input', { type: 'text', class: 'sqi', placeholder: '찾을 할 일을 입력하세요', spellcheck: 'false', autocomplete: 'off', 'aria-label': '할 일 검색' });
     const list = el('div', { class: 'srl' });
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, el('b', {}, '할 일 검색'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
@@ -817,6 +823,12 @@
     if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, dday: it.dday, ord: 0, created: Date.now(), ...patch }));
     else Data.put('todos', clean({ ...it, ...patch }));
   }
+  /* 달력에서 고른 할 일 하나를 지움 (반복 항목은 그날만 지움) */
+  function deleteItem(id) {
+    const it = getItem(id); if (!it) return;
+    if (it.rid) Data.put('todos', { id: oid(it.rid, it.date), rid: it.rid, date: it.date, skip: true, created: Date.now() });
+    else Data.del('todos', it.id);
+  }
   const KIND_LABEL = { daily: '매일', weekly: '매주', monthly: '매달', yearly: '매년' };
   function ruleSummary(r) {
     switch (r.kind) {
@@ -840,7 +852,7 @@
   /* ---------- 글자색 · 배경색 팔레트 ---------- */
   const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#2f6df6', '파랑'], ['#8b5cf6', '보라'], ['#d6409f', '분홍'], ['#8b9098', '회색']];
   const BGC = [['', '없음'], ['rgba(250,204,21,.38)', '노랑'], ['rgba(251,146,60,.32)', '주황'], ['rgba(239,68,68,.24)', '빨강'], ['rgba(34,197,94,.26)', '초록'], ['rgba(59,130,246,.26)', '파랑'], ['rgba(139,92,246,.26)', '보라'], ['rgba(236,72,153,.24)', '분홍'], ['rgba(128,128,128,.28)', '회색']];
-  const SIZES = [['xs', '아주 작게'], ['', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
+  const SIZES = [['xs', '아주 작게'], ['s', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
   function swatches(onPick, cur) {
     const wrap = el('div', { class: 'sw' });
     const row = (label, key, list) => {
@@ -859,7 +871,7 @@
     const szr = el('div', { class: 'swr' }, el('span', { class: 'swl' }, '크기'));
     const seg = el('div', { class: 'seg szseg' });
     SIZES.forEach(([val, name]) => {
-      const b = el('button', { type: 'button', class: (cur && (cur.sz || '') === val) ? 'on' : '', 'aria-label': `글씨 크기 ${name}`, onclick: (e) => {
+      const b = el('button', { type: 'button', class: (cur && (cur.sz || PF.tsz || 's') === val) ? 'on' : '', 'aria-label': `글씨 크기 ${name}`, onclick: (e) => {
         e.stopPropagation(); seg.querySelectorAll('button').forEach((x) => x.classList.remove('on')); b.classList.add('on'); onPick({ sz: val });
       } }, name);
       seg.append(b);
@@ -904,7 +916,7 @@
         const ts = ctx.targets();
         if (!ts.length) { toast(NEED_PICK); return; }
         const to = !ts.every((t) => t.get().done);
-        ts.forEach((t) => t.set({ done: to }));
+        if (ctx.setDone) ctx.setDone(ts, to); else ts.forEach((t) => t.set({ done: to }));
         if (ctx.after) ctx.after(false);
       }),
       btn('palette', '글자색 · 배경색', (b) => {
@@ -945,6 +957,7 @@
     const ctx = {
       cls: 'mq-bar',
       targets: () => pickedIds().map(viewTarget),
+      setDone: (ts, to) => { if (to && PF.autoDel) ts.forEach((t) => deleteItem(t.id)); else ts.forEach((t) => t.set({ done: to })); },
       after: (keep) => {
         const ids = pickedIds().map((id) => id.replace(/^v:/, 'r:')); // 저장되면 v: → r:
         clearPicked(keep); render();
@@ -1007,6 +1020,7 @@
     items.forEach((it) => {
       const text = it.text.trim();
       if (!text) return;
+      if (it.kill) return; // 완료하면 자동 삭제 (설정)
       const idx = ord++;
       if (it.virtual) { // 계산으로 생긴 반복 항목: 고친 게 있을 때만 그날 기록으로 저장
         const r = ruleOf(it.rid); if (!r) return;
@@ -1055,7 +1069,7 @@
     const targets = () => {
       let rs = rows().filter((r) => r.classList.contains('picked'));
       if (!rs.length) { const f = rows().find((r) => r.contains(document.activeElement)); if (f) rs = [f]; }
-      return rs.filter((r) => r._it.text.trim()).map((r) => ({ id: r._it.id, get: () => r._it, set: (p) => { Object.assign(r._it, p); paint(r); } }));
+      return rs.filter((r) => r._it.text.trim()).map((r) => ({ id: r._it.id, get: () => r._it, set: (p) => { if ('done' in p) r._it.kill = !!(p.done && !r._it.done && PF.autoDel); Object.assign(r._it, p); paint(r); } }));
     };
     // 글자 칸에서 끌어서 줄을 넘어가면, 글자 선택 대신 지나간 줄 전체를 선택
     const rowAt = (y) => {
@@ -1952,7 +1966,7 @@
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const W = window.hagisiroWidget;
-    const TABS = [['cal', '캘린더'], ['view', '표시'], ['meal', '급식'], ...(W ? [['wg', '위젯']] : [])];
+    const TABS = [['cal', '캘린더'], ['td', '할 일'], ['view', '표시'], ['meal', '급식'], ...(W ? [['wg', '위젯']] : [])];
     if (!TABS.some((t) => t[0] === S.pfTab)) S.pfTab = 'cal';
     const seg = (key, opts, after) => el('div', { class: 'seg' }, opts.map(([v, label]) =>
       el('button', { type: 'button', class: PF[key] === v ? 'on' : '', onclick: () => { PF[key] = v; commit(after); } }, label)));
@@ -1988,9 +2002,21 @@
         el('div', { class: 'pfs' }, '화면'),
         row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
         tog('anim', '화면 전환 애니메이션'),
-        el('div', { class: 'pfs' }, '할 일'),
-        tog('sortDone', '완료한 할 일은 맨 아래로'),
       ],
+      td: () => {
+        const dots = (key, list) => el('div', { class: 'pc2 pdots' }, list.map(([val, name]) => el('button', { type: 'button', class: 'swb' + (key === 'tbg' ? ' sq' : '') + (val ? '' : ' none') + ((PF[key] || '') === val ? ' on' : ''), title: name, 'aria-label': name, style: val ? `background:${val}` : null,
+          onclick: () => { PF[key] = val; commit('render'); } })));
+        return [
+          el('div', { class: 'pfs' }, '기본 모양 (할 일마다 따로 바꾼 것이 우선)'),
+          row('글씨 크기', el('div', { class: 'seg szseg' }, SIZES.map(([v, l]) => el('button', { type: 'button', class: (PF.tsz || 's') === v ? 'on' : '', onclick: () => { PF.tsz = v === 's' ? '' : v; commit('render'); } }, l)))),
+          row('글자색', dots('tfg', FG)),
+          row('바탕색', dots('tbg', BGC)),
+          row('줄 간격', el('div', { class: 'seg szseg' }, [[0, '아주 좁게'], [1, '좁게'], [2, '보통'], [3, '넓게'], [4, '아주 넓게']].map(([v, l]) => el('button', { type: 'button', class: PF.tlh === v ? 'on' : '', onclick: () => { PF.tlh = v; commit('render'); } }, l)))),
+          el('div', { class: 'pfs' }, '동작'),
+          tog('autoDel', '완료하면 자동으로 삭제', '완료 아이콘을 누르면 그 할 일을 바로 지워요 (반복 항목은 그날만)', 'render'),
+          tog('sortDone', '완료한 할 일은 맨 아래로'),
+        ];
+      },
       meal: () => [
         tog('meal', '급식 표시', PF.school ? PF.school.name : '학교를 먼저 골라 주세요', 'meal', !PF.school),
         row('학교', el('button', { type: 'button', class: 'ghost sm', onclick: () => openSchool(draw) }, PF.school ? PF.school.name : '학교 찾기')),
