@@ -532,7 +532,6 @@ body.widget .vnext :is(.dttl, .msum, .cvh b), body.widget .vprev :is(.dttl, .msu
 /* 모든 곳의 작은 움직임 */
 button:not(:disabled):active, .tab:active, .ib:active, .ghost:active { transform: scale(.93); }
 .pri:not(:disabled):hover, .qgo:hover { filter: brightness(1.08); }
-.ib:hover .ic, .ghost:hover .ic { transform: scale(1.1); }
 .ic { transition: transform .15s; }
 
 input[type=checkbox] { transition: transform .15s, background-color .15s; }
