@@ -540,23 +540,32 @@
     watchRange(); render();
   }
   function editTtl(span) {
-    if (span.querySelector('input')) return;
+    if (document.querySelector('.ttpop')) return;
     const ref = weekMode() ? parseYmd(S.anchor) : new Date(S.y, S.m, 1);
     const yi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 4, class: 'ttin y', value: ref.getFullYear(), 'aria-label': '연도' });
     const mi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 2, class: 'ttin m', value: ref.getMonth() + 1, 'aria-label': '월' });
+    const go = el('button', { type: 'button', class: 'pri sm', 'aria-label': '이동' }, icon('enter'));
+    const pop = el('div', { class: 'ttpop' }, yi, el('span', {}, '년'), mi, el('span', {}, '월'), go);
     let done = false;
+    const close = () => { if (done) return; done = true; document.removeEventListener('pointerdown', off, true); pop.remove(); };
     const finish = (ok) => {
-      if (done) return; done = true;
       const y = parseInt(yi.value, 10), m = parseInt(mi.value, 10);
-      if (ok && y >= 1900 && y <= 2200 && m >= 1 && m <= 12) jumpTo(y, m - 1); else render();
+      if (ok && !(y >= 1900 && y <= 2200 && m >= 1 && m <= 12)) { toast('연도(1900~2200)와 월(1~12)을 확인하세요'); return; }
+      close();
+      if (ok) jumpTo(y, m - 1);
     };
+    const off = (e) => { if (!pop.contains(e.target)) close(); };
     [yi, mi].forEach((i) => {
       i.addEventListener('input', () => { i.value = i.value.replace(/\D/g, ''); if (i === yi && i.value.length === 4) { mi.focus(); mi.select(); } });
-      i.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true); else if (e.key === 'Escape') finish(false); e.stopPropagation(); });
+      i.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true); else if (e.key === 'Escape') close(); e.stopPropagation(); });
       i.addEventListener('focus', () => i.select());
     });
-    span.replaceChildren(yi, '년 ', mi, '월');
-    span.addEventListener('focusout', () => setTimeout(() => { if (!span.contains(document.activeElement)) finish(true); }, 0));
+    go.addEventListener('click', () => finish(true));
+    document.body.append(pop);
+    const r = span.getBoundingClientRect(), w = pop.offsetWidth;
+    pop.style.left = Math.max(6, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 6)) + 'px';
+    pop.style.top = (r.bottom + 4) + 'px';
+    setTimeout(() => document.addEventListener('pointerdown', off, true), 0);
     yi.focus();
   }
   function goToday() {

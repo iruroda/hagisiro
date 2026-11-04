@@ -556,7 +556,7 @@ body { font-variant-numeric: tabular-nums; }
 .ttl.jump { cursor: pointer; border-radius: var(--r-md); transition: background-color .12s; }
 .ttl.jump:hover { background: var(--bg2); }
 .ttin { font: inherit; font-weight: 700; text-align: center; border: 0; border-bottom: 2px solid var(--accent); background: transparent; color: var(--text); padding: 0; border-radius: 0; box-shadow: none; outline: 0; }
-.ttin.y { width: 3em; } .ttin.m { width: 1.6em; }
+.ttin.y { width: 3.6em; } .ttin.m { width: 2.2em; }
 
 .cell.mgap { margin-top: 10px; }
 .ttl.off { opacity: .35; }
@@ -637,3 +637,11 @@ body { font-variant-numeric: tabular-nums; }
 .has-pill > .on { background: none !important; box-shadow: none !important; }
 body.widget #main > .login { border-radius: var(--r); }
 .msum .sc { color: var(--tc); font-weight: 600; }
+
+/* 연월 입력: 제목은 그대로 두고 아래에 띄움 (헤더 높이·폭이 변하지 않음) */
+.ttpop { position: fixed; z-index: 60; display: flex; align-items: center; gap: 6px; padding: 8px; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 8px 24px rgba(0,0,0,.22); animation: pop .14s ease-out; font-size: 14px; }
+.ttpop .ttin { border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-s); padding: 4px 6px; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ttpop .ttin:focus { border-color: var(--accent); }
+.ttpop .pri { width: 32px; height: 30px; padding: 0; display: grid; place-items: center; }
+/* 스크롤바가 생기거나 없어져도 폭·위치가 변하지 않게 자리를 항상 확보 */
+html, .tl, .att, .cv, .pfdlg, .pbody, .rbody, .dbody, .dtw, .dtxt, .dimg, .meals, .schres, .clist, .cform, .cdet, .cgrid, .sbody, textarea { scrollbar-gutter: stable; }
