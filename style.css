@@ -656,7 +656,7 @@ html, .tl, .att, .cv, .pfdlg, .pbody, .rbody, .dbody, .dtw, .dtxt, .dimg, .meals
 .ddm { flex: none; align-self: center; font-size: 9px; font-weight: 800; line-height: 12px; padding: 0 3px; border-radius: 3px; color: #fff; background: var(--accent); }
 /* 달력 맨 아래 D-day 줄 */
 .ddbar { flex: none; display: flex; align-items: center; gap: 12px; height: 28px; padding: 0 12px; overflow: hidden; white-space: nowrap; font-size: 12px; border-top: 1px solid var(--line); background: var(--bg); }
-.ddc { color: var(--tfg, var(--text)); flex: none; } .ddc b { color: var(--accent); font-weight: 800; }
+.ddc { color: var(--tfg, var(--text)); flex: none; font-size: inherit; cursor: pointer; } .ddc:hover { text-decoration: underline; } .ddc b { color: var(--accent); font-weight: 800; }
 body.widget .ddbar { border: 0; background: var(--wbg); border-radius: 0 0 var(--r) var(--r); }
 body.widget .cal.hasdd .cell { border-radius: 0 !important; }
 /* 더블클릭 팝업: 데스크톱·위젯에서는 가운데 팝업, 모바일은 아래에서 올라오는 시트 그대로 */

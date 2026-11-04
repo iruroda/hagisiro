@@ -795,7 +795,7 @@
     if (dd.length) {
       wrap.classList.add('hasdd');
       wrap.append(el('div', { class: 'ddbar', title: dd.map((x) => `${x.label} ${x.t.text}`).join('\n') },
-        dd.map((x) => el('span', { class: 'ddc', style: x.t.fg ? `--tfg:${x.t.fg};` : null }, el('b', {}, x.label), ' ', x.t.text))));
+        dd.map((x) => el('button', { type: 'button', class: 'ddc', style: x.t.fg ? `--tfg:${x.t.fg};` : null, onclick: () => gotoDate(x.t.date) }, el('b', {}, x.label), ' ', x.t.text))));
     }
     return wrap;
   }
@@ -1179,7 +1179,7 @@
       inp.addEventListener('mousedown', (e) => { clearPicks(); if (e.button === 0) rowDrag = { row, on: false }; });
       inp.addEventListener('input', () => { it.text = inp.value; });
       onEnter(inp, () => {
-        if (inp.value.trim() === '' && row === rows().at(-1)) { if (!opt.barHost) finish(); return; } // 팝업에서는 빈 줄 엔터로 닫히지 않아요
+        if (inp.value.trim() === '' && row === rows().at(-1)) return; // 빈 줄에서 엔터는 아무 일도 안 해요 (닫기는 Esc · 바깥 클릭 · X)
         const nr = mkRow({ text: '', done: false });
         row.after(nr); nr.querySelector('input').focus();
       });
