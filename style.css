@@ -684,3 +684,12 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 .ttdo:hover { background: var(--bg2); } .ttdo.on { color: var(--accent); font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .ttpop .ttin.y { width: 3.4em; box-sizing: content-box; } .ttpop .ttin.m { width: 1.6em; box-sizing: content-box; }
 .mic { display: flex; align-items: center; gap: 10px; } .mic .ic { flex: none; width: 18px; display: grid; place-items: center; color: var(--mut); } .mic .ic svg { width: 17px; height: 17px; } .mic:hover .ic { color: var(--accent); }
+
+/* 출결: 위쪽(학급 줄·입력란·날짜 줄)은 고정, 아래 표 영역만 스크롤 */
+.att { overflow: hidden; }
+.att > .dv, .att > .wv, .att > .mv { flex: 1 1 auto; min-height: 0; }
+.dv > .mwrap, .wv > .mwrap, .mv > .mwrap { flex: 0 1 auto; min-height: 0; overflow: auto !important; scrollbar-gutter: stable; padding-bottom: 10px !important; }
+.mt thead th { position: sticky; top: 0; z-index: 4; }
+.mt thead th.c1, .mt thead th.c2 { z-index: 6; }
+.mt thead th, .mt thead th.c1, .mt thead th.c2 { background: var(--bg2-s); }
+.mt tbody .c1, .mt tbody .c2 { background: var(--bg-s); }
