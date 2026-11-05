@@ -71,7 +71,35 @@ ipcMain.handle('z-get', () => zmode());
 ipcMain.handle('z-set', (e, z) => { if (['top', 'normal', 'bottom'].includes(z)) applyZ(z); return zmode(); });
 ipcMain.on('quit', () => app.quit());
 ipcMain.on('hide', () => { if (win) win.hide(); });
-ipcMain.on('wb-done', () => { if (win) { st.bounds = win.getBounds(); save(); } });
+ipcMain.on('wb-done', () => { if (win && !inLogin && !expanded) { st.bounds = win.getBounds(); save(); } });
+
+/* 로그인 화면: 저장된 위치와 상관없이 작은 창을 화면 가운데에 띄우고, 끝나면 원래 자리로 */
+let inLogin = false, loginSaved = null, expanded = null;
+ipcMain.on('login-mode', (e, v) => {
+  if (!win) return;
+  if (v && !inLogin) {
+    inLogin = true; loginSaved = win.getBounds();
+    const wa = screen.getPrimaryDisplay().workArea, w = 300, h = 310;
+    win.setMinimumSize(1, 1);
+    win.setBounds({ x: Math.round(wa.x + (wa.width - w) / 2), y: Math.round(wa.y + (wa.height - h) / 2), width: w, height: h });
+  } else if (!v && inLogin) {
+    inLogin = false;
+    win.setMinimumSize(MINW, MINH);
+    win.setBounds(loginSaved || bounds()); loginSaved = null;
+  }
+});
+/* 팝업이 열려 있는 동안 창을 작업 영역 크기로 넓혀서 팝업을 위젯 밖으로도 옮길 수 있게 (위젯 자리는 그대로) */
+ipcMain.handle('expand', (e, v) => {
+  if (!win || inLogin) return null;
+  if (v && !expanded) {
+    const b = win.getBounds(), wa = screen.getDisplayMatching(b).workArea;
+    expanded = { b };
+    win.setMinimumSize(1, 1); win.setBounds(wa);
+    return { x: b.x - wa.x, y: b.y - wa.y, w: b.width, h: b.height };
+  }
+  if (!v && expanded) { const b = expanded.b; expanded = null; win.setMinimumSize(MINW, MINH); win.setBounds(b); }
+  return null;
+});
 
 function create() {
   st = load();
@@ -93,7 +121,7 @@ function create() {
   win.webContents.on('did-create-window', (child) => { child.webContents.setUserAgent(UA); child.setMenuBarVisibility(false); });
   // 위젯 위에서 오른쪽 버튼 → 트레이와 같은 메뉴 (입력칸에서는 기본 메뉴)
   win.webContents.on('context-menu', (e, params) => { if (!params.isEditable) menu().popup({ window: win }); });
-  win.on('moved', () => { st.bounds = win.getBounds(); save(); });
+  win.on('moved', () => { if (inLogin || expanded) return; st.bounds = win.getBounds(); save(); });
   win.on('blur', sendBottom); win.on('show', sendBottom); win.on('restore', sendBottom);
   win.webContents.on('did-finish-load', sendBottom);
   win.on('closed', () => { win = null; });

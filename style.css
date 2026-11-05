@@ -709,3 +709,16 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 /* 팝업 제목줄을 잡아서 이동 */
 .shead { cursor: move; user-select: none; }
 .shead button, .shead input { cursor: pointer; }
+
+/* 팝업 제목: 왼쪽에 아이콘 */
+.hb { display: inline-flex; align-items: center; gap: 8px; }
+.hb .ic svg { width: 18px; height: 18px; }
+/* 위젯 로그인 화면: 작은 팝업 모양 (불투명, 끌어서 이동, 크기 변경 없음) */
+body.widget.loginmode #wmove, body.widget.loginmode #wedit { display: none; }
+body.widget.loginmode #app { padding: 0; }
+body.widget.loginmode #main > .login { margin: 14px; height: calc(100% - 28px); background: var(--bg); border-radius: var(--r-xl); box-shadow: 0 16px 48px rgba(0,0,0,.25); -webkit-app-region: drag; user-select: none; }
+body.widget.loginmode #main > .login button { -webkit-app-region: no-drag; }
+/* 팝업이 떠 있는 동안 창이 화면만큼 넓어짐: 위젯은 원래 자리에 그대로, 어두운 막은 화면 전체 */
+body.xwin #app { position: fixed; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
+body.xwin #modal, body.xwin #sheet { inset: auto; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
+body.xwin #modal .back, body.xwin #sheet .back { position: fixed; inset: 0; }

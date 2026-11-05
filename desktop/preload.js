@@ -10,4 +10,6 @@ contextBridge.exposeInMainWorld('hagisiroWidget', {
   setZ: (v) => ipcRenderer.invoke('z-set', v),
   quit: () => ipcRenderer.send('quit'),
   hide: () => ipcRenderer.send('hide'),
+  loginMode: (v) => ipcRenderer.send('login-mode', !!v),
+  expand: (v) => ipcRenderer.invoke('expand', !!v),
 });

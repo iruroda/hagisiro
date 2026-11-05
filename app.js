@@ -57,6 +57,9 @@
     logout: '<path d="M10 5.5H7a2 2 0 00-2 2v9a2 2 0 002 2h3"/><path d="M14.5 8.5L18 12l-3.5 3.5M18 12H9.5"/>',
     power: '<path d="M12 3.8v7.2"/><path d="M7.2 6.7a7.2 7.2 0 109.6 0"/>',
     minimize: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M8 15h8"/>',
+    bell: '<path d="M6 17v-6a6 6 0 0112 0v6l1.5 2h-15zM10 21.5h4"/>',
+    userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c0-3.7 2.8-5.8 6.5-5.8s6.5 2.1 6.5 5.8M19 8v6M16 11h6"/>',
+    utensils: '<path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 21V3c-2.5 1.5-3.5 4.5-3.5 8H17"/>',
     sliders: '<path d="M4.5 8h7M17.5 8h2M4.5 16h2M12.5 16h7"/><circle cx="14.5" cy="8" r="2.6"/><circle cx="9.5" cy="16" r="2.6"/>',
     more: '<circle cx="5.5" cy="12" r="1.9" class="f"/><circle cx="12" cy="12" r="1.9" class="f"/><circle cx="18.5" cy="12" r="1.9" class="f"/>',
     close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
@@ -434,6 +437,7 @@
     main.replaceChildren();
     if (needLogin()) main.append(loginView());
     else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
+    syncLoginWin();
     animateMain(main);
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
       const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
@@ -653,7 +657,7 @@
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const list = el('div', { class: 'srl' });
     const dlg = el('div', { class: 'dlg sdlg' },
-      el('div', { class: 'shead' }, el('b', {}, 'D-day'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      el('div', { class: 'shead' }, hb('dday', 'D-day'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
       list);
     m.append(el('div', { class: 'back', onclick: close }), dlg);
     const draw = () => {
@@ -683,7 +687,7 @@
     const q = el('input', { type: 'text', class: 'sqi', placeholder: '찾을 할 일을 입력하세요', spellcheck: 'false', autocomplete: 'off', 'aria-label': '할 일 검색' });
     const list = el('div', { class: 'srl' });
     const dlg = el('div', { class: 'dlg sdlg' },
-      el('div', { class: 'shead' }, el('b', {}, '할 일 검색'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      el('div', { class: 'shead' }, hb('search', '할 일 검색'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
       q, list);
     m.append(el('div', { class: 'back', onclick: close }), dlg);
     q.focus();
@@ -726,13 +730,39 @@
     download(`hagisiro-backup-${ymd(new Date())}.json`, JSON.stringify(o, null, 1), 'application/json');
   }
 
+  /* 위젯(데스크톱): 로그인 화면은 작은 팝업 창으로 화면 가운데에, 팝업이 열리면 창을 화면 크기로 넓혀서 위젯 밖으로도 옮길 수 있게 */
+  let loginWinOn = false;
+  function syncLoginWin() {
+    const on = needLogin();
+    document.body.classList.toggle('loginmode', on);
+    const api = window.hagisiroWidget;
+    if (api && api.loginMode && on !== loginWinOn) { loginWinOn = on; api.loginMode(on); }
+  }
+  (function popupExpand() {
+    const api = window.hagisiroWidget;
+    if (!api || !api.expand) return;
+    let cur = false, seq = 0;
+    const isOpen = () => ['#modal', '#sheet'].some((q) => { const e = document.querySelector(q); return e && !e.hidden && e.firstElementChild; });
+    const sync = async () => {
+      const open = isOpen() && !document.body.classList.contains('loginmode');
+      if (open === cur) return;
+      cur = open; const my = ++seq;
+      const r = await api.expand(open);
+      if (my !== seq) return;
+      const b = document.body;
+      if (open && r) { b.style.setProperty('--xx', r.x + 'px'); b.style.setProperty('--xy', r.y + 'px'); b.style.setProperty('--xw', r.w + 'px'); b.style.setProperty('--xh', r.h + 'px'); b.classList.add('xwin'); }
+      else b.classList.remove('xwin');
+    };
+    window.addEventListener('DOMContentLoaded', () => {
+      ['#modal', '#sheet'].forEach((q) => { const e = document.querySelector(q); if (e) new MutationObserver(sync).observe(e, { childList: true, attributes: true, attributeFilter: ['hidden'] }); });
+    });
+  })();
   /* ---------- 로그인 화면 ---------- */
   function loginView() {
     const logo = el('div', { class: 'logo' }); logo.innerHTML = LOGO;
     return el('div', { class: 'login' },
       logo,
       el('h1', {}, 'HAGISIRO'),
-      el('p', { class: 'mut' }, '할 일과 출결을 한 화면에서'),
       el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, 'Google 로그인'),
       el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '이 기기에만 저장'));
   }
@@ -1354,7 +1384,7 @@
     const tabs = el('div', { class: 'seg rtabs' });
     const body = el('div', { class: 'rbody' });
     const dlg = el('div', { class: 'dlg rdlg' },
-      el('div', { class: 'shead' }, el('b', {}, '반복'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      el('div', { class: 'shead' }, hb('repeat', '반복'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
       tabs, body);
     m.append(el('div', { class: 'back', onclick: close }), dlg);
     const today = ymd(new Date());
@@ -1465,8 +1495,8 @@
       el('div', { class: 'seg' }, seg('day', '일별'), seg('week', '주별'), seg('month', '월별')),
       el('span', { class: 'grow' }),
       el('button', { class: 'ghost sm', onclick: () => openRoster(cls.id) }, icon('users'), '학급 수정'),
-      el('button', { class: 'ghost sm', onclick: () => openRoster(null) }, icon('plus'), '학급 추가'),
-      el('button', { class: 'ghost sm', onclick: openSettings }, icon('sliders'), '교시 설정'),
+      el('button', { class: 'ghost sm', onclick: () => openRoster(null) }, icon('userplus'), '학급 추가'),
+      el('button', { class: 'ghost sm', onclick: openSettings }, icon('bell'), '교시 설정'),
       el('button', { class: 'ghost sm', onclick: () => exportCsv(cls) }, icon('download'), '파일로 저장')));
 
     const q = el('input', { id: 'q', type: 'text', placeholder: '출결 입력', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'done', 'aria-label': '출결 입력' });
@@ -1599,6 +1629,7 @@
     if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ro.observe(w); ro.observe(box); }
     return w;
   }
+  const hb = (ic, t) => el('b', { class: 'hb' }, icon(ic), t);
   /* 팝업 제목줄을 잡아 끌면 팝업이 이동 (뒤에 있는 내용을 볼 수 있게) */
   document.addEventListener('mousedown', (e) => {
     const h = e.target.closest && e.target.closest('.shead');
@@ -1964,7 +1995,7 @@
     let cur = docOf(id);
     let draft = cur ? { kind: cur.kind, text: cur.text || '', img: cur.img || '' } : { kind: 'text', text: '' };
     let edit = !!forceEdit || !cur;
-    const head = (...extra) => el('div', { class: 'shead' }, el('b', {}, meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
+    const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
     let drawView = function () {
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(),
@@ -2130,7 +2161,7 @@
     }
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg pfdlg' },
-        el('div', { class: 'shead' }, el('b', {}, '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('gear', '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         el('div', { class: 'pmain' }, tabBar, body),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', onclick: close }, '닫기'))));
     draw();
@@ -2169,7 +2200,7 @@
     };
     m.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg perdlg' },
-        el('div', { class: 'shead' }, el('b', {}, '교시 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('bell', '교시 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         grid,
         el('label', { class: 'keepbox' }, keep, el('span', {}, '개별 설정한 날은 제외하고 덮어쓰기')),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', onclick: close }, '취소'), el('button', { class: 'pri', onclick: save }, '저장'))));
@@ -2213,7 +2244,7 @@
     }
     m.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg rosdlg' },
-        el('div', { class: 'shead' }, el('b', {}, c ? '학급 수정' : '학급 추가'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb(c ? 'users' : 'userplus', c ? '학급 수정' : '학급 추가'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         name, ta,
         el('div', { class: 'dlgf' },
           c ? el('button', { class: 'ghost sm danger', onclick: remove }, '학급 삭제') : null,
@@ -2346,7 +2377,7 @@
     const list = S.meal[ds] || [];
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, el('b', {}, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('utensils', `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list.length ? el('div', { class: 'meals' }, list.map((x) => el('div', { class: 'meal' },
           el('b', {}, x.kind, x.cal ? el('small', {}, ' ' + x.cal) : null),
           el('ul', {}, x.menu.map((t) => el('li', {}, allergyStrip(t))))))) : el('div', { class: 'mut' }, '급식이 없어요')));
@@ -2374,7 +2405,7 @@
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, el('b', {}, '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('search', '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         el('div', { class: 'schq' }, inp, el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res));
     setTimeout(() => inp.focus(), 30);
   }
