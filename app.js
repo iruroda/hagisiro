@@ -2390,7 +2390,8 @@
       close(); render();
     }
     async function remove() {
-      if (!(await ask('학급을 삭제할까요? (출결 기록은 남아요)'))) return;
+      if (!(await ask('학급과 출결 기록을 삭제할까요?'))) return;
+      S.att.filter((a) => a.classId === c.id).forEach((a) => Data.del('att', a.id));
       Data.del('classes', c.id); S.clsId = null; close(); render();
     }
     m.append(el('div', { class: 'back', onclick: close }),
