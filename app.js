@@ -324,7 +324,65 @@
     if (S.sub === 'week') return dayNum(S.sel) - parseYmd(S.sel).getDay();
     return dayNum(S.sel);
   }
-  function animateMain(main) {
+  /* 날짜·달·주를 넘길 땐 화면이 벨트처럼 이어져 움직여요: 월별·출결은 좌우, 이번 주 보기는 상하 */
+  const noAnim = () => document.documentElement.classList.contains('noanim') || !PF.anim;
+  const beltTarget = (c) => (S.view === 'att' && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c);
+  function wantBelt(main) {
+    const cont = S.cont; S.cont = null;
+    if (cont && performance.now() - cont.t0 < 300 && viewKey() === S.lastKey) return cont; // 움직이는 도중에 다시 그려져도 이어서
+    if (S.lastKey == null || needLogin() || noAnim() || viewKey() !== S.lastKey || scopeNum() === S.lastSc) return null;
+    const oc = main.firstElementChild; if (!oc) return null;
+    const node = beltTarget(oc).cloneNode(true);
+    node.removeAttribute('id'); node.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
+    node.inert = true; node.style.pointerEvents = 'none';
+    return { node, dir: scopeNum() > S.lastSc ? 1 : -1, s: null, t0: performance.now() };
+  }
+  function beltEnd() {
+    if (!S.belt) return;
+    const b = S.belt; S.belt = null;
+    S.cont = performance.now() - b.snap.t0 < 300 ? b.snap : null;
+    try { b.an.cancel(); } catch (e) { /* noop */ }
+    b.done();
+  }
+  function startBelt(main, c, t, snap) {
+    if (snap.s == null) snap.s = Math.round(Math.abs(S.startDelta || 0) / 7); // 새 화면을 그린 뒤에야 몇 주 움직였는지 알 수 있어요
+    const dir = snap.dir, opt = { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)' };
+    let an, done;
+    if (S.view === 'cal' && weekMode()) {
+      const grid = c.querySelector('.days'), R = S.curRows || 1;
+      const s = Math.min(R, snap.s);
+      const olds = [...snap.node.querySelectorAll('.days > .cell')];
+      if (!grid || !s || olds.length < R * 7) return;
+      const take = (dir > 0 ? olds.slice(0, s * 7) : olds.slice((R - s) * 7)).map((n) => n.cloneNode(true));
+      const gap = parseFloat(getComputedStyle(grid).rowGap) || 0, pitch = (grid.offsetHeight + gap) / R;
+      const saved = grid.style.cssText;
+      const clip = el('div', { class: 'beltclip' });
+      clip.style.cssText = 'flex:1;min-height:0;position:relative;overflow:hidden';
+      grid.replaceWith(clip); clip.append(grid);
+      grid.style.cssText = `${saved};position:absolute;left:0;right:0;top:0;height:${(R + s) * pitch - gap}px;grid-template-rows:repeat(${R + s},minmax(0,1fr))`;
+      if (dir > 0) grid.prepend(...take); else grid.append(...take);
+      const a = dir > 0 ? 0 : -s * pitch, b = dir > 0 ? -s * pitch : 0;
+      an = grid.animate([{ transform: `translateY(${a}px)` }, { transform: `translateY(${b}px)` }], opt);
+      done = () => { take.forEach((n) => n.remove()); grid.style.cssText = saved; if (clip.isConnected) clip.replaceWith(grid); };
+    } else {
+      const saved = t.style.cssText, node = snap.node;
+      const clip = el('div', { class: 'beltclip' }), strip = el('div');
+      clip.style.cssText = 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
+      strip.style.cssText = 'position:absolute;top:0;bottom:0;left:0;width:200%;display:flex';
+      t.replaceWith(clip); clip.append(strip);
+      t.style.cssText = `${saved};flex:none;width:50%;height:100%;min-width:0`;
+      node.style.cssText = 'flex:none;width:50%;height:100%;min-width:0;pointer-events:none';
+      if (dir > 0) strip.append(node, t); else strip.append(t, node);
+      const a = dir > 0 ? 0 : -50, b = dir > 0 ? -50 : 0;
+      an = strip.animate([{ transform: `translateX(${a}%)` }, { transform: `translateX(${b}%)` }], opt);
+      done = () => { t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
+    }
+    const el0 = performance.now() - snap.t0;
+    if (el0 > 0) an.currentTime = el0;
+    S.belt = { an, done, snap };
+    an.onfinish = () => { if (S.belt && S.belt.an === an) { S.belt = null; done(); } };
+  }
+  function animateMain(main, snap) {
     const k = viewKey(), sc = scopeNum();
     const c = main.firstElementChild;
     if (S.lastKey != null && c && !needLogin()) {
@@ -332,7 +390,7 @@
       const t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
       let cls = null;
       if (k !== S.lastKey) cls = 'vin';
-      else if (sc !== S.lastSc) cls = sc > S.lastSc ? 'vnext' : 'vprev';
+      else if (snap) startBelt(main, c, t, snap);
       const now = performance.now();
       if (cls) S.anim = { cls, t0: now };
       else if (S.anim && now - S.anim.t0 < 340) cls = S.anim.cls; // 움직이는 도중에 다시 그려져도 처음부터 다시 재생하지 않고 이어서
@@ -448,11 +506,14 @@
     S.topSum = null;
     renderTop();
     const main = $('#main');
+    S.startDelta = 0;
+    beltEnd();
+    const snap = wantBelt(main);
     main.replaceChildren();
     if (needLogin()) main.append(loginView());
     else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
     syncLoginWin();
-    animateMain(main);
+    animateMain(main, snap);
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
       const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
       const mh = $('#main .mhead');
@@ -783,6 +844,7 @@
   /* ================= 캘린더 ================= */
   function calView() {
     const r = range();
+    { const ns = dayNum(ymd(r.start)); S.startDelta = ns - (S.curStart == null ? ns : S.curStart); S.curStart = ns; S.curRows = r.rows; }
     const todayS = ymd(new Date());
     const wrap = el('div', { class: 'cal', id: 'cal' });
     wrap.append(el('div', { class: 'wk' }, DOW.map((d, i) => el('div', { class: i === 0 ? 'sun' : i === 6 ? 'sat' : '' }, d))));
