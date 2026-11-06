@@ -513,7 +513,6 @@ textarea::-webkit-resizer { display: none; }
 input[type=text]:focus, input[type=number]:focus, input[type=date]:focus, input[type=time]:focus, input[type=datetime-local]:focus, input[type=search]:focus, textarea:focus, select:focus {
   border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
 }
-.ib:active, .ghost:active, .pri:active, .tab:active, .tb:active, .mi:active { transform: scale(.97); }
 .ib, .ghost, .pri, .tab, .tb, .mi, input, select, textarea { transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s, transform .1s; }
 
 /* ===== 글자 위계 통일 ===== */
@@ -529,7 +528,6 @@ body.widget .vin *, body.widget .vnext *, body.widget .vprev * { animation: tin 
 body.widget .vnext :is(.dttl, .msum, .cvh b), body.widget .vprev :is(.dttl, .msum, .cvh b) { animation: tinup .32s ease-out var(--ad, 0s); }
 
 /* 모든 곳의 작은 움직임 */
-button:not(:disabled):active, .tab:active, .ib:active, .ghost:active { transform: scale(.93); }
 .pri:not(:disabled):hover, .qgo:hover { filter: brightness(1.08); }
 .ic { transition: transform .15s; }
 
