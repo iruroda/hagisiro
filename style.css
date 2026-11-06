@@ -182,8 +182,6 @@ body.widget .cell.sel { background: color-mix(in srgb, var(--sel) var(--wa, 90%)
 body.widget .cell.editing { background: var(--bg); }
 body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(--r) var(--r); }
 /* 이동·크기 변경 모드 */
-#wmove { position: fixed; left: 8px; top: 9px; z-index: 80; width: 32px; height: 32px; border-radius: var(--r-md); display: grid; place-items: center; color: var(--mut); transition: background-color .12s, color .12s; }
-#wmove:hover { background: var(--bg2); color: var(--text); }
 body.wedit #wmove { background: var(--accent); color: #fff; }
 #wedit { position: fixed; inset: 0; z-index: 70; cursor: move; background: color-mix(in srgb, var(--accent) 7%, transparent); box-shadow: inset 0 0 0 2px var(--accent); border-radius: var(--r); animation: fadein .15s; touch-action: none; }
 #wedit i { position: absolute; width: 14px; height: 14px; background: var(--accent); border-radius: var(--r); }
@@ -542,7 +540,6 @@ input[type=checkbox] { transition: transform .15s, background-color .15s; }
 .menu .mi { animation: rowin .2s ease-out backwards; }
 .menu .mi:nth-child(2) { animation-delay: .02s; } .menu .mi:nth-child(3) { animation-delay: .04s; } .menu .mi:nth-child(4) { animation-delay: .06s; } .menu .mi:nth-child(5) { animation-delay: .08s; } .menu .mi:nth-child(6) { animation-delay: .1s; }
 .tabs .tab.on, .seg button.on { transition: background-color .2s, color .2s, box-shadow .2s; }
-#wmove .ic svg { width: 20px; height: 20px; }
 
 .mhead { min-height: 28px; } .mhead .msum { margin-left: 0; }
 
@@ -767,3 +764,33 @@ button:disabled, input:disabled, select:disabled, label:has(input:disabled), .pr
 .pfs { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 18px; letter-spacing: 0; }
 .pbody > .pfs:first-child { margin-top: 0; }
 .pfr.off { opacity: .45; }
+
+/* 날짜 칸 아래 왼쪽 버튼 */
+.cbt { display: flex; gap: 3px; flex: none; margin-top: 2px; }
+.ab.mb { margin-left: 0; }
+@media (max-width: 600px) { .cbt { display: none; } }
+/* 급식 창 */
+.mealdlg { width: min(380px, 94vw); max-height: 88vh; }
+.mw { max-height: 56vh; }
+.mday { padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.mday:last-child { border-bottom: 0; }
+.mdh { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.mk { display: flex; gap: 16px; padding-top: 4px; font-size: 13px; }
+/* 바로가기 칩 폭 줄임 */
+#top .ib { width: 28px; }
+body.widget .dbtn { padding: 3px 4px; }
+body.widget #top { padding-left: 8px; }
+body.wedit #wmove { background: var(--accent); color: #fff; }
+
+/* 입력칸: 연필 · X */
+.fld { position: relative; display: flex; flex: 1; min-width: 0; align-items: center; }
+.fld input { width: 100%; min-width: 0; padding-left: 32px; padding-right: 30px; box-sizing: border-box; }
+.fld .pen { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--mut); opacity: .55; pointer-events: none; display: grid; }
+.fld .pen .ic svg { width: 14px; height: 14px; }
+.fld .clr { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: var(--mut); }
+.fld .clr:hover { background: var(--bg2); color: var(--text); }
+.fld .clr .ic svg { width: 12px; height: 12px; }
+.fld.rtext, .rform .fld { width: 100%; }
+.qrow .fld { flex: 1; }
+.fld .sqi { width: 100%; }
+.rchk input, .mk input { accent-color: var(--accent); }

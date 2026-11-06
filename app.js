@@ -104,6 +104,18 @@
     s.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
     return s;
   }
+  /* 입력칸 꾸밈: 왼쪽 연필(채울 수 있는 칸), 오른쪽 X(내용이 있을 때만 보이고 자리는 항상 비워둬요) */
+  function fld(input) {
+    const clr = el('button', { class: 'clr', type: 'button', tabindex: '-1', 'aria-label': '지우기' }, icon('close'));
+    const sync = () => { clr.style.visibility = input.value ? 'visible' : 'hidden'; };
+    clr.addEventListener('mousedown', (e) => e.preventDefault());
+    clr.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); sync(); input.focus(); });
+    input.addEventListener('input', sync);
+    const w = el('span', { class: 'fld' }, el('span', { class: 'pen' }, icon('edit')), input, clr);
+    sync();
+    w._sync = sync;
+    return w;
+  }
   const LOGO = '<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="lg-g" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#7c4dff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient></defs><rect x="34" y="0" width="30" height="30" rx="9" fill="url(#lg-g)" opacity="0.62"/><rect x="0" y="34" width="30" height="30" rx="9" fill="url(#lg-g)" opacity="0.62"/><rect x="0" y="0" width="30" height="30" rx="9" fill="url(#lg-g)"/><rect x="34" y="34" width="30" height="30" rx="9" fill="url(#lg-g)"/><path d="M8.7 6.5v17M21.3 6.5v17M8.7 15h12.6" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round"/><path d="M40 49.5l6.4 6.6 12-14.2" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* 한글 입력(IME) 중 엔터 처리: 마지막 글자가 확정된 뒤 한 번에 동작하도록 */
@@ -143,7 +155,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '' },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], mk: ['조식', '중식', '석식'] },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -546,10 +558,12 @@
     const gc = gcalWanted() && !gtoken();
     const tools = [
       { k: 'sync', label: '새로고침', run: forceSync, node: () => el('button', { class: 'ib', id: 'syncBtn', title: '새로고침', 'aria-label': '새로고침', onclick: forceSync }, icon('refresh')) },
+      { k: 'meal', label: '급식', run: openMealWeek, node: () => el('button', { class: 'ib', title: '급식', 'aria-label': '급식', onclick: openMealWeek }, icon('utensils')) },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, run: () => openDoc(id),
         node: () => el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label)) })),
       gc ? { k: 'gc', label: '구글 캘린더 다시 연결', run: () => connectGcal(), node: () => el('button', { class: 'ib', title: '구글 캘린더 다시 연결', 'aria-label': '구글 캘린더 다시 연결', onclick: () => connectGcal() }, icon('google')) } : null,
-    ].filter(Boolean);
+      IS_WIDGET ? { k: 'move', label: '이동·크기 변경', run: () => S.winEdit && S.winEdit(), node: () => el('button', { class: 'ib', id: 'wmove', title: '이동·크기 변경', 'aria-label': '이동·크기 변경', onclick: () => S.winEdit && S.winEdit() }, icon('move')) } : null,
+    ].filter((x) => x && !(PF.hide || []).includes(x.k));
     S.tools = tools;
     tools.forEach((x) => { const n = x.node(); n.dataset.ov = x.k; right.append(n); });
     right.append(el('button', { class: 'ib', id: 'ovBtn', hidden: true, onclick: (e) => { e.stopPropagation(); openOverflow(); }, 'aria-label': '더 보기', title: '더 보기' }, icon('more')));
@@ -705,13 +719,15 @@
     m.append(item('반복 관리', () => openRepeatManage(), 'repeat'));
     m.append(item('D-day 관리', openDdays, 'dday'));
     sep();
+    m.append(item('급식', openMealWeek, 'utensils'));
     DOCS.forEach(([id, label, ic]) => m.append(item(label, () => openDoc(id), ic)));
     sep();
     m.append(item('설정', openPrefs, 'gear'));
     sep();
     if (S.user) m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout'));
     if (!S.cloud) m.append(item('백업 저장', exportJson, 'download'));
-    if ((S.user || !S.cloud) && window.hagisiroWidget && (window.hagisiroWidget.hide || window.hagisiroWidget.quit)) sep();
+    if ((S.user || !S.cloud) && (IS_WIDGET || (window.hagisiroWidget && (window.hagisiroWidget.hide || window.hagisiroWidget.quit)))) sep();
+    if (IS_WIDGET) m.append(item('이동·크기 변경', () => S.winEdit && S.winEdit(), 'move'));
     if (window.hagisiroWidget && window.hagisiroWidget.hide) m.append(item('숨기기', () => window.hagisiroWidget.hide(), 'minimize'));
     if (window.hagisiroWidget && window.hagisiroWidget.quit) m.append(item('종료', () => window.hagisiroWidget.quit(), 'power'));
     $('#app').append(m);
@@ -758,11 +774,11 @@
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
-    const q = el('input', { type: 'text', class: 'sqi', placeholder: '찾을 할 일을 입력하세요', spellcheck: 'false', autocomplete: 'off', 'aria-label': '할 일 검색' });
+    const q = el('input', { type: 'text', class: 'sqi', spellcheck: 'false', autocomplete: 'off', 'aria-label': '할 일 검색' });
     const list = el('div', { class: 'srl' });
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('search', '할 일 검색'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      q, list);
+      fld(q), list);
     m.append(el('div', { class: 'back', onclick: close }), dlg);
     q.focus();
     let all = S.todos;
@@ -870,9 +886,11 @@
           el('span', { class: 'dn' }, d.getDate() === 1 ? `${d.getMonth() + 1}.1` : d.getDate()),
           hn || tm || lu ? el('span', { class: 'sb', title: [hn, tm, lu].filter(Boolean).join(' · ') },
             hn ? el('i', { class: 'hn' }, hn) : null, tm ? el('i', { class: 'tm' }, tm) : null, lu ? el('i', { class: 'lu' }, lu) : null) : null,
-          attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att', title: '출결 보기' }, `출결 ${attBy[ds]}`) : null,
-          PF.meal && S.meal[ds] ? el('button', { class: 'ab mb', 'data-act': 'meal', title: '급식' }, '급식') : null),
+          ),
         el('div', { class: 'tl' }, gl.map(gev), list.map(todoRow)),
+        (PF.ab && attBy[ds]) || (PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length) ? el('div', { class: 'cbt' },
+          PF.ab && attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att', title: '출결 보기' }, `출결 ${attBy[ds]}`) : null,
+          PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal', title: '급식' }, '급식') : null) : null,
         el('div', { class: 'dots' }, list.slice(0, 5).map((t) => el('i', { class: t.done ? 'on' : '' })), gl.length ? el('i', { class: 'g' }) : null)));
     }
 
@@ -1368,9 +1386,9 @@
     const root = el('div', { class: 'rform' });
     let textIn = null;
     if (opt.withText) {
-      textIn = el('input', { type: 'text', class: 'rtext', placeholder: '반복할 할 일', value: st.text, 'aria-label': '반복할 할 일', spellcheck: 'false' });
+      textIn = el('input', { type: 'text', class: 'rtext', value: st.text, 'aria-label': '반복할 할 일', spellcheck: 'false' });
       textIn.addEventListener('input', () => { st.text = textIn.value; if (onChange) onChange(); });
-      root.append(textIn);
+      root.append(fld(textIn));
     }
     const kinds = el('div', { class: 'seg rk' });
     Object.entries(KIND_LABEL).forEach(([k, lab]) => kinds.append(el('button', { type: 'button', class: 'sg-b', 'data-k': k, onclick: () => { st.kind = k; sync(); } }, lab)));
@@ -1602,11 +1620,11 @@
       el('button', { class: 'ghost sm', onclick: openSettings }, icon('bell'), '교시 설정'),
       el('button', { class: 'ghost sm', onclick: () => exportCsv(cls) }, icon('download'), '파일로 저장')));
 
-    const q = el('input', { id: 'q', type: 'text', placeholder: '출결 입력', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'done', 'aria-label': '출결 입력' });
+    const q = el('input', { id: 'q', type: 'text', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'done', 'aria-label': '출결 입력' });
     q.addEventListener('input', preview);
     onEnter(q, submitQuick);
     root.append(el('div', { class: 'qi' },
-      el('div', { class: 'qrow' }, q, el('button', { class: 'qgo', type: 'button', id: 'qgo', 'aria-label': '출결 입력 확인', onclick: submitQuick }, icon('enter'))),
+      el('div', { class: 'qrow' }, fld(q), el('button', { class: 'qgo', type: 'button', id: 'qgo', 'aria-label': '출결 입력 확인', onclick: submitQuick }, icon('enter'))),
       el('div', { id: 'pv', class: 'pv' })));
 
     root.append(S.sub === 'month' ? monthView(cls) : S.sub === 'week' ? weekView(cls) : dayView(cls));
@@ -2205,7 +2223,7 @@
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const W = window.hagisiroWidget;
-    const TABS = [['cal', '캘린더'], ['td', '할 일'], ['view', '화면'], ['meal', '급식']];
+    const TABS = [['cal', '캘린더'], ['td', '할 일'], ['view', '화면']];
     if (!TABS.some((t) => t[0] === S.pfTab)) S.pfTab = 'cal';
     const seg = (key, opts, after) => el('div', { class: 'seg' }, opts.map(([v, label]) =>
       el('button', { type: 'button', class: PF[key] === v ? 'on' : '', onclick: () => { PF[key] = v; commit(after); } }, label)));
@@ -2239,6 +2257,8 @@
           tog('terms', '24절기'),
           tog('hol', '공휴일 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
           tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
+          tog('ab', '출결 버튼', '', 'render'),
+          tog('meal', '급식 버튼', PF.school ? '' : '급식 창에서 학교를 먼저 골라요', 'render', !PF.school),
           S.cloud ? el('label', { class: 'pfr tg' },
             el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
               const cb = e.target;
@@ -2251,6 +2271,12 @@
         el('div', { class: 'pfs' }, '모양'),
         row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
         tog('anim', '화면 전환 애니메이션'),
+        el('div', { class: 'pfs' }, '바로가기'),
+        ...[['sync', '새로고침'], ['meal', '급식'], ['doc-contacts', '연락처'], ['doc-schedule', '일과 진행 시간표'], ['doc-mytable', '내 시간표'], ...(IS_WIDGET ? [['move', '이동·크기 변경']] : [])].map(([k, l]) =>
+          el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !(PF.hide || []).includes(k), onchange: (e) => {
+            const h = new Set(PF.hide || []); if (e.target.checked) h.delete(k); else h.add(k);
+            PF.hide = [...h]; commit('render');
+          } }), el('span', {}, l))),
         ...(W ? [el('div', { class: 'pfs' }, '창'),
         S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
           el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await W.setZ(v); draw(); } }, l)))) : null,
@@ -2277,13 +2303,6 @@
           tog('sortDone', '완료한 할 일은 맨 아래로'),
         ];
       },
-      meal: () => [
-        el('div', { class: 'pfs' }, '급식 정보'),
-        tog('meal', '급식 표시', PF.school ? PF.school.name : '학교를 먼저 골라 주세요', 'meal', !PF.school),
-        row('학교', el('button', { type: 'button', class: 'ghost sm', onclick: () => openSchool(draw) }, PF.school ? PF.school.name : '학교 찾기')),
-        row('인증키', el('input', { type: 'text', class: 'keyin', value: PF.neisKey || '', placeholder: '선택 · 없으면 일부만 보여요', 'aria-label': '인증키',
-          onchange: (e) => { PF.neisKey = e.target.value.trim(); S.meal = {}; savePf(); loadMeal(); } })),
-      ],
     };
     const tabBar = el('div', { class: 'pnav' });
     const body = el('div', { class: 'pbody' });
@@ -2472,19 +2491,26 @@
   /* ================= 급식 (NEIS 교육정보 개방 포털) ================= */
   const NEIS = 'https://open.neis.go.kr/hub/';
   const neis = async (api, q) => {
-    const p = new URLSearchParams({ Type: 'json', pIndex: '1', pSize: '100', ...q });
-    if (PF.neisKey) p.set('KEY', PF.neisKey);
-    const res = await fetch(NEIS + api + '?' + p);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const j = await res.json();
-    if (j.RESULT) { if (j.RESULT.CODE === 'INFO-200') return []; throw new Error(j.RESULT.MESSAGE || j.RESULT.CODE); }
-    const blk = j[api];
-    return blk && blk[1] ? blk[1].row : [];
+    // 인증키가 없으면 한 번에 5건까지만 주므로, 쪽을 넘겨가며 모두 받아요
+    const size = PF.neisKey ? 100 : 5;
+    let all = [];
+    for (let page = 1; page <= 40; page++) {
+      const p = new URLSearchParams({ Type: 'json', pIndex: String(page), pSize: String(size), ...q });
+      if (PF.neisKey) p.set('KEY', PF.neisKey);
+      const res = await fetch(NEIS + api + '?' + p);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const j = await res.json();
+      if (j.RESULT) { if (j.RESULT.CODE === 'INFO-200') break; throw new Error(j.RESULT.MESSAGE || j.RESULT.CODE); }
+      const blk = j[api], rows = blk && blk[1] ? blk[1].row : [];
+      all = all.concat(rows);
+      if (rows.length !== size) break;
+    }
+    return all;
   };
   const ymdN = (ds) => ds.replace(/-/g, '');
   let mealWarned = false;
   async function loadMeal() {
-    if (!PF.meal || !PF.school) { if (Object.keys(S.meal).length) { S.meal = {}; render(); } return; }
+    if (!PF.school) { if (Object.keys(S.meal).length) { S.meal = {}; render(); } return; }
     const r = range();
     try {
       const rows = await neis('mealServiceDietInfo', {
@@ -2503,25 +2529,69 @@
     }
   }
   const allergyStrip = (t) => t.replace(/\s*\(?[\d.]+\)?\s*$/, '').replace(/\(\s*[\d.\s]+\)/g, '');
+  const MEAL_KINDS = ['조식', '중식', '석식'];
+  const mealRow = (x) => el('div', { class: 'meal' }, el('b', {}, x.kind, x.cal ? el('small', {}, ' ' + x.cal) : null), el('ul', {}, x.menu.map((t) => el('li', {}, allergyStrip(t)))));
+  const mealShown = (list) => list.filter((x) => !MEAL_KINDS.includes(x.kind) || (PF.mk || MEAL_KINDS).includes(x.kind));
   function openMeal(ds) {
     const m = $('#modal');
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const d = parseYmd(ds);
-    const list = S.meal[ds] || [];
+    const list = mealShown(S.meal[ds] || []);
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
         el('div', { class: 'shead' }, hb('utensils', `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        list.length ? el('div', { class: 'meals' }, list.map((x) => el('div', { class: 'meal' },
-          el('b', {}, x.kind, x.cal ? el('small', {}, ' ' + x.cal) : null),
-          el('ul', {}, x.menu.map((t) => el('li', {}, allergyStrip(t))))))) : el('div', { class: 'mut' }, '급식 없음')));
+        list.length ? el('div', { class: 'meals' }, list.map(mealRow)) : el('div', { class: 'mut' }, '급식 없음')));
+  }
+  /* 상단바 급식 버튼: 이번 주 급식 + 보여줄 끼니 + 학교 */
+  function openMealWeek() {
+    const m = $('#modal');
+    m.hidden = false;
+    const close = () => { m.hidden = true; m.replaceChildren(); };
+    const t0 = new Date(), sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay());
+    const days = Array.from({ length: 7 }, (_, i) => ymd(new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + i)));
+    let data = null;
+    const list = el('div', { class: 'meals mw' });
+    const draw = () => {
+      list.replaceChildren();
+      if (!PF.school) { list.append(el('button', { class: 'pri', type: 'button', onclick: () => openSchool(openMealWeek) }, '학교 찾기')); return; }
+      if (!data) return;
+      const hit = days.filter((ds) => mealShown(data[ds] || []).length);
+      if (!hit.length) { list.append(el('div', { class: 'mut' }, '급식 없음')); return; }
+      hit.forEach((ds) => {
+        const d = parseYmd(ds);
+        list.append(el('div', { class: 'mday' + (ds === ymd(t0) ? ' today' : '') }, el('div', { class: 'mdh' }, `${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`), ...mealShown(data[ds]).map(mealRow)));
+      });
+    };
+    const kinds = el('div', { class: 'mk' }, MEAL_KINDS.map((k) => el('label', { class: 'rchk' },
+      el('input', { type: 'checkbox', checked: (PF.mk || MEAL_KINDS).includes(k), onchange: (e) => {
+        const cur = new Set(PF.mk || MEAL_KINDS); if (e.target.checked) cur.add(k); else cur.delete(k);
+        PF.mk = MEAL_KINDS.filter((x) => cur.has(x)); savePf(); draw(); render();
+      } }), k)));
+    m.replaceChildren(el('div', { class: 'back', onclick: close }),
+      el('div', { class: 'dlg mealdlg' },
+        el('div', { class: 'shead' }, hb('utensils', '급식'), el('span', { class: 'grow' }),
+          PF.school ? el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, PF.school.name) : null,
+          el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        list, kinds));
+    draw();
+    if (PF.school) {
+      neis('mealServiceDietInfo', { ATPT_OFCDC_SC_CODE: PF.school.edu, SD_SCHUL_CODE: PF.school.code, MLSV_FROM_YMD: ymdN(days[0]), MLSV_TO_YMD: ymdN(days[6]) }).then((rows) => {
+        data = {};
+        rows.forEach((x) => {
+          const k = x.MLSV_YMD.replace(/^(\d{4})(\d\d)(\d\d)$/, '$1-$2-$3');
+          (data[k] = data[k] || []).push({ kind: x.MMEAL_SC_NM, menu: String(x.DDISH_NM || '').split(/<br\s*\/?>/i).map((t) => t.trim()).filter(Boolean), cal: x.CAL_INFO || '' });
+        });
+        if (document.body.contains(list)) draw();
+      }).catch(() => { data = {}; if (document.body.contains(list)) draw(); });
+    }
   }
   function openSchool(done) {
     const m = $('#modal');
     m.hidden = false;
-    const close = () => { m.hidden = true; m.replaceChildren(); if (done) openPrefs(); };
+    const close = () => { m.hidden = true; m.replaceChildren(); if (done) done(); };
     const res = el('div', { class: 'schres' });
-    const inp = el('input', { type: 'search', placeholder: '학교 이름', 'aria-label': '학교 이름' });
+    const inp = el('input', { type: 'search', 'aria-label': '학교 이름' });
     let busy = false;
     const go = async () => {
       const q = inp.value.trim();
@@ -2540,7 +2610,7 @@
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
         el('div', { class: 'shead' }, hb('search', '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        el('div', { class: 'schq' }, inp, el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res));
+        el('div', { class: 'schq' }, fld(inp), el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res));
     setTimeout(() => inp.focus(), 30);
   }
 
@@ -2722,7 +2792,6 @@
   function initWidgetEdit() {
     if (!IS_WIDGET) return;
     const api = window.hagisiroWidget;
-    const btn = el('button', { id: 'wmove', type: 'button', title: '이동·크기 변경', 'aria-label': '이동·크기 변경', onclick: () => toggle() }, icon('move'));
     let layer = null;
     function toggle() {
       if (layer) { layer.remove(); layer = null; document.body.classList.remove('wedit'); return; }
@@ -2759,7 +2828,7 @@
       layer.addEventListener('pointerup', end); layer.addEventListener('pointercancel', end);
       document.body.append(layer);
     }
-    document.body.append(btn);
+    S.winEdit = toggle;
   }
 
   /* ================= 토스트 / 키보드 ================= */
