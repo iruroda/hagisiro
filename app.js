@@ -1584,7 +1584,6 @@
     const cls = curClass();
     if (!cls) {
       root.append(el('div', { class: 'empty' },
-        el('p', {}, '아직 학급이 없어요'),
         el('p', { class: 'mut' }, '명단을 한 번만 붙여넣으면, 이후엔 문장으로 바로 기록돼요'),
         el('button', { class: 'pri', onclick: () => openRoster(null) }, '학급 추가')));
       return root;
@@ -1611,6 +1610,7 @@
 
     root.append(S.sub === 'month' ? monthView(cls) : S.sub === 'week' ? weekView(cls) : dayView(cls));
     setTimeout(preview, 0);
+    setTimeout(maybeTour, 400);
     return root;
   }
 
@@ -1770,7 +1770,7 @@
       el('b', { class: 'dttl' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
-      el('span', { class: 'mut small' }, ovr ? `기본 ${def ? def + '교시' : '수업 없음'} → 이 날만` : '이 날 교시 수'),
+      el('span', { class: 'mut small' }, ovr ? `기본 ${def ? def + '교시' : '수업 없음'} → 이 날만` : '이 날만'),
       cntSel,
       ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, '기본값으로') : null));
 
@@ -1820,7 +1820,7 @@
   function setKind(s, rec, label, ds, cls) {
     const k = KINDS.find((x) => x.label === label);
     if (!k) { // '출석' = 기록 없음
-      if (rec) { Data.del('att', rec.id); toast('출석으로 바꿨어요', () => { Data.put('att', rec); render(); }); }
+      if (rec) { Data.del('att', rec.id); }
       render(); return;
     }
     if (rec) {
@@ -1851,7 +1851,7 @@
     }
     const set = new Set(recCols(rec, last));
     if (set.has(i)) set.delete(i); else set.add(i);
-    if (!set.size) { Data.del('att', rec.id); toast('출석으로 바꿨어요', () => { Data.put('att', rec); render(); }); render(); return; }
+    if (!set.size) { Data.del('att', rec.id); render(); return; }
     const vals = [...set].sort((x, y) => x - y).map((c) => colVal(c, last));
     Data.put('att', { ...rec, slots: vals, from: vals[0], to: vals[vals.length - 1] });
     render();
@@ -1866,24 +1866,54 @@
   /* ---------- 문장 입력 ---------- */
   const chipText = (it) => `${it.no} ${it.name} · ${md(it.date)} · ${it.cat}${it.type} ${P.rangeLabel(it.from, it.to)}${it.reason ? ' · ' + it.reason : ''}`;
 
+  /* 출결 화면에 처음 들어오면: 입력칸만 밝게, 나머지는 어둡게 하고 말풍선으로 안내 */
+  function maybeTour() {
+    if (S.tourShown || ls.get('hagisiro:tourAtt') === '1') return;
+    const row = $('#main .qrow');
+    if (!row || !row.offsetWidth) return;
+    S.tourShown = true;
+    const r = row.getBoundingClientRect();
+    const hole = el('div', { class: 'tour-hole' });
+    Object.assign(hole.style, { left: r.left - 4 + 'px', top: r.top - 4 + 'px', width: r.width + 8 + 'px', height: r.height + 8 + 'px' });
+    const never = el('input', { type: 'checkbox' });
+    const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.remove(); };
+    const tip = el('div', { class: 'tour-tip' },
+      el('div', {}, '출결은 문장으로도 입력 가능합니다.'),
+      el('div', { class: 'mut' }, '예) 홍길동 오늘 4교시부터 감기로 조퇴'),
+      el('div', { class: 'mut' }, '12일에 홍길동 가족여행으로 체험학습'),
+      el('div', { class: 'tour-f' }, el('label', { class: 'rchk' }, never, '다시 열지 않음'), el('button', { class: 'pri sm', type: 'button', onclick: close }, '닫기')));
+    const box = el('div', { class: 'tour' }, hole, tip);
+    document.body.append(box);
+    const w = Math.min(300, innerWidth - 16);
+    tip.style.width = w + 'px';
+    tip.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+    const th = tip.offsetHeight;
+    tip.style.top = (r.bottom + 12 + th < innerHeight ? r.bottom + 12 : Math.max(8, r.top - th - 12)) + 'px';
+  }
   function preview() {
     const q = $('#q'), pv = $('#pv');
     if (!q || !pv) return;
     const v = q.value.trim();
     pv.replaceChildren(); pv.className = 'pv';
-    if (!v) {
-      pv.append(el('span', { class: 'mut' }, '이름, 날짜, 종류, 교시, 사유를 입력하세요. 예) 홍길동 12일 감기로 2교시 후 조퇴'));
-      return;
-    }
+    const ASK = '이름, 날짜, 사유 등을 입력하세요.';
+    if (!v) { pv.append(el('span', { class: 'mut' }, ASK)); return; }
     const r = runParse(v);
     if (r.errors.length) {
+      const info = r.info || {};
+      if (r.errors.includes('student') && !info.type && !info.period && !info.date) { pv.append(el('span', { class: 'mut' }, ASK)); return; } // 이름 쓰는 중
       pv.classList.add('err');
       pv.append(r.errors.includes('student') ? '학생 이름을 입력해주세요.' : '출결 종류(결석/지각/조퇴/결과)를 입력해주세요.');
       return;
     }
     r.items.slice(0, 5).forEach((it) => pv.append(el('span', { class: 'chip t-' + it.type }, chipText(it))));
     if (r.items.length > 5) pv.append(el('span', { class: 'mut' }, `외 ${r.items.length - 5}건`));
-    if (r.dateGuessed) pv.append(el('span', { class: 'mut' }, `· 날짜 없음 → ${md(S.sel)}`));
+    // 빠진 것 중 가장 중요한 하나만 안내: 사유 → 날짜 → 교시
+    const it0 = r.items[0], info = r.info || {};
+    let note = '';
+    if (!info.reason) note = '사유 미입력 시 미인정으로 등록됩니다';
+    else if (r.dateGuessed) note = `날짜 미입력 시 ${S.sel === ymd(new Date()) ? '오늘' : md(S.sel)}로 등록됩니다`;
+    else if (!info.period && it0.type !== '결석') note = `교시 미입력 시 ${P.rangeLabel(it0.from, it0.to)}로 등록됩니다`;
+    if (note) pv.append(el('span', { class: 'mut' }, note));
   }
 
   function submitQuick() {
@@ -1905,11 +1935,6 @@
     q.value = '';
     S.sub = 'day'; ls.set('hagisiro:sub', 'day');
     setSel(r.items[0].date); // 입력한 날짜의 일별 보기로 이동
-    toast('저장됨 · ' + (r.items.length === 1 ? chipText(r.items[0]) : `${r.items.length}건`), () => {
-      created.forEach((c) => Data.del('att', c.id));
-      replaced.forEach((o) => Data.put('att', o));
-      render();
-    });
     render();
     const nq = $('#q'); if (nq) nq.focus();
   }
@@ -2299,7 +2324,7 @@
           if (S.cloud) { removed = await S.cloud.clearAll('days'); S.days = []; }
           else { removed = S.days.slice(); S.days = []; Data.saveLocal(); }
         } catch (e) { cloudErr(e); }
-        if (removed.length) toast(`날짜별 개별 설정 ${removed.length}일을 삭제하고 기본값으로 통일했어요`, () => { removed.forEach((x) => Data.put('days', x)); render(); });
+        if (removed.length) toast(`${removed.length}일을 기본값으로 통일`, () => { removed.forEach((x) => Data.put('days', x)); render(); });
       }
       render();
     };
@@ -2318,7 +2343,7 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const name = el('input', { type: 'text', placeholder: '학급 이름 (예: 2학년 3반)', value: c ? c.name : '', 'aria-label': '학급 이름' });
-    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '번호 이름 — 한 줄에 한 명\n1 강민준\n2 김서연\n\n엑셀에서 번호·이름 칸을 복사해 붙여넣어도 돼요', 'aria-label': '명단' });
+    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 강민준\n2 김서연', 'aria-label': '명단' });
     ta.value = c ? c.students.slice().sort((a, b) => a.no - b.no).map((s) => `${s.no} ${s.name}`).join('\n') : '';
 
     function save() {
@@ -2344,7 +2369,7 @@
       close(); render();
     }
     async function remove() {
-      if (!(await ask('이 학급을 삭제할까요?\n출결 기록은 남아 있어요.'))) return;
+      if (!(await ask('학급을 삭제할까요? (출결 기록은 남아요)'))) return;
       Data.del('classes', c.id); S.clsId = null; close(); render();
     }
     m.append(el('div', { class: 'back', onclick: close }),

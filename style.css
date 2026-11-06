@@ -753,3 +753,12 @@ button:disabled, input:disabled, select:disabled, label:has(input:disabled), .pr
 .blb[data-bl="diamond"] { color: #d98a00; } .blb[data-bl="heart"] { color: #e5484d; }
 
 .blset { display: flex; gap: 2px; flex-wrap: wrap; }
+
+/* 출결 첫 안내 */
+.tour { position: fixed; inset: 0; z-index: 90; }
+.tour-hole { position: fixed; border-radius: var(--r-lg); box-shadow: 0 0 0 9999px rgba(0,0,0,.55); pointer-events: none; }
+.tour-tip { position: fixed; background: var(--bg-s, var(--bg)); color: var(--text); border-radius: var(--r-lg); padding: 12px 14px; box-shadow: 0 8px 26px rgba(0,0,0,.35); font-size: 13px; line-height: 1.6; }
+.tour-tip .mut { font-size: 12px; }
+.tour-f { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.tour-f .rchk { font-size: 12px; color: var(--mut); }
+.pri.sm { padding: 4px 12px; font-size: 12px; }

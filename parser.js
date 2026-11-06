@@ -234,6 +234,7 @@
     const cat = classify(reason, forcedCat);
 
     /* 6) 검증 */
+    res.info = { type: !!type, period: p != null, reason: !!reason, date: !res.dateGuessed }; // 화면 안내용: 무엇을 입력했는지
     if (!found.length) res.errors.push('student');
     if (!type) res.errors.push('type');
     if (res.errors.length) return res;
