@@ -823,3 +823,16 @@ input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 .qrow .fld .pen .ic svg { width: 18px; height: 18px; }
 /* 저장 실패 표시 */
 #top .ib.err { color: #e5484d; }
+
+/* 급식 주별 표 */
+.mealdlg { width: min(880px, 96vw); }
+.mnav { display: flex; align-items: center; gap: 6px; }
+.mttl { min-width: 96px; text-align: center; font-size: 14px; }
+.mwrap { overflow: auto; max-height: 60vh; }
+.mtbl { border-collapse: collapse; width: 100%; table-layout: fixed; font-size: 11px; line-height: 1.45; }
+.mtbl th, .mtbl td { border: 1px solid var(--line); padding: 4px 5px; vertical-align: top; text-align: left; min-width: 84px; }
+.mtbl th { font-size: 12px; font-weight: 700; text-align: center; background: var(--bg2); }
+.mtbl th.rk { width: 36px; min-width: 36px; }
+.mtbl th.sun { color: var(--sun); } .mtbl th.sat { color: var(--sat); }
+.mtbl th.today, .mtbl td.today { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.mk .grow { flex: 1; }

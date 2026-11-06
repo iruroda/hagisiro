@@ -155,7 +155,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], show: [], mk: ['조식', '중식', '석식'] },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], show: [], mwe: false, mk: ['조식', '중식', '석식'] },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -708,12 +708,12 @@
     const gc = gcalWanted() && !gtoken();
     return [
       { k: 'sync', label: '새로고침', ic: 'refresh', def: true, run: forceSync },
-      { k: 'search', label: '할 일 검색', ic: 'search', run: openSearch },
-      { k: 'repeat', label: '반복 관리', ic: 'repeat', run: () => openRepeatManage() },
-      { k: 'dday', label: 'D-day 관리', ic: 'dday', run: openDdays },
-      { k: 'meal', label: '급식', ic: 'utensils', def: true, run: openMealWeek },
+      { k: 'search', label: '할 일 검색', ic: 'search', pop: true, run: openSearch },
+      { k: 'repeat', label: '반복 관리', ic: 'repeat', pop: true, run: () => openRepeatManage() },
+      { k: 'dday', label: 'D-day 관리', ic: 'dday', pop: true, run: openDdays },
+      { k: 'meal', label: '급식', ic: 'utensils', def: true, pop: true, run: openMealWeek },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, ic, def: true, doc: id, run: () => openDoc(id) })),
-      { k: 'prefs', label: '설정', ic: 'gear', run: openPrefs },
+      { k: 'prefs', label: '설정', ic: 'gear', pop: true, run: openPrefs },
       gc ? { k: 'gc', label: 'Google 캘린더 다시 연결', ic: 'google', def: true, run: () => connectGcal() } : null,
       S.user ? { k: 'logout', label: '로그아웃', ic: 'logout', run: () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); } } : null,
       !S.user && S.cloudAvail ? { k: 'login', label: 'Google 로그인', ic: 'google', run: () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); } } : null,
@@ -726,7 +726,7 @@
   const scOn = (x) => (x.def ? !(PF.hide || []).includes(x.k) : (PF.show || []).includes(x.k));
   function scNode(x) {
     const common = { title: x.label, 'aria-label': x.label, onclick: x.run };
-    if (x.doc) return el('button', { ...common, class: 'ghost sm dbtn' + (docOf(x.doc) ? ' has' : '') }, icon(x.ic), el('span', { class: 'lb' }, x.label));
+    if (x.doc || x.pop) return el('button', { ...common, class: 'ghost sm dbtn' + (x.doc && docOf(x.doc) ? ' has' : '') }, icon(x.ic), el('span', { class: 'lb' }, x.label));
     return el('button', { ...common, class: 'ib', id: x.k === 'sync' ? 'syncBtn' : x.k === 'move' ? 'wmove' : null }, icon(x.ic));
   }
 
@@ -2570,48 +2570,68 @@
         el('div', { class: 'shead' }, hb('utensils', `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list.length ? el('div', { class: 'meals' }, list.map(mealRow)) : el('div', { class: 'mut' }, '급식 없음')));
   }
-  /* 상단바 급식 버튼: 이번 주 급식 + 보여줄 끼니 + 학교 */
+  /* 상단바 급식 버튼: 주별 급식 표 (행: 날짜·조식·중식·석식 / 열: 요일) + 지난주·다음주 이동 */
+  const mealRows = (rows) => {
+    const d = {};
+    rows.forEach((x) => {
+      const k = x.MLSV_YMD.replace(/^(\d{4})(\d\d)(\d\d)$/, '$1-$2-$3');
+      (d[k] = d[k] || []).push({ kind: x.MMEAL_SC_NM, menu: String(x.DDISH_NM || '').split(/<br\s*\/?>/i).map((t) => t.trim()).filter(Boolean), cal: x.CAL_INFO || '' });
+    });
+    return d;
+  };
   function openMealWeek() {
     const m = $('#modal');
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); };
-    const t0 = new Date(), sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay());
-    const days = Array.from({ length: 7 }, (_, i) => ymd(new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + i)));
-    let data = null;
-    const list = el('div', { class: 'meals mw' });
+    const t0 = new Date();
+    let sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay());
+    const cache = {};
+    let nav = 0;
+    const body = el('div', { class: 'mwrap' });
+    const ttl = el('b', { class: 'mttl' });
     const draw = () => {
-      list.replaceChildren();
-      if (!PF.school) { list.append(el('button', { class: 'pri', type: 'button', onclick: () => openSchool(openMealWeek) }, '학교 찾기')); return; }
-      if (!data) return;
-      const hit = days.filter((ds) => mealShown(data[ds] || []).length);
-      if (!hit.length) { list.append(el('div', { class: 'mut' }, '급식 없음')); return; }
-      hit.forEach((ds) => {
-        const d = parseYmd(ds);
-        list.append(el('div', { class: 'mday' + (ds === ymd(t0) ? ' today' : '') }, el('div', { class: 'mdh' }, `${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`), ...mealShown(data[ds]).map(mealRow)));
-      });
+      const days = Array.from({ length: 7 }, (_, i) => new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + i)).filter((d) => !(PF.mwe && (d.getDay() === 0 || d.getDay() === 6)));
+      const e = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 6);
+      ttl.textContent = `${sun.getMonth() + 1}/${sun.getDate()} ~ ${e.getMonth() + 1}/${e.getDate()}`;
+      body.replaceChildren();
+      if (!PF.school) { body.append(el('button', { class: 'pri', type: 'button', onclick: () => openSchool(openMealWeek) }, '학교 찾기')); return; }
+      const data = cache[ymd(sun)];
+      const kinds = MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k));
+      const tbl = el('table', { class: 'mtbl' },
+        el('thead', {}, el('tr', {}, el('th', {}), days.map((d) => el('th', { class: (ymd(d) === ymd(t0) ? 'today ' : '') + (d.getDay() === 0 ? 'sun' : d.getDay() === 6 ? 'sat' : '') }, `${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`)))),
+        el('tbody', {}, kinds.map((k) => el('tr', {}, el('th', { class: 'rk' }, k), days.map((d) => {
+          const it = data && (data[ymd(d)] || []).find((x) => x.kind === k);
+          return el('td', { class: ymd(d) === ymd(t0) ? 'today' : '' }, it ? it.menu.map((t) => el('div', {}, allergyStrip(t))) : null);
+        })))));
+      body.append(tbl);
     };
-    const kinds = el('div', { class: 'mk' }, MEAL_KINDS.map((k) => el('label', { class: 'rchk' },
+    const load = () => {
+      const my = ++nav, key = ymd(sun);
+      draw();
+      if (!PF.school || cache[key]) return;
+      const end = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 6);
+      neis('mealServiceDietInfo', { ATPT_OFCDC_SC_CODE: PF.school.edu, SD_SCHUL_CODE: PF.school.code, MLSV_FROM_YMD: ymdN(key), MLSV_TO_YMD: ymdN(ymd(end)) })
+        .then((rows) => { cache[key] = mealRows(rows); }, () => { cache[key] = {}; })
+        .then(() => { if (my === nav && document.body.contains(body)) draw(); });
+    };
+    const mv = (n) => { sun = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 7 * n); load(); };
+    const opts = el('div', { class: 'mk' }, MEAL_KINDS.map((k) => el('label', { class: 'rchk' },
       el('input', { type: 'checkbox', checked: (PF.mk || MEAL_KINDS).includes(k), onchange: (e) => {
         const cur = new Set(PF.mk || MEAL_KINDS); if (e.target.checked) cur.add(k); else cur.delete(k);
         PF.mk = MEAL_KINDS.filter((x) => cur.has(x)); savePf(); draw(); render();
-      } }), k)));
+      } }), k)).concat(el('span', { class: 'grow' }), el('label', { class: 'rchk' },
+      el('input', { type: 'checkbox', checked: !!PF.mwe, onchange: (e) => { PF.mwe = e.target.checked; savePf(); draw(); } }), '주말 제외')));
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg mealdlg' },
         el('div', { class: 'shead' }, hb('utensils', '급식'), el('span', { class: 'grow' }),
           PF.school ? el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, PF.school.name) : null,
           el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        list, kinds));
-    draw();
-    if (PF.school) {
-      neis('mealServiceDietInfo', { ATPT_OFCDC_SC_CODE: PF.school.edu, SD_SCHUL_CODE: PF.school.code, MLSV_FROM_YMD: ymdN(days[0]), MLSV_TO_YMD: ymdN(days[6]) }).then((rows) => {
-        data = {};
-        rows.forEach((x) => {
-          const k = x.MLSV_YMD.replace(/^(\d{4})(\d\d)(\d\d)$/, '$1-$2-$3');
-          (data[k] = data[k] || []).push({ kind: x.MMEAL_SC_NM, menu: String(x.DDISH_NM || '').split(/<br\s*\/?>/i).map((t) => t.trim()).filter(Boolean), cal: x.CAL_INFO || '' });
-        });
-        if (document.body.contains(list)) draw();
-      }).catch(() => { data = {}; if (document.body.contains(list)) draw(); });
-    }
+        el('div', { class: 'mnav' },
+          el('button', { class: 'ib', type: 'button', onclick: () => mv(-1), 'aria-label': '지난주' }, icon('left')), ttl,
+          el('button', { class: 'ib', type: 'button', onclick: () => mv(1), 'aria-label': '다음주' }, icon('right')),
+          el('button', { class: 'ghost sm', type: 'button', onclick: () => { sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay()); load(); } }, '이번 주')),
+        body, opts));
+    load();
   }
   function openSchool(done) {
     const m = $('#modal');
