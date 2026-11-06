@@ -2229,8 +2229,8 @@
       el('button', { type: 'button', class: PF[key] === v ? 'on' : '', onclick: () => { PF[key] = v; commit(after); } }, label)));
     const sel = (key, vals, fmt, after) => el('select', { onchange: (e) => { PF[key] = +e.target.value; commit(after); } },
       vals.map((v) => el('option', { value: v, selected: PF[key] === v }, fmt(v))));
-    const tog = (key, label, hint, after, off, lock) => el('label', { class: 'pfr tg' + (off || lock ? ' off' : '') },
-      el('input', { type: 'checkbox', checked: !!PF[key] && !off, disabled: !!(off || lock), onchange: (e) => { PF[key] = e.target.checked; commit(after); } }),
+    const tog = (key, label, hint, after, off, lock, excl) => el('label', { class: 'pfr tg' + (off || lock ? ' off' : '') },
+      el('input', { type: 'checkbox', checked: !!PF[key] && !off, disabled: !!(off || lock), onchange: (e) => { PF[key] = e.target.checked; if (excl && e.target.checked) PF[excl] = false; commit(after); } }),
       el('span', {}, label, hint ? el('small', {}, hint) : null));
     const row = (label, ...c) => el('div', { class: 'pfr' }, el('span', { class: 'pl' }, label), el('div', { class: 'pc2' }, c));
     const dim = (node, on) => { if (on) { node.classList.add('off'); node.querySelectorAll('select,button,input').forEach((x) => { x.disabled = true; }); } return node; };
@@ -2249,13 +2249,13 @@
         return [
           el('div', { class: 'pfs' }, '보기'),
           row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
-          dim(row('전체 주 개수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')), mon),
-          dim(row('지나간 주 개수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
-          tog('mgap', '월 사이 간격 띄우기', '달이 바뀌는 줄 위에 간격을 둬요', 'render', false, mon),
+          dim(row('전체 주 수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')), mon),
+          dim(row('지나간 주 수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
+          tog('mgap', '월 사이 간격 띄우기', '', 'render', false, mon),
           el('div', { class: 'pfs' }, '날짜에 함께 표시'),
           tog('lunar', '음력 날짜'),
           tog('terms', '24절기'),
-          tog('hol', '공휴일 (대한민국)', '설날·추석·대체공휴일까지 자동 계산'),
+          tog('hol', '공휴일 (대한민국)'),
           tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
           tog('ab', '출결 버튼', '', 'render'),
           tog('meal', '급식 버튼', PF.school ? '' : '급식 창에서 학교를 먼저 골라요', 'render', !PF.school),
@@ -2270,7 +2270,7 @@
       view: () => [
         el('div', { class: 'pfs' }, '모양'),
         row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
-        tog('anim', '화면 전환 애니메이션'),
+        tog('anim', '애니메이션'),
         el('div', { class: 'pfs' }, '바로가기'),
         ...[['sync', '새로고침'], ['meal', '급식'], ['doc-contacts', '연락처'], ['doc-schedule', '일과 진행 시간표'], ['doc-mytable', '내 시간표'], ...(IS_WIDGET ? [['move', '이동·크기 변경']] : [])].map(([k, l]) =>
           el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !(PF.hide || []).includes(k), onchange: (e) => {
@@ -2281,10 +2281,10 @@
         S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
           el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await W.setZ(v); draw(); } }, l)))) : null,
         row('투명도', el('input', {
-          type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '위젯 투명도',
+          type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '투명도',
           oninput: (e) => { PF.opacity = +e.target.value; savePf(); const o = m.querySelector('.opv'); if (o) o.textContent = PF.opacity + '%'; },
         }), el('b', { class: 'opv' }, PF.opacity + '%')),
-        S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await W.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작할 때 함께 시작')),
+        S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await W.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작 시 실행')),
 ] : []),
       ],
       td: () => {
@@ -2299,8 +2299,8 @@
           row('글자색', dots('tfg', FG)),
           row('배경색', dots('tbg', BGC)),
           el('div', { class: 'pfs' }, '동작'),
-          tog('autoDel', '완료하면 자동으로 삭제', '완료 아이콘을 누르면 그 할 일을 바로 지워요 (반복 항목은 그날만)', 'render'),
-          tog('sortDone', '완료한 할 일은 맨 아래로'),
+          tog('autoDel', '완료 시 자동 삭제', '반복 항목은 그날만', 'render', false, false, 'sortDone'),
+          tog('sortDone', '완료 시 맨 아래로', '', 'render', false, false, 'autoDel'),
         ];
       },
     };
