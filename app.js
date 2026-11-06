@@ -2006,7 +2006,6 @@
       while (clean.length && clean[clean.length - 1].every((c) => !c)) clean.pop();
       let w = 0; clean.forEach((r) => { for (let i = r.length - 1; i >= 0; i--) if (r[i]) { w = Math.max(w, i + 1); break; } });
       const t = clean.map((r) => r.slice(0, w).join('\t')).join('\n');
-      if (wb.SheetNames.length > 1) toast('첫 번째 시트만 가져왔어요');
       return { kind: 'text', text: t };
     }
     throw new Error('엑셀(.xlsx/.xls/.csv)이나 이미지 파일만 올릴 수 있어요');
@@ -2136,9 +2135,9 @@
     let drawEdit = function () {
       const file = el('input', { type: 'file', hidden: true, accept: '.xlsx,.xls,.xlsm,.csv,.tsv,.txt,image/*', onchange: async (e) => {
         const f = e.target.files[0]; if (!f) return;
-        try { draft = await fileToDraft(f); drawEdit(); } catch (er) { toast(er.message || '파일을 읽지 못했어요'); }
+        try { draft = await fileToDraft(f); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ }
       } });
-      const ta = el('textarea', { class: 'dta', placeholder: '여기에 직접 입력하거나, 엑셀에서 복사해 붙여넣으세요.\n(탭으로 구분된 내용은 표로 보여줘요)', spellcheck: 'false' });
+      const ta = el('textarea', { class: 'dta', spellcheck: 'false' });
       ta.value = draft.text || '';
       ta.addEventListener('input', () => { draft.text = ta.value; });
       ta.addEventListener('paste', (e) => {
@@ -2155,24 +2154,24 @@
         : ta;
       const save = () => {
         if (draft.kind === 'text' && !draft.text.trim()) { if (cur) Data.del('docs', id); close(); return; }
-        if (draft.kind === 'text' && draft.text.length > 300000) { toast('내용이 너무 길어요'); return; }
+        if (draft.kind === 'text' && draft.text.length > 300000) draft.text = draft.text.slice(0, 300000); // 너무 길면 뒤쪽을 잘라요
         const o = draft.kind === 'image' ? { id, kind: 'image', img: draft.img, updated: Date.now() } : { id, kind: 'text', text: draft.text, updated: Date.now() };
         Data.put('docs', o); cur = docOf(id) || o; edit = false; drawView();
       };
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(),
           el('div', { class: 'dsrc' },
-            el('button', { class: 'ghost sm', type: 'button', onclick: () => file.click() }, icon('upload'), '엑셀·이미지 올리기'), file,
+            el('button', { class: 'ghost sm', type: 'button', onclick: () => file.click() }, icon('upload'), '파일 업로드'), file,
             draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: async (e) => {
               const b = e.currentTarget; b.disabled = true; b.lastChild.textContent = '읽는 중…';
               try {
                 const t = await ocrImage(draft.img);
-                if (!t.trim()) { toast('글자를 찾지 못했어요'); b.disabled = false; b.lastChild.textContent = '글자로 읽기'; return; }
+                if (!t.trim()) { b.disabled = false; b.lastChild.textContent = 'OCR'; return; }
                 draft = { kind: 'text', text: t }; drawEdit();
-              } catch (er) { toast(er.message || '글자를 읽지 못했어요'); b.disabled = false; b.lastChild.textContent = '글자로 읽기'; }
-            } }, icon('scan'), el('span', {}, '글자로 읽기')) : null,
-            draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, '글자로 입력') : null,
-            el('span', { class: 'mut dhint' }, draft.kind === 'image' ? '이미지가 그대로 보여요' : '또는 아래에 직접 입력')),
+              } catch (er) { b.disabled = false; b.lastChild.textContent = 'OCR'; }
+            } }, icon('scan'), el('span', {}, 'OCR')) : null,
+            draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, '직접 입력') : null,
+            null),
           body,
           el('div', { class: 'dlgf' },
             cur ? el('button', { class: 'ghost sm danger', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { Data.del('docs', id); close(); } } }, icon('trash'), '삭제') : null,
