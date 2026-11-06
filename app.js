@@ -95,9 +95,10 @@
     tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
   };
   /* 글머리 기호 8종 (정사각형~줄표는 기본색, 나머지는 글씨 팔레트에서 뽑은 색) */
-  const BUL = [['sq', '정사각형'], ['ring', '빈 원'], ['', '불릿'], ['dash', '줄표'], ['spade', '스페이드'], ['club', '클로버'], ['diamond', '다이아몬드'], ['heart', '하트']];
-  const bulIcon = (k) => icon(k ? 'b_' + k : 'dot');
-  function setBullet(span, k) { span.dataset.bl = k || ''; span.replaceChildren(bulIcon(k)); }
+  const BUL = [['sq', '정사각형'], ['ring', '빈 원'], ['dot', '불릿'], ['dash', '줄표'], ['spade', '스페이드'], ['club', '클로버'], ['diamond', '다이아몬드'], ['heart', '하트']];
+  const bulIcon = (k) => icon(k && k !== 'dot' ? 'b_' + k : 'dot');
+  /* k: 할 일에 따로 정한 기호 (비면 설정의 기본 기호) */
+  function setBullet(span, k) { const e = k || PF.tbl || 'dot'; span.dataset.raw = k || ''; span.dataset.bl = e === 'dot' ? '' : e; span.replaceChildren(bulIcon(e)); }
   function icon(name) {
     const s = el('span', { class: 'ic' });
     s.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
@@ -142,7 +143,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '' },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -721,7 +722,7 @@
         const d = parseYmd(t.date);
         list.append(el('button', { type: 'button', class: 'srow' + (t.done ? ' done' : ''), onclick: () => { close(); gotoDate(t.date); } },
           el('span', { class: 'sd' }, `${d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '.' : ''}${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`),
-          el('span', { class: 'st' }, t.text), t.dday ? el('span', { class: 'ddm' }, 'D') : null, t.rid ? el('span', { class: 'rpt' }, icon('repeat')) : null));
+          el('span', { class: 'st' }, t.text), t.dday ? el('span', { class: 'ddm' }, icon('dday')) : null, t.rid ? el('span', { class: 'rpt' }, icon('repeat')) : null));
       });
       rules.forEach((r) => list.append(el('button', { type: 'button', class: 'srow', onclick: () => { close(); openRepeatManage(); } },
         el('span', { class: 'sd' }, '반복'), el('span', { class: 'st' }, r.text), el('span', { class: 'mut small' }, ruleSummary(r)))));
@@ -940,13 +941,13 @@
   function todoRow(t) {
     return el('div', { class: 'td' + (t.done ? ' done' : '') + (t.rid ? ' rep' : ''), 'data-id': t.id, 'data-sz': t.sz || null, style: colorVars(t) || null },
       blSpan(t.bl), el('span', { class: 'tt', title: t.text }, t.text),
-      t.dday ? el('span', { class: 'ddm', title: 'D-day' }, 'D') : null,
+      t.dday ? el('span', { class: 'ddm', title: 'D-day' }, icon('dday')) : null,
       t.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null);
   }
 
   /* ---------- 글자색 · 배경색 팔레트 ---------- */
   const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#2f6df6', '파랑'], ['#8b5cf6', '보라'], ['#d6409f', '분홍'], ['#8b9098', '회색']];
-  const BGC = [['', '없음'], ['rgba(250,204,21,.38)', '노랑'], ['rgba(251,146,60,.32)', '주황'], ['rgba(239,68,68,.24)', '빨강'], ['rgba(34,197,94,.26)', '초록'], ['rgba(59,130,246,.26)', '파랑'], ['rgba(139,92,246,.26)', '보라'], ['rgba(236,72,153,.24)', '분홍'], ['rgba(128,128,128,.28)', '회색']];
+  const BGC = [['', '없음'], ['rgba(239,68,68,.24)', '빨강'], ['rgba(251,146,60,.32)', '주황'], ['rgba(34,197,94,.26)', '초록'], ['rgba(59,130,246,.26)', '파랑'], ['rgba(139,92,246,.26)', '보라'], ['rgba(236,72,153,.24)', '분홍'], ['rgba(128,128,128,.28)', '회색']];
   const SIZES = [['xs', '아주 작게'], ['s', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
   function swatches(onPick, cur) {
     const wrap = el('div', { class: 'sw' });
@@ -963,16 +964,7 @@
       });
       return r;
     };
-    const szr = el('div', { class: 'swr' }, el('span', { class: 'swl' }, '크기'));
-    const seg = el('div', { class: 'seg szseg' });
-    SIZES.forEach(([val, name]) => {
-      const b = el('button', { type: 'button', class: (cur && (cur.sz || PF.tsz || 's') === val) ? 'on' : '', 'aria-label': `글자 크기 ${name}`, onclick: (e) => {
-        e.stopPropagation(); seg.querySelectorAll('button').forEach((x) => x.classList.remove('on')); b.classList.add('on'); onPick({ sz: val });
-      } }, name);
-      seg.append(b);
-    });
-    szr.append(seg);
-    wrap.append(row('글자색', 'fg', FG), row('배경색', 'bg', BGC), szr);
+    wrap.append(row('글자색', 'fg', FG), row('배경색', 'bg', BGC));
     return wrap;
   }
   let palEl = null, palOff = null;
@@ -1013,19 +1005,19 @@
         if (ctx.setDone) ctx.setDone(ts, to); else ts.forEach((t) => t.set({ done: to }));
         if (ctx.after) ctx.after(false);
       }),
-      btn('palette', '글자색 · 배경색', (b) => {
-        if (!ctx.targets(true).length) return;
-        openPalette(b, (patch) => { ctx.targets(true).forEach((t) => t.set(patch)); if (ctx.after) ctx.after(true); }, ctx.targets(true)[0].get());
-      }),
       btn('spade', '글머리 기호', (b) => {
         const ts = ctx.targets(true);
         if (!ts.length) return;
-        const cur = ts[0].get().bl || '';
+        const cur = ts[0].get().bl || PF.tbl || 'dot';
         const box = el('div', { class: 'blpick' });
         BUL.forEach(([k, name]) => box.append(el('button', { type: 'button', class: 'blb' + (cur === k ? ' on' : ''), 'data-bl': k, title: name, 'aria-label': name, onclick: (e) => {
           e.stopPropagation(); ctx.targets(true).forEach((t) => t.set({ bl: k })); closePal(); if (ctx.after) ctx.after(false);
         } }, bulIcon(k))));
         openPalette(b, null, null, box);
+      }),
+      btn('palette', '글자색 · 배경색', (b) => {
+        if (!ctx.targets(true).length) return;
+        openPalette(b, (patch) => { ctx.targets(true).forEach((t) => t.set(patch)); if (ctx.after) ctx.after(true); }, ctx.targets(true)[0].get());
       }),
       btn('repeat', '반복', () => ctx.repeat(ctx.targets())),
       btn('dday', 'D-day', () => {
@@ -1165,7 +1157,7 @@
       row.classList.toggle('done', !!it.done);
       if (it.sz) row.dataset.sz = it.sz; else delete row.dataset.sz;
       row.classList.toggle('dd', !!it.dday);
-      if (row._bl && row._bl.dataset.bl !== (it.bl || '') || (row._bl && !row._bl.firstChild)) setBullet(row._bl, it.bl);
+      if (row._bl && (row._bl.dataset.raw !== (it.bl || '') || !row._bl.firstChild)) setBullet(row._bl, it.bl);
       ['fg', 'bg'].forEach((k) => { if (it[k]) row.style.setProperty('--t' + k, it[k]); else row.style.removeProperty('--t' + k); });
     };
     const clearPicks = () => rows().forEach((r) => r.classList.remove('picked'));
@@ -2175,9 +2167,11 @@
         return [
           el('div', { class: 'pfs' }, '기본 모양 (할 일마다 따로 바꾼 것이 우선)'),
           row('글자 크기', el('div', { class: 'seg szseg' }, SIZES.map(([v, l]) => el('button', { type: 'button', class: (PF.tsz || 's') === v ? 'on' : '', onclick: () => { PF.tsz = v === 's' ? '' : v; commit('render'); } }, l)))),
-          row('글자색', dots('tfg', FG)),
-          row('바탕색', dots('tbg', BGC)),
           row('줄 간격', el('div', { class: 'seg szseg' }, [[0, '아주 좁게'], [1, '좁게'], [2, '보통'], [3, '넓게'], [4, '아주 넓게']].map(([v, l]) => el('button', { type: 'button', class: PF.tlh === v ? 'on' : '', onclick: () => { PF.tlh = v; commit('render'); } }, l)))),
+          row('기호', el('div', { class: 'pc2 blset' }, BUL.map(([k, name]) => el('button', { type: 'button', class: 'blb' + ((PF.tbl || 'dot') === k ? ' on' : ''), 'data-bl': k, title: name, 'aria-label': name,
+            onclick: () => { PF.tbl = k === 'dot' ? '' : k; commit('render'); } }, bulIcon(k))))),
+          row('글자색', dots('tfg', FG)),
+          row('배경색', dots('tbg', BGC)),
           el('div', { class: 'pfs' }, '동작'),
           tog('autoDel', '완료하면 자동으로 삭제', '완료 아이콘을 누르면 그 할 일을 바로 지워요 (반복 항목은 그날만)', 'render'),
           tog('sortDone', '완료한 할 일은 맨 아래로'),

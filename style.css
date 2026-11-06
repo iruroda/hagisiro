@@ -314,7 +314,7 @@ button, input, select, textarea { font-family: inherit; }
 .bl .ic svg { width: 12px; height: 12px; }
 .ed .td .bl { cursor: pointer; width: 16px; margin-left: -3px; touch-action: none; }
 .ed .td .bl:hover { color: var(--accent); }
-.rpt { flex: none; color: var(--mut); margin-top: 3px; opacity: .85; }
+.rpt { flex: none; color: #8b5cf6; margin-top: 3px; }
 .rpt .ic svg { width: 11px; height: 11px; }
 .sbody .td { gap: 6px; } .sbody .bl { width: 22px; height: 1.4em; margin-left: -4px; } .sbody .bl .ic svg { width: 16px; height: 16px; }
 .sbody .td input { font-size: 16px; }
@@ -653,7 +653,7 @@ html, .tl, .att, .cv, .pfdlg, .pbody, .rbody, .dbody, .dtw, .dtxt, .dimg, .meals
 .td[data-sz="l"], .ed .td[data-sz="l"] input { font-size: 16px; }
 .td[data-sz="xl"], .ed .td[data-sz="xl"] input { font-size: 19px; }
 .szseg { flex: none; } .szseg { gap: 0; } .szseg button { padding: 2px 5px; font-size: 10.5px; white-space: nowrap; }
-.ddm { flex: none; align-self: center; font-size: 9px; font-weight: 800; line-height: 12px; padding: 0 3px; border-radius: 3px; color: #fff; background: var(--accent); }
+.ddm { flex: none; color: var(--accent); margin-top: 3px; } .ddm .ic svg { width: 11px; height: 11px; }
 /* 달력 맨 아래 D-day 줄 */
 .ddbar { flex: none; display: flex; align-items: center; gap: 12px; height: 28px; padding: 0 12px; overflow: hidden; white-space: nowrap; font-size: 12px; border-top: 1px solid var(--line); background: var(--bg); }
 .ddc { color: var(--tfg, var(--text)); flex: none; font-size: inherit; cursor: pointer; } .ddc:hover { text-decoration: underline; } .ddc b { color: var(--accent); font-weight: 800; }
@@ -751,3 +751,5 @@ button:disabled, input:disabled, select:disabled, label:has(input:disabled), .pr
 .blb:hover { background: var(--bg2); } .blb.on { box-shadow: 0 0 0 1.5px var(--accent) inset; }
 .blb[data-bl="spade"] { color: #2f6df6; } .blb[data-bl="club"] { color: #2e9e5b; }
 .blb[data-bl="diamond"] { color: #d98a00; } .blb[data-bl="heart"] { color: #e5484d; }
+
+.blset { display: flex; gap: 2px; flex-wrap: wrap; }
