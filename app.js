@@ -612,7 +612,6 @@
       stopWatches(); watchStatic(); watchRange();
       loadMeal();
     } else { Data.loadLocal(); render(); }
-    toast('새로 불러왔어요');
   }
 
   /* ---------- 메뉴 ---------- */
@@ -667,7 +666,7 @@
         .map((t) => ({ t, n: dayNum(t.date) - today }))
         .sort((a, b) => (a.n >= 0) !== (b.n >= 0) ? (a.n >= 0 ? -1 : 1) : (a.n >= 0 ? a.n - b.n : b.n - a.n));
       list.replaceChildren();
-      if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, 'D-day가 없어요')); return; }
+      if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, 'D-day 없음')); return; }
       all.forEach(({ t, n }) => {
         const d = parseYmd(t.date);
         list.append(el('div', { class: 'srow' + (n < 0 ? ' done' : '') },
@@ -1012,7 +1011,6 @@
         const to = !ts.every((t) => t.get().dday);
         ts.forEach((t) => t.set({ dday: to ? true : '' }));
         if (ctx.after) ctx.after(false);
-        toast(to ? 'D-day 켬' : 'D-day 끔');
       }));
     return bar;
   }
@@ -1429,7 +1427,6 @@
         }
       });
       close(); render();
-      toast(`${fresh.length}개를 ${ruleSummary(clean({ ...f }))}(으)로 반복해요`);
     });
   }
 
@@ -1451,7 +1448,7 @@
     }
     function showList() {
       const list = S.repeats.slice().sort((a, b) => (a.created || 0) - (b.created || 0));
-      if (!list.length) body.append(el('p', { class: 'mut rnone' }, '반복이 없어요'));
+      if (!list.length) body.append(el('p', { class: 'mut rnone' }, '반복 없음'));
       list.forEach((r) => {
         const per = r.start + (r.end ? ` ~ ${r.end}` : ' ~ 계속');
         body.append(el('div', { class: 'rrow' },
@@ -1480,7 +1477,6 @@
       if (!(await ask('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.'))) return;
       const ovr = S.todos.filter((t) => t.rid === r.id);
       Data.del('repeats', r.id); ovr.forEach((t) => Data.del('todos', t.id));
-      toast('반복을 삭제했어요', () => { Data.put('repeats', r); ovr.forEach((t) => Data.put('todos', t)); render(); });
       show(); render();
     }
     show();
@@ -2057,7 +2053,7 @@
         if (draft.kind === 'text' && !draft.text.trim()) { if (cur) Data.del('docs', id); close(); return; }
         if (draft.kind === 'text' && draft.text.length > 300000) { toast('내용이 너무 길어요'); return; }
         const o = draft.kind === 'image' ? { id, kind: 'image', img: draft.img, updated: Date.now() } : { id, kind: 'text', text: draft.text, updated: Date.now() };
-        Data.put('docs', o); cur = docOf(id) || o; edit = false; drawView(); toast('저장했어요');
+        Data.put('docs', o); cur = docOf(id) || o; edit = false; drawView();
       };
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(),
@@ -2298,7 +2294,6 @@
       ls.set('hagisiro:gcal', '1');
       await loadGcal();
       render();
-      toast('Google 캘린더 일정을 함께 표시해요');
     } catch (e) { toast('연동 실패: ' + ((e && (e.code || e.message)) || '')); }
   }
   async function loadGcal() {
@@ -2479,7 +2474,7 @@
     }
     async function del(c) {
       if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?\n신청 내용도 모두 사라져요.`))) return;
-      try { await S.cloud.consultDelete(c.id); toast('삭제했어요'); list(); } catch (e) { toast('삭제하지 못했어요'); }
+      try { await S.cloud.consultDelete(c.id); list(); } catch (e) { toast('삭제하지 못했어요'); }
     }
 
     /* ---- 1단계: 빠른 만들기 (기간·시각·간격) ---- */
