@@ -713,10 +713,10 @@ body.widget.loginmode #wmove, body.widget.loginmode #wedit { display: none; }
 body.widget.loginmode #app { padding: 0; }
 body.widget.loginmode #main > .login { margin: 14px; height: calc(100% - 28px); background: var(--bg); border-radius: var(--r-xl); box-shadow: 0 16px 48px rgba(0,0,0,.25); -webkit-app-region: drag; user-select: none; }
 body.widget.loginmode #main > .login button { -webkit-app-region: no-drag; }
-/* 팝업이 떠 있는 동안 창이 화면만큼 넓어짐: 위젯은 원래 자리에 그대로, 어두운 막은 화면 전체 */
+/* 팝업이 떠 있는 동안 창이 화면만큼 넓어짐: 위젯은 원래 자리에 그대로, 어두운 막도 위젯 안쪽만 */
 body.xwin #app { position: fixed; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
 body.xwin #modal, body.xwin #sheet { inset: auto; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
-body.xwin #modal .back, body.xwin #sheet .back { position: fixed; inset: 0; }
+body.xwin .askw { inset: auto; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
 
 /* 반복 설정 */
 .rsub { display: grid; }
@@ -834,3 +834,6 @@ input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 .mtbl th.sun { color: var(--sun); } .mtbl th.sat { color: var(--sat); }
 .mtbl th.today, .mtbl td.today { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .mk .grow { flex: 1; }
+
+/* 어두운 막: 위젯 창 안쪽만, 모서리 둥글게 */
+body.widget :is(#modal, #sheet, .askw) > .back { inset: 3px; border-radius: var(--r); }
