@@ -722,3 +722,21 @@ body.widget.loginmode #main > .login button { -webkit-app-region: no-drag; }
 body.xwin #app { position: fixed; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
 body.xwin #modal, body.xwin #sheet { inset: auto; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
 body.xwin #modal .back, body.xwin #sheet .back { position: fixed; inset: 0; }
+
+/* 반복 설정 */
+.rsub { display: grid; }
+.rsub > * { grid-area: 1 / 1; align-self: start; }
+.rsub > .off { visibility: hidden; pointer-events: none; }
+.rper { align-items: center; }
+.rper label { color: var(--mut); }
+.rper .rchk { color: var(--text); }
+.rtarget { padding: 0; }
+.rtarget .rchip { font-size: 13px; padding: 1px 8px; }
+.rtargets { display: flex; flex-direction: column; gap: 2px; }
+.rform input[type=date] { padding-right: 6px; }
+.rform input[type=date]::-webkit-calendar-picker-indicator { background: currentColor; opacity: .55; cursor: pointer; width: 15px; height: 15px; padding: 0; margin-left: 4px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='3'/%3E%3Cpath d='M3.5 10.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='3'/%3E%3Cpath d='M3.5 10.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / contain no-repeat; }
+.rform input[type=date]:disabled { opacity: .45; }
+/* 꺼진 버튼·입력: 커서도 그대로 */
+button:disabled, input:disabled, select:disabled, label:has(input:disabled), .pri:disabled { cursor: default !important; }
+.pri:disabled { opacity: .4; filter: none !important; }

@@ -83,6 +83,7 @@
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
     lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
+    calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
     tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
   };
   function icon(name) {
@@ -339,7 +340,7 @@
     document.querySelectorAll('.tabs, .seg').forEach((box, i) => {
       if (box.closest('#top') && box.classList.contains('seg')) return; // 위쪽 분할 버튼은 알약 없이 글자색만
       const on = box.querySelector(':scope > .on');
-      if (!on) return;
+      if (!on || !box.offsetWidth) return;
       const key = (box.classList.contains('tabs') ? 't' : 's') + (box.closest('#modal') ? 'm' : box.closest('#top') ? 'top' : 'main') + i;
       const b = box.getBoundingClientRect(), r = on.getBoundingClientRect();
       const g = { l: r.left - b.left - box.clientLeft, w: r.width };
@@ -628,7 +629,7 @@
     m.append(item('할 일 검색', openSearch, 'search'));
     m.append(item('새로고침', forceSync, 'refresh'));
     sep();
-    m.append(item('반복 관리', () => openRepeat({ tab: 'manage' }), 'repeat'));
+    m.append(item('반복 관리', () => openRepeatManage(), 'repeat'));
     m.append(item('D-day 관리', openDdays, 'dday'));
     sep();
     DOCS.forEach(([id, label, ic]) => m.append(item(label, () => openDoc(id), ic)));
@@ -711,7 +712,7 @@
           el('span', { class: 'sd' }, `${d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '.' : ''}${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`),
           el('span', { class: 'st' }, t.text), t.dday ? el('span', { class: 'ddm' }, 'D') : null, t.rid ? el('span', { class: 'rpt' }, icon('repeat')) : null));
       });
-      rules.forEach((r) => list.append(el('button', { type: 'button', class: 'srow', onclick: () => { close(); openRepeat({ tab: 'manage' }); } },
+      rules.forEach((r) => list.append(el('button', { type: 'button', class: 'srow', onclick: () => { close(); openRepeatManage(); } },
         el('span', { class: 'sd' }, '반복'), el('span', { class: 'st' }, r.text), el('span', { class: 'mut small' }, ruleSummary(r)))));
       if (hit.length > 100) list.append(el('div', { class: 'mut small sempty' }, `위 100개만 보여요 (전체 ${hit.length}개)`));
     };
@@ -1280,7 +1281,7 @@
   }
 
   /* ================= 반복 설정 · 관리 팝업 ================= */
-  function repeatForm(init, opt) {
+  function repeatForm(init, opt, onChange) {
     const L = window.Lunar;
     const base = parseYmd(init.start);
     const st = {
@@ -1292,7 +1293,7 @@
     let textIn = null;
     if (opt.withText) {
       textIn = el('input', { type: 'text', class: 'rtext', placeholder: '반복할 할 일', value: st.text, 'aria-label': '반복할 할 일', spellcheck: 'false' });
-      textIn.addEventListener('input', () => { st.text = textIn.value; });
+      textIn.addEventListener('input', () => { st.text = textIn.value; if (onChange) onChange(); });
       root.append(textIn);
     }
     const kinds = el('div', { class: 'seg rk' });
@@ -1308,6 +1309,7 @@
       oWeekly.append(el('button', { type: 'button', class: 'dowb' + (d === 0 ? ' sun' : d === 6 ? ' sat' : ''), 'data-d': d, onclick: (e) => {
         if (st.dows.has(d)) st.dows.delete(d); else st.dows.add(d);
         e.currentTarget.classList.toggle('on', st.dows.has(d));
+        sync();
       } }, DOW[d]));
     }
     oWeekly.querySelectorAll('.dowb').forEach((b) => b.classList.toggle('on', st.dows.has(+b.dataset.d)));
@@ -1315,8 +1317,8 @@
 
     const domIn = el('input', { type: 'number', min: '1', max: '31', value: st.dom, 'aria-label': '일' });
     const hint = el('span', { class: 'mut small' }, '짧은 달에는 그 달의 마지막 날에 표시돼요');
-    domIn.addEventListener('input', () => { st.dom = +domIn.value; hint.hidden = !(st.dom > 28); });
-    hint.hidden = !(st.dom > 28);
+    domIn.addEventListener('input', () => { st.dom = +domIn.value; hint.style.visibility = st.dom > 28 ? '' : 'hidden'; sync(); });
+    hint.style.visibility = st.dom > 28 ? '' : 'hidden';
     const oMonthly = el('div', { class: 'rln' }, el('span', {}, '매달'), domIn, el('span', {}, '일'), hint);
 
     const calSeg = el('div', { class: 'seg rc' },
@@ -1324,8 +1326,8 @@
       L ? el('button', { type: 'button', class: 'sg-b', 'data-c': '1', onclick: () => setLunar(true) }, '음력') : null);
     const monIn = el('input', { type: 'number', min: '1', max: '12', value: st.month, 'aria-label': '월' });
     const dayIn = el('input', { type: 'number', min: '1', max: '31', value: st.day, 'aria-label': '일' });
-    monIn.addEventListener('input', () => { st.month = +monIn.value; });
-    dayIn.addEventListener('input', () => { st.day = +dayIn.value; });
+    monIn.addEventListener('input', () => { st.month = +monIn.value; sync(); });
+    dayIn.addEventListener('input', () => { st.day = +dayIn.value; sync(); });
     function setLunar(on) {
       st.lunar = on;
       if (on && L) { const l = L.lunarOf(base); if (l) { st.month = l.m; st.day = l.d; } }
@@ -1334,119 +1336,146 @@
     }
     const oYearly = el('div', { class: 'rln' }, el('span', {}, '매년'), calSeg, monIn, el('span', {}, '월'), dayIn, el('span', {}, '일'));
 
+    /* 기간: 시작일 ≤ 종료일 (앞쪽 날짜는 고를 수 없고, 직접 입력하면 같은 날로 맞춰요) */
     const startIn = el('input', { type: 'date', value: st.start, 'aria-label': '시작일' });
     const endIn = el('input', { type: 'date', value: st.end, 'aria-label': '종료일' });
-    startIn.addEventListener('change', () => { st.start = startIn.value; });
-    endIn.addEventListener('change', () => { st.end = endIn.value; });
-    const per = el('div', { class: 'rper' }, el('label', {}, '시작 ', startIn), el('label', {}, '종료 ', endIn, el('span', { class: 'small' }, ' (비우면 계속)')));
+    const cbForever = el('input', { type: 'checkbox' }); cbForever.checked = !st.end;
+    const limits = () => { endIn.min = st.start || ''; startIn.max = st.end || ''; };
+    startIn.addEventListener('change', () => {
+      if (!startIn.value) startIn.value = st.start;
+      st.start = startIn.value;
+      if (st.end && st.end < st.start) { st.end = st.start; endIn.value = st.end; }
+      limits(); sync();
+    });
+    endIn.addEventListener('change', () => {
+      if (endIn.value && endIn.value < st.start) endIn.value = st.start;
+      st.end = endIn.value; limits(); sync();
+    });
+    cbForever.addEventListener('change', () => {
+      endIn.disabled = cbForever.checked;
+      if (cbForever.checked) { st.end = ''; endIn.value = ''; } else if (!st.end) { st.end = st.start; endIn.value = st.end; }
+      limits(); sync();
+    });
+    endIn.disabled = cbForever.checked;
+    limits();
+    const per = el('div', { class: 'rper' }, el('label', {}, '시작', startIn), el('label', {}, '종료', endIn), el('label', { class: 'rchk' }, cbForever, '계속'));
 
-    root.append(oDaily, wrapW, oMonthly, oYearly, per);
+    const sub = el('div', { class: 'rsub' }, oDaily, wrapW, oMonthly, oYearly);
+    root.append(per, sub);
     if (opt.withColors) root.append(swatches((p) => Object.assign(st, p), st));
 
     function sync() {
       kinds.querySelectorAll('.sg-b').forEach((b) => b.classList.toggle('on', b.dataset.k === st.kind));
       calSeg.querySelectorAll('.sg-b').forEach((b) => b.classList.toggle('on', (b.dataset.c === '1') === st.lunar));
-      oDaily.hidden = st.kind !== 'daily'; wrapW.hidden = st.kind !== 'weekly';
-      oMonthly.hidden = st.kind !== 'monthly'; oYearly.hidden = st.kind !== 'yearly';
+      oDaily.classList.toggle('off', st.kind !== 'daily'); wrapW.classList.toggle('off', st.kind !== 'weekly');
+      oMonthly.classList.toggle('off', st.kind !== 'monthly'); oYearly.classList.toggle('off', st.kind !== 'yearly');
+      slidePills();
+      if (onChange && ready) onChange();
     }
-    sync();
+    let ready = false;
+    sync(); ready = true;
 
+    /* 꼭 필요한 값이 비면 null → 저장 버튼이 꺼져요 */
     const read = () => {
-      const f = { kind: st.kind, start: st.start || init.start, end: st.end || '' };
-      if (f.end && f.end < f.start) { toast('종료일이 시작일보다 빨라요'); return null; }
+      const f = { kind: st.kind, start: st.start, end: st.end || '' };
+      if (!f.start || (!cbForever.checked && !f.end)) return null;
       if (st.kind === 'daily') f.skipWE = st.skipWE;
       if (st.kind === 'weekly') {
-        if (!st.dows.size) { toast('요일을 하나 이상 골라주세요'); return null; }
+        if (!st.dows.size) return null;
         f.dows = [...st.dows].sort((a, b) => a - b);
       }
       if (st.kind === 'monthly') {
-        if (!(st.dom >= 1 && st.dom <= 31)) { toast('1~31 사이의 날짜를 넣어주세요'); return null; }
+        if (!(st.dom >= 1 && st.dom <= 31)) return null;
         f.dom = st.dom;
       }
       if (st.kind === 'yearly') {
-        if (!(st.month >= 1 && st.month <= 12) || !(st.day >= 1 && st.day <= (st.lunar ? 30 : 31))) { toast('월·일을 확인해주세요'); return null; }
+        if (!(st.month >= 1 && st.month <= 12) || !(st.day >= 1 && st.day <= (st.lunar ? 30 : 31))) return null;
         f.month = st.month; f.day = st.day; f.lunar = st.lunar;
       }
-      if (opt.withText) { if (!st.text.trim()) { toast('반복할 내용을 입력해주세요'); return null; } f.text = st.text.trim(); }
+      if (opt.withText) { if (!st.text.trim()) return null; f.text = st.text.trim(); }
       if (opt.withColors) { f.fg = st.fg; f.bg = st.bg; }
       return f;
     };
     return { node: root, read, focus: () => { if (textIn) textIn.focus(); } };
   }
 
-  function openRepeat({ ds, ids = [], tab } = {}) {
+  const bulletRow = (i) => el('div', { class: 'td rtarget' }, el('span', { class: 'bl' }, icon('dot')), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
+
+  /* 할 일에서 연 반복 설정: 고른 할 일을 반복으로 바꿔요 */
+  function openRepeat({ ds, ids = [] } = {}) {
+    const fresh = ids.map(getItem).filter((i) => i && !i.rid && i.text);
+    if (!fresh.length) return;
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
-    const fresh = ids.map(getItem).filter((i) => i && !i.rid && i.text); // 아직 반복이 아닌 선택 항목
-    let mode = tab || (fresh.length ? 'new' : 'manage');
-    let editing = null;
-    const tabs = el('div', { class: 'seg rtabs' });
-    const body = el('div', { class: 'rbody' });
+    const ok = el('button', { class: 'pri', type: 'button' }, '반복으로 설정');
+    const form = repeatForm({ start: fresh[0].date || ds || ymd(new Date()) }, {}, () => { ok.disabled = !form.read(); });
     const dlg = el('div', { class: 'dlg rdlg' },
       el('div', { class: 'shead' }, hb('repeat', '반복'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      tabs, body);
+      el('div', { class: 'rbody' },
+        el('div', { class: 'rtargets' }, fresh.map(bulletRow)),
+        form.node,
+        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: close }, '취소'), ok)));
     m.append(el('div', { class: 'back', onclick: close }), dlg);
-    const today = ymd(new Date());
+    ok.disabled = !form.read(); slidePills();
+    ok.addEventListener('click', () => {
+      const f = form.read(); if (!f) return;
+      fresh.forEach((it) => {
+        const rule = clean({ id: uid(), created: Date.now(), text: it.text, fg: it.fg, bg: it.bg, sz: it.sz, ...f });
+        Data.put('repeats', rule);
+        if (occursOn(rule, it.date)) { // 한 번짜리 항목은 반복 항목으로 바꿔치기 (완료 표시는 유지)
+          Data.del('todos', it.id);
+          if (it.done) Data.put('todos', clean({ id: oid(rule.id, it.date), rid: rule.id, date: it.date, text: it.text, done: true, fg: it.fg, bg: it.bg, ord: 0, created: Date.now() }));
+        }
+      });
+      close(); render();
+      toast(`${fresh.length}개를 ${ruleSummary(clean({ ...f }))}(으)로 반복해요`);
+    });
+  }
+
+  /* 햄버거 메뉴의 반복 관리: 목록 · 추가 · 수정 · 삭제 */
+  function openRepeatManage() {
+    const m = $('#modal');
+    m.hidden = false; m.replaceChildren();
+    const close = () => { m.hidden = true; m.replaceChildren(); };
+    let editing = null, mode = 'list';
+    const body = el('div', { class: 'rbody' });
+    const dlg = el('div', { class: 'dlg rdlg' },
+      el('div', { class: 'shead' }, hb('repeat', '반복 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      body);
+    m.append(el('div', { class: 'back', onclick: close }), dlg);
 
     function show() {
-      tabs.replaceChildren();
-      const tb = (k, label) => el('button', { type: 'button', class: 'sg-b' + (mode === k || (k === 'manage' && mode === 'form') ? ' on' : ''), onclick: () => { mode = k; editing = null; show(); } }, label);
-      if (fresh.length) tabs.append(tb('new', '반복 설정'));
-      tabs.append(tb('manage', `반복 관리 (${S.repeats.length})`));
       body.replaceChildren();
-      if (mode === 'new') showNew(); else if (mode === 'form') showForm(); else showManage();
+      if (mode === 'form') showForm(); else showList();
     }
-
-    function showNew() {
-      const form = repeatForm({ start: fresh[0].date || ds || today }, {});
-      body.append(
-        el('div', { class: 'rtargets' }, fresh.map((i) => el('span', { class: 'rchip', style: colorVars(i) || null }, i.text))),
-        form.node,
-        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
-          el('button', { class: 'ghost', type: 'button', onclick: close }, '취소'),
-          el('button', { class: 'pri', type: 'button', onclick: () => {
-            const f = form.read(); if (!f) return;
-            fresh.forEach((it) => {
-              const rule = clean({ id: uid(), created: Date.now(), text: it.text, fg: it.fg, bg: it.bg, sz: it.sz, ...f });
-              Data.put('repeats', rule);
-              if (occursOn(rule, it.date)) { // 한 번짜리 항목은 반복 항목으로 바꿔치기 (완료 표시는 유지)
-                Data.del('todos', it.id);
-                if (it.done) Data.put('todos', clean({ id: oid(rule.id, it.date), rid: rule.id, date: it.date, text: it.text, done: true, fg: it.fg, bg: it.bg, ord: 0, created: Date.now() }));
-              }
-            });
-            close(); render();
-            toast(`${fresh.length}개를 ${ruleSummary(clean({ ...f }))}(으)로 반복해요`);
-          } }, '반복으로 설정')));
-    }
-
-    function showManage() {
+    function showList() {
       const list = S.repeats.slice().sort((a, b) => (a.created || 0) - (b.created || 0));
-      if (!list.length) body.append(el('p', { class: 'mut rnone' }, '반복으로 정한 할 일이 아직 없어요. 할 일을 더블클릭해서 고른 뒤 반복 아이콘을 누르면 만들 수 있고, 아래 버튼으로 바로 만들 수도 있어요.'));
+      if (!list.length) body.append(el('p', { class: 'mut rnone' }, '반복이 없어요'));
       list.forEach((r) => {
-        const per = r.start + (r.end ? ` ~ ${r.end}` : ' ~');
+        const per = r.start + (r.end ? ` ~ ${r.end}` : ' ~ 계속');
         body.append(el('div', { class: 'rrow' },
-          el('div', { class: 'rinfo' }, el('span', { class: 'rchip', style: colorVars(r) || null }, r.text), el('div', { class: 'mut small' }, `${ruleSummary(r)} · ${per}`)),
+          el('div', { class: 'rinfo' }, bulletRow(r), el('div', { class: 'mut small' }, `${ruleSummary(r)} · ${per}`)),
           el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = r; mode = 'form'; show(); } }, '수정'),
           el('button', { class: 'ghost sm danger', type: 'button', onclick: () => delRule(r) }, '삭제')));
       });
       body.append(el('div', { class: 'dlgf' }, el('button', { class: 'ghost', type: 'button', onclick: () => { editing = null; mode = 'form'; show(); } }, icon('plus'), '반복 추가'),
         el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: close }, '닫기')));
     }
-
     function showForm() {
-      const form = repeatForm(editing ? { ...editing } : { start: ds || today }, { withText: true, withColors: true });
+      const ok = el('button', { class: 'pri', type: 'button' }, '저장');
+      const form = repeatForm(editing ? { ...editing } : { start: S.sel || ymd(new Date()) }, { withText: true, withColors: true }, () => { ok.disabled = !form.read(); });
+      ok.disabled = !form.read();
+      ok.addEventListener('click', () => {
+        const f = form.read(); if (!f) return;
+        Data.put('repeats', clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', ...f }));
+        mode = 'list'; editing = null; show(); render();
+      });
       body.append(form.node,
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
-          el('button', { class: 'ghost', type: 'button', onclick: () => { mode = 'manage'; editing = null; show(); } }, '취소'),
-          el('button', { class: 'pri', type: 'button', onclick: () => {
-            const f = form.read(); if (!f) return;
-            Data.put('repeats', clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', ...f }));
-            mode = 'manage'; editing = null; show(); render();
-          } }, '저장')));
-      setTimeout(() => form.focus(), 0);
+          el('button', { class: 'ghost', type: 'button', onclick: () => { mode = 'list'; editing = null; show(); } }, '취소'), ok));
+      slidePills(); setTimeout(() => form.focus(), 0);
     }
-
     async function delRule(r) {
       if (!(await ask('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.'))) return;
       const ovr = S.todos.filter((t) => t.rid === r.id);
