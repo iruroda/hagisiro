@@ -778,7 +778,7 @@
       const hit = all.filter((t) => !t.skip && t.text && t.text.toLowerCase().includes(k))
         .sort((a, b) => { const fa = a.date >= today, fb = b.date >= today; return fa !== fb ? (fa ? -1 : 1) : (fa ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)); });
       const rules = S.repeats.filter((r) => r.text && r.text.toLowerCase().includes(k));
-      if (!hit.length && !rules.length) { list.append(el('div', { class: 'mut small sempty' }, '찾는 할 일이 없어요')); return; }
+      if (!hit.length && !rules.length) { list.append(el('div', { class: 'mut small sempty' }, '할 일 없음')); return; }
       hit.slice(0, 100).forEach((t) => {
         const d = parseYmd(t.date);
         list.append(el('button', { type: 'button', class: 'srow' + (t.done ? ' done' : ''), onclick: () => { close(); gotoDate(t.date); } },
@@ -1584,6 +1584,7 @@
     const cls = curClass();
     if (!cls) {
       root.append(el('div', { class: 'empty' },
+        el('p', {}, '학급 없음'),
         el('p', { class: 'mut' }, '명단을 한 번만 붙여넣으면, 이후엔 문장으로 바로 기록돼요'),
         el('button', { class: 'pri', onclick: () => openRoster(null) }, '학급 추가')));
       return root;
@@ -1605,7 +1606,7 @@
     q.addEventListener('input', preview);
     onEnter(q, submitQuick);
     root.append(el('div', { class: 'qi' },
-      el('div', { class: 'qrow' }, q, el('button', { class: 'qgo', type: 'button', id: 'qgo', title: '입력 (Enter)', 'aria-label': '출결 입력 확인', onclick: submitQuick }, icon('enter'))),
+      el('div', { class: 'qrow' }, q, el('button', { class: 'qgo', type: 'button', id: 'qgo', 'aria-label': '출결 입력 확인', onclick: submitQuick }, icon('enter'))),
       el('div', { id: 'pv', class: 'pv' })));
 
     root.append(S.sub === 'month' ? monthView(cls) : S.sub === 'week' ? weekView(cls) : dayView(cls));
@@ -1627,7 +1628,7 @@
     const head = el('tr', {}, el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '이름'));
     for (let d = 1; d <= dim; d++) {
       const ds = dsOf(d); const w = new Date(S.y, S.m, d).getDay();
-      head.append(el('th', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (ds === todayS ? ' tdy' : '') + (ds === S.sel ? ' cur' : ''), 'data-d': ds, title: '일별 보기' }, el('div', {}, d), el('div', { class: 'dw' }, DOW[w])));
+      head.append(el('th', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (ds === todayS ? ' tdy' : '') + (ds === S.sel ? ' cur' : ''), 'data-d': ds }, el('div', {}, d), el('div', { class: 'dw' }, DOW[w])));
     }
     TYPES.forEach((t) => head.append(el('th', { class: 'sum t-' + t, title: t }, SHORT[t])));
     const tbody = el('tbody');
@@ -1655,7 +1656,7 @@
       setSel(c.dataset.d); setSub('day');
     });
     frag.append(mkWrap(tbl));
-    S.topSum = el('div', { class: 'msum', title: '날짜를 누르면 일별 보기로 이동' }, el('b', {}, `${S.m + 1}월`), ' ', sumLine(recs));
+    S.topSum = el('div', { class: 'msum' }, el('b', {}, `${S.m + 1}월`), ' ', sumLine(recs));
     return frag;
   }
 
@@ -1671,13 +1672,13 @@
     const shiftW = (n) => { setSel(ymd(new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + n * 7))); render(); };
     const fri = days[4];
     wrap.append(el('div', { class: 'dhead' },
-      el('button', { class: 'ib', 'aria-label': '이전 주', onclick: () => shiftW(-1) }, icon('left')),
+      el('button', { class: 'ib', 'aria-label': '이전', onclick: () => shiftW(-1) }, icon('left')),
       el('b', { class: 'dttl wttl' }, `${mon.getMonth() + 1}월 ${mon.getDate()}일 ~ ${fri.getMonth() + 1}월 ${fri.getDate()}일`),
-      el('button', { class: 'ib', 'aria-label': '다음 주', onclick: () => shiftW(1) }, icon('right')),
+      el('button', { class: 'ib', 'aria-label': '다음', onclick: () => shiftW(1) }, icon('right')),
       el('span', { class: 'grow' }),
       (() => {
         const setAll = (v) => { if (S.weekAll === v) return; S.weekAll = v; ls.set('hagisiro:weekall', v ? '1' : ''); render(); };
-        return el('div', { class: 'seg' }, el('button', { type: 'button', class: S.weekAll ? 'on' : '', onclick: () => setAll(true) }, '전체 학생'), el('button', { type: 'button', class: S.weekAll ? '' : 'on', onclick: () => setAll(false) }, '기록 있는 학생'));
+        return el('div', { class: 'seg' }, el('button', { type: 'button', class: S.weekAll ? 'on' : '', onclick: () => setAll(true) }, '전체'), el('button', { type: 'button', class: S.weekAll ? '' : 'on', onclick: () => setAll(false) }, '기록 있음'));
       })()));
 
     const all = S.att.filter((a) => a.classId === cls.id && keys.includes(a.date));
@@ -1689,7 +1690,7 @@
     const head = el('tr', {}, el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '이름'),
       cols.map((i) => {
         const d = days[i];
-        return el('th', { class: 'wcol go' + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i], title: '일별 보기' },
+        return el('th', { class: 'wcol go' + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i], },
           `${d.getMonth() + 1}/${d.getDate()}`, el('span', { class: 'dw' }, ` (${DOW[d.getDay()]})`));
       }),
       el('th', { class: 'sum' }, '계'));
@@ -1720,7 +1721,7 @@
     if (!students.length) wrap.append(el('div', { class: 'empty mut' }, '기록 없음'));
     else wrap.append(mkWrap(tbl));
 
-    S.topSum = el('div', { class: 'msum', title: '칸을 누르면 일별 보기로 이동 · ←→ 로 주 이동' }, sumLine(all));
+    S.topSum = el('div', { class: 'msum' }, sumLine(all));
     return wrap;
   }
 
@@ -1763,12 +1764,12 @@
     const wrap = el('div', { class: 'dv' });
 
     const shift = (n) => { setSel(ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n))); render(); };
-    const cntSel = el('select', { class: 'cnt' + (ovr ? ' ovr' : ''), 'aria-label': '이 날 교시 수', title: '이 날만 교시 수 바꾸기 (단축수업 등)', onchange: (e) => { setDayPeriods(ds, +e.target.value); render(); } },
+    const cntSel = el('select', { class: 'cnt' + (ovr ? ' ovr' : ''), 'aria-label': '이 날 교시 수', onchange: (e) => { setDayPeriods(ds, +e.target.value); render(); } },
       Array.from({ length: 11 }, (_, n) => el('option', { value: n, selected: n === last }, n ? `${n}교시` : '수업 없음')));
     wrap.append(el('div', { class: 'dhead' },
-      el('button', { class: 'ib', 'aria-label': '이전 날', onclick: () => shift(-1) }, icon('left')),
+      el('button', { class: 'ib', 'aria-label': '이전', onclick: () => shift(-1) }, icon('left')),
       el('b', { class: 'dttl' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
-      el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
+      el('button', { class: 'ib', 'aria-label': '다음', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
       el('span', { class: 'mut small' }, ovr ? `기본 ${def ? def + '교시' : '수업 없음'} → 이 날만` : '이 날만'),
       cntSel,
@@ -1779,7 +1780,7 @@
 
     const slotN = last + 2; // 조회 + 교시들 + 종례
     const head = el('tr', {},
-      el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '성명'), el('th', { class: 'kc' }, '종류'),
+      el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '이름'), el('th', { class: 'kc' }, '종류'),
       Array.from({ length: slotN }, (_, i) => el('th', { class: 'sl-h' }, i === 0 ? '조회' : i === slotN - 1 ? '종례' : `${i}교시`)),
       el('th', { class: 'rs-h' }, '사유'));
     const tbody = el('tbody');
@@ -1813,7 +1814,7 @@
 
     wrap.append(mkWrap(el('table', { class: 'mt dt' }, el('thead', {}, head), tbody)));
     S.topSum = el('div', { class: 'msum' }, sumLine(recs));
-    if (last === 0) wrap.append(el('div', { class: 'mut small' }, '수업이 없는 요일로 설정돼 있어요. 위에서 교시 수를 바꾸거나 “교시 설정”에서 기본값을 바꿔요'));
+    if (last === 0) wrap.append(el('div', { class: 'mut small' }, '수업 없음'));
     return wrap;
   }
 
@@ -1879,8 +1880,8 @@
     const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.remove(); };
     const tip = el('div', { class: 'tour-tip' },
       el('div', {}, '출결은 문장으로도 입력 가능합니다.'),
-      el('div', { class: 'mut' }, '예) 홍길동 오늘 4교시부터 감기로 조퇴'),
-      el('div', { class: 'mut' }, '12일에 홍길동 가족여행으로 체험학습'),
+      el('div', { class: 'mut' }, '예) 김네모 오늘 4교시부터 감기로 조퇴'),
+      el('div', { class: 'mut' }, '12일에 이세모 가족여행으로 체험학습'),
       el('div', { class: 'tour-f' }, el('label', { class: 'rchk' }, never, '다시 열지 않음'), el('button', { class: 'pri sm', type: 'button', onclick: close }, '닫기')));
     const box = el('div', { class: 'tour' }, hole, tip);
     document.body.append(box);
@@ -2324,7 +2325,7 @@
           if (S.cloud) { removed = await S.cloud.clearAll('days'); S.days = []; }
           else { removed = S.days.slice(); S.days = []; Data.saveLocal(); }
         } catch (e) { cloudErr(e); }
-        if (removed.length) toast(`${removed.length}일을 기본값으로 통일`, () => { removed.forEach((x) => Data.put('days', x)); render(); });
+        if (removed.length) render();
       }
       render();
     };
@@ -2343,7 +2344,7 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const name = el('input', { type: 'text', placeholder: '학급 이름 (예: 2학년 3반)', value: c ? c.name : '', 'aria-label': '학급 이름' });
-    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 강민준\n2 김서연', 'aria-label': '명단' });
+    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 김네모\n2 이세모\n\n한글/엑셀 표 붙여넣기 가능', 'aria-label': '명단' });
     ta.value = c ? c.students.slice().sort((a, b) => a.no - b.no).map((s) => `${s.no} ${s.name}`).join('\n') : '';
 
     function save() {
@@ -2509,7 +2510,7 @@
         el('div', { class: 'shead' }, hb('utensils', `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list.length ? el('div', { class: 'meals' }, list.map((x) => el('div', { class: 'meal' },
           el('b', {}, x.kind, x.cal ? el('small', {}, ' ' + x.cal) : null),
-          el('ul', {}, x.menu.map((t) => el('li', {}, allergyStrip(t))))))) : el('div', { class: 'mut' }, '급식이 없어요')));
+          el('ul', {}, x.menu.map((t) => el('li', {}, allergyStrip(t))))))) : el('div', { class: 'mut' }, '급식 없음')));
   }
   function openSchool(done) {
     const m = $('#modal');
@@ -2527,7 +2528,7 @@
         res.replaceChildren(...(rows.length ? rows.map((x) => el('button', { type: 'button', class: 'schrow', onclick: () => {
           PF.school = { name: x.SCHUL_NM, edu: x.ATPT_OFCDC_SC_CODE, code: x.SD_SCHUL_CODE }; PF.meal = true; S.meal = {};
           savePf(); loadMeal(); close();
-        } }, el('b', {}, x.SCHUL_NM), el('small', {}, ' ' + (x.ORG_RDNMA || x.LCTN_SC_NM || '')))) : [el('div', { class: 'mut' }, '찾는 학교가 없어요')]));
+        } }, el('b', {}, x.SCHUL_NM), el('small', {}, ' ' + (x.ORG_RDNMA || x.LCTN_SC_NM || '')))) : [el('div', { class: 'mut' }, '학교 없음')]));
       } catch (e) { res.replaceChildren(el('div', { class: 'mut' }, '학교를 불러오지 못했어요')); }
       busy = false;
     };
@@ -2606,7 +2607,7 @@
             for (let t = mins(f.t1.value); t + step <= mins(f.t2.value); t += step) o[tkey(t)] = true;
             days[kOf(d)] = o;
           }
-          if (!Object.values(days).some((o) => Object.keys(o).length)) { toast('만들어지는 시간이 없어요'); return; }
+          if (!Object.values(days).some((o) => Object.keys(o).length)) { toast('만들어지는 시간 없음'); return; }
           fine({ title: f.title.value.trim(), note: '', closeAt: 0, days, step }, null);
         } }, '확인'))), list);
     }
@@ -2661,12 +2662,12 @@
           tIn, nIn, r('신청 마감', cIn),
           el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `열린 칸 ${total()}`), el('span', { class: 'grow' }), addDate,
             el('button', { class: 'ghost sm', type: 'button', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; draw(); } }, icon('plus'), '날짜')),
-          el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜가 없어요')),
+          el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
           el('div', { class: 'pfh' }, '칸을 누르면 잠겨요 (잠긴 칸은 학생이 고를 수 없어요). 신청이 들어온 칸은 잠글 수 없어요.'),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', onclick: async (e) => {
             const slots = [];
             Object.keys(dr.days).sort().forEach((k) => Object.keys(dr.days[k]).sort().forEach((t) => { if (dr.days[k][t]) slots.push(`${k}_${t}`); }));
-            if (!slots.length) { toast('열린 칸이 없어요'); return; }
+            if (!slots.length) { toast('열린 칸 없음'); return; }
             if (slots.length > 400) { toast('칸이 너무 많아요 (최대 400)'); return; }
             e.currentTarget.disabled = true;
             try {
