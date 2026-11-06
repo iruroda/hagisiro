@@ -799,3 +799,11 @@ body.wedit #wmove { background: var(--accent); color: #fff; }
 .cform input[type=text], .cform input[type=date], .cform input[type=time], .cform input[type=datetime-local], .cform select, .cregen input, .cregen select { font: inherit; font-size: 13px; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 5px 8px; }
 .cform input[type=text] { width: 100%; box-sizing: border-box; }
 .cform input[type=date]::-webkit-calendar-picker-indicator, .cform input[type=time]::-webkit-calendar-picker-indicator, .cform input[type=datetime-local]::-webkit-calendar-picker-indicator { opacity: .55; cursor: pointer; }
+
+/* 출결 2번째 줄(학급·일/주/월·도구) 높이 28px 통일 + 헤더~요일 간격 축소 */
+.abar select { height: 28px; padding-top: 0; padding-bottom: 0; box-sizing: border-box; }
+.abar .seg { height: 28px; box-sizing: border-box; align-items: stretch; }
+.abar .seg button { height: 100%; }
+.abar .ghost.sm { height: 28px; box-sizing: border-box; }
+#top { padding-bottom: 4px; }
+.wk { padding: 1px 0 4px; }
