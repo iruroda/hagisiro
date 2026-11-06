@@ -794,3 +794,8 @@ body.wedit #wmove { background: var(--accent); color: #fff; }
 .qrow .fld { flex: 1; }
 .fld .sqi { width: 100%; }
 .rchk input, .mk input { accent-color: var(--accent); }
+
+/* 상담 만들기 폼 입력칸 */
+.cform input[type=text], .cform input[type=date], .cform input[type=time], .cform input[type=datetime-local], .cform select, .cregen input, .cregen select { font: inherit; font-size: 13px; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 5px 8px; }
+.cform input[type=text] { width: 100%; box-sizing: border-box; }
+.cform input[type=date]::-webkit-calendar-picker-indicator, .cform input[type=time]::-webkit-calendar-picker-indicator, .cform input[type=datetime-local]::-webkit-calendar-picker-indicator { opacity: .55; cursor: pointer; }

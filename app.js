@@ -193,8 +193,7 @@
 
   function cloudErr(e) {
     console.error(e);
-    const code = (e && e.code) || '';
-    toast(code === 'permission-denied' ? '저장 권한 오류' : '저장 오류: ' + (code || (e && e.message)));
+    toast('저장하지 못했어요');
   }
 
   const Data = {
@@ -293,7 +292,6 @@
     ask(`이 기기에 저장돼 있던 데이터(${n}건)를 내 계정으로 옮길까요?`, '옮기기', false).then((yes) => {
       if (!yes) return;
       COLS.forEach((c) => (d[c] || []).forEach((x) => S.cloud.save(c, x).catch(cloudErr)));
-      toast('내 계정으로 옮겼어요');
     });
   }
   async function boot() {
@@ -317,7 +315,6 @@
         return;
       } catch (e) {
         console.error(e);
-        toast('연결 실패 · 이 기기에만 저장');
       }
     }
     S.ready = true; enterLocal();
@@ -561,7 +558,7 @@
       { k: 'meal', label: '급식', run: openMealWeek, node: () => el('button', { class: 'ib', title: '급식', 'aria-label': '급식', onclick: openMealWeek }, icon('utensils')) },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, run: () => openDoc(id),
         node: () => el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label)) })),
-      gc ? { k: 'gc', label: '구글 캘린더 다시 연결', run: () => connectGcal(), node: () => el('button', { class: 'ib', title: '구글 캘린더 다시 연결', 'aria-label': '구글 캘린더 다시 연결', onclick: () => connectGcal() }, icon('google')) } : null,
+      gc ? { k: 'gc', label: 'Google 캘린더 다시 연결', run: () => connectGcal(), node: () => el('button', { class: 'ib', title: '구글 캘린더 다시 연결', 'aria-label': '구글 캘린더 다시 연결', onclick: () => connectGcal() }, icon('google')) } : null,
       IS_WIDGET ? { k: 'move', label: '이동·크기 변경', run: () => S.winEdit && S.winEdit(), node: () => el('button', { class: 'ib', id: 'wmove', title: '이동·크기 변경', 'aria-label': '이동·크기 변경', onclick: () => S.winEdit && S.winEdit() }, icon('move')) } : null,
     ].filter((x) => x && !(PF.hide || []).includes(x.k));
     S.tools = tools;
@@ -666,7 +663,7 @@
     const close = () => { if (done) return; done = true; document.removeEventListener('pointerdown', off, true); pop.remove(); };
     const finish = (ok) => {
       const y = parseInt(yi.value, 10), m = parseInt(mi.value, 10);
-      if (ok && !(y >= 1900 && y <= 2200 && m >= 1 && m <= 12)) { toast('연도(1900~2200)와 월(1~12)을 확인하세요'); return; }
+      if (ok && !(y >= 1900 && y <= 2200 && m >= 1 && m <= 12)) return;
       close();
       if (ok) jumpTo(y, m - 1);
     };
@@ -809,7 +806,7 @@
     q.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); else if (e.key === 'Enter') { const f = list.querySelector('.srow'); if (f) f.click(); } e.stopPropagation(); });
     run();
   }
-  const loginErr = (e) => toast('로그인 실패: ' + ((e && (e.code || e.message)) || ''));
+  const loginErr = (e) => console.error(e);
 
   function download(name, text, type) {
     const a = el('a', { href: URL.createObjectURL(new Blob([text], { type })), download: name });
@@ -2255,7 +2252,7 @@
           el('div', { class: 'pfs' }, '날짜에 함께 표시'),
           tog('lunar', '음력 날짜'),
           tog('terms', '24절기'),
-          tog('hol', '공휴일 (대한민국)'),
+          tog('hol', '공휴일'),
           tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
           tog('ab', '출결 버튼', '', 'render'),
           tog('meal', '급식 버튼', PF.school ? '' : '급식 창에서 학교를 먼저 골라요', 'render', !PF.school),
@@ -2423,7 +2420,7 @@
       ls.set('hagisiro:gcal', '1');
       await loadGcal();
       render();
-    } catch (e) { toast('연동 실패: ' + ((e && (e.code || e.message)) || '')); }
+    } catch (e) { console.error(e); }
   }
   async function loadGcal() {
     if (!gcalWanted()) return;
@@ -2439,7 +2436,6 @@
       if (res.status === 401 || res.status === 403) {
         try { sessionStorage.removeItem(GK); } catch (e) { /* noop */ }
         S.gcal = {}; render();
-        if (res.status === 403) toast('Google 캘린더 권한 오류');
         return;
       }
       const j = await res.json();
@@ -2460,7 +2456,6 @@
   }
 
   /* Google '대한민국의 휴일' 공개 캘린더 (임시공휴일 등 반영) — 로그인·권한 없이 공개 키로 읽어요 */
-  let gholWarned = false;
   async function loadGhol() {
     if (!PF.ghol) { if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
     const key = window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey;
@@ -2475,7 +2470,6 @@
       let res = await fetch(url);
       if (!res.ok && tok) res = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } }); // 키로 안 되면 로그인 권한으로 한 번 더
       if (!res.ok) {
-        if (!gholWarned) { gholWarned = true; toast('Google 공휴일을 불러오지 못했어요 (내장 공휴일만 표시)'); }
         return;
       }
       const j = await res.json(); const g = {};
@@ -2508,7 +2502,6 @@
     return all;
   };
   const ymdN = (ds) => ds.replace(/-/g, '');
-  let mealWarned = false;
   async function loadMeal() {
     if (!PF.school) { if (Object.keys(S.meal).length) { S.meal = {}; render(); } return; }
     const r = range();
@@ -2525,7 +2518,6 @@
       S.meal = m; render();
     } catch (e) {
       console.error(e);
-      if (!mealWarned) { mealWarned = true; toast('급식 정보를 불러오지 못했어요'); }
     }
   }
   const allergyStrip = (t) => t.replace(/\s*\(?[\d.]+\)?\s*$/, '').replace(/\(\s*[\d.\s]+\)/g, '');
@@ -2616,7 +2608,7 @@
 
   /* ================= 상담 신청 (선생님) ================= */
   const bookUrl = (id) => new URL('book.html?c=' + id, location.href).href;
-  const copyText = async (t) => { try { await navigator.clipboard.writeText(t); toast('링크를 복사했어요'); } catch (e) { ask('아래 링크를 길게 눌러 복사하세요\n' + t, '닫기', false); } };
+  const copyText = async (t) => { try { await navigator.clipboard.writeText(t); } catch (e) { ask('아래 링크를 길게 눌러 복사하세요\n' + t, '닫기', false); } };
   const sidLabel = (sid) => `${sid.slice(4, 6)}/${sid.slice(6, 8)} ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
   function consultView() {
     const host = el('div', { class: 'cv' });
@@ -2650,11 +2642,11 @@
           el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
           el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(bookUrl(c.id)) }, icon('link')),
           el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => fine(draftOf(c), c) }, icon('edit')),
-          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))) : el('div', { class: 'mut' }, '아직 만든 테이블이 없어요')));
+          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))) : el('div', { class: 'mut' }, '만든 테이블 없음')));
     }
     async function del(c) {
       if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?\n신청 내용도 모두 사라져요.`))) return;
-      try { await S.cloud.consultDelete(c.id); list(); } catch (e) { toast('삭제하지 못했어요'); }
+      try { await S.cloud.consultDelete(c.id); list(); } catch (e) { console.error(e); }
     }
 
     /* ---- 1단계: 빠른 만들기 (기간·시각·간격) ---- */
@@ -2662,16 +2654,17 @@
       stop();
       const today = ymd(new Date());
       const f = {
-        title: el('input', { placeholder: '제목 (예: 2학기 진로 상담)', maxlength: 40 }),
+        title: el('input', { type: 'text', maxlength: 40 }),
         from: el('input', { type: 'date', value: today }), to: el('input', { type: 'date', value: ymd(new Date(Date.now() + 13 * 864e5)) }),
         t1: el('input', { type: 'time', value: '16:00' }), t2: el('input', { type: 'time', value: '18:00' }),
         step: el('select', {}, [10, 20, 30, 40, 50, 60].map((n) => el('option', { value: n, selected: n === 20 }, n + '분'))),
       };
       const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox' }), el('span', {}, '주말 포함'));
+      let okb;
       shell('테이블 만들기 · 1/2', el('div', { class: 'cform' },
-        f.title, r('시작일', f.from), r('종료일', f.to), wk, r('시작 시각', f.t1), r('종료 시각', f.t2), r('간격', f.step),
+        r('제목', f.title), r('시작일', f.from), r('종료일', f.to), wk, r('시작 시각', f.t1), r('종료 시각', f.t2), r('간격', f.step),
         el('div', { class: 'pfh' }, '대략적인 틀을 만들어요. 다음 단계에서 칸마다 잠그거나 날짜별로 다르게 고칠 수 있어요.'),
-        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', onclick: () => {
+        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), okb = el('button', { class: 'pri', type: 'button', onclick: () => {
           const a = parseYmd(f.from.value || today), z = parseYmd(f.to.value || today);
           const weekend = wk.querySelector('input').checked, step = +f.step.value;
           const days = {};
@@ -2681,9 +2674,11 @@
             for (let t = mins(f.t1.value); t + step <= mins(f.t2.value); t += step) o[tkey(t)] = true;
             days[kOf(d)] = o;
           }
-          if (!Object.values(days).some((o) => Object.keys(o).length)) { toast('만들어지는 시간 없음'); return; }
+          if (!Object.values(days).some((o) => Object.keys(o).length)) return;
           fine({ title: f.title.value.trim(), note: '', closeAt: 0, days, step }, null);
         } }, '확인'))), list);
+      const chk = () => { okb.disabled = !(f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
+      Object.values(f).forEach((x) => { x.addEventListener('input', chk); x.addEventListener('change', chk); }); chk();
     }
 
     /* ---- 2단계: 칸마다 잠그기 · 날짜별로 다르게 ---- */
@@ -2698,8 +2693,8 @@
       const total = () => Object.values(dr.days).reduce((n, o) => n + Object.values(o).filter(Boolean).length, 0);
       const draw = () => {
         const keys = Object.keys(dr.days).sort();
-        const tIn = el('input', { value: dr.title, placeholder: '제목 (예: 2학기 진로 상담)', maxlength: 40, oninput: (e) => { dr.title = e.target.value; } });
-        const nIn = el('input', { value: dr.note, placeholder: '안내 (선택)', maxlength: 200, oninput: (e) => { dr.note = e.target.value; } });
+        const tIn = el('input', { type: 'text', value: dr.title, maxlength: 40, oninput: (e) => { dr.title = e.target.value; } });
+        const nIn = el('input', { type: 'text', value: dr.note, maxlength: 200, oninput: (e) => { dr.note = e.target.value; } });
         const cIn = el('input', { type: 'datetime-local', value: dr.closeAt ? new Date(dr.closeAt - new Date(dr.closeAt).getTimezoneOffset() * 6e4).toISOString().slice(0, 16) : '', onchange: (e) => { dr.closeAt = e.target.value ? new Date(e.target.value).getTime() : 0; } });
         const addDate = el('input', { type: 'date' });
         const dayCard = (k) => {
@@ -2733,23 +2728,22 @@
           if (card && !card.querySelector('.cregen')) card.querySelector('.crow2').after(bar);
         };
         shell(c ? '테이블 수정' : '테이블 만들기 · 2/2', el('div', { class: 'cform' },
-          tIn, nIn, r('신청 마감', cIn),
+          r('제목', tIn), r('안내', nIn), r('신청 마감', cIn),
           el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `열린 칸 ${total()}`), el('span', { class: 'grow' }), addDate,
             el('button', { class: 'ghost sm', type: 'button', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; draw(); } }, icon('plus'), '날짜')),
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
           el('div', { class: 'pfh' }, '칸을 누르면 잠겨요 (잠긴 칸은 학생이 고를 수 없어요). 신청이 들어온 칸은 잠글 수 없어요.'),
-          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', onclick: async (e) => {
+          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
             const slots = [];
             Object.keys(dr.days).sort().forEach((k) => Object.keys(dr.days[k]).sort().forEach((t) => { if (dr.days[k][t]) slots.push(`${k}_${t}`); }));
-            if (!slots.length) { toast('열린 칸 없음'); return; }
-            if (slots.length > 400) { toast('칸이 너무 많아요 (최대 400)'); return; }
+            if (!slots.length || slots.length > 400) return;
             e.currentTarget.disabled = true;
             try {
               const data = { title: dr.title.trim() || '상담 신청', note: dr.note.trim(), slots, closeAt: dr.closeAt || 0 };
               let id;
               if (c) { await S.cloud.consultUpdate(c.id, data); id = c.id; } else id = await S.cloud.consultCreate(data);
               const nc = (await S.cloud.consultList()).find((x) => x.id === id);
-              toast('완성! 링크를 복사해 학생에게 보내요'); detail(nc);
+              detail(nc);
             } catch (er) { console.error(er); toast('저장하지 못했어요'); e.currentTarget.disabled = false; }
           } }, icon('check'), '완성'))), c ? list : quick);
       };
@@ -2777,12 +2771,12 @@
                 b ? el('span', { class: 'cn' }, el('b', {}, b.name), b.info ? el('small', {}, ' ' + b.info) : null) : el('span', { class: 'mut' }, '—'),
                 b ? el('button', { class: 'ib', type: 'button', title: '신청 지우기', 'aria-label': '신청 지우기', onclick: async () => {
                   if (!(await ask(`${b.name} 학생의 신청을 지울까요?`, '지우기'))) return;
-                  try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { toast('지우지 못했어요'); }
+                  try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
                 } }, icon('close')) : null); })]))), list);
       };
       stop();
       draw([]);
-      unsub = S.cloud.consultWatchBooks(c.id, draw, () => toast('불러오지 못했어요'));
+      unsub = S.cloud.consultWatchBooks(c.id, draw, (e) => console.error(e));
     }
     if (S.cs && S.cs.c) detail(S.cs.c); else list();
     return host;

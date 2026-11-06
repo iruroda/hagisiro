@@ -4,7 +4,6 @@ const fs = require('fs');
 
 const URL = 'https://iruroda.github.io/hagisiro/?widget=1';
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
-const SIZES = { 작게: [420, 560], 보통: [640, 700], 크게: [900, 760] };
 
 let win, tray, st;
 const file = () => path.join(app.getPath('userData'), 'widget.json');
@@ -128,14 +127,8 @@ function create() {
 }
 
 function menu() {
-  const resize = (k) => { const [w, h] = SIZES[k]; const b = win.getBounds(); win.setBounds({ x: b.x, y: b.y, width: w, height: h }); st.bounds = win.getBounds(); save(); };
   return Menu.buildFromTemplate([
-    { label: '보이기 / 숨기기', click: () => (win.isVisible() ? win.hide() : (win.show(), win.focus())) },
-    { label: '크기', submenu: Object.keys(SIZES).map((k) => ({ label: k, click: () => resize(k) })) },
-    { label: '창 순서', submenu: [['top', '맨 앞 (항상 위)'], ['normal', '일반'], ['bottom', '맨 뒤 (바탕화면)']].map(([k, l]) => ({ label: l, type: 'radio', checked: zmode() === k, click: () => applyZ(k) })) },
-    { label: '윈도우 시작 시 자동 실행', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (i) => app.setLoginItemSettings({ openAtLogin: i.checked }) },
-    { label: '새로고침', click: () => win.webContents.reload() },
-    { type: 'separator' },
+    { label: win && win.isVisible() ? '숨기기' : '열기', click: () => (win.isVisible() ? win.hide() : (win.show(), win.focus())) },
     { label: '종료', click: () => app.quit() },
   ]);
 }
@@ -146,7 +139,7 @@ app.whenReady().then(() => {
   const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 16, height: 16 });
   tray = new Tray(icon);
   tray.setToolTip('HAGISIRO');
-  tray.setContextMenu(menu());
+  tray.on('right-click', () => tray.popUpContextMenu(menu()));
   tray.on('click', () => (win.isVisible() ? win.hide() : (win.show(), win.focus())));
 });
 app.on('window-all-closed', () => app.quit());
