@@ -752,9 +752,10 @@ button:disabled, input:disabled, select:disabled, label:has(input:disabled), .pr
 .blset { display: flex; gap: 2px; flex-wrap: wrap; }
 
 /* 출결 첫 안내 */
-.tour { position: fixed; inset: 0; z-index: 90; }
-.tour-hole { position: fixed; border-radius: var(--r-lg); box-shadow: 0 0 0 9999px rgba(0,0,0,.55); pointer-events: none; }
-.tour-tip { position: fixed; background: var(--bg-s, var(--bg)); color: var(--text); border-radius: var(--r-lg); padding: 12px 14px; box-shadow: 0 8px 26px rgba(0,0,0,.35); font-size: 13px; line-height: 1.6; }
+.tour { position: fixed; inset: 0; z-index: 90; overflow: hidden; }
+body.widget .tour { inset: 3px; border-radius: var(--r); }
+.tour-hole { position: absolute; border-radius: var(--r-lg); box-shadow: 0 0 0 9999px rgba(0,0,0,.55); pointer-events: none; }
+.tour-tip { position: absolute; background: var(--bg-s, var(--bg)); color: var(--text); border-radius: var(--r-lg); padding: 12px 14px; box-shadow: 0 8px 26px rgba(0,0,0,.35); font-size: 13px; line-height: 1.6; }
 .tour-tip .mut { font-size: 12px; }
 .tour-f { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
 .tour-f .rchk { font-size: 12px; color: var(--mut); }
@@ -813,3 +814,12 @@ body.wedit #wmove { background: var(--accent); color: #fff; }
 .cform input[type=time]::-webkit-calendar-picker-indicator, .cregen input[type=time]::-webkit-calendar-picker-indicator { background: currentColor; opacity: .55; cursor: pointer; width: 15px; height: 15px; padding: 0; margin-left: 4px; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.2'/%3E%3Cpath d='M12 7.6V12l3.2 2'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.2'/%3E%3Cpath d='M12 7.6V12l3.2 2'/%3E%3C/svg%3E") center / contain no-repeat; }
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+/* 출결 입력창: 높이 줄이기, 연필 키우기 */
+.qi input { padding-top: 7px; padding-bottom: 7px; }
+.qgo { width: 38px; }
+.qrow .fld input { padding-left: 38px; }
+.qrow .fld .pen { left: 12px; }
+.qrow .fld .pen .ic svg { width: 18px; height: 18px; }
+/* 저장 실패 표시 */
+#top .ib.err { color: #e5484d; }

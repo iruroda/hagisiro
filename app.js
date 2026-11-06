@@ -155,7 +155,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], mk: ['조식', '중식', '석식'] },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], show: [], mk: ['조식', '중식', '석식'] },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -191,10 +191,19 @@
     return a;
   }
 
+  /* 저장 실패는 토스트 대신 아이콘 색으로: 새로고침 → (없으면) ⋯ → (없으면) 메뉴 버튼이 빨개져요 */
+  function markErr() {
+    document.querySelectorAll('#top .err').forEach((n) => n.classList.remove('err'));
+    if (!S.saveErr) return;
+    const vis = (n) => n && !n.hidden;
+    const t = [$('#syncBtn'), $('#ovBtn'), $('#menuBtn')].find(vis);
+    if (t) t.classList.add('err');
+  }
   function cloudErr(e) {
     console.error(e);
-    toast('저장하지 못했어요');
+    S.saveErr = true; markErr();
   }
+  function saveOk() { if (S.saveErr) { S.saveErr = false; markErr(); } }
 
   const Data = {
     loadLocal() {
@@ -212,11 +221,11 @@
       const arr = S[col];
       const i = arr.findIndex((x) => x.id === obj.id);
       if (i >= 0) arr[i] = obj; else arr.push(obj);
-      if (S.cloud) S.cloud.save(col, obj).catch(cloudErr); else this.saveLocal();
+      if (S.cloud) S.cloud.save(col, obj).then(saveOk, cloudErr); else this.saveLocal();
     },
     del(col, id) {
       S[col] = S[col].filter((x) => x.id !== id);
-      if (S.cloud) S.cloud.remove(col, id).catch(cloudErr); else this.saveLocal();
+      if (S.cloud) S.cloud.remove(col, id).then(saveOk, cloudErr); else this.saveLocal();
     },
   };
 
@@ -552,15 +561,7 @@
     const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloudAvail ? tab('consult', '상담') : null);
     const right = el('div', { class: 'right' });
     // 오른쪽 도구들: 좁아지면 뒤에서부터 ⋯ 팝업으로 들어가요
-    const gc = gcalWanted() && !gtoken();
-    const tools = [
-      { k: 'sync', label: '새로고침', run: forceSync, node: () => el('button', { class: 'ib', id: 'syncBtn', title: '새로고침', 'aria-label': '새로고침', onclick: forceSync }, icon('refresh')) },
-      { k: 'meal', label: '급식', run: openMealWeek, node: () => el('button', { class: 'ib', title: '급식', 'aria-label': '급식', onclick: openMealWeek }, icon('utensils')) },
-      ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, run: () => openDoc(id),
-        node: () => el('button', { class: 'ghost sm dbtn' + (docOf(id) ? ' has' : ''), title: label, 'aria-label': label, onclick: () => openDoc(id) }, icon(ic), el('span', { class: 'lb' }, label)) })),
-      gc ? { k: 'gc', label: 'Google 캘린더 다시 연결', run: () => connectGcal(), node: () => el('button', { class: 'ib', title: '구글 캘린더 다시 연결', 'aria-label': '구글 캘린더 다시 연결', onclick: () => connectGcal() }, icon('google')) } : null,
-      IS_WIDGET ? { k: 'move', label: '이동·크기 변경', run: () => S.winEdit && S.winEdit(), node: () => el('button', { class: 'ib', id: 'wmove', title: '이동·크기 변경', 'aria-label': '이동·크기 변경', onclick: () => S.winEdit && S.winEdit() }, icon('move')) } : null,
-    ].filter((x) => x && !(PF.hide || []).includes(x.k));
+    const tools = shortcutDefs().filter((x) => scOn(x)).map((x) => ({ ...x, node: () => scNode(x) }));
     S.tools = tools;
     tools.forEach((x) => { const n = x.node(); n.dataset.ov = x.k; right.append(n); });
     right.append(el('button', { class: 'ib', id: 'ovBtn', hidden: true, onclick: (e) => { e.stopPropagation(); openOverflow(); }, 'aria-label': '더 보기', title: '더 보기' }, icon('more')));
@@ -580,6 +581,7 @@
     let n = 0;
     if (over()) { more.hidden = false; while (over() && n < items.length) { items[items.length - 1 - n].hidden = true; n++; } }
     S.hiddenTools = items.filter((i) => i.hidden).map((i) => i.dataset.ov);
+    markErr();
     // 줄일 수 있는 가장 좁은 너비: 이동 아이콘 + 날짜 이동 + 탭 + ⋯ + 메뉴
     const api = window.hagisiroWidget;
     if (api && api.setMinWidth) {
@@ -593,9 +595,9 @@
   function openOverflow() {
     if ($('#menu')) { closeMenu(); return; }
     const m = el('div', { class: 'menu', id: 'menu' });
-    const item = (label, fn, on) => el('button', { class: 'mi' + (on ? ' on' : ''), onclick: () => { closeMenu(); fn(); } }, label);
+    const item = (label, fn, on, ic) => el('button', { class: 'mi mic' + (on ? ' on' : ''), onclick: () => { closeMenu(); fn(); } }, ic ? icon(ic) : null, el('span', {}, label));
     (S.tools || []).filter((x) => (S.hiddenTools || []).includes(x.k)).forEach((x) => {
-      if (x.menu) x.menu.forEach(([l, on, fn]) => m.append(item(l, fn, on))); else m.append(item(x.label, x.run));
+      if (x.menu) x.menu.forEach(([l, on, fn]) => m.append(item(l, fn, on))); else m.append(item(x.label, x.run, false, x.ic));
     });
     $('#app').append(m);
     setTimeout(() => document.addEventListener('click', onDocClick), 0);
@@ -691,12 +693,41 @@
 
   /* 새로고침: 구독을 다시 걸어 서버 내용으로 덮어써요 */
   function forceSync() {
+    S.saveErr = false; markErr();
     const b = $('#syncBtn');
     if (b) { b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin'); }
     if (S.cloud) {
       stopWatches(); watchStatic(); watchRange();
       loadMeal();
     } else { Data.loadLocal(); render(); }
+  }
+
+  /* ---------- 바로가기: 메뉴의 모든 항목을 상단 아이콘으로 꺼낼 수 있어요 ---------- */
+  function shortcutDefs() {
+    const api = window.hagisiroWidget || {};
+    const gc = gcalWanted() && !gtoken();
+    return [
+      { k: 'sync', label: '새로고침', ic: 'refresh', def: true, run: forceSync },
+      { k: 'search', label: '할 일 검색', ic: 'search', run: openSearch },
+      { k: 'repeat', label: '반복 관리', ic: 'repeat', run: () => openRepeatManage() },
+      { k: 'dday', label: 'D-day 관리', ic: 'dday', run: openDdays },
+      { k: 'meal', label: '급식', ic: 'utensils', def: true, run: openMealWeek },
+      ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, ic, def: true, doc: id, run: () => openDoc(id) })),
+      { k: 'prefs', label: '설정', ic: 'gear', run: openPrefs },
+      gc ? { k: 'gc', label: 'Google 캘린더 다시 연결', ic: 'google', def: true, run: () => connectGcal() } : null,
+      S.user ? { k: 'logout', label: '로그아웃', ic: 'logout', run: () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); } } : null,
+      !S.user && S.cloudAvail ? { k: 'login', label: 'Google 로그인', ic: 'google', run: () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); } } : null,
+      !S.cloud ? { k: 'backup', label: '백업 저장', ic: 'download', run: exportJson } : null,
+      IS_WIDGET ? { k: 'move', label: '이동·크기 변경', ic: 'move', def: true, run: () => S.winEdit && S.winEdit() } : null,
+      api.hide ? { k: 'hide', label: '숨기기', ic: 'minimize', run: () => api.hide() } : null,
+      api.quit ? { k: 'quit', label: '종료', ic: 'power', run: () => api.quit() } : null,
+    ].filter(Boolean);
+  }
+  const scOn = (x) => (x.def ? !(PF.hide || []).includes(x.k) : (PF.show || []).includes(x.k));
+  function scNode(x) {
+    const common = { title: x.label, 'aria-label': x.label, onclick: x.run };
+    if (x.doc) return el('button', { ...common, class: 'ghost sm dbtn' + (docOf(x.doc) ? ' has' : '') }, icon(x.ic), el('span', { class: 'lb' }, x.label));
+    return el('button', { ...common, class: 'ib', id: x.k === 'sync' ? 'syncBtn' : x.k === 'move' ? 'wmove' : null }, icon(x.ic));
   }
 
   /* ---------- 메뉴 ---------- */
@@ -1890,21 +1921,23 @@
     S.tourShown = true;
     const r = row.getBoundingClientRect();
     const hole = el('div', { class: 'tour-hole' });
-    Object.assign(hole.style, { left: r.left - 4 + 'px', top: r.top - 4 + 'px', width: r.width + 8 + 'px', height: r.height + 8 + 'px' });
     const never = el('input', { type: 'checkbox' });
     const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.remove(); };
     const tip = el('div', { class: 'tour-tip' },
       el('div', {}, '출결은 문장으로도 입력 가능합니다.'),
-      el('div', { class: 'mut' }, '예) 김네모 오늘 4교시부터 감기로 조퇴'),
+      el('div', { class: 'mut' }, '예) 김네모 오늘 4교시부터 감기로 조퇴 /'),
       el('div', { class: 'mut' }, '12일에 이세모 가족여행으로 체험학습'),
       el('div', { class: 'tour-f' }, el('label', { class: 'rchk' }, never, '다시 열지 않음'), el('button', { class: 'pri sm', type: 'button', onclick: close }, '닫기')));
     const box = el('div', { class: 'tour' }, hole, tip);
     document.body.append(box);
-    const w = Math.min(300, innerWidth - 16);
+    const cr = box.getBoundingClientRect(); // 위젯 모드에선 위젯 안쪽만 덮어요
+    const rl = r.left - cr.left, rt = r.top - cr.top;
+    Object.assign(hole.style, { left: rl - 4 + 'px', top: rt - 4 + 'px', width: r.width + 8 + 'px', height: r.height + 8 + 'px' });
+    const w = Math.min(300, cr.width - 16);
     tip.style.width = w + 'px';
-    tip.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+    tip.style.left = Math.max(8, Math.min(rl, cr.width - w - 8)) + 'px';
     const th = tip.offsetHeight;
-    tip.style.top = (r.bottom + 12 + th < innerHeight ? r.bottom + 12 : Math.max(8, r.top - th - 12)) + 'px';
+    tip.style.top = (rt + r.height + 12 + th < cr.height ? rt + r.height + 12 : Math.max(8, rt - th - 12)) + 'px';
   }
   function preview() {
     const q = $('#q'), pv = $('#pv');
@@ -2269,11 +2302,12 @@
         row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
         tog('anim', '애니메이션'),
         el('div', { class: 'pfs' }, '바로가기'),
-        ...[['sync', '새로고침'], ['meal', '급식'], ['doc-contacts', '연락처'], ['doc-schedule', '일과 진행 시간표'], ['doc-mytable', '내 시간표'], ...(IS_WIDGET ? [['move', '이동·크기 변경']] : [])].map(([k, l]) =>
-          el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !(PF.hide || []).includes(k), onchange: (e) => {
-            const h = new Set(PF.hide || []); if (e.target.checked) h.delete(k); else h.add(k);
-            PF.hide = [...h]; commit('render');
-          } }), el('span', {}, l))),
+        ...shortcutDefs().map((x) =>
+          el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: scOn(x), onchange: (e) => {
+            const key = x.def ? 'hide' : 'show', h = new Set(PF[key] || []);
+            if (e.target.checked === !!x.def) h.delete(x.k); else h.add(x.k);
+            PF[key] = [...h]; commit('render');
+          } }), el('span', {}, x.label))),
         ...(W ? [el('div', { class: 'pfs' }, '창'),
         S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
           el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await W.setZ(v); draw(); } }, l)))) : null,
@@ -2745,7 +2779,7 @@
               if (c) { await S.cloud.consultUpdate(c.id, data); id = c.id; } else id = await S.cloud.consultCreate(data);
               const nc = (await S.cloud.consultList()).find((x) => x.id === id);
               detail(nc);
-            } catch (er) { console.error(er); toast('저장하지 못했어요'); e.currentTarget.disabled = false; }
+            } catch (er) { console.error(er); e.currentTarget.disabled = false; }
           } }, icon('check'), '완성'))), c ? list : quick);
       };
       draw();
