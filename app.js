@@ -84,8 +84,20 @@
     lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
+    spade: '<path d="M12 4.2c3.4 3.3 6.8 5.8 6.8 9a3.2 3.2 0 01-5.8 1.9c.1 1.6.5 2.9 1.5 4.2h-5c1-1.3 1.4-2.6 1.5-4.2a3.2 3.2 0 01-5.8-1.9c0-3.2 3.4-5.7 6.8-9z"/>',
+    b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
+    b_ring: '<circle cx="12" cy="12" r="4.6" stroke-width="2.2"/>',
+    b_dash: '<path d="M7 12h10" stroke-width="2.6"/>',
+    b_spade: '<path class="f" d="M12 3.6c3.6 3.4 7.2 6 7.2 9.4a3.5 3.5 0 01-6.2 2.2c.1 1.6.5 3 1.6 4.4h-5.2c1.1-1.4 1.5-2.8 1.6-4.4A3.5 3.5 0 014.8 13c0-3.4 3.6-6 7.2-9.4z"/>',
+    b_club: '<g class="f"><circle cx="12" cy="7.8" r="3.5"/><circle cx="7.4" cy="13.6" r="3.5"/><circle cx="16.6" cy="13.6" r="3.5"/><path d="M11 13.5c0 2.6-.4 4.3-1.6 6.1h5.2c-1.2-1.8-1.6-3.5-1.6-6.1z"/></g>',
+    b_diamond: '<path class="f" d="M12 3.8l6.2 8.2-6.2 8.2-6.2-8.2z"/>',
+    b_heart: '<path class="f" d="M12 20l-7-7.2A4.3 4.3 0 0112 7.2a4.3 4.3 0 017 5.6z"/>',
     tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
   };
+  /* 글머리 기호 8종 (정사각형~줄표는 기본색, 나머지는 글씨 팔레트에서 뽑은 색) */
+  const BUL = [['sq', '정사각형'], ['ring', '빈 원'], ['', '불릿'], ['dash', '줄표'], ['spade', '스페이드'], ['club', '클로버'], ['diamond', '다이아몬드'], ['heart', '하트']];
+  const bulIcon = (k) => icon(k ? 'b_' + k : 'dot');
+  function setBullet(span, k) { span.dataset.bl = k || ''; span.replaceChildren(bulIcon(k)); }
   function icon(name) {
     const s = el('span', { class: 'ic' });
     s.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
@@ -886,7 +898,7 @@
       default: return false;
     }
   }
-  const virtualOf = (r, ds) => ({ id: vid(r.id, ds), virtual: true, rid: r.id, date: ds, text: r.text, done: false, fg: r.fg, bg: r.bg, sz: r.sz });
+  const virtualOf = (r, ds) => ({ id: vid(r.id, ds), virtual: true, rid: r.id, date: ds, text: r.text, done: false, fg: r.fg, bg: r.bg, sz: r.sz, bl: r.bl });
   const cellSort = (a, b) => (PF.sortDone ? (a.done ? 1 : 0) - (b.done ? 1 : 0) : 0) || (a.rid ? 0 : 1) - (b.rid ? 0 : 1) || byOrd(a, b);
   /** 그 날짜에 보여줄 항목 = 저장된 할 일 + 계산으로 생기는 반복 항목 */
   function itemsOn(ds) {
@@ -902,7 +914,7 @@
   }
   function patchItem(id, patch) {
     const it = getItem(id); if (!it) return;
-    if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, dday: it.dday, ord: 0, created: Date.now(), ...patch }));
+    if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday, ord: 0, created: Date.now(), ...patch }));
     else Data.put('todos', clean({ ...it, ...patch }));
   }
   /* 달력에서 고른 할 일 하나를 지움 (반복 항목은 그날만 지움) */
@@ -924,9 +936,10 @@
 
   /* ---------- 달력 칸의 할 일 한 줄: 불릿 + 글자 ---------- */
   const colorVars = (t) => (t.fg ? `--tfg:${t.fg};` : '') + (t.bg ? `--tbg:${t.bg};` : '');
+  const blSpan = (k) => { const b = el('span', { class: 'bl' }); setBullet(b, k); return b; };
   function todoRow(t) {
     return el('div', { class: 'td' + (t.done ? ' done' : '') + (t.rid ? ' rep' : ''), 'data-id': t.id, 'data-sz': t.sz || null, style: colorVars(t) || null },
-      el('span', { class: 'bl' }, icon('dot')), el('span', { class: 'tt', title: t.text }, t.text),
+      blSpan(t.bl), el('span', { class: 'tt', title: t.text }, t.text),
       t.dday ? el('span', { class: 'ddm', title: 'D-day' }, 'D') : null,
       t.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null);
   }
@@ -967,10 +980,10 @@
     if (palEl) { palEl.remove(); palEl = null; }
     if (palOff) { document.removeEventListener('pointerdown', palOff); palOff = null; }
   }
-  function openPalette(anchor, onPick, cur) {
+  function openPalette(anchor, onPick, cur, content) {
     if (palEl && palEl._anchor === anchor) { closePal(); return; }
     closePal();
-    palEl = el('div', { class: 'pal' }, swatches(onPick, cur));
+    palEl = el('div', { class: 'pal' }, content || swatches(onPick, cur));
     palEl._anchor = anchor;
     palEl.addEventListener('mousedown', (e) => e.preventDefault()); // 입력창 포커스 유지
     document.body.append(palEl);
@@ -1003,6 +1016,16 @@
       btn('palette', '글자색 · 배경색', (b) => {
         if (!ctx.targets(true).length) return;
         openPalette(b, (patch) => { ctx.targets(true).forEach((t) => t.set(patch)); if (ctx.after) ctx.after(true); }, ctx.targets(true)[0].get());
+      }),
+      btn('spade', '글머리 기호', (b) => {
+        const ts = ctx.targets(true);
+        if (!ts.length) return;
+        const cur = ts[0].get().bl || '';
+        const box = el('div', { class: 'blpick' });
+        BUL.forEach(([k, name]) => box.append(el('button', { type: 'button', class: 'blb' + (cur === k ? ' on' : ''), 'data-bl': k, title: name, 'aria-label': name, onclick: (e) => {
+          e.stopPropagation(); ctx.targets(true).forEach((t) => t.set({ bl: k })); closePal(); if (ctx.after) ctx.after(false);
+        } }, bulIcon(k))));
+        openPalette(b, null, null, box);
       }),
       btn('repeat', '반복', () => ctx.repeat(ctx.targets())),
       btn('dday', 'D-day', () => {
@@ -1105,16 +1128,16 @@
       if (it.virtual) { // 계산으로 생긴 반복 항목: 고친 게 있을 때만 그날 기록으로 저장
         const r = ruleOf(it.rid); if (!r) return;
         seen.add(it.rid);
-        const changed = text !== r.text || it.done || !!it.dday || (it.fg || '') !== (r.fg || '') || (it.bg || '') !== (r.bg || '') || (it.sz || '') !== (r.sz || '');
-        if (changed) Data.put('todos', clean({ id: oid(it.rid, ds), rid: it.rid, date: ds, text, done: !!it.done, fg: it.fg, bg: it.bg, sz: it.sz, dday: it.dday || '', ord: idx, created: Date.now() }));
+        const changed = text !== r.text || it.done || !!it.dday || (it.fg || '') !== (r.fg || '') || (it.bg || '') !== (r.bg || '') || (it.sz || '') !== (r.sz || '') || (it.bl || '') !== (r.bl || '');
+        if (changed) Data.put('todos', clean({ id: oid(it.rid, ds), rid: it.rid, date: ds, text, done: !!it.done, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday || '', ord: idx, created: Date.now() }));
         return;
       }
       if (!it.id) it.id = uid();
       keep.add(it.id);
       if (it.rid) seen.add(it.rid);
       const o = old.find((x) => x.id === it.id);
-      const rec = clean({ ...(o || {}), id: it.id, date: ds, text, done: !!it.done, fg: it.fg || '', bg: it.bg || '', sz: it.sz || '', dday: it.dday ? true : '', ord: idx, created: (o && o.created) || Date.now() });
-      if (!o || o.text !== rec.text || !!o.done !== rec.done || (o.fg || '') !== (rec.fg || '') || (o.bg || '') !== (rec.bg || '') || (o.sz || '') !== (rec.sz || '') || !!o.dday !== !!rec.dday || o.ord !== rec.ord) Data.put('todos', rec);
+      const rec = clean({ ...(o || {}), id: it.id, date: ds, text, done: !!it.done, fg: it.fg || '', bg: it.bg || '', sz: it.sz || '', bl: it.bl || '', dday: it.dday ? true : '', ord: idx, created: (o && o.created) || Date.now() });
+      if (!o || o.text !== rec.text || !!o.done !== rec.done || (o.fg || '') !== (rec.fg || '') || (o.bg || '') !== (rec.bg || '') || (o.sz || '') !== (rec.sz || '') || (o.bl || '') !== (rec.bl || '') || !!o.dday !== !!rec.dday || o.ord !== rec.ord) Data.put('todos', rec);
     });
     old.forEach((o) => {
       if (keep.has(o.id) || o.skip) return;
@@ -1128,7 +1151,7 @@
 
   function openEditor(host, ds, onDone, opt = {}) {
     const box = el('div', { class: 'ed' });
-    const items = itemsOn(ds).map((t) => ({ id: t.id, virtual: !!t.virtual, rid: t.rid, text: t.text, done: !!t.done, fg: t.fg, bg: t.bg, sz: t.sz, dday: t.dday }));
+    const items = itemsOn(ds).map((t) => ({ id: t.id, virtual: !!t.virtual, rid: t.rid, text: t.text, done: !!t.done, fg: t.fg, bg: t.bg, sz: t.sz, bl: t.bl, dday: t.dday }));
     const origVirtual = items.filter((i) => i.virtual).map((i) => i.rid);
     items.push({ text: '', done: false });
     host.replaceChildren(box);
@@ -1142,6 +1165,7 @@
       row.classList.toggle('done', !!it.done);
       if (it.sz) row.dataset.sz = it.sz; else delete row.dataset.sz;
       row.classList.toggle('dd', !!it.dday);
+      if (row._bl && row._bl.dataset.bl !== (it.bl || '') || (row._bl && !row._bl.firstChild)) setBullet(row._bl, it.bl);
       ['fg', 'bg'].forEach((k) => { if (it[k]) row.style.setProperty('--t' + k, it[k]); else row.style.removeProperty('--t' + k); });
     };
     const clearPicks = () => rows().forEach((r) => r.classList.remove('picked'));
@@ -1192,9 +1216,9 @@
 
     function mkRow(it) {
       const inp = el('input', { type: 'text', value: it.text, spellcheck: 'false', autocomplete: 'off', enterkeyhint: 'next', 'aria-label': '할 일' });
-      const bl = el('span', { class: 'bl', title: '눌러서 선택 · 끌어서 여러 줄 선택' }, icon('dot'));
+      const bl = el('span', { class: 'bl', title: '눌러서 선택 · 끌어서 여러 줄 선택' });
       const row = el('div', { class: 'td' }, bl, inp, it.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null);
-      row._it = it;
+      row._it = it; row._bl = bl;
       paint(row);
       bl.addEventListener('mousedown', (e) => e.preventDefault()); // 입력창 포커스 유지
       bl.addEventListener('pointerdown', (e) => {
@@ -1397,7 +1421,7 @@
     return { node: root, read, focus: () => { if (textIn) textIn.focus(); } };
   }
 
-  const bulletRow = (i) => el('div', { class: 'td rtarget' }, el('span', { class: 'bl' }, icon('dot')), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
+  const bulletRow = (i) => el('div', { class: 'td rtarget' }, blSpan(i.bl), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
 
   /* 할 일에서 연 반복 설정: 고른 할 일을 반복으로 바꿔요 */
   function openRepeat({ ds, ids = [] } = {}) {
@@ -1419,7 +1443,7 @@
     ok.addEventListener('click', () => {
       const f = form.read(); if (!f) return;
       fresh.forEach((it) => {
-        const rule = clean({ id: uid(), created: Date.now(), text: it.text, fg: it.fg, bg: it.bg, sz: it.sz, ...f });
+        const rule = clean({ id: uid(), created: Date.now(), text: it.text, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, ...f });
         Data.put('repeats', rule);
         if (occursOn(rule, it.date)) { // 한 번짜리 항목은 반복 항목으로 바꿔치기 (완료 표시는 유지)
           Data.del('todos', it.id);
@@ -1465,7 +1489,7 @@
       ok.disabled = !form.read();
       ok.addEventListener('click', () => {
         const f = form.read(); if (!f) return;
-        Data.put('repeats', clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', ...f }));
+        Data.put('repeats', clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', bl: editing ? editing.bl : '', ...f }));
         mode = 'list'; editing = null; show(); render();
       });
       body.append(form.node,

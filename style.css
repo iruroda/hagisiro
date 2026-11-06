@@ -740,3 +740,14 @@ body.xwin #modal .back, body.xwin #sheet .back { position: fixed; inset: 0; }
 /* 꺼진 버튼·입력: 커서도 그대로 */
 button:disabled, input:disabled, select:disabled, label:has(input:disabled), .pri:disabled { cursor: default !important; }
 .pri:disabled { opacity: .4; filter: none !important; }
+
+/* 글머리 기호 */
+.bl[data-bl="spade"] { color: #2f6df6; } .bl[data-bl="club"] { color: #2e9e5b; }
+.bl[data-bl="diamond"] { color: #d98a00; } .bl[data-bl="heart"] { color: #e5484d; }
+.bl .ic svg { overflow: visible; }
+.blpick { display: grid; grid-template-columns: repeat(4, 32px); gap: 4px; }
+.blb { width: 32px; height: 32px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; color: var(--mut); }
+.blb .ic svg { width: 18px; height: 18px; }
+.blb:hover { background: var(--bg2); } .blb.on { box-shadow: 0 0 0 1.5px var(--accent) inset; }
+.blb[data-bl="spade"] { color: #2f6df6; } .blb[data-bl="club"] { color: #2e9e5b; }
+.blb[data-bl="diamond"] { color: #d98a00; } .blb[data-bl="heart"] { color: #e5484d; }
