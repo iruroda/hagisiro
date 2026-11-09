@@ -346,7 +346,7 @@
   const noAnim = () => document.documentElement.classList.contains('noanim') || !PF.anim;
   /* 출결: 날짜 줄·통계는 제자리에서 사르륵 바뀌고, 아래 표만 벨트처럼 움직여요 */
   const attTable = (c) => { const v = c && c.classList.contains('att') ? c.lastElementChild : null; return v ? v.querySelector(':scope > .mwrap') : null; };
-  const beltTarget = (c) => (S.view === 'att' ? attTable(c) || c : c);
+  const beltTarget = (c) => (S.view === 'att' ? attTable(c) || c : S.view === 'cal' && !weekMode() && c ? c.querySelector('.days') || c : c);
   function wantBelt(main) {
     const cont = S.cont; S.cont = null;
     if (cont && performance.now() - cont.t0 < 300 && viewKey() === S.lastKey) return cont; // 움직이는 도중에 다시 그려져도 이어서
@@ -372,7 +372,7 @@
       const grid = c.querySelector('.days'), R = S.curRows || 1;
       const s = Math.min(R, snap.s);
       const olds = [...snap.node.querySelectorAll('.days > .cell')];
-      if (!grid || !s || olds.length < R * 7) return;
+      if (!grid || !s || olds.length !== R * 7 || grid.children.length !== R * 7) return;
       const take = (dir > 0 ? olds.slice(0, s * 7) : olds.slice((R - s) * 7)).map((n) => n.cloneNode(true));
       const gap = parseFloat(getComputedStyle(grid).rowGap) || 0, pitch = (grid.offsetHeight + gap) / R;
       const saved = grid.style.cssText;
@@ -415,6 +415,7 @@
           const tb = attTable(c);
           if (tb) { [...tb.parentElement.children].filter((n) => n !== tb).forEach((n) => n.classList.add('hfade')); t = tb; }
         }
+        if (S.view === 'cal' && !weekMode()) { const dg = c.querySelector('.days'); if (dg) t = dg; } // 요일 줄은 제자리
         const ttl = document.querySelector('#top .ttl'); if (ttl) ttl.classList.add('hfade'); // 맨 위 '2026년 11월'도 부드럽게
         setTimeout(() => document.querySelectorAll('.hfade').forEach((n) => n.classList.remove('hfade')), 320);
         startBelt(main, c, t, snap);
@@ -922,12 +923,24 @@
     const grid = el('div', { class: 'days', style: `grid-template-rows:repeat(${r.rows},minmax(0,1fr))` });
     const attBy = {}; S.att.forEach((a) => { attBy[a.date] = (attBy[a.date] || 0) + 1; });
 
+    /* 월 사이 간격: 같은 주 안에서 달이 바뀌면 그 자리에서 줄을 끊고(남는 칸은 투명), 다음 달은 해당 요일부터 새 줄에서 시작 */
+    const seq = []; // 날짜 또는 null(빈 칸), 줄마다 7칸
     const gapRows = new Set();
-    if (weekMode() && PF.mgap) {
-      for (let i = 7; i < r.rows * 7; i++) if (new Date(r.start.getFullYear(), r.start.getMonth(), r.start.getDate() + i).getDate() === 1) gapRows.add(Math.floor(i / 7));
-    }
     for (let i = 0; i < r.rows * 7; i++) {
       const d = new Date(r.start.getFullYear(), r.start.getMonth(), r.start.getDate() + i);
+      if (weekMode() && PF.mgap && i > 0 && d.getDate() === 1) {
+        const col = d.getDay();
+        while (seq.length % 7) seq.push(null);
+        gapRows.add(seq.length / 7);
+        for (let k = 0; k < col; k++) seq.push(null);
+      }
+      seq.push(d);
+    }
+    while (seq.length % 7) seq.push(null);
+    if (seq.length / 7 !== r.rows) grid.style.gridTemplateRows = `repeat(${seq.length / 7},minmax(0,1fr))`;
+    for (let i = 0; i < seq.length; i++) {
+      const d = seq[i];
+      if (!d) { grid.append(el('div', { class: 'cell blank' + (gapRows.has(Math.floor(i / 7)) ? ' mgap' : ''), 'aria-hidden': 'true' })); continue; }
       const ds = ymd(d);
       const list = itemsOn(ds);
       const gl = S.gcal[ds] || [];
@@ -2749,19 +2762,17 @@
       S.cs = null; stop(); const my = nav;
       shell('상담 신청', loading());
       let rows = [];
-      let err = '';
-      try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); err = (e && (e.code || e.message)) || '오류'; }
+      try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); }
       if (my !== nav) return;
       rows.sort((a, b) => (b.created || 0) - (a.created || 0));
       shell('상담 신청', el('div', { class: 'clist' },
         el('button', { class: 'pri cnew', type: 'button', onclick: quick }, icon('plus'), '상담 신청 테이블 만들기'),
-        el('div', { class: 'pfs' }, '만들어 둔 테이블'),
-        err ? el('div', { class: 'mut small' }, `불러오지 못했어요 (${err})`) : null,
-        rows.length ? rows.map((c) => el('div', { class: 'crow' },
+        rows.length ? el('div', { class: 'pfs' }, '만들어 둔 테이블') : null,
+        rows.map((c) => el('div', { class: 'crow' },
           el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
           el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(bookUrl(c.id)) }, icon('link')),
           el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => fine(draftOf(c), c) }, icon('edit')),
-          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))) : (err ? null : el('div', { class: 'mut' }, '만든 테이블 없음'))));
+          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash'))))));
     }
     async function del(c) {
       if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?\n신청 내용도 모두 사라져요.`))) return;

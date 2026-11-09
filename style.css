@@ -877,3 +877,6 @@ body.wedit #wmove { position: relative; z-index: 80; }
 
 /* 날짜 줄·통계·맨 위 제목: 페이지 넘김 없이 사르륵 */
 .hfade { animation: fadein .28s ease-out; }
+
+.cell.blank { background: none !important; border-color: transparent !important; pointer-events: none; }
+body.widget #main > .beltclip { background: none; border-radius: 0; }
