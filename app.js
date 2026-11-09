@@ -2651,9 +2651,9 @@
     const d = parseYmd(ds);
     const list = mealShown(S.meal[ds] || []);
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
-      el('div', { class: 'dlg' },
+      el('div', { class: 'dlg' + (list.length > 1 ? ' mealday' : '') },
         el('div', { class: 'shead' }, hb('utensils', `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        list.length ? el('div', { class: 'meals' }, list.map(mealRow)) : el('div', { class: 'mut' }, '급식 없음')));
+        list.length ? el('div', { class: 'meals' + (list.length > 1 ? ' hz' : '') }, list.map(mealRow)) : el('div', { class: 'mut' }, '급식 없음')));
   }
   /* 상단바 급식 버튼: 주별 급식 표 (행: 날짜·조식·중식·석식 / 열: 요일) + 지난주·다음주 이동 */
   const mealRows = (rows) => {
