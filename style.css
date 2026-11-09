@@ -176,8 +176,8 @@ body.widget .cal { gap: 2px; }
 body.widget .wk { background: var(--wbg); border-radius: 0; }
 body.widget .days { gap: 2px; border: 0; }
 body.widget .cell { border: 0; border-radius: 0; background: var(--wbg); }
-body.widget .cell:nth-last-child(7) { border-bottom-left-radius: 6px; }
-body.widget .cell:last-child { border-bottom-right-radius: 6px; }
+body.widget .cell:nth-last-child(7) { border-bottom-left-radius: var(--r); }
+body.widget .cell:last-child { border-bottom-right-radius: var(--r); }
 body.widget .cell.sel { background: color-mix(in srgb, var(--sel) var(--wa, 90%), transparent); }
 body.widget .cell.editing { background: var(--bg); }
 body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(--r) var(--r); }
@@ -907,3 +907,7 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 .rng { display: inline-flex; align-items: center; gap: 6px; }
 .tld { color: var(--mut); }
 .pri:disabled { opacity: .4; cursor: default; }
+
+/* 급식 팝업: 크기 고정 (불러오는 중·표·안내 어느 상태든 같은 크기) */
+.mealdlg { width: min(880px, 96%); height: min(520px, 92%); max-height: none; display: flex; flex-direction: column; }
+.mealdlg > :not(.shead) { min-height: 0; }

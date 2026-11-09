@@ -896,35 +896,6 @@
     set();
     if (window.ResizeObserver) new ResizeObserver(set).observe(app);
   })();
-  (function popupExpand() {
-    const api = window.hagisiroWidget;
-    if (!api || !api.expand) return;
-    let cur = false, seq = 0;
-    const isOpen = () => ['#modal', '#sheet'].some((q) => { const e = document.querySelector(q); return e && !e.hidden && e.firstElementChild; });
-    // 창을 넓히는 건 팝업을 끌기 시작했을 때만 (큰 팝업은 위젯 안에서 스크롤)
-    const needRoom = () => !!S.dragExp;
-    const sync = async () => {
-      const opened = isOpen() && !document.body.classList.contains('loginmode');
-      if (!opened) S.dragExp = false;
-      const open = opened && needRoom();
-      if (open === cur) return;
-      cur = open; const my = ++seq;
-      const b = document.body;
-      b.classList.add('xprep'); // 창 크기가 바뀌는 동안은 잠깐 감춰서 깜빡임을 없애요
-      const r = await api.expand(open);
-      const settle = () => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
-      if (my !== seq) { await settle(); if (my === seq) b.classList.remove('xprep'); return; }
-      if (open && r) { b.style.setProperty('--xx', r.x + 'px'); b.style.setProperty('--xy', r.y + 'px'); b.style.setProperty('--xw', r.w + 'px'); b.style.setProperty('--xh', r.h + 'px'); b.classList.add('xwin'); }
-      else b.classList.remove('xwin');
-      await settle();
-      if (my === seq) b.classList.remove('xprep');
-      return true;
-    };
-    S.needExpand = async () => { S.dragExp = true; return sync(); };
-    window.addEventListener('DOMContentLoaded', () => {
-      ['#modal', '#sheet'].forEach((q) => { const e = document.querySelector(q); if (e) new MutationObserver(sync).observe(e, { childList: true, attributes: true, attributeFilter: ['hidden'] }); });
-    });
-  })();
   /* ---------- 로그인 화면 ---------- */
   function loginView() {
     const logo = el('div', { class: 'logo' }); logo.innerHTML = LOGO;
@@ -1851,16 +1822,13 @@
     const dlg = h.closest('.dlg, .panel');
     if (!dlg) return;
     const x0 = e.screenX, y0 = e.screenY, tx = dlg._tx || 0, ty = dlg._ty || 0;
-    let ready = !(S.needExpand && window.hagisiroWidget && window.hagisiroWidget.expand) || !!document.body.classList.contains('xwin');
-    if (!ready) Promise.resolve(S.needExpand()).then(() => { ready = true; });
     const mv = (ev) => {
-      if (!ready) return;
       dlg._tx = tx + ev.screenX - x0; dlg._ty = ty + ev.screenY - y0;
       dlg.style.translate = `${dlg._tx}px ${dlg._ty}px`;
       const r = dlg.getBoundingClientRect();
-      let fx = 0, fy = 0;
-      if (r.top < 0) fy = -r.top; else if (r.top > innerHeight - 40) fy = innerHeight - 40 - r.top;
-      if (r.right < 60) fx = 60 - r.right; else if (r.left > innerWidth - 60) fx = innerWidth - 60 - r.left;
+      let fx = 0, fy = 0; // 팝업은 위젯 밖으로 나가지 못해요
+      if (r.top < 0) fy = -r.top; else if (r.bottom > innerHeight) fy = Math.max(innerHeight - r.bottom, -r.top);
+      if (r.left < 0) fx = -r.left; else if (r.right > innerWidth) fx = Math.max(innerWidth - r.right, -r.left);
       if (fx || fy) { dlg._tx += fx; dlg._ty += fy; dlg.style.translate = `${dlg._tx}px ${dlg._ty}px`; }
     };
     const up = () => { document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', up); };
