@@ -104,13 +104,24 @@
     s.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
     return s;
   }
-  /* 시각 고르기: 24시간제 드롭다운 (시 · 분). value 는 'HH:MM' */
+  /* 시각 고르기: 24시간제 드롭다운 (시 · 분). value 는 'HH:MM'. limit(최소, 최대)로 고를 수 있는 범위를 막아요 */
   function timeSel(val) {
     const [h0, m0] = (val || '16:00').split(':').map(Number);
     const hs = el('select', { 'aria-label': '시' }, Array.from({ length: 24 }, (_, i) => el('option', { value: i, selected: i === h0 }, pad(i))));
     const ms = el('select', { 'aria-label': '분' }, Array.from({ length: 12 }, (_, i) => el('option', { value: i * 5, selected: i * 5 === m0 }, pad(i * 5))));
     const w = el('span', { class: 'tsel' }, hs, el('span', {}, ':'), ms);
-    Object.defineProperty(w, 'value', { get: () => `${pad(+hs.value)}:${pad(+ms.value)}`, set: (v) => { const [h, m] = String(v).split(':').map(Number); hs.value = h; ms.value = m; } });
+    let lo = 0, hi = 1439;
+    const toM = (v) => { const [h, m] = String(v).split(':').map(Number); return h * 60 + m; };
+    const refresh = () => {
+      let c = +hs.value * 60 + +ms.value;
+      c = Math.min(hi, Math.max(lo, c));
+      hs.value = Math.floor(c / 60); ms.value = c % 60;
+      [...hs.options].forEach((o) => { o.disabled = +o.value * 60 + 55 < lo || +o.value * 60 > hi; });
+      [...ms.options].forEach((o) => { const t = +hs.value * 60 + +o.value; o.disabled = t < lo || t > hi; });
+    };
+    hs.addEventListener('change', refresh); ms.addEventListener('change', refresh);
+    Object.defineProperty(w, 'value', { get: () => `${pad(+hs.value)}:${pad(+ms.value)}`, set: (v) => { const [h, m] = String(v).split(':').map(Number); hs.value = h; ms.value = m; refresh(); } });
+    w.limit = (min, max) => { lo = min ? toM(min) : 0; hi = max ? toM(max) : 1439; refresh(); };
     return w;
   }
   const STEPS = [10, 20, 30, 40, 50, 60, 120, 180];
@@ -2805,11 +2816,16 @@
       };
       const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: q.skipWE }), el('span', {}, '주말 제외'));
       const save = () => { Object.keys(f).forEach((k) => { q[k] = k === 'step' ? +f[k].value : f[k].value; }); q.skipWE = wk.querySelector('input').checked; };
-      const dt = (d, t) => el('div', { class: 'pc2' }, d, t);
+      const tl = (...c) => el('span', { class: 'rng' }, c[0], el('span', { class: 'tld' }, '~'), c[1]);
+      /* 시작이 종료보다 뒤로 가지 못하게: 달력·시각 목록에서 막고, 직접 입력해도 같은 값으로 맞춰요 */
+      const limits = () => { f.from.max = f.to.value || ''; f.to.min = f.from.value || ''; f.t1.limit('', f.t2.value); f.t2.limit(f.t1.value, ''); };
+      f.from.addEventListener('change', () => { if (f.from.value && f.to.value && f.from.value > f.to.value) f.from.value = f.to.value; limits(); });
+      f.to.addEventListener('change', () => { if (f.from.value && f.to.value && f.to.value < f.from.value) f.to.value = f.from.value; limits(); });
+      f.t1.addEventListener('change', limits); f.t2.addEventListener('change', limits);
       let okb;
       shell('새 테이블 만들기 (1/2)', el('div', { class: 'cform' },
-        r('제목', fld(f.title)), r('내용(선택)', fld(f.note)),
-        r('시작일시', f.from, f.t1), r('종료일시', f.to, f.t2), wk, r('간격', f.step), r('신청 마감(선택)', f.closeD, f.closeT),
+        r('제목', fld(f.title)), r('학생 안내 사항', fld(f.note)),
+        r('시작일 · 종료일', tl(f.from, f.to)), wk, r('시작 시각 · 종료 시각', tl(f.t1, f.t2)), r('간격', f.step), r('신청 마감(선택)', f.closeD, f.closeT),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
           el('button', { class: 'ghost', type: 'button', onclick: () => { S.qform = null; list(); } }, '이전'),
           okb = el('button', { class: 'pri', type: 'button', onclick: () => {
@@ -2826,7 +2842,8 @@
           if (!Object.values(days).some((o) => Object.keys(o).length)) return;
           fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT}`).getTime() : 0, days, step }, null);
         } }, '다음'))));
-      const chk = () => { okb.disabled = !(f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
+      limits();
+      const chk = () => { okb.disabled = !(f.title.value.trim() && f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
       Object.values(f).forEach((x) => { x.addEventListener('input', chk); x.addEventListener('change', chk); }); chk();
     }
 
@@ -2852,40 +2869,24 @@
         const addDate = el('input', { type: 'date' });
         const dayCard = (k) => {
           const o = dr.days[k], ts = Object.keys(o).sort();
-          const anyBooked = ts.some((t) => booked[k + '_' + t]);
-          const allOn = ts.length && ts.every((t) => o[t]);
+          const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
           const tm = timeSel('16:00');
           return el('div', { class: 'cdc' },
-            el('div', { class: 'crow2' }, el('b', { class: 'cday' }, dayLabel(k)), el('span', { class: 'grow' }),
-              el('button', { class: 'ib sm', type: 'button', title: allOn ? '하루 전체 잠그기' : '하루 전체 열기', 'aria-label': '하루 전체 잠그기', onclick: () => { ts.forEach((t) => { if (!booked[k + '_' + t]) o[t] = !allOn; }); draw(); } }, icon(allOn ? 'lock' : 'check')),
-              el('button', { class: 'ib sm', type: 'button', title: '이 날 다시 만들기', 'aria-label': '이 날 다시 만들기', onclick: () => regen(k) }, icon('repeat')),
-              anyBooked ? null : el('button', { class: 'ib sm', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
-            el('div', { class: 'cchips' }, ts.map((t) => {
+            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}/${d.getDate()}`), el('span', { class: 'mut' }, DOW[d.getDay()]), el('span', { class: 'grow' }),
+              el('button', { class: 'ib sm', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
+            ts.map((t) => {
               const b = booked[k + '_' + t];
-              return el('button', { type: 'button', class: 'cchip' + (o[t] ? '' : ' off') + (b ? ' bk' : ''), disabled: !!b, title: b ? `${b.name} 신청` : o[t] ? '눌러서 잠그기' : '눌러서 열기',
+              return el('button', { type: 'button', class: 'cchip' + (o[t] ? '' : ' off') + (b ? ' bk' : ''), title: b ? `${b.name} 신청` : o[t] ? '눌러서 잠그기' : '눌러서 열기',
                 onclick: () => { o[t] = !o[t]; draw(); } }, o[t] ? null : icon('lock'), `${t.slice(0, 2)}:${t.slice(2)}`, b ? el('small', {}, b.name) : null);
-            })),
-            el('div', { class: 'crow2' }, tm, el('button', { class: 'ghost sm', type: 'button', onclick: () => {
+            }),
+            el('div', { class: 'cadd' }, tm, el('button', { class: 'pri cplus', type: 'button', title: '시각 추가', 'aria-label': '시각 추가', onclick: () => {
               const t = tm.value.replace(':', ''); if (!(t in o)) o[t] = true; draw();
-            } }, icon('plus'), '시간 추가')));
-        };
-        const regen = (k) => {
-          const a = timeSel('16:00'), z = timeSel('18:00');
-          const st = el('select', {}, stepOpts(dr.step || 20));
-          const bar = el('div', { class: 'cregen' }, a, '~', z, st, el('button', { class: 'pri sm', type: 'button', onclick: () => {
-            const o = {}; Object.keys(dr.days[k]).forEach((t) => { if (booked[k + '_' + t]) o[t] = true; });
-            for (let t = mins(a.value); t + +st.value <= mins(z.value); t += +st.value) o[tkey(t)] = true;
-            dr.days[k] = o; draw();
-          } }, '적용'));
-          const card = [...host.querySelectorAll('.cdc')].find((x) => x.querySelector('.cday').textContent === dayLabel(k));
-          if (card && !card.querySelector('.cregen')) card.querySelector('.crow2').after(bar);
+            } }, icon('plus'))));
         };
         shell(c ? '테이블 수정' : '새 테이블 만들기 (2/2)', el('div', { class: 'cform' },
           ...(c ? [r('제목', fld(tIn)), r('안내', fld(nIn)), r('신청 마감', cIn)] : []),
-          el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `열린 칸 ${total()}`), el('span', { class: 'grow' }), addDate,
-            el('button', { class: 'ghost sm', type: 'button', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; draw(); } }, icon('plus'), '날짜')),
+          r('날짜', addDate, el('button', { class: 'pri cplus', type: 'button', title: '날짜 추가', 'aria-label': '날짜 추가', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; addDate.value = ''; draw(); } }, icon('plus'))),
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
-          el('div', { class: 'pfh' }, '칸을 누르면 잠겨요 (잠긴 칸은 학생이 고를 수 없어요). 신청이 들어온 칸은 잠글 수 없어요.'),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: c ? list : quick }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
             const btn = e.currentTarget, fb = btn.parentElement;
             fb.querySelector('.cerr')?.remove();
@@ -2894,7 +2895,7 @@
             if (!slots.length || slots.length > 400) return;
             btn.disabled = true;
             try {
-              const data = { title: dr.title.trim() || '상담 신청', note: dr.note.trim(), slots, closeAt: dr.closeAt || 0 };
+              const data = { title: dr.title.trim() || '상담', note: dr.note.trim(), slots, closeAt: dr.closeAt || 0 };
               let id;
               if (c) { await S.cloud.consultUpdate(c.id, data); id = c.id; } else id = await S.cloud.consultCreate(data);
               let nc = { ...data, id, created: Date.now() };
@@ -2904,7 +2905,7 @@
               console.error(er); btn.disabled = false;
               fb.prepend(el('span', { class: 'cerr' }, `저장 실패 (${(er && (er.code || er.message)) || '오류'})`));
             }
-          } }, icon('check'), c ? '저장' : '만들기'))));
+          } }, icon('check'), '저장'))));
       };
       draw();
       if (c) unsub = S.cloud.consultWatchBooks(c.id, (books) => { booked = {}; books.filter((b) => !b.cancelled).forEach((b) => { booked[b.id] = b; }); draw(); }, () => {});

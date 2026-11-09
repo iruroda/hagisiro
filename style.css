@@ -895,3 +895,15 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 #wedit { background: rgba(10, 12, 20, .55); }
 #wedit i { box-shadow: 0 0 0 2px #fff; }
 #wedit .wdone { font-size: 16px; padding: 13px 34px; border-radius: 14px; box-shadow: 0 0 0 3px #fff, 0 6px 22px rgba(0, 0, 0, .35); }
+
+/* 상담표 2/2: 날짜가 세로 한 줄(시간표)로 오른쪽으로 쭉 */
+.cform .cgrid { flex-direction: row; align-items: flex-start; gap: 8px; overflow-x: auto; overflow-y: visible; max-height: none; padding-bottom: 8px; }
+.cdc { flex: none; width: 128px; box-sizing: border-box; gap: 4px; padding: 8px; }
+.cdh { display: flex; align-items: baseline; gap: 5px; }
+.cdc .cchip { display: flex; justify-content: center; align-items: center; width: 100%; box-sizing: border-box; padding: 5px 6px; border-radius: var(--r); font-size: var(--fs-3, 13px); cursor: pointer; }
+.cadd { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.cadd .tsel select { padding: 4px 2px; font-size: 12px; }
+.cplus { width: 28px; height: 28px; padding: 0; display: inline-grid; place-items: center; border-radius: var(--r-md); flex: none; }
+.rng { display: inline-flex; align-items: center; gap: 6px; }
+.tld { color: var(--mut); }
+.pri:disabled { opacity: .4; cursor: default; }
