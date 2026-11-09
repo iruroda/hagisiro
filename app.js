@@ -2878,17 +2878,23 @@
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
           el('div', { class: 'pfh' }, '칸을 누르면 잠겨요 (잠긴 칸은 학생이 고를 수 없어요). 신청이 들어온 칸은 잠글 수 없어요.'),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
+            const btn = e.currentTarget, fb = btn.parentElement;
+            fb.querySelector('.cerr')?.remove();
             const slots = [];
             Object.keys(dr.days).sort().forEach((k) => Object.keys(dr.days[k]).sort().forEach((t) => { if (dr.days[k][t]) slots.push(`${k}_${t}`); }));
             if (!slots.length || slots.length > 400) return;
-            e.currentTarget.disabled = true;
+            btn.disabled = true;
             try {
               const data = { title: dr.title.trim() || '상담 신청', note: dr.note.trim(), slots, closeAt: dr.closeAt || 0 };
               let id;
               if (c) { await S.cloud.consultUpdate(c.id, data); id = c.id; } else id = await S.cloud.consultCreate(data);
-              const nc = (await S.cloud.consultList()).find((x) => x.id === id);
+              let nc = { ...data, id, created: Date.now() };
+              try { nc = (await S.cloud.consultList()).find((x) => x.id === id) || nc; } catch (e2) { console.error(e2); }
               detail(nc);
-            } catch (er) { console.error(er); e.currentTarget.disabled = false; }
+            } catch (er) {
+              console.error(er); btn.disabled = false;
+              fb.prepend(el('span', { class: 'cerr' }, `저장 실패 (${(er && (er.code || er.message)) || '오류'})`));
+            }
           } }, icon('check'), '완성'))), c ? list : quick);
       };
       draw();

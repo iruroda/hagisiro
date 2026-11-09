@@ -889,3 +889,4 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 .tsel { display: inline-flex; align-items: center; gap: 3px; }
 .tsel select { padding: 5px 6px; }
 .cform .fld { width: 100%; }
+.cerr { color: #e5484d; font-size: 12px; margin-right: auto; }
