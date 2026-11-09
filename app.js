@@ -2732,17 +2732,19 @@
       S.cs = null; stop(); const my = nav;
       shell('상담 신청', loading());
       let rows = [];
-      try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); if (my === nav) shell('상담 신청', el('div', { class: 'mut' }, '불러오지 못했어요')); return; }
+      let err = '';
+      try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); err = (e && (e.code || e.message)) || '오류'; }
       if (my !== nav) return;
       rows.sort((a, b) => (b.created || 0) - (a.created || 0));
       shell('상담 신청', el('div', { class: 'clist' },
         el('button', { class: 'pri cnew', type: 'button', onclick: quick }, icon('plus'), '상담 신청 테이블 만들기'),
         el('div', { class: 'pfs' }, '만들어 둔 테이블'),
+        err ? el('div', { class: 'mut small' }, `불러오지 못했어요 (${err})`) : null,
         rows.length ? rows.map((c) => el('div', { class: 'crow' },
           el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
           el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(bookUrl(c.id)) }, icon('link')),
           el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => fine(draftOf(c), c) }, icon('edit')),
-          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))) : el('div', { class: 'mut' }, '만든 테이블 없음')));
+          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))) : (err ? null : el('div', { class: 'mut' }, '만든 테이블 없음'))));
     }
     async function del(c) {
       if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?\n신청 내용도 모두 사라져요.`))) return;
