@@ -865,3 +865,8 @@ body.widget #modal.opening .back, body.widget #modal.closing .back, body.widget 
 /* 이동·크기 변경: 켜진 동안에도 헤더의 이동 버튼과 '완료' 버튼으로 끌 수 있어요 */
 body.wedit #wmove { position: relative; z-index: 80; }
 #wedit .wdone { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+
+/* 크기 조절 손잡이: 창 가장자리에서 살짝 안쪽 (윈도우가 가장자리를 가로채 오른쪽·아래 손잡이가 안 보이는 것 방지) */
+#wedit i[data-e="n"] { top: 6px; } #wedit i[data-e="s"] { bottom: 6px; } #wedit i[data-e="w"] { left: 6px; } #wedit i[data-e="e"] { right: 6px; }
+#wedit i[data-e="nw"] { top: 6px; left: 6px; } #wedit i[data-e="ne"] { top: 6px; right: 6px; }
+#wedit i[data-e="sw"] { bottom: 6px; left: 6px; } #wedit i[data-e="se"] { bottom: 6px; right: 6px; }
