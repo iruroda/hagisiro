@@ -2550,14 +2550,43 @@
     return all;
   };
   const ymdN = (ds) => ds.replace(/-/g, '');
+  /* 인증키 없이 부르면 NEIS가 쪽수와 상관없이 맨 앞 5건만 줘요(조식만 오는 증상).
+   * 그래서 5건을 넘으면(총 건수로 알 수 있어요) 하루씩 나눠 받고, 받은 날은 기억해 둬요. */
+  const neisOnce = async (api, q) => {
+    const p = new URLSearchParams({ Type: 'json', pIndex: '1', pSize: '5', ...q });
+    const res = await fetch(NEIS + api + '?' + p);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    if (j.RESULT) { if (j.RESULT.CODE === 'INFO-200') return { rows: [], total: 0 }; throw new Error(j.RESULT.MESSAGE || j.RESULT.CODE); }
+    const blk = j[api] || [];
+    const head = blk[0] && blk[0].head && blk[0].head[0];
+    return { rows: blk[1] ? blk[1].row : [], total: head ? +head.list_total_count || 0 : 0 };
+  };
+  const mealDay = {};
+  async function mealFetch(from, to) {
+    const base = { ATPT_OFCDC_SC_CODE: PF.school.edu, SD_SCHUL_CODE: PF.school.code };
+    if (PF.neisKey) return neis('mealServiceDietInfo', { ...base, MLSV_FROM_YMD: ymdN(from), MLSV_TO_YMD: ymdN(to) });
+    const first = await neisOnce('mealServiceDietInfo', { ...base, MLSV_FROM_YMD: ymdN(from), MLSV_TO_YMD: ymdN(to) });
+    if (first.total <= first.rows.length) return first.rows;
+    const days = [];
+    for (let d = parseYmd(from), z = parseYmd(to); d <= z && days.length < 60; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)) days.push(ymd(d));
+    const key = (ds) => PF.school.code + ds;
+    const todo = days.filter((ds) => !mealDay[key(ds)]);
+    let i = 0;
+    const worker = async () => {
+      while (i < todo.length) {
+        const ds = todo[i++];
+        try { mealDay[key(ds)] = (await neisOnce('mealServiceDietInfo', { ...base, MLSV_FROM_YMD: ymdN(ds), MLSV_TO_YMD: ymdN(ds) })).rows; } catch (e) { console.error(e); }
+      }
+    };
+    await Promise.all(Array.from({ length: 6 }, worker));
+    return days.flatMap((ds) => mealDay[key(ds)] || []);
+  }
   async function loadMeal() {
     if (!PF.school) { if (Object.keys(S.meal).length) { S.meal = {}; render(); } return; }
     const r = range();
     try {
-      const rows = await neis('mealServiceDietInfo', {
-        ATPT_OFCDC_SC_CODE: PF.school.edu, SD_SCHUL_CODE: PF.school.code,
-        MLSV_FROM_YMD: ymdN(r.from), MLSV_TO_YMD: ymdN(r.to),
-      });
+      const rows = await mealFetch(r.from, r.to);
       const m = {};
       rows.forEach((x) => {
         const k = x.MLSV_YMD.replace(/^(\d{4})(\d\d)(\d\d)$/, '$1-$2-$3');
@@ -2623,7 +2652,7 @@
       draw();
       if (!PF.school || cache[key]) return;
       const end = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 6);
-      neis('mealServiceDietInfo', { ATPT_OFCDC_SC_CODE: PF.school.edu, SD_SCHUL_CODE: PF.school.code, MLSV_FROM_YMD: ymdN(key), MLSV_TO_YMD: ymdN(ymd(end)) })
+      mealFetch(key, ymd(end))
         .then((rows) => { cache[key] = mealRows(rows); }, () => { cache[key] = {}; })
         .then(() => { if (my === nav && document.body.contains(body)) draw(); });
     };
