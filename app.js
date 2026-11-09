@@ -2794,29 +2794,38 @@
     function quick() {
       stop();
       const today = ymd(new Date());
+      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '16:00', t2: '18:00', step: 20, skipWE: true, closeD: '', closeT: '18:00' });
       const f = {
-        title: el('input', { type: 'text', maxlength: 40 }),
-        from: el('input', { type: 'date', value: today }), to: el('input', { type: 'date', value: ymd(new Date(Date.now() + 13 * 864e5)) }),
-        t1: timeSel('16:00'), t2: timeSel('18:00'),
-        step: el('select', {}, stepOpts(20)),
+        title: el('input', { type: 'text', maxlength: 40, value: q.title }),
+        note: el('input', { type: 'text', maxlength: 200, value: q.note }),
+        from: el('input', { type: 'date', value: q.from }), to: el('input', { type: 'date', value: q.to }),
+        t1: timeSel(q.t1), t2: timeSel(q.t2),
+        step: el('select', {}, stepOpts(q.step)),
+        closeD: el('input', { type: 'date', value: q.closeD }), closeT: timeSel(q.closeT),
       };
-      const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: true }), el('span', {}, '주말 제외'));
+      const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: q.skipWE }), el('span', {}, '주말 제외'));
+      const save = () => { Object.keys(f).forEach((k) => { q[k] = k === 'step' ? +f[k].value : f[k].value; }); q.skipWE = wk.querySelector('input').checked; };
+      const dt = (d, t) => el('div', { class: 'pc2' }, d, t);
       let okb;
       shell('새 테이블 만들기 (1/2)', el('div', { class: 'cform' },
-        r('제목', fld(f.title)), r('시작일', f.from), r('종료일', f.to), wk, r('시작 시각', f.t1), r('종료 시각', f.t2), r('간격', f.step),
-        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), okb = el('button', { class: 'pri', type: 'button', onclick: () => {
-          const a = parseYmd(f.from.value || today), z = parseYmd(f.to.value || today);
-          const weekend = !wk.querySelector('input').checked, step = +f.step.value;
+        r('제목', fld(f.title)), r('내용(선택)', fld(f.note)),
+        r('시작일시', f.from, f.t1), r('종료일시', f.to, f.t2), wk, r('간격', f.step), r('신청 마감(선택)', f.closeD, f.closeT),
+        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
+          el('button', { class: 'ghost', type: 'button', onclick: () => { S.qform = null; list(); } }, '이전'),
+          okb = el('button', { class: 'pri', type: 'button', onclick: () => {
+          save();
+          const a = parseYmd(q.from || today), z = parseYmd(q.to || today);
+          const step = q.step;
           const days = {};
           for (let d = new Date(a); d <= z && Object.keys(days).length < 120; d.setDate(d.getDate() + 1)) {
-            if (!weekend && (d.getDay() === 0 || d.getDay() === 6)) continue;
+            if (q.skipWE && (d.getDay() === 0 || d.getDay() === 6)) continue;
             const o = {};
-            for (let t = mins(f.t1.value); t + step <= mins(f.t2.value); t += step) o[tkey(t)] = true;
+            for (let t = mins(q.t1); t + step <= mins(q.t2); t += step) o[tkey(t)] = true;
             days[kOf(d)] = o;
           }
           if (!Object.values(days).some((o) => Object.keys(o).length)) return;
-          fine({ title: f.title.value.trim(), note: '', closeAt: 0, days, step }, null);
-        } }, '다음'))), list);
+          fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT}`).getTime() : 0, days, step }, null);
+        } }, '다음'))));
       const chk = () => { okb.disabled = !(f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
       Object.values(f).forEach((x) => { x.addEventListener('input', chk); x.addEventListener('change', chk); }); chk();
     }
@@ -2872,12 +2881,12 @@
           if (card && !card.querySelector('.cregen')) card.querySelector('.crow2').after(bar);
         };
         shell(c ? '테이블 수정' : '새 테이블 만들기 (2/2)', el('div', { class: 'cform' },
-          r('제목', fld(tIn)), r('안내', fld(nIn)), r('신청 마감', cIn),
+          ...(c ? [r('제목', fld(tIn)), r('안내', fld(nIn)), r('신청 마감', cIn)] : []),
           el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `열린 칸 ${total()}`), el('span', { class: 'grow' }), addDate,
             el('button', { class: 'ghost sm', type: 'button', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; draw(); } }, icon('plus'), '날짜')),
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
           el('div', { class: 'pfh' }, '칸을 누르면 잠겨요 (잠긴 칸은 학생이 고를 수 없어요). 신청이 들어온 칸은 잠글 수 없어요.'),
-          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
+          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: c ? list : quick }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
             const btn = e.currentTarget, fb = btn.parentElement;
             fb.querySelector('.cerr')?.remove();
             const slots = [];
@@ -2890,12 +2899,12 @@
               if (c) { await S.cloud.consultUpdate(c.id, data); id = c.id; } else id = await S.cloud.consultCreate(data);
               let nc = { ...data, id, created: Date.now() };
               try { nc = (await S.cloud.consultList()).find((x) => x.id === id) || nc; } catch (e2) { console.error(e2); }
-              detail(nc);
+              S.qform = null; detail(nc);
             } catch (er) {
               console.error(er); btn.disabled = false;
               fb.prepend(el('span', { class: 'cerr' }, `저장 실패 (${(er && (er.code || er.message)) || '오류'})`));
             }
-          } }, icon('check'), '완성'))), c ? list : quick);
+          } }, icon('check'), c ? '저장' : '만들기'))));
       };
       draw();
       if (c) unsub = S.cloud.consultWatchBooks(c.id, (books) => { booked = {}; books.filter((b) => !b.cancelled).forEach((b) => { booked[b.id] = b; }); draw(); }, () => {});
