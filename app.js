@@ -861,8 +861,12 @@
     if (!api || !api.expand) return;
     let cur = false, seq = 0;
     const isOpen = () => ['#modal', '#sheet'].some((q) => { const e = document.querySelector(q); return e && !e.hidden && e.firstElementChild; });
+    // 창을 넓히는 건 꼭 필요할 때만: 큰 팝업(급식 표·문서)이거나, 팝업을 끌기 시작했을 때
+    const needRoom = () => !!document.querySelector('#modal .mealdlg, #modal .docdlg') || !!S.dragExp;
     const sync = async () => {
-      const open = isOpen() && !document.body.classList.contains('loginmode');
+      const opened = isOpen() && !document.body.classList.contains('loginmode');
+      if (!opened) S.dragExp = false;
+      const open = opened && needRoom();
       if (open === cur) return;
       cur = open; const my = ++seq;
       const b = document.body;
@@ -874,7 +878,9 @@
       else b.classList.remove('xwin');
       await settle();
       if (my === seq) b.classList.remove('xprep');
+      return true;
     };
+    S.needExpand = async () => { S.dragExp = true; return sync(); };
     window.addEventListener('DOMContentLoaded', () => {
       ['#modal', '#sheet'].forEach((q) => { const e = document.querySelector(q); if (e) new MutationObserver(sync).observe(e, { childList: true, attributes: true, attributeFilter: ['hidden'] }); });
     });
@@ -1790,9 +1796,12 @@
     if (!h || e.button !== 0 || e.target.closest('button, input, select, textarea')) return;
     const dlg = h.closest('.dlg, .panel');
     if (!dlg) return;
-    const x0 = e.clientX, y0 = e.clientY, tx = dlg._tx || 0, ty = dlg._ty || 0;
+    const x0 = e.screenX, y0 = e.screenY, tx = dlg._tx || 0, ty = dlg._ty || 0;
+    let ready = !(S.needExpand && window.hagisiroWidget && window.hagisiroWidget.expand) || !!document.body.classList.contains('xwin');
+    if (!ready) Promise.resolve(S.needExpand()).then(() => { ready = true; });
     const mv = (ev) => {
-      dlg._tx = tx + ev.clientX - x0; dlg._ty = ty + ev.clientY - y0;
+      if (!ready) return;
+      dlg._tx = tx + ev.screenX - x0; dlg._ty = ty + ev.screenY - y0;
       dlg.style.translate = `${dlg._tx}px ${dlg._ty}px`;
       const r = dlg.getBoundingClientRect();
       let fx = 0, fy = 0;
