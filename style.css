@@ -696,7 +696,7 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 .mfr { position: sticky; top: 0; left: 0; width: 100%; height: 0; z-index: 8; pointer-events: none; }
 .mfr > i { position: absolute; top: 0; left: 0; right: 0; height: var(--mh, 0); box-sizing: border-box; border: 1px solid var(--line); border-radius: var(--r); }
 .mt thead th:first-child, .mt thead th:last-child { border-radius: 0; }
-.dv > .mwrap::-webkit-scrollbar, .wv > .mwrap::-webkit-scrollbar, .mv > .mwrap::-webkit-scrollbar { width: 16px; height: 8px; }
+.dv > .mwrap::-webkit-scrollbar, .wv > .mwrap::-webkit-scrollbar, .mv > .mwrap::-webkit-scrollbar { width: 16px; height: 16px; }
 .dv > .mwrap::-webkit-scrollbar-track:vertical, .wv > .mwrap::-webkit-scrollbar-track:vertical, .mv > .mwrap::-webkit-scrollbar-track:vertical { margin: 0; }
 .dv > .mwrap::-webkit-scrollbar-thumb:vertical, .wv > .mwrap::-webkit-scrollbar-thumb:vertical, .mv > .mwrap::-webkit-scrollbar-thumb:vertical { border-width: 0 4px; border-radius: 99px; }
 
@@ -870,3 +870,7 @@ body.wedit #wmove { position: relative; z-index: 80; }
 #wedit i[data-e="n"] { top: 6px; } #wedit i[data-e="s"] { bottom: 6px; } #wedit i[data-e="w"] { left: 6px; } #wedit i[data-e="e"] { right: 6px; }
 #wedit i[data-e="nw"] { top: 6px; left: 6px; } #wedit i[data-e="ne"] { top: 6px; right: 6px; }
 #wedit i[data-e="sw"] { bottom: 6px; left: 6px; } #wedit i[data-e="se"] { bottom: 6px; right: 6px; }
+
+/* 출결 표 가로 스크롤바: 세로와 같게 — 양끝까지 꽉 차고, 표와 간격을 둠 */
+.dv > .mwrap::-webkit-scrollbar-track:horizontal, .wv > .mwrap::-webkit-scrollbar-track:horizontal, .mv > .mwrap::-webkit-scrollbar-track:horizontal { margin: 0; }
+.dv > .mwrap::-webkit-scrollbar-thumb:horizontal, .wv > .mwrap::-webkit-scrollbar-thumb:horizontal, .mv > .mwrap::-webkit-scrollbar-thumb:horizontal { border-width: 4px 0; border-radius: 99px; }
