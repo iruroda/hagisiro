@@ -695,11 +695,10 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 .dv > .mwrap, .wv > .mwrap, .mv > .mwrap { border-radius: var(--r); position: relative; }
 .mfr { position: sticky; top: 0; left: 0; width: 100%; height: 0; z-index: 8; pointer-events: none; }
 .mfr > i { position: absolute; top: 0; left: 0; right: 0; height: var(--mh, 0); box-sizing: border-box; border: 1px solid var(--line); border-radius: var(--r); }
-.mt thead th:first-child { border-top-left-radius: var(--r); }
-.mt thead th:last-child { border-top-right-radius: var(--r); }
+.mt thead th:first-child, .mt thead th:last-child { border-radius: 0; }
 .dv > .mwrap::-webkit-scrollbar, .wv > .mwrap::-webkit-scrollbar, .mv > .mwrap::-webkit-scrollbar { width: 16px; height: 8px; }
 .dv > .mwrap::-webkit-scrollbar-track:vertical, .wv > .mwrap::-webkit-scrollbar-track:vertical, .mv > .mwrap::-webkit-scrollbar-track:vertical { margin: 0; }
-.dv > .mwrap::-webkit-scrollbar-thumb:vertical, .wv > .mwrap::-webkit-scrollbar-thumb:vertical, .mv > .mwrap::-webkit-scrollbar-thumb:vertical { border-width: 0 2px 0 8px; }
+.dv > .mwrap::-webkit-scrollbar-thumb:vertical, .wv > .mwrap::-webkit-scrollbar-thumb:vertical, .mv > .mwrap::-webkit-scrollbar-thumb:vertical { border-width: 0 4px; border-radius: 99px; }
 
 /* D-day 관리 목록: 행 전체를 눌러 이동, 오른쪽 X로 끄기 */
 .srow .sgo { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; text-align: left; }
