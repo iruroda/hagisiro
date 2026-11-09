@@ -104,6 +104,17 @@
     s.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
     return s;
   }
+  /* 시각 고르기: 24시간제 드롭다운 (시 · 분). value 는 'HH:MM' */
+  function timeSel(val) {
+    const [h0, m0] = (val || '16:00').split(':').map(Number);
+    const hs = el('select', { 'aria-label': '시' }, Array.from({ length: 24 }, (_, i) => el('option', { value: i, selected: i === h0 }, pad(i))));
+    const ms = el('select', { 'aria-label': '분' }, Array.from({ length: 12 }, (_, i) => el('option', { value: i * 5, selected: i * 5 === m0 }, pad(i * 5))));
+    const w = el('span', { class: 'tsel' }, hs, el('span', {}, ':'), ms);
+    Object.defineProperty(w, 'value', { get: () => `${pad(+hs.value)}:${pad(+ms.value)}`, set: (v) => { const [h, m] = String(v).split(':').map(Number); hs.value = h; ms.value = m; } });
+    return w;
+  }
+  const STEPS = [10, 20, 30, 40, 50, 60, 120, 180];
+  const stepOpts = (cur) => STEPS.map((n) => el('option', { value: n, selected: n === cur }, n >= 60 ? `${n / 60}시간` : `${n}분`));
   /* 입력칸 꾸밈: 왼쪽 연필(채울 수 있는 칸), 오른쪽 X(내용이 있을 때만 보이고 자리는 항상 비워둬요) */
   function fld(input) {
     const clr = el('button', { class: 'clr', type: 'button', tabindex: '-1', 'aria-label': '지우기' }, icon('close'));
@@ -2786,13 +2797,13 @@
       const f = {
         title: el('input', { type: 'text', maxlength: 40 }),
         from: el('input', { type: 'date', value: today }), to: el('input', { type: 'date', value: ymd(new Date(Date.now() + 13 * 864e5)) }),
-        t1: el('input', { type: 'time', value: '16:00' }), t2: el('input', { type: 'time', value: '18:00' }),
-        step: el('select', {}, [10, 20, 30, 40, 50, 60].map((n) => el('option', { value: n, selected: n === 20 }, n + '분'))),
+        t1: timeSel('16:00'), t2: timeSel('18:00'),
+        step: el('select', {}, stepOpts(20)),
       };
       const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: true }), el('span', {}, '주말 제외'));
       let okb;
       shell('새 테이블 만들기 (1/2)', el('div', { class: 'cform' },
-        r('제목', f.title), r('시작일', f.from), r('종료일', f.to), wk, r('시작 시각', f.t1), r('종료 시각', f.t2), r('간격', f.step),
+        r('제목', fld(f.title)), r('시작일', f.from), r('종료일', f.to), wk, r('시작 시각', f.t1), r('종료 시각', f.t2), r('간격', f.step),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), okb = el('button', { class: 'pri', type: 'button', onclick: () => {
           const a = parseYmd(f.from.value || today), z = parseYmd(f.to.value || today);
           const weekend = !wk.querySelector('input').checked, step = +f.step.value;
@@ -2824,13 +2835,17 @@
         const keys = Object.keys(dr.days).sort();
         const tIn = el('input', { type: 'text', value: dr.title, maxlength: 40, oninput: (e) => { dr.title = e.target.value; } });
         const nIn = el('input', { type: 'text', value: dr.note, maxlength: 200, oninput: (e) => { dr.note = e.target.value; } });
-        const cIn = el('input', { type: 'datetime-local', value: dr.closeAt ? new Date(dr.closeAt - new Date(dr.closeAt).getTimezoneOffset() * 6e4).toISOString().slice(0, 16) : '', onchange: (e) => { dr.closeAt = e.target.value ? new Date(e.target.value).getTime() : 0; } });
+        const c0 = dr.closeAt ? new Date(dr.closeAt) : null;
+        const cDate = el('input', { type: 'date', value: c0 ? ymd(c0) : '' }), cTime = timeSel(c0 ? `${pad(c0.getHours())}:${pad(Math.floor(c0.getMinutes() / 5) * 5)}` : '18:00');
+        const cSync = () => { dr.closeAt = cDate.value ? new Date(`${cDate.value}T${cTime.value}`).getTime() : 0; };
+        cDate.addEventListener('change', cSync); cTime.addEventListener('change', cSync);
+        const cIn = el('span', { class: 'pc2' }, cDate, cTime);
         const addDate = el('input', { type: 'date' });
         const dayCard = (k) => {
           const o = dr.days[k], ts = Object.keys(o).sort();
           const anyBooked = ts.some((t) => booked[k + '_' + t]);
           const allOn = ts.length && ts.every((t) => o[t]);
-          const tm = el('input', { type: 'time', 'aria-label': '시간 추가' });
+          const tm = timeSel('16:00');
           return el('div', { class: 'cdc' },
             el('div', { class: 'crow2' }, el('b', { class: 'cday' }, dayLabel(k)), el('span', { class: 'grow' }),
               el('button', { class: 'ib sm', type: 'button', title: allOn ? '하루 전체 잠그기' : '하루 전체 열기', 'aria-label': '하루 전체 잠그기', onclick: () => { ts.forEach((t) => { if (!booked[k + '_' + t]) o[t] = !allOn; }); draw(); } }, icon(allOn ? 'lock' : 'check')),
@@ -2842,12 +2857,12 @@
                 onclick: () => { o[t] = !o[t]; draw(); } }, o[t] ? null : icon('lock'), `${t.slice(0, 2)}:${t.slice(2)}`, b ? el('small', {}, b.name) : null);
             })),
             el('div', { class: 'crow2' }, tm, el('button', { class: 'ghost sm', type: 'button', onclick: () => {
-              if (!tm.value) return; const t = tm.value.replace(':', ''); if (!(t in o)) o[t] = true; draw();
+              const t = tm.value.replace(':', ''); if (!(t in o)) o[t] = true; draw();
             } }, icon('plus'), '시간 추가')));
         };
         const regen = (k) => {
-          const a = el('input', { type: 'time', value: '16:00' }), z = el('input', { type: 'time', value: '18:00' });
-          const st = el('select', {}, [10, 20, 30, 40, 50, 60].map((n) => el('option', { value: n, selected: n === (dr.step || 20) }, n + '분')));
+          const a = timeSel('16:00'), z = timeSel('18:00');
+          const st = el('select', {}, stepOpts(dr.step || 20));
           const bar = el('div', { class: 'cregen' }, a, '~', z, st, el('button', { class: 'pri sm', type: 'button', onclick: () => {
             const o = {}; Object.keys(dr.days[k]).forEach((t) => { if (booked[k + '_' + t]) o[t] = true; });
             for (let t = mins(a.value); t + +st.value <= mins(z.value); t += +st.value) o[tkey(t)] = true;
@@ -2857,7 +2872,7 @@
           if (card && !card.querySelector('.cregen')) card.querySelector('.crow2').after(bar);
         };
         shell(c ? '테이블 수정' : '새 테이블 만들기 (2/2)', el('div', { class: 'cform' },
-          r('제목', tIn), r('안내', nIn), r('신청 마감', cIn),
+          r('제목', fld(tIn)), r('안내', fld(nIn)), r('신청 마감', cIn),
           el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `열린 칸 ${total()}`), el('span', { class: 'grow' }), addDate,
             el('button', { class: 'ghost sm', type: 'button', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; draw(); } }, icon('plus'), '날짜')),
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),

@@ -880,3 +880,12 @@ body.wedit #wmove { position: relative; z-index: 80; }
 
 .cell.blank { background: none !important; border-color: transparent !important; pointer-events: none; }
 body.widget #main > .beltclip { background: none; border-radius: 0; }
+
+/* 상담 폼: 기본 포커스 테두리(주황) 대신 앱 색, 시각은 24시간 드롭다운 */
+.cform input, .cform select, .cregen input, .cregen select { outline: 0; }
+.cform input:focus, .cform select:focus, .cregen input:focus, .cregen select:focus { border-color: var(--accent); }
+.cform input[type=date]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+.cform input[type=date] ::-webkit-datetime-edit-year-field:focus, .cform input[type=date] ::-webkit-datetime-edit-month-field:focus, .cform input[type=date] ::-webkit-datetime-edit-day-field:focus { background: var(--sel); color: var(--accent); outline: 0; }
+.tsel { display: inline-flex; align-items: center; gap: 3px; }
+.tsel select { padding: 5px 6px; }
+.cform .fld { width: 100%; }
