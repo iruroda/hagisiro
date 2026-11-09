@@ -598,7 +598,9 @@ body { font-variant-numeric: tabular-nums; }
 .pfdlg { overflow: hidden !important; width: min(380px, 92vw); height: min(560px, 90vh); }
 .pfdlg .ptabs { align-self: flex-start; }
 .pbody { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
-::-webkit-scrollbar-track { background: transparent; margin: 8px; }
+::-webkit-scrollbar-track { background: transparent; margin: 2px; }
+/* 둥근 모서리가 큰 팝업·메뉴 안에서만 모서리를 피해 여백을 넉넉히 */
+.dlg ::-webkit-scrollbar-track, #sheet .panel ::-webkit-scrollbar-track, .menu ::-webkit-scrollbar-track, .ttdd::-webkit-scrollbar-track { margin: 8px; }
 ::-webkit-scrollbar-corner { background: transparent; }
 
 /* 설정: 왼쪽 큰 메뉴 + 오른쪽 세부 설정 */
