@@ -837,3 +837,7 @@ input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
 /* 어두운 막: 위젯 창 안쪽만, 모서리 둥글게 */
 body.widget :is(#modal, #sheet, .askw) > .back { inset: 3px; border-radius: var(--r); }
+
+/* 급식 표: 끼니 이름 세로 가운데 */
+.mtbl th.rk { vertical-align: middle; }
+.askw .dlg { position: relative; }

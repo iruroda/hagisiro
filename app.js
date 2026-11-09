@@ -2634,11 +2634,10 @@
     load();
   }
   function openSchool(done) {
-    const m = $('#modal');
-    m.hidden = false;
-    const close = () => { m.hidden = true; m.replaceChildren(); if (done) done(); };
+    const layer = el('div', { class: 'askw' });
+    const close = () => layer.remove();
     const res = el('div', { class: 'schres' });
-    const inp = el('input', { type: 'search', 'aria-label': '학교 이름' });
+    const inp = el('input', { type: 'text', 'aria-label': '학교 이름', autocomplete: 'off', spellcheck: 'false' });
     let busy = false;
     const go = async () => {
       const q = inp.value.trim();
@@ -2648,16 +2647,17 @@
         const rows = await neis('schoolInfo', { SCHUL_NM: q });
         res.replaceChildren(...(rows.length ? rows.map((x) => el('button', { type: 'button', class: 'schrow', onclick: () => {
           PF.school = { name: x.SCHUL_NM, edu: x.ATPT_OFCDC_SC_CODE, code: x.SD_SCHUL_CODE }; PF.meal = true; S.meal = {};
-          savePf(); loadMeal(); close();
+          savePf(); loadMeal(); close(); if (done) done();
         } }, el('b', {}, x.SCHUL_NM), el('small', {}, ' ' + (x.ORG_RDNMA || x.LCTN_SC_NM || '')))) : [el('div', { class: 'mut' }, '학교 없음')]));
-      } catch (e) { res.replaceChildren(el('div', { class: 'mut' }, '학교를 불러오지 못했어요')); }
+      } catch (e) { console.error(e); res.replaceChildren(el('div', { class: 'mut' }, '학교 없음')); }
       busy = false;
     };
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
-    m.replaceChildren(el('div', { class: 'back', onclick: close }),
+    layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
         el('div', { class: 'shead' }, hb('search', '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         el('div', { class: 'schq' }, fld(inp), el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res));
+    document.body.append(layer);
     setTimeout(() => inp.focus(), 30);
   }
 
