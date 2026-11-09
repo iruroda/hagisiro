@@ -344,7 +344,9 @@
   }
   /* 날짜·달·주를 넘길 땐 화면이 벨트처럼 이어져 움직여요: 월별·출결은 좌우, 이번 주 보기는 상하 */
   const noAnim = () => document.documentElement.classList.contains('noanim') || !PF.anim;
-  const beltTarget = (c) => (S.view === 'att' && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c);
+  /* 출결: 날짜 줄·통계는 제자리에서 사르륵 바뀌고, 아래 표만 벨트처럼 움직여요 */
+  const attTable = (c) => { const v = c && c.classList.contains('att') ? c.lastElementChild : null; return v ? v.querySelector(':scope > .mwrap') : null; };
+  const beltTarget = (c) => (S.view === 'att' ? attTable(c) || c : c);
   function wantBelt(main) {
     const cont = S.cont; S.cont = null;
     if (cont && performance.now() - cont.t0 < 300 && viewKey() === S.lastKey) return cont; // 움직이는 도중에 다시 그려져도 이어서
@@ -385,7 +387,7 @@
     } else {
       const saved = t.style.cssText, node = snap.node;
       const clip = el('div', { class: 'beltclip' }), strip = el('div');
-      clip.style.cssText = 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
+      clip.style.cssText = t.classList.contains('mwrap') ? `flex:none;min-width:0;width:100%;height:${t.offsetHeight}px;position:relative;overflow:hidden` : 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
       strip.style.cssText = 'position:absolute;top:0;bottom:0;left:0;width:200%;display:flex';
       t.replaceWith(clip); clip.append(strip);
       t.style.cssText = `${saved};flex:none;width:50%;height:100%;min-width:0`;
@@ -405,10 +407,18 @@
     const c = main.firstElementChild;
     if (S.lastKey != null && c && !needLogin()) {
       // 출결 안에서 일·주·월을 바꾸거나 날짜를 넘길 땐 학급 버튼·입력칸은 그대로 두고 아래 표만 움직여요
-      const t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
+      let t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
       let cls = null;
       if (k !== S.lastKey) cls = 'vin';
-      else if (snap) startBelt(main, c, t, snap);
+      else if (snap) {
+        if (S.view === 'att') { // 표만 움직이고, 표 위의 날짜 줄·통계는 제자리에서 부드럽게 바뀜
+          const tb = attTable(c);
+          if (tb) { [...tb.parentElement.children].filter((n) => n !== tb).forEach((n) => n.classList.add('hfade')); t = tb; }
+        }
+        const ttl = document.querySelector('#top .ttl'); if (ttl) ttl.classList.add('hfade'); // 맨 위 '2026년 11월'도 부드럽게
+        setTimeout(() => document.querySelectorAll('.hfade').forEach((n) => n.classList.remove('hfade')), 320);
+        startBelt(main, c, t, snap);
+      }
       const now = performance.now();
       if (cls) S.anim = { cls, t0: now };
       else if (S.anim && now - S.anim.t0 < 340) cls = S.anim.cls; // 움직이는 도중에 다시 그려져도 처음부터 다시 재생하지 않고 이어서
@@ -531,12 +541,12 @@
     if (needLogin()) main.append(loginView());
     else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
     syncLoginWin();
-    animateMain(main, snap);
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
       const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
       const mh = $('#main .mhead');
       if (nx) nx.after(S.topSum); else if (mh) mh.append(S.topSum); else if (main.firstElementChild) main.firstElementChild.prepend(S.topSum);
     }
+    animateMain(main, snap);
     S.topSum = null;
     if (keep) {
       const nq = $('#q');

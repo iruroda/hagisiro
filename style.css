@@ -874,3 +874,6 @@ body.wedit #wmove { position: relative; z-index: 80; }
 /* 출결 표 가로 스크롤바: 세로와 같게 — 양끝까지 꽉 차고, 표와 간격을 둠 */
 .dv > .mwrap::-webkit-scrollbar-track:horizontal, .wv > .mwrap::-webkit-scrollbar-track:horizontal, .mv > .mwrap::-webkit-scrollbar-track:horizontal { margin: 0; }
 .dv > .mwrap::-webkit-scrollbar-thumb:horizontal, .wv > .mwrap::-webkit-scrollbar-thumb:horizontal, .mv > .mwrap::-webkit-scrollbar-thumb:horizontal { border-width: 4px 0; border-radius: 99px; }
+
+/* 날짜 줄·통계·맨 위 제목: 페이지 넘김 없이 사르륵 */
+.hfade { animation: fadein .28s ease-out; }
