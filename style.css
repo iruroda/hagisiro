@@ -933,3 +933,10 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 .dlg.mealday { width: min(760px, 96%); }
 .meals.hz { flex-direction: row; align-items: flex-start; gap: 14px; }
 .meals.hz > * { flex: 1 1 0; min-width: 0; }
+
+/* 헤더~요일 간격 축소, 요일명 세로 가운데, 셀 안쪽 여백 통일(좌·우·위·아래 5px 느낌) */
+#top { padding-bottom: 2px; }
+.wk { padding: 3px 0; align-items: center; line-height: 14px; }
+body.widget .cell { padding: 0 5px 5px; }
+.ct { height: 19px; }
+.cbt { margin-top: 0; }
