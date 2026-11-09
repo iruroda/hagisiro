@@ -857,3 +857,6 @@ button .ring { width: 16px; height: 16px; -webkit-mask: radial-gradient(farthest
 /* 출결 표: 모서리 둥글리지 않은 직사각형 */
 .mfr > i { border-radius: 0; }
 .dv > .mwrap, .wv > .mwrap, .mv > .mwrap { border-radius: 0; }
+
+/* 위젯(투명 창): 창 전체를 덮는 어두운 막은 페이드 없이 바로 — 전체 화면 합성이 매 프레임 다시 그려지며 메인이 깜빡이는 걸 방지 */
+body.widget #modal.opening .back, body.widget #modal.closing .back, body.widget #sheet .back, body.widget .askw .back { animation: none !important; }
