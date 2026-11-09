@@ -911,3 +911,6 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 /* 급식 팝업: 크기 고정 (불러오는 중·표·안내 어느 상태든 같은 크기) */
 .mealdlg { width: min(880px, 96%); height: min(520px, 92%); max-height: none; display: flex; flex-direction: column; }
 .mealdlg > :not(.shead) { min-height: 0; }
+
+/* 할 일 입력칸: 포커스 링이 줄 영역(선택 음영) 밖으로 삐져나가지 않게 */
+.td input:focus { box-shadow: none; }
