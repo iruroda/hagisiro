@@ -21,7 +21,7 @@ function bounds() {
 }
 
 /* 이동·크기 변경: 화면(작업 영역) 가장자리에 자석처럼 붙임 */
-const SNAP = 16, MINH = 320; let MINW = 300;
+const SNAP = 6, MINH = 320; let MINW = 300;
 function snapAxis(v, targets) { let best = null; for (const t of targets) { const d = t - v; if (Math.abs(d) <= SNAP && (best === null || Math.abs(d) < Math.abs(best))) best = d; } return best; }
 function snapBounds(b, mode) {
   const was = screen.getAllDisplays().map((d) => d.workArea);

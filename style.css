@@ -940,3 +940,6 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 body.widget .cell { padding: 0 5px 5px; }
 .ct { height: 19px; }
 .cbt { margin-top: 0; }
+
+/* 위젯 창은 html이 스크롤되지 않으니 스크롤바 자리를 비워두지 않아요 (오른쪽 여백 제거) */
+html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }

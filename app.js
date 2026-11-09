@@ -1877,7 +1877,8 @@
       const r = dlg.getBoundingClientRect();
       let fx = 0, fy = 0; // 팝업은 위젯 밖으로 나가지 못해요
       if (r.top < 0) fy = -r.top; else if (r.bottom > innerHeight) fy = Math.max(innerHeight - r.bottom, -r.top);
-      if (r.left < 0) fx = -r.left; else if (r.right > innerWidth) fx = Math.max(innerWidth - r.right, -r.left);
+      const vw = document.documentElement.clientWidth || innerWidth;
+      if (r.left < 0) fx = -r.left; else if (r.right > vw) fx = Math.max(vw - r.right, -r.left);
       if (fx || fy) { dlg._tx += fx; dlg._ty += fy; dlg.style.translate = `${dlg._tx}px ${dlg._ty}px`; }
     };
     const up = () => { document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', up); };
