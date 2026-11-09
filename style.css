@@ -924,3 +924,7 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 .rform input[type=date] ::-webkit-datetime-edit-year-field:focus, .rform input[type=date] ::-webkit-datetime-edit-month-field:focus, .rform input[type=date] ::-webkit-datetime-edit-day-field:focus { background: var(--sel); color: var(--accent); outline: 0; }
 .rform input:focus, .rform select:focus { outline: 0; }
 .td .ddm[hidden] { display: none; }
+
+/* 날짜 칸 출결·급식 칩: 테두리 없이 흰 바탕 */
+.ab { border: 0; background: var(--bg-s); }
+.ab:hover { border: 0; background: var(--bg-s); color: var(--accent); }
