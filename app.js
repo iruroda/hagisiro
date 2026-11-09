@@ -865,11 +865,15 @@
       const open = isOpen() && !document.body.classList.contains('loginmode');
       if (open === cur) return;
       cur = open; const my = ++seq;
-      const r = await api.expand(open);
-      if (my !== seq) return;
       const b = document.body;
+      b.classList.add('xprep'); // 창 크기가 바뀌는 동안은 잠깐 감춰서 깜빡임을 없애요
+      const r = await api.expand(open);
+      const settle = () => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
+      if (my !== seq) { await settle(); if (my === seq) b.classList.remove('xprep'); return; }
       if (open && r) { b.style.setProperty('--xx', r.x + 'px'); b.style.setProperty('--xy', r.y + 'px'); b.style.setProperty('--xw', r.w + 'px'); b.style.setProperty('--xh', r.h + 'px'); b.classList.add('xwin'); }
       else b.classList.remove('xwin');
+      await settle();
+      if (my === seq) b.classList.remove('xprep');
     };
     window.addEventListener('DOMContentLoaded', () => {
       ['#modal', '#sheet'].forEach((q) => { const e = document.querySelector(q); if (e) new MutationObserver(sync).observe(e, { childList: true, attributes: true, attributeFilter: ['hidden'] }); });

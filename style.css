@@ -841,3 +841,6 @@ body.widget :is(#modal, #sheet, .askw) > .back { inset: 3px; border-radius: var(
 /* 급식 표: 끼니 이름 세로 가운데 */
 .mtbl th.rk { vertical-align: middle; }
 .askw .dlg { position: relative; }
+
+/* 팝업 때문에 창 크기가 바뀌는 찰나에는 화면을 감춰 깜빡임 방지 */
+body.xprep #app, body.xprep #modal, body.xprep #sheet, body.xprep .askw { opacity: 0 !important; animation: none !important; transition: none !important; }
