@@ -2899,11 +2899,14 @@
     function toggle() {
       if (layer) { layer.remove(); layer = null; document.body.classList.remove('wedit'); return; }
       document.body.classList.add('wedit');
-      layer = el('div', { id: 'wedit' }, ['n', 's', 'w', 'e', 'nw', 'ne', 'sw', 'se'].map((e) => el('i', { 'data-e': e })));
+      const done = el('button', { class: 'pri sm wdone', type: 'button', onclick: (ev) => { ev.stopPropagation(); toggle(); } }, '완료');
+      done.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+      layer = el('div', { id: 'wedit' }, ['n', 's', 'w', 'e', 'nw', 'ne', 'sw', 'se'].map((e) => el('i', { 'data-e': e })), done);
       let drag = null;
       ['dragstart', 'selectstart', 'contextmenu'].forEach((t) => layer.addEventListener(t, (ev) => ev.preventDefault()));
       layer.addEventListener('pointerdown', async (ev) => {
         ev.preventDefault();
+        if (ev.button !== 0) return; // 왼쪽 버튼만
         window.getSelection && window.getSelection().removeAllRanges();
         if (!api) return;
         const mode = ev.target.dataset.e || 'move';
@@ -2932,6 +2935,7 @@
       document.body.append(layer);
     }
     S.winEdit = toggle;
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && layer) toggle(); });
   }
 
   /* ================= 토스트 / 키보드 ================= */

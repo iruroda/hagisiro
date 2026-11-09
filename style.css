@@ -862,3 +862,7 @@ button .ring { width: 16px; height: 16px; -webkit-mask: radial-gradient(farthest
 
 /* 위젯(투명 창): 창 전체를 덮는 어두운 막은 페이드 없이 바로 — 전체 화면 합성이 매 프레임 다시 그려지며 메인이 깜빡이는 걸 방지 */
 body.widget #modal.opening .back, body.widget #modal.closing .back, body.widget #sheet .back, body.widget .askw .back { animation: none !important; }
+
+/* 이동·크기 변경: 켜진 동안에도 헤더의 이동 버튼과 '완료' 버튼으로 끌 수 있어요 */
+body.wedit #wmove { position: relative; z-index: 80; }
+#wedit .wdone { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
