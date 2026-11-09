@@ -621,7 +621,7 @@ body { font-variant-numeric: tabular-nums; }
 .dtw { border: 0 !important; border-radius: 0 !important; }
 #sheet .panel { overflow: hidden !important; display: flex; flex-direction: column; }
 #sheet .panel .sbody { flex: 1; min-height: 0; overflow-y: auto; }
-.dtxt, .dimg, .schres, .meals, .cgrid, .rbody, .dbody, .clist, .cform, .cdet { padding-right: 2px; }
+.dtxt, .dimg, .schres, .meals, .cgrid, .rbody, .dbody, .clist, .cform, .cdet { padding-right: 8px; }
 
 /* 출결 일별 표: 사유 칸이 남는 폭만큼 늘고 줄어요 (최소 5글자) → 가로 스크롤 최소화 */
 .mt.dt { width: 100%; }
