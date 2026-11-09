@@ -826,7 +826,7 @@ input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 .mealdlg { width: min(880px, 96vw); }
 .mnav { display: flex; align-items: center; gap: 6px; }
 .mttl { min-width: 96px; text-align: center; font-size: 14px; }
-.mwrap { overflow: auto; max-height: 60vh; }
+.mealwrap { overflow: auto; max-height: 60vh; }
 .mtbl { border-collapse: collapse; width: 100%; table-layout: fixed; font-size: 11px; line-height: 1.45; }
 .mtbl th, .mtbl td { border: 1px solid var(--line); padding: 4px 5px; vertical-align: top; text-align: left; min-width: 84px; }
 .mtbl th { font-size: 12px; font-weight: 700; text-align: center; background: var(--bg2); }
@@ -844,3 +844,16 @@ body.widget :is(#modal, #sheet, .askw) > .back { inset: 3px; border-radius: var(
 
 /* 팝업 때문에 창 크기가 바뀌는 찰나에는 화면을 감춰 깜빡임 방지 */
 body.xprep #app, body.xprep #modal, body.xprep #sheet, body.xprep .askw { opacity: 0 !important; animation: none !important; transition: none !important; }
+
+/* 불러오는 중 링 (테마 보라 → 파랑 그라데이션) */
+.ring { display: inline-block; width: 28px; height: 28px; border-radius: 50%; flex: none;
+  background: conic-gradient(from 0deg, transparent 0%, #6d4aff 35%, #2f6df6 90%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+  animation: ringspin .8s linear infinite; }
+.ldg { display: grid; place-items: center; width: 100%; padding: 28px 0; }
+button .ring { width: 16px; height: 16px; -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); }
+@keyframes ringspin { to { transform: rotate(360deg); } }
+
+/* 출결 표: 모서리 둥글리지 않은 직사각형 */
+.mfr > i { border-radius: 0; }
+.dv > .mwrap, .wv > .mwrap, .mv > .mwrap { border-radius: 0; }

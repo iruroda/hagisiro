@@ -811,7 +811,7 @@
     q.focus();
     let all = S.todos;
     if (S.cloud) {
-      list.replaceChildren(el('div', { class: 'mut small sempty' }, '불러오는 중…'));
+      list.replaceChildren(loading());
       try { all = await S.cloud.getAll('todos'); } catch (e) { all = S.todos; }
     }
     const today = ymd(new Date());
@@ -1636,7 +1636,7 @@
 
   function attView() {
     const root = el('div', { class: 'att' });
-    if (!S.clsLoaded) { root.append(el('div', { class: 'empty mut' }, '불러오는 중…')); return root; }
+    if (!S.clsLoaded) { root.append(loading()); return root; }
     const cls = curClass();
     if (!cls) {
       root.append(el('div', { class: 'empty' },
@@ -1789,6 +1789,8 @@
     if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ro.observe(w); ro.observe(box); }
     return w;
   }
+  /* 불러오는 중: 글자 대신 보라~파랑 도넛 링이 빙글빙글 */
+  const loading = () => el('div', { class: 'ldg', role: 'status', 'aria-label': '불러오는 중' }, el('i', { class: 'ring' }));
   const hb = (ic, t) => el('b', { class: 'hb' }, icon(ic), t);
   /* 팝업 제목줄을 잡아 끌면 팝업이 이동 (뒤에 있는 내용을 볼 수 있게) */
   document.addEventListener('mousedown', (e) => {
@@ -2224,12 +2226,12 @@
           el('div', { class: 'dsrc' },
             el('button', { class: 'ghost sm', type: 'button', onclick: () => file.click() }, icon('upload'), '파일 업로드'), file,
             draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: async (e) => {
-              const b = e.currentTarget; b.disabled = true; b.lastChild.textContent = '읽는 중…';
+              const b = e.currentTarget, ic0 = b.firstChild, ring = el('i', { class: 'ring' }); b.disabled = true; ic0.replaceWith(ring);
               try {
                 const t = await ocrImage(draft.img);
-                if (!t.trim()) { b.disabled = false; b.lastChild.textContent = 'OCR'; return; }
+                if (!t.trim()) { b.disabled = false; ring.replaceWith(ic0); return; }
                 draft = { kind: 'text', text: t }; drawEdit();
-              } catch (er) { b.disabled = false; b.lastChild.textContent = 'OCR'; }
+              } catch (er) { b.disabled = false; ring.replaceWith(ic0); }
             } }, icon('scan'), el('span', {}, 'OCR')) : null,
             draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, '직접 입력') : null,
             null),
@@ -2629,7 +2631,7 @@
     let sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay());
     const cache = {};
     let nav = 0;
-    const body = el('div', { class: 'mwrap' });
+    const body = el('div', { class: 'mealwrap' });
     const ttl = el('b', { class: 'mttl' });
     const draw = () => {
       const days = Array.from({ length: 7 }, (_, i) => new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + i)).filter((d) => !(PF.mwe && (d.getDay() === 0 || d.getDay() === 6)));
@@ -2638,6 +2640,7 @@
       body.replaceChildren();
       if (!PF.school) { body.append(el('button', { class: 'pri', type: 'button', onclick: () => openSchool(openMealWeek) }, '학교 찾기')); return; }
       const data = cache[ymd(sun)];
+      if (!data) { body.append(loading()); return; }
       const kinds = MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k));
       const tbl = el('table', { class: 'mtbl' },
         el('thead', {}, el('tr', {}, el('th', {}), days.map((d) => el('th', { class: (ymd(d) === ymd(t0) ? 'today ' : '') + (d.getDay() === 0 ? 'sun' : d.getDay() === 6 ? 'sat' : '') }, `${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`)))),
@@ -2684,7 +2687,7 @@
     const go = async () => {
       const q = inp.value.trim();
       if (!q || busy) return;
-      busy = true; res.replaceChildren(el('div', { class: 'mut' }, '불러오는 중…'));
+      busy = true; res.replaceChildren(loading());
       try {
         const rows = await neis('schoolInfo', { SCHUL_NM: q });
         res.replaceChildren(...(rows.length ? rows.map((x) => el('button', { type: 'button', class: 'schrow', onclick: () => {
@@ -2727,7 +2730,7 @@
     /* ---- 첫 화면: 새로 만들기 + 만들어 둔 상담표 목록 ---- */
     async function list() {
       S.cs = null; stop(); const my = nav;
-      shell('상담 신청', el('div', { class: 'mut' }, '불러오는 중…'));
+      shell('상담 신청', loading());
       let rows = [];
       try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); if (my === nav) shell('상담 신청', el('div', { class: 'mut' }, '불러오지 못했어요')); return; }
       if (my !== nav) return;
