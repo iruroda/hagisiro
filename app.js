@@ -2911,6 +2911,8 @@
         if (!api) return;
         const mode = ev.target.dataset.e || 'move';
         layer.setPointerCapture(ev.pointerId);
+        const CUR = { n: 'ns-resize', s: 'ns-resize', w: 'ew-resize', e: 'ew-resize', nw: 'nwse-resize', se: 'nwse-resize', ne: 'nesw-resize', sw: 'nesw-resize', move: 'move' };
+        layer.style.cursor = CUR[mode] || 'move'; // 끄는 동안에도 잡은 가장자리에 맞는 커서 유지
         drag = { mode, sx: ev.screenX, sy: ev.screenY, b: null };
         const b = await api.getBounds();
         if (drag) drag.b = b;
@@ -2930,7 +2932,7 @@
         const map = { n: 't', s: 'b', w: 'l', e: 'r' };
         api.setBounds({ x, y, width, height }, m === 'move' ? 'move' : m.split('').map((ch) => map[ch]).join(''));
       });
-      const end = () => { if (drag && api) api.done(); drag = null; };
+      const end = () => { if (drag && api) api.done(); drag = null; layer.style.cursor = ''; };
       layer.addEventListener('pointerup', end); layer.addEventListener('pointercancel', end);
       document.body.append(layer);
     }
