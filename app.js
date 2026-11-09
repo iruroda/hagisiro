@@ -856,13 +856,20 @@
     const api = window.hagisiroWidget;
     if (api && api.loginMode && on !== loginWinOn) { loginWinOn = on; api.loginMode(on); }
   }
+  /* 화면 폭에 따른 배치는 '창'이 아니라 '앱' 폭을 기준으로 (팝업 때문에 창이 커져도 메인이 안 변하게) */
+  (function appWidthClass() {
+    const app = document.getElementById('app'); if (!app) return;
+    const set = () => document.body.classList.toggle('aw600', app.clientWidth <= 600);
+    set();
+    if (window.ResizeObserver) new ResizeObserver(set).observe(app);
+  })();
   (function popupExpand() {
     const api = window.hagisiroWidget;
     if (!api || !api.expand) return;
     let cur = false, seq = 0;
     const isOpen = () => ['#modal', '#sheet'].some((q) => { const e = document.querySelector(q); return e && !e.hidden && e.firstElementChild; });
-    // 창을 넓히는 건 꼭 필요할 때만: 큰 팝업(급식 표·문서)이거나, 팝업을 끌기 시작했을 때
-    const needRoom = () => !!document.querySelector('#modal .mealdlg, #modal .docdlg') || !!S.dragExp;
+    // 창을 넓히는 건 팝업을 끌기 시작했을 때만 (큰 팝업은 위젯 안에서 스크롤)
+    const needRoom = () => !!S.dragExp;
     const sync = async () => {
       const opened = isOpen() && !document.body.classList.contains('loginmode');
       if (!opened) S.dragExp = false;

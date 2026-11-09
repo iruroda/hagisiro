@@ -767,7 +767,7 @@ body.widget .tour { inset: 3px; border-radius: var(--r); }
 /* 날짜 칸 아래 왼쪽 버튼 */
 .cbt { display: flex; gap: 3px; flex: none; margin-top: 2px; }
 .ab.mb { margin-left: 0; }
-@media (max-width: 600px) { .cbt { display: none; } }
+body.aw600 .cbt { display: none; }
 /* 급식 창 */
 .mealdlg { width: min(380px, 94vw); max-height: 88vh; }
 .mw { max-height: 56vh; }
