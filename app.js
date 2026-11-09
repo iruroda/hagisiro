@@ -2952,6 +2952,13 @@
       const done = el('button', { class: 'pri sm wdone', type: 'button', onclick: (ev) => { ev.stopPropagation(); toggle(); } }, '완료');
       done.addEventListener('pointerdown', (ev) => ev.stopPropagation());
       layer = el('div', { id: 'wedit' }, ['n', 's', 'w', 'e', 'nw', 'ne', 'sw', 'se'].map((e) => el('i', { 'data-e': e })), done);
+      const fit = () => { // 위젯 영역에 정확히 맞춰요 (창이 커져 있거나 스크롤바 자리가 있어도 오른쪽이 잘리지 않게)
+        const a = document.getElementById('app'); if (!a || !layer) return;
+        const b = a.getBoundingClientRect(), w = document.documentElement.clientWidth, h = document.documentElement.clientHeight;
+        const l = Math.max(0, b.left), t = Math.max(0, b.top), rr = Math.min(w, b.right), bb = Math.min(h, b.bottom);
+        Object.assign(layer.style, { inset: 'auto', left: l + 'px', top: t + 'px', width: Math.max(0, rr - l) + 'px', height: Math.max(0, bb - t) + 'px' });
+      };
+      layer._fit = fit; window.addEventListener('resize', fit);
       let drag = null;
       ['dragstart', 'selectstart', 'contextmenu'].forEach((t) => layer.addEventListener(t, (ev) => ev.preventDefault()));
       layer.addEventListener('pointerdown', async (ev) => {
@@ -2984,7 +2991,7 @@
       });
       const end = () => { if (drag && api) api.done(); drag = null; layer.style.cursor = ''; };
       layer.addEventListener('pointerup', end); layer.addEventListener('pointercancel', end);
-      document.body.append(layer);
+      document.body.append(layer); fit();
     }
     S.winEdit = toggle;
     document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && layer) toggle(); });

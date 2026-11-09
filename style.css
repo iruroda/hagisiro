@@ -890,3 +890,8 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 .tsel select { padding: 5px 6px; }
 .cform .fld { width: 100%; }
 .cerr { color: #e5484d; font-size: 12px; margin-right: auto; }
+
+/* 위젯 이동·크기 조절 중: 뒤쪽을 어둡게, 손잡이와 완료 버튼은 또렷하게 */
+#wedit { background: rgba(10, 12, 20, .55); }
+#wedit i { box-shadow: 0 0 0 2px #fff; }
+#wedit .wdone { font-size: 16px; padding: 13px 34px; border-radius: 14px; box-shadow: 0 0 0 3px #fff, 0 6px 22px rgba(0, 0, 0, .35); }
