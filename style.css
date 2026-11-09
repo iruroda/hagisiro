@@ -914,3 +914,13 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 
 /* 할 일 입력칸: 포커스 링이 줄 영역(선택 음영) 밖으로 삐져나가지 않게 */
 .td input:focus { box-shadow: none; }
+
+/* 할 일 팝업 아래 아이콘 막대: 테두리 없음 / 반복 폼 날짜칸은 상담과 같은 색·고정 너비 */
+.tbar.inline { border: 0; background: none; }
+.rform input[type=date] { color: var(--text); width: 142px; box-sizing: border-box; outline: 0; }
+.rform input[type=date]:disabled { opacity: .5; }
+.rform input[type=date]:focus { border-color: var(--accent); }
+.rform input[type=date]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+.rform input[type=date] ::-webkit-datetime-edit-year-field:focus, .rform input[type=date] ::-webkit-datetime-edit-month-field:focus, .rform input[type=date] ::-webkit-datetime-edit-day-field:focus { background: var(--sel); color: var(--accent); outline: 0; }
+.rform input:focus, .rform select:focus { outline: 0; }
+.td .ddm[hidden] { display: none; }

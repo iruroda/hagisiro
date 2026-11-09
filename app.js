@@ -49,7 +49,7 @@
     left: '<path d="M14.5 6l-6 6 6 6"/>',
     right: '<path d="M9.5 6l6 6-6 6"/>',
     check: '<path d="M5 12.8l4.6 4.6L19 7.4"/>',
-    done: '<path d="M18 15V18.4A3 3 0 0 1 15 21.4H7A3 3 0 0 1 4 18.4V10.4A3 3 0 0 1 7 7.4H12.2"/><path d="M8.5 13l3.2 3.5L18 6.8"/>',
+    done: '<g transform="translate(0 -1.7)"><path d="M18 15V18.4A3 3 0 0 1 15 21.4H7A3 3 0 0 1 4 18.4V10.4A3 3 0 0 1 7 7.4H12.2"/><path d="M8.5 13l3.2 3.5L18 6.8"/></g>',
     dday: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M9.4 8.2v7.6h2.3a3.8 3.8 0 000-7.6z"/>',
     search: '<circle cx="10.5" cy="10.5" r="7"/><path d="M16 16l5 5"/>',
     gear: '<path d="M12.00 2.70 L12.32 2.71 L12.65 2.74 L12.97 2.79 L13.28 2.88 L13.58 3.04 L13.84 3.35 L14.04 3.83 L14.17 4.42 L14.30 4.91 L14.46 5.23 L14.66 5.43 L14.86 5.57 L15.07 5.70 L15.29 5.82 L15.50 5.94 L15.71 6.06 L15.92 6.19 L16.14 6.31 L16.36 6.41 L16.63 6.48 L16.99 6.46 L17.48 6.33 L18.05 6.15 L18.57 6.08 L18.97 6.15 L19.26 6.33 L19.49 6.56 L19.70 6.81 L19.88 7.07 L20.05 7.35 L20.21 7.64 L20.35 7.93 L20.46 8.23 L20.54 8.55 L20.55 8.89 L20.41 9.27 L20.09 9.68 L19.65 10.09 L19.29 10.45 L19.10 10.75 L19.02 11.01 L19.00 11.26 L19.00 11.51 L19.00 11.76 L19.00 12.00 L19.00 12.24 L19.00 12.49 L19.00 12.74 L19.02 12.99 L19.10 13.25 L19.29 13.55 L19.65 13.91 L20.09 14.32 L20.41 14.73 L20.55 15.11 L20.54 15.45 L20.46 15.77 L20.35 16.07 L20.21 16.36 L20.05 16.65 L19.88 16.93 L19.70 17.19 L19.49 17.44 L19.26 17.67 L18.97 17.85 L18.57 17.92 L18.05 17.85 L17.48 17.67 L16.99 17.54 L16.63 17.52 L16.36 17.59 L16.14 17.69 L15.92 17.81 L15.71 17.94 L15.50 18.06 L15.29 18.18 L15.07 18.30 L14.86 18.43 L14.66 18.57 L14.46 18.77 L14.30 19.09 L14.17 19.58 L14.04 20.17 L13.84 20.65 L13.58 20.96 L13.28 21.12 L12.97 21.21 L12.65 21.26 L12.32 21.29 L12.00 21.30 L11.68 21.29 L11.35 21.26 L11.03 21.21 L10.72 21.12 L10.42 20.96 L10.16 20.65 L9.96 20.17 L9.83 19.58 L9.70 19.09 L9.54 18.77 L9.34 18.57 L9.14 18.43 L8.93 18.30 L8.71 18.18 L8.50 18.06 L8.29 17.94 L8.08 17.81 L7.86 17.69 L7.64 17.59 L7.37 17.52 L7.01 17.54 L6.52 17.67 L5.95 17.85 L5.43 17.92 L5.03 17.85 L4.74 17.67 L4.51 17.44 L4.30 17.19 L4.12 16.93 L3.95 16.65 L3.79 16.36 L3.65 16.07 L3.54 15.77 L3.46 15.45 L3.45 15.11 L3.59 14.73 L3.91 14.32 L4.35 13.91 L4.71 13.55 L4.90 13.25 L4.98 12.99 L5.00 12.74 L5.00 12.49 L5.00 12.24 L5.00 12.00 L5.00 11.76 L5.00 11.51 L5.00 11.26 L4.98 11.01 L4.90 10.75 L4.71 10.45 L4.35 10.09 L3.91 9.68 L3.59 9.27 L3.45 8.89 L3.46 8.55 L3.54 8.23 L3.65 7.93 L3.79 7.64 L3.95 7.35 L4.12 7.07 L4.30 6.81 L4.51 6.56 L4.74 6.33 L5.03 6.15 L5.43 6.08 L5.95 6.15 L6.52 6.33 L7.01 6.46 L7.37 6.48 L7.64 6.41 L7.86 6.31 L8.08 6.19 L8.29 6.06 L8.50 5.94 L8.71 5.82 L8.93 5.70 L9.14 5.57 L9.34 5.43 L9.54 5.23 L9.70 4.91 L9.83 4.42 L9.96 3.83 L10.16 3.35 L10.42 3.04 L10.72 2.88 L11.03 2.79 L11.35 2.74 L11.68 2.71z"/><circle cx="12" cy="12" r="2.7"/>',
@@ -84,11 +84,11 @@
     lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
-    spade: '<path d="M12 4.2c3.4 3.3 6.8 5.8 6.8 9a3.2 3.2 0 01-5.8 1.9c.1 1.6.5 2.9 1.5 4.2h-5c1-1.3 1.4-2.6 1.5-4.2a3.2 3.2 0 01-5.8-1.9c0-3.2 3.4-5.7 6.8-9z"/>',
+    spade: '<path class="f" d="M12 3.6c3.6 3.4 7.2 6 7.2 9.4a3.5 3.5 0 01-6.2 2.2c.1 1.5.5 2.8 1.2 4.2h-4.4c.7-1.4 1.1-2.7 1.2-4.2A3.5 3.5 0 014.8 13c0-3.4 3.6-6 7.2-9.4z"/>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
     b_ring: '<circle cx="12" cy="12" r="4.6" stroke-width="2.2"/>',
     b_dash: '<path d="M7 12h10" stroke-width="2.6"/>',
-    b_spade: '<path class="f" d="M12 3.6c3.6 3.4 7.2 6 7.2 9.4a3.5 3.5 0 01-6.2 2.2c.1 1.6.5 3 1.6 4.4h-5.2c1.1-1.4 1.5-2.8 1.6-4.4A3.5 3.5 0 014.8 13c0-3.4 3.6-6 7.2-9.4z"/>',
+    b_spade: '<path class="f" d="M12 3.6c3.6 3.4 7.2 6 7.2 9.4a3.5 3.5 0 01-6.2 2.2c.1 1.5.5 2.8 1.2 4.2h-4.4c.7-1.4 1.1-2.7 1.2-4.2A3.5 3.5 0 014.8 13c0-3.4 3.6-6 7.2-9.4z"/>',
     b_club: '<g class="f"><circle cx="12" cy="7.8" r="3.5"/><circle cx="7.4" cy="13.6" r="3.5"/><circle cx="16.6" cy="13.6" r="3.5"/><path d="M11 13.5c0 2.6-.4 4.3-1.6 6.1h5.2c-1.2-1.8-1.6-3.5-1.6-6.1z"/></g>',
     b_diamond: '<path class="f" d="M12 3.8l6.2 8.2-6.2 8.2-6.2-8.2z"/>',
     b_heart: '<path class="f" d="M12 20l-7-7.2A4.3 4.3 0 0112 7.2a4.3 4.3 0 017 5.6z"/>',
@@ -177,7 +177,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], show: [], mwe: false, mk: ['조식', '중식', '석식'] },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], show: [], mwe: false, mk: ['조식', '중식', '석식'] },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
@@ -986,9 +986,9 @@
   /* D-day로 표시한 할 일 중 오늘 이후(완료한 것 제외)를 가까운 날부터 */
   function ddayList() {
     const today = dayNum(ymd(new Date()));
-    return (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && !t.done && t.text && t.date && dayNum(t.date) >= today)
-      .map((t) => { const n = dayNum(t.date) - today; return { t, n, label: n === 0 ? 'D-DAY' : `D-${n}` }; })
-      .sort((a, b) => a.n - b.n || byOrd(a.t, b.t));
+    return (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && !t.done && t.text && t.date && (PF.pastdd || dayNum(t.date) >= today))
+      .map((t) => { const n = dayNum(t.date) - today; return { t, n, label: n === 0 ? 'D-DAY' : n > 0 ? `D-${n}` : `D+${-n}` }; })
+      .sort((a, b) => (a.n >= 0) !== (b.n >= 0) ? (a.n >= 0 ? -1 : 1) : (a.n >= 0 ? a.n - b.n : b.n - a.n) || byOrd(a.t, b.t));
   }
 
   function holName(ds, d) {
@@ -1298,6 +1298,7 @@
       row.classList.toggle('done', !!it.done);
       if (it.sz) row.dataset.sz = it.sz; else delete row.dataset.sz;
       row.classList.toggle('dd', !!it.dday);
+      if (row._dd) row._dd.hidden = !it.dday;
       if (row._bl && (row._bl.dataset.raw !== (it.bl || '') || !row._bl.firstChild)) setBullet(row._bl, it.bl);
       ['fg', 'bg'].forEach((k) => { if (it[k]) row.style.setProperty('--t' + k, it[k]); else row.style.removeProperty('--t' + k); });
     };
@@ -1350,8 +1351,9 @@
     function mkRow(it) {
       const inp = el('input', { type: 'text', value: it.text, spellcheck: 'false', autocomplete: 'off', enterkeyhint: 'next', 'aria-label': '할 일' });
       const bl = el('span', { class: 'bl', title: '눌러서 선택 · 끌어서 여러 줄 선택' });
-      const row = el('div', { class: 'td' }, bl, inp, it.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null);
-      row._it = it; row._bl = bl;
+      const ddm = el('span', { class: 'ddm', title: 'D-day' }, icon('dday'));
+      const row = el('div', { class: 'td' }, bl, inp, it.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null, ddm);
+      row._it = it; row._bl = bl; row._dd = ddm;
       paint(row);
       bl.addEventListener('mousedown', (e) => e.preventDefault()); // 입력창 포커스 유지
       bl.addEventListener('pointerdown', (e) => {
@@ -1385,14 +1387,27 @@
     items.forEach((it) => box.append(mkRow(it)));
     box.addEventListener('focusout', () => setTimeout(() => {
       if (opt.barHost && document.activeElement === document.body) return; // 팝업 안 빈 곳을 눌러서 포커스가 풀린 경우는 닫지 않아요
+      if (S.holdSheet) return;
       if (!closed && !box.contains(document.activeElement)) finish();
     }, 0));
 
+    const live = () => { // 팝업을 닫기 전에도 뒤쪽 캘린더에 바로 반영
+      commitTodos(ds, rows().map((r) => r._it), origVirtual);
+      const e = S.editing; S.editing = null; try { render(); } finally { S.editing = e; }
+    };
     bar = makeBar({
       cls: opt.barHost ? 'inline' : '',
       targets,
-      repeat: (ts) => { // 모달에서 입력해야 하니 편집을 먼저 저장하고 닫은 뒤 연다
+      after: () => { if (opt.barHost) live(); },
+      repeat: (ts) => { // 모달에서 입력해야 하니 편집을 먼저 저장해요
         const its = ts.map((t) => t.get());
+        if (opt.barHost) { // 할 일 팝업은 그대로 두고 그 위에 반복 팝업을 겹쳐서 열어요
+          commitTodos(ds, rows().map((r) => r._it), origVirtual);
+          const ids = its.map((i) => i.id).filter(Boolean);
+          S.holdSheet = true;
+          openRepeat({ ds, ids, onClose: () => { S.holdSheet = false; api.discard(); render(); openSheet(ds); } });
+          return;
+        }
         finish();
         openRepeat({ ds, ids: its.map((i) => i.id).filter(Boolean) });
       },
@@ -1407,6 +1422,11 @@
 
     const api = {
       ds, box, finish,
+      discard() { // 저장 없이 편집기만 정리 (반복 설정 뒤 새로 열 때)
+        if (closed) return; closed = true; closePal(); if (bar) bar.remove();
+        document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp);
+        S.editing = null;
+      },
       addRow() { const nr = mkRow({ text: '', done: false }); box.append(nr); nr.querySelector('input').focus(); },
     };
     S.editing = api;
@@ -1513,7 +1533,7 @@
     });
     endIn.disabled = cbForever.checked;
     limits();
-    const per = el('div', { class: 'rper' }, el('label', {}, '시작', startIn), el('label', {}, '종료', endIn), el('label', { class: 'rchk' }, cbForever, '계속'));
+    const per = el('div', { class: 'rper' }, el('label', {}, '시작일', startIn), el('label', {}, '종료일', endIn), el('label', { class: 'rchk' }, cbForever, '계속'));
 
     const sub = el('div', { class: 'rsub' }, oDaily, wrapW, oMonthly, oYearly);
     root.append(per, sub);
@@ -1557,12 +1577,12 @@
   const bulletRow = (i) => el('div', { class: 'td rtarget' }, blSpan(i.bl), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
 
   /* 할 일에서 연 반복 설정: 고른 할 일을 반복으로 바꿔요 */
-  function openRepeat({ ds, ids = [] } = {}) {
+  function openRepeat({ ds, ids = [], onClose } = {}) {
     const fresh = ids.map(getItem).filter((i) => i && !i.rid && i.text);
     if (!fresh.length) return;
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
-    const close = () => { m.hidden = true; m.replaceChildren(); };
+    const close = () => { m.hidden = true; m.replaceChildren(); if (onClose) onClose(); };
     const ok = el('button', { class: 'pri', type: 'button' }, '반복으로 설정');
     const form = repeatForm({ start: fresh[0].date || ds || ymd(new Date()) }, {}, () => { ok.disabled = !form.read(); });
     const dlg = el('div', { class: 'dlg rdlg' },
@@ -2323,6 +2343,7 @@
           tog('hol', '공휴일'),
           tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
           tog('ab', '출결 버튼', '', 'render'),
+          tog('pastdd', '지난 D-day 표시하기', '', 'render'),
           tog('meal', '급식 버튼', PF.school ? '' : '급식 창에서 학교를 먼저 골라요', 'render', !PF.school),
           S.cloud ? el('label', { class: 'pfr tg' },
             el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
