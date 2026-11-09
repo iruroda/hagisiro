@@ -391,21 +391,37 @@
     const dir = snap.dir, opt = { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)' };
     let an, done;
     if (S.view === 'cal' && weekMode()) {
-      const grid = c.querySelector('.days'), R = S.curRows || 1;
-      const s = Math.min(R, snap.s);
+      const grid = c.querySelector('.days');
       const olds = [...snap.node.querySelectorAll('.days > .cell')];
-      if (!grid || !s || olds.length !== R * 7 || grid.children.length !== R * 7) return;
-      const take = (dir > 0 ? olds.slice(0, s * 7) : olds.slice((R - s) * 7)).map((n) => n.cloneNode(true));
-      const gap = parseFloat(getComputedStyle(grid).rowGap) || 0, pitch = (grid.offsetHeight + gap) / R;
-      const saved = grid.style.cssText;
+      const news = [...grid.children];
+      const R = news.length / 7, Ro = olds.length / 7;
+      if (!grid || !R || !Ro || !Number.isInteger(R) || !Number.isInteger(Ro)) return;
+      const rkN = (i) => news[i * 7].dataset.rk, rkO = (i) => olds[i * 7].dataset.rk;
+      let s = -1; // 몇 줄 움직였는지: 줄 이름(주 시작일)으로 맞춰봐요
+      if (dir > 0) { for (let i = 0; i < Ro; i++) if (rkO(i) === rkN(0)) { s = i; break; } if (s < 0) s = Ro; }
+      else { for (let i = 0; i < R; i++) if (rkN(i) === rkO(0)) { s = i; break; } if (s < 0) s = Math.min(R, Ro); }
+      s = Math.min(s, dir > 0 ? Ro : R);
+      if (!s) return;
+      const take = (dir > 0 ? olds.slice(0, s * 7) : olds.slice((Ro - s) * 7)).map((n) => n.cloneNode(true));
+      const h = news[0].offsetHeight, gap = parseFloat(getComputedStyle(grid).rowGap) || 0, G = 10;
+      const saved = grid.style.cssText, saveRows = news.map((n) => n.style.gridRow);
       const clip = el('div', { class: 'beltclip' });
       clip.style.cssText = 'flex:1;min-height:0;position:relative;overflow:hidden';
       grid.replaceWith(clip); clip.append(grid);
-      grid.style.cssText = `${saved};position:absolute;left:0;right:0;top:0;height:${(R + s) * pitch - gap}px;grid-template-rows:repeat(${R + s},minmax(0,1fr))`;
+      const all = dir > 0 ? [...take, ...news] : [...news, ...take];
+      const tr = []; let tot = 0;
+      for (let i = 0; i < all.length / 7; i++) {
+        if (i > 0 && all[i * 7].classList.contains('mgap')) tr.push(G);
+        all[i * 7].dataset.tr = tr.length + 1; tr.push(h);
+        for (let k = 0; k < 7; k++) all[i * 7 + k].style.gridRow = String(tr.length);
+      }
+      tot = tr.reduce((a, b) => a + b, 0) + gap * (tr.length - 1);
+      grid.style.cssText = `${saved};position:absolute;left:0;right:0;top:0;height:${tot}px;grid-template-rows:${tr.map((x) => x + 'px').join(' ')}`;
       if (dir > 0) grid.prepend(...take); else grid.append(...take);
-      const a = dir > 0 ? 0 : -s * pitch, b = dir > 0 ? -s * pitch : 0;
+      const dist = news[0].isConnected ? grid.children[s * 7].offsetTop : 0;
+      const a = dir > 0 ? 0 : -dist, b = dir > 0 ? -dist : 0;
       an = grid.animate([{ transform: `translateY(${a}px)` }, { transform: `translateY(${b}px)` }], opt);
-      done = () => { take.forEach((n) => n.remove()); grid.style.cssText = saved; if (clip.isConnected) clip.replaceWith(grid); };
+      done = () => { take.forEach((n) => n.remove()); grid.style.cssText = saved; news.forEach((n, i) => { n.style.gridRow = saveRows[i]; }); if (clip.isConnected) clip.replaceWith(grid); };
     } else {
       const saved = t.style.cssText, node = snap.node;
       const clip = el('div', { class: 'beltclip' }), strip = el('div');
@@ -916,33 +932,45 @@
     const grid = el('div', { class: 'days', style: `grid-template-rows:repeat(${r.rows},minmax(0,1fr))` });
     const attBy = {}; S.att.forEach((a) => { attBy[a.date] = (attBy[a.date] || 0) + 1; });
 
-    /* 월 사이 간격: 같은 주 안에서 달이 바뀌면 그 자리에서 줄을 끊고(남는 칸은 투명), 다음 달은 해당 요일부터 새 줄에서 시작 */
-    const seq = []; // 날짜 또는 null(빈 칸), 줄마다 7칸
-    const gapRows = new Set();
-    for (let i = 0; i < r.rows * 7; i++) {
-      const d = new Date(r.start.getFullYear(), r.start.getMonth(), r.start.getDate() + i);
-      if (weekMode() && PF.mgap && i > 0 && d.getDate() === 1) {
-        const col = d.getDay();
-        while (seq.length % 7) seq.push(null);
-        gapRows.add(seq.length / 7);
-        for (let k = 0; k < col; k++) seq.push(null);
+    /* 월 사이 구분하기: 같은 주 안에서 달이 바뀌면 줄을 끊고(남는 칸은 투명) 다음 달은 해당 요일부터 새 줄에서 시작.
+       전체 주 수는 '화면에 보이는 줄 수'예요 (빈 줄·빈 칸 포함) */
+    const sunKey = (d) => ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay()));
+    const rowsL = [];
+    {
+      const split = weekMode() && PF.mgap;
+      let cur = null;
+      const push = () => { while (cur.cells.length < 7) cur.cells.push(null); rowsL.push(cur); cur = null; };
+      for (let i = 0; rowsL.length < r.rows; i++) {
+        const d = new Date(r.start.getFullYear(), r.start.getMonth(), r.start.getDate() + i);
+        if (split && i > 0 && d.getDate() === 1 && d.getDay() !== 0 && cur) { push(); if (rowsL.length >= r.rows) break; }
+        if (!cur) {
+          cur = { cells: [], gap: split && i > 0 && d.getDate() === 1, rk: sunKey(d), part: 0 };
+          if (cur.gap) for (let k = 0; k < d.getDay(); k++) cur.cells.push(null);
+          if (cur.cells.length) cur.part = 1;
+        }
+        cur.cells.push(d);
+        if (cur.cells.length === 7) push();
       }
-      seq.push(d);
     }
-    while (seq.length % 7) seq.push(null);
-    if (seq.length / 7 !== r.rows) grid.style.gridTemplateRows = `repeat(${seq.length / 7},minmax(0,1fr))`;
-    for (let i = 0; i < seq.length; i++) {
-      const d = seq[i];
-      if (!d) { grid.append(el('div', { class: 'cell blank' + (gapRows.has(Math.floor(i / 7)) ? ' mgap' : ''), 'aria-hidden': 'true' })); continue; }
+    const tracks = []; // 줄마다 1fr, 달이 바뀌는 줄 앞에는 얇은 구분 칸
+    const gapIdx = [];
+    rowsL.forEach((row, ri) => { if (row.gap && ri > 0) tracks.push('var(--mg, 10px)'); gapIdx.push(tracks.length + 1); tracks.push('minmax(0,1fr)'); });
+    grid.style.gridTemplateRows = tracks.join(' ');
+    for (let ri = 0; ri < rowsL.length; ri++) {
+      const row = rowsL[ri];
+      for (let ci = 0; ci < 7; ci++) {
+        const d = row.cells[ci];
+        const rk = `${row.rk}.${row.part}`;
+        if (!d) { grid.append(el('div', { class: 'cell blank' + (row.gap ? ' mgap' : ''), 'aria-hidden': 'true', 'data-rk': rk, style: `grid-row:${gapIdx[ri]}` })); continue; }
       const ds = ymd(d);
       const list = itemsOn(ds);
       const gl = S.gcal[ds] || [];
       const hn = holName(ds, d);
       const lu = PF.lunar && window.Lunar ? Lunar.lunarLabel(d) : '';
       const tm = PF.terms && window.Lunar ? Lunar.termOf(d) : '';
-      const cls = 'cell' + (!weekMode() && d.getMonth() !== S.m ? ' other' : '') + (hn ? ' hol' : '') + (ds === todayS ? ' today' : '') + (ds === S.sel ? ' sel' : '') + (gapRows.has(Math.floor(i / 7)) ? ' mgap' : '') +
+      const cls = 'cell' + (!weekMode() && d.getMonth() !== S.m ? ' other' : '') + (hn ? ' hol' : '') + (ds === todayS ? ' today' : '') + (ds === S.sel ? ' sel' : '') + (row.gap ? ' mgap' : '') +
         (d.getDay() === 0 ? ' sun' : d.getDay() === 6 ? ' sat' : '');
-      grid.append(el('div', { class: cls, 'data-date': ds },
+      grid.append(el('div', { class: cls, 'data-date': ds, 'data-rk': rk, style: `grid-row:${gapIdx[ri]}` },
         el('div', { class: 'ct' },
           el('span', { class: 'dn' }, d.getDate() === 1 ? `${d.getMonth() + 1}.1` : d.getDate()),
           hn || tm || lu ? el('span', { class: 'sb', title: [hn, tm, lu].filter(Boolean).join(' · ') },
@@ -953,6 +981,7 @@
           PF.ab && attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att', title: '출결 보기' }, `출결 ${attBy[ds]}`) : null,
           PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal', title: '급식' }, '급식') : null) : null,
         el('div', { class: 'dots' }, list.slice(0, 5).map((t) => el('i', { class: t.done ? 'on' : '' })), gl.length ? el('i', { class: 'g' }) : null)));
+      }
     }
 
     grid.addEventListener('click', (e) => {
@@ -2336,7 +2365,7 @@
           row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
           dim(row('전체 주 수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')), mon),
           dim(row('지나간 주 수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
-          tog('mgap', '월 사이 간격 띄우기', '', 'render', false, mon),
+          tog('mgap', '월 사이 구분하기', '', 'render', false, mon),
           el('div', { class: 'pfs' }, '날짜에 함께 표시'),
           tog('lunar', '음력 날짜'),
           tog('terms', '24절기'),

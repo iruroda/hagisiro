@@ -553,7 +553,6 @@ body { font-variant-numeric: tabular-nums; }
 .ttin { font: inherit; font-weight: 700; text-align: center; border: 0; border-bottom: 2px solid var(--accent); background: transparent; color: var(--text); padding: 0; border-radius: 0; box-shadow: none; outline: 0; }
 .ttin.y { width: 3.6em; } .ttin.m { width: 2.2em; }
 
-.cell.mgap { margin-top: 10px; }
 .ttl.off { opacity: .35; }
 
 /* 상담표 만들기 */
