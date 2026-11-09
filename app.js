@@ -2766,7 +2766,7 @@
       if (my !== nav) return;
       rows.sort((a, b) => (b.created || 0) - (a.created || 0));
       shell('상담 신청', el('div', { class: 'clist' },
-        el('button', { class: 'pri cnew', type: 'button', onclick: quick }, icon('plus'), '상담 신청 테이블 만들기'),
+        el('button', { class: 'pri cnew', type: 'button', onclick: quick }, icon('plus'), '새 테이블 만들기'),
         rows.length ? el('div', { class: 'pfs' }, '만들어 둔 테이블') : null,
         rows.map((c) => el('div', { class: 'crow' },
           el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
@@ -2789,14 +2789,13 @@
         t1: el('input', { type: 'time', value: '16:00' }), t2: el('input', { type: 'time', value: '18:00' }),
         step: el('select', {}, [10, 20, 30, 40, 50, 60].map((n) => el('option', { value: n, selected: n === 20 }, n + '분'))),
       };
-      const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox' }), el('span', {}, '주말 포함'));
+      const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: true }), el('span', {}, '주말 제외'));
       let okb;
-      shell('테이블 만들기 · 1/2', el('div', { class: 'cform' },
+      shell('새 테이블 만들기 (1/2)', el('div', { class: 'cform' },
         r('제목', f.title), r('시작일', f.from), r('종료일', f.to), wk, r('시작 시각', f.t1), r('종료 시각', f.t2), r('간격', f.step),
-        el('div', { class: 'pfh' }, '대략적인 틀을 만들어요. 다음 단계에서 칸마다 잠그거나 날짜별로 다르게 고칠 수 있어요.'),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), okb = el('button', { class: 'pri', type: 'button', onclick: () => {
           const a = parseYmd(f.from.value || today), z = parseYmd(f.to.value || today);
-          const weekend = wk.querySelector('input').checked, step = +f.step.value;
+          const weekend = !wk.querySelector('input').checked, step = +f.step.value;
           const days = {};
           for (let d = new Date(a); d <= z && Object.keys(days).length < 120; d.setDate(d.getDate() + 1)) {
             if (!weekend && (d.getDay() === 0 || d.getDay() === 6)) continue;
@@ -2806,7 +2805,7 @@
           }
           if (!Object.values(days).some((o) => Object.keys(o).length)) return;
           fine({ title: f.title.value.trim(), note: '', closeAt: 0, days, step }, null);
-        } }, '확인'))), list);
+        } }, '다음'))), list);
       const chk = () => { okb.disabled = !(f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
       Object.values(f).forEach((x) => { x.addEventListener('input', chk); x.addEventListener('change', chk); }); chk();
     }
@@ -2857,7 +2856,7 @@
           const card = [...host.querySelectorAll('.cdc')].find((x) => x.querySelector('.cday').textContent === dayLabel(k));
           if (card && !card.querySelector('.cregen')) card.querySelector('.crow2').after(bar);
         };
-        shell(c ? '테이블 수정' : '테이블 만들기 · 2/2', el('div', { class: 'cform' },
+        shell(c ? '테이블 수정' : '새 테이블 만들기 (2/2)', el('div', { class: 'cform' },
           r('제목', tIn), r('안내', nIn), r('신청 마감', cIn),
           el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `열린 칸 ${total()}`), el('span', { class: 'grow' }), addDate,
             el('button', { class: 'ghost sm', type: 'button', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; draw(); } }, icon('plus'), '날짜')),
