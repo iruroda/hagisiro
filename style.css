@@ -1034,3 +1034,13 @@ body.widget .cell { padding-top: 5px; }
 .mealdlg .mealwrap { flex: 1; min-height: 0; max-height: none; }
 .mealdlg .mopts { padding-top: 0; flex: none; }
 .mealdlg .mnav { flex: none; }
+
+/* 상담: 확인 화면도 날짜 카드 표 모양 / 스크롤바 위에 올려도 박스가 생기지 않게 */
+.cdet .cgrid { flex-direction: row; align-items: flex-start; gap: 8px; overflow-x: auto; overflow-y: visible; max-height: none; padding-bottom: 8px; }
+.cchip.ro { cursor: default; }
+::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:vertical:hover, ::-webkit-scrollbar-thumb:horizontal:hover { background-color: transparent; }
+.cform .cgrid { margin-top: 10px; } /* 날짜 추가 줄과 표 사이를 제목~날짜 추가만큼 띄워 범례처럼 보이지 않게 */
+.crow2 .pri.sm { display: inline-flex; align-items: center; gap: 6px; }
+.crow2 .pri.sm .ic svg { width: 14px; height: 14px; }
+/* 날짜 카드 줄은 가로로만 스크롤하고, 세로는 화면(상담 영역) 스크롤바 하나만 써요 (안쪽에 세로 스크롤바가 또 생기던 문제) */
+.cform .cgrid, .cdet .cgrid { flex: none; overflow-y: hidden; }

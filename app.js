@@ -47,6 +47,7 @@
   /* 아이콘은 전부 벡터(SVG): 24칸 격자 · 선 두께 2.7 · 끝과 꺾임은 둥글게. 글자(•, /, ↻ …)로 기호를 만들지 않는다 */
   const ICON = {
     left: '<path d="M14.5 6l-6 6 6 6"/>',
+    uturn: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
     right: '<path d="M9.5 6l6 6-6 6"/>',
     check: '<path d="M5 12.8l4.6 4.6L19 7.4"/>',
     done: '<g transform="translate(0 -1.7)"><path d="M18 15V18.4A3 3 0 0 1 15 21.4H7A3 3 0 0 1 4 18.4V10.4A3 3 0 0 1 7 7.4H12.2"/><path d="M8.5 13l3.2 3.5L18 6.8"/></g>',
@@ -79,6 +80,7 @@
     dot: '<circle cx="12" cy="12" r="4.2" class="f"/>',
     slash: '<path d="M8 19.5l8-15"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
+    share: '<path d="M8.4 10.9l7.2-4.2M8.4 13.1l7.2 4.2"/><circle cx="6" cy="12" r="2.7" fill="currentColor"/><circle cx="18" cy="5.5" r="2.7" fill="currentColor"/><circle cx="18" cy="18.5" r="2.7" fill="currentColor"/>',
     refresh: '<path d="M19.34 13.97A7.6 7.6 0 1 1 17.37 6.63"/><path d="M14.05 8.40L19.77 9.03L19.14 3.30z" fill="currentColor" stroke-width="1.6"/>',
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
     lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>',
@@ -2808,7 +2810,7 @@
     let dir = ''; // 화면을 넘길 때만: 'next'(오른쪽에서 밀려 들어옴) · 'prev'(왼쪽에서)
     const shell = (title, body, back) => {
       host.replaceChildren(...[
-        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body].filter(Boolean));
+        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('uturn')) : null, el('b', {}, title)), body].filter(Boolean));
       if (dir) { [...host.children].forEach((c) => c.classList.add('cs-' + dir)); host.scrollTop = 0; dir = ''; }
     };
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
@@ -2831,7 +2833,7 @@
         rows.length ? el('div', { class: 'pfs' }, '만들어 둔 테이블') : null,
         rows.map((c) => el('div', { class: 'crow' },
           el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
-          el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(bookUrl(c.id)) }, icon('link')),
+          el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(bookUrl(c.id)) }, icon('share')),
           el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => fine(draftOf(c), c) }, icon('edit')),
           el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash'))))));
     }
@@ -2910,7 +2912,10 @@
         const dayCard = (k) => {
           const o = dr.days[k], ts = Object.keys(o).sort();
           const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
-          const tm = timeSel('16:00');
+          /* 시각 추가의 기본값: 그날 마지막 칸 + 간격 (간격은 만들 때 정한 값, 없으면 칸 사이 간격에서 알아내요) */
+          const stepM = (() => { const m = ts.map((t) => +t.slice(0, 2) * 60 + +t.slice(2)); return m.length > 1 ? (m[m.length - 1] - m[m.length - 2]) || dr.step || 20 : dr.step || 20; })();
+          const nextM = ts.length ? Math.min(+ts[ts.length - 1].slice(0, 2) * 60 + +ts[ts.length - 1].slice(2) + stepM, 23 * 60 + 55) : 16 * 60;
+          const tm = timeSel(`${pad(Math.floor(nextM / 60))}:${pad(nextM % 60 - (nextM % 5))}`);
           return el('div', { class: 'cdc' },
             el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, DOW[d.getDay()]), el('span', { class: 'grow' }),
               el('button', { class: 'ib sm', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
@@ -2940,7 +2945,7 @@
               if (c) { await S.cloud.consultUpdate(c.id, data); id = c.id; } else id = await S.cloud.consultCreate(data);
               let nc = { ...data, id, created: Date.now() };
               try { nc = (await S.cloud.consultList()).find((x) => x.id === id) || nc; } catch (e2) { console.error(e2); }
-              S.qform = null; detail(nc);
+              S.qform = null; dir = 'prev'; list();
             } catch (er) {
               console.error(er); btn.disabled = false;
               fb.prepend(el('span', { class: 'cerr' }, `저장 실패 (${(er && (er.code || er.message)) || '오류'})`));
@@ -2959,20 +2964,26 @@
         const days = {};
         c.slots.slice().sort().forEach((sid) => { (days[sid.slice(0, 8)] = days[sid.slice(0, 8)] || []).push(sid); });
         const n = Object.keys(by).length;
+        /* 만들 때·수정할 때와 같은 표 모양(날짜 카드 + 시각 칩)으로 보여줘요. 신청된 칸은 색이 채워지고 이름이 보여요 */
+        const card = (k) => {
+          const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
+          return el('div', { class: 'cdc' },
+            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, DOW[d.getDay()])),
+            days[k].map((sid) => {
+              const b = by[sid];
+              return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'), title: b ? `${b.name}${b.info ? ' ' + b.info : ''} · 눌러서 신청 지우기` : null,
+                onclick: b ? async () => {
+                  if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''} 학생의 신청을 지울까요?`, '지우기'))) return;
+                  try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
+                } : null }, hm(sid), b ? el('small', {}, b.name) : null);
+            }));
+        };
         shell(c.title || '상담', el('div', { class: 'cdet' },
           el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `신청 ${n} / ${c.slots.length}`), el('span', { class: 'grow' }),
-            el('button', { class: 'pri sm', type: 'button', onclick: () => copyText(bookUrl(c.id)) }, icon('link'), '공유 링크 복사'),
-            el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => fine(draftOf(c), c) }, icon('edit')),
-            el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash'))),
-          el('div', { class: 'cgrid' }, Object.keys(days).map((k) =>
-            [el('div', { class: 'cday' }, dayLabel(k)),
-              days[k].map((sid) => { const b = by[sid]; return el('div', { class: 'cslot' + (b ? ' on' : '') },
-                el('span', { class: 'ct2' }, hm(sid)),
-                b ? el('span', { class: 'cn' }, el('b', {}, b.name), b.info ? el('small', {}, ' ' + b.info) : null) : el('span', { class: 'mut' }, '—'),
-                b ? el('button', { class: 'ib', type: 'button', title: '신청 지우기', 'aria-label': '신청 지우기', onclick: async () => {
-                  if (!(await ask(`${b.name} 학생의 신청을 지울까요?`, '지우기'))) return;
-                  try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
-                } }, icon('close')) : null); })]))), list);
+            el('button', { class: 'pri sm', type: 'button', onclick: () => copyText(bookUrl(c.id)) }, icon('share'), '공유 링크 복사'),
+            el('button', { class: 'ghost sm', type: 'button', onclick: () => fine(draftOf(c), c) }, '수정'),
+            el('button', { class: 'ghost sm danger', type: 'button', onclick: () => del(c) }, '삭제')),
+          el('div', { class: 'cgrid' }, Object.keys(days).map(card))), list);
       };
       stop();
       draw([]);
