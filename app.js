@@ -129,11 +129,11 @@
   /* 입력칸 꾸밈: 왼쪽 연필(채울 수 있는 칸), 오른쪽 X(내용이 있을 때만 보이고 자리는 항상 비워둬요) */
   function fld(input) {
     const clr = el('button', { class: 'clr', type: 'button', tabindex: '-1', 'aria-label': '지우기' }, icon('close'));
-    const sync = () => { clr.style.visibility = input.value ? 'visible' : 'hidden'; };
+    const sync = () => { clr.style.visibility = input.value ? 'visible' : 'hidden'; w.classList.toggle('blank0', !input.value); };
     clr.addEventListener('mousedown', (e) => e.preventDefault());
     clr.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); sync(); input.focus(); });
     input.addEventListener('input', sync);
-    const w = el('span', { class: 'fld' }, el('span', { class: 'pen' }, icon('edit')), input, clr);
+    const w = el('span', { class: 'fld' + (input.tagName === 'TEXTAREA' ? ' ta' : '') }, el('span', { class: 'pen' }, icon('edit')), input, clr);
     sync();
     w._sync = sync;
     return w;
@@ -2788,8 +2788,12 @@
     S.cleanup = () => { if (unsub) unsub(); unsub = null; };
     let nav = 0;
     const stop = () => { nav++; if (unsub) { unsub(); unsub = null; } };
-    const shell = (title, body, back) => host.replaceChildren(
-      !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body);
+    let dir = ''; // 화면을 넘길 때만: 'next'(오른쪽에서 밀려 들어옴) · 'prev'(왼쪽에서)
+    const shell = (title, body, back) => {
+      host.replaceChildren(
+        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body);
+      if (dir) { [...host.children].forEach((c) => c.classList.add('cs-' + dir)); host.scrollTop = 0; dir = ''; }
+    };
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
     const dayLabel = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`; };
     const kOf = (d) => ymd(d).replace(/-/g, '');
@@ -2806,7 +2810,7 @@
       if (my !== nav) return;
       rows.sort((a, b) => (b.created || 0) - (a.created || 0));
       shell('', el('div', { class: 'clist' },
-        el('button', { class: 'pri cnew', type: 'button', onclick: quick }, icon('plus'), '새 테이블 만들기'),
+        el('button', { class: 'pri cnew', type: 'button', onclick: () => { dir = 'next'; quick(); } }, icon('plus'), '새 테이블 만들기'),
         rows.length ? el('div', { class: 'pfs' }, '만들어 둔 테이블') : null,
         rows.map((c) => el('div', { class: 'crow' },
           el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
@@ -2826,7 +2830,7 @@
       const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '16:00', t2: '18:00', step: 20, skipWE: true, closeD: '', closeT: '18:00' });
       const f = {
         title: el('input', { type: 'text', maxlength: 40, value: q.title }),
-        note: el('input', { type: 'text', maxlength: 200, value: q.note }),
+        note: el('textarea', { rows: 3, maxlength: 500, spellcheck: 'false' }, q.note),
         from: el('input', { type: 'date', value: q.from }), to: el('input', { type: 'date', value: q.to }),
         t1: timeSel(q.t1), t2: timeSel(q.t2),
         step: el('select', {}, stepOpts(q.step)),
@@ -2842,10 +2846,10 @@
       f.t1.addEventListener('change', limits); f.t2.addEventListener('change', limits);
       let okb;
       shell('새 테이블 만들기 (1/2)', el('div', { class: 'cform' },
-        r('제목', fld(f.title)), r('학생 안내 사항', fld(f.note)),
+        r('제목', fld(f.title)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(f.note)),
         r('시작일 · 종료일', tl(f.from, f.to)), wk, r('시작 시각 · 종료 시각', tl(f.t1, f.t2)), r('간격', f.step), r('신청 마감(선택)', f.closeD, f.closeT),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
-          el('button', { class: 'ghost', type: 'button', onclick: () => { S.qform = null; list(); } }, '이전'),
+          el('button', { class: 'ghost', type: 'button', onclick: () => { S.qform = null; dir = 'prev'; list(); } }, '이전'),
           okb = el('button', { class: 'pri', type: 'button', onclick: () => {
           save();
           const a = parseYmd(q.from || today), z = parseYmd(q.to || today);
@@ -2858,6 +2862,7 @@
             days[kOf(d)] = o;
           }
           if (!Object.values(days).some((o) => Object.keys(o).length)) return;
+          dir = 'next';
           fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT}`).getTime() : 0, days, step }, null);
         } }, '다음'))));
       limits();
