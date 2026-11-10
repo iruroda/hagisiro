@@ -1663,8 +1663,8 @@
         const per = r.start + (r.end ? ` ~ ${r.end}` : ' ~ 계속');
         body.append(el('div', { class: 'rrow' },
           el('div', { class: 'rinfo' }, bulletRow(r), el('div', { class: 'mut small' }, `${ruleSummary(r)} · ${per}`)),
-          el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = r; mode = 'form'; show(); } }, '수정'),
-          el('button', { class: 'ghost sm danger', type: 'button', onclick: () => delRule(r) }, '삭제')));
+          el('button', { class: 'ib', type: 'button', 'aria-label': '수정', onclick: () => { editing = r; mode = 'form'; show(); } }, icon('edit')),
+          el('button', { class: 'ib', type: 'button', 'aria-label': '삭제', onclick: () => delRule(r) }, icon('trash'))));
       });
     }
     function showForm() {
