@@ -64,7 +64,7 @@ function draw() {
   root.replaceChildren(...[
     el('h1', {}, C.title || '상담 신청'),
     C.note ? el('p', { class: 'note' }, C.note) : null,
-    C.closeAt ? el('p', { class: 'mut small' }, closed() ? '신청이 마감됐어요' : `신청 마감 ${new Date(C.closeAt).getMonth() + 1}/${new Date(C.closeAt).getDate()} ${String(new Date(C.closeAt).getHours()).padStart(2, '0')}:${String(new Date(C.closeAt).getMinutes()).padStart(2, '0')}`) : null,
+    C.closeAt ? el('p', { class: 'mut small' }, closed() ? '신청이 마감됐어요' : `신청 마감 ${new Date(C.closeAt).getMonth() + 1}.${new Date(C.closeAt).getDate()}. ${String(new Date(C.closeAt).getHours()).padStart(2, '0')}:${String(new Date(C.closeAt).getMinutes()).padStart(2, '0')}`) : null,
     el('div', { class: 'form' },
       el('label', {}, '이름', f.name), el('label', {}, '학년·반·번호', f.info), el('label', {}, '비밀번호', f.pin),
       el('div', { class: 'mut small' }, '비밀번호는 신청을 취소하거나 바꿀 때 써요. 시간을 고르면 신청돼요.')),

@@ -22,7 +22,7 @@
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   const byOrd = (a, b) => (a.ord || 0) - (b.ord || 0) || (a.created || 0) - (b.created || 0);
   const isMobile = () => !/[?&]widget/.test(location.search) && !!(window.matchMedia && window.matchMedia('(max-width:700px)').matches);
-  const md = (ds) => { const d = parseYmd(ds); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; };
+  const md = (ds) => { const d = parseYmd(ds); return `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`; };
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 저장 불가 환경 */ } },
@@ -839,7 +839,7 @@
           el('button', { type: 'button', class: 'sgo', onclick: () => { close(); gotoDate(t.date); } },
             el('span', { class: 'sd' }, n === 0 ? 'D-DAY' : n > 0 ? `D-${n}` : `D+${-n}`),
             el('span', { class: 'st' }, t.text),
-            el('span', { class: 'mut small' }, `${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`)),
+            el('span', { class: 'mut small' }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)),
           el('button', { type: 'button', class: 'ib', 'aria-label': 'D-day 끄기', title: 'D-day 끄기', onclick: () => { Data.put('todos', clean({ ...t, dday: '' })); setTimeout(draw, 60); } }, icon('close'))));
       });
     };
@@ -874,7 +874,7 @@
       hit.slice(0, 100).forEach((t) => {
         const d = parseYmd(t.date);
         list.append(el('button', { type: 'button', class: 'srow' + (t.done ? ' done' : ''), onclick: () => { close(); gotoDate(t.date); } },
-          el('span', { class: 'sd' }, `${d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '.' : ''}${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`),
+          el('span', { class: 'sd' }, `${d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() + '.' : ''}${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`),
           el('span', { class: 'st' }, t.text), t.dday ? el('span', { class: 'ddm' }, icon('dday')) : null, t.rid ? el('span', { class: 'rpt' }, icon('repeat')) : null));
       });
       rules.forEach((r) => list.append(el('button', { type: 'button', class: 'srow', onclick: () => { close(); openRepeatManage(); } },
@@ -971,7 +971,7 @@
         (d.getDay() === 0 ? ' sun' : d.getDay() === 6 ? ' sat' : '');
       grid.append(el('div', { class: cls, 'data-date': ds, 'data-rk': rk, style: `grid-row:${gapIdx[ri]}` },
         el('div', { class: 'ct' },
-          el('span', { class: 'dn' }, d.getDate() === 1 ? `${d.getMonth() + 1}.1` : d.getDate()),
+          el('span', { class: 'dn' }, d.getDate() === 1 ? `${d.getMonth() + 1}.1.` : d.getDate()),
           hn || tm || lu ? el('span', { class: 'sb', title: [hn, tm, lu].filter(Boolean).join(' · ') },
             hn ? el('i', { class: 'hn' }, hn) : null, tm ? el('i', { class: 'tm' }, tm) : null, lu ? el('i', { class: 'lu' }, lu) : null) : null,
           ),
@@ -1378,7 +1378,7 @@
 
     function mkRow(it) {
       const inp = el('input', { type: 'text', value: it.text, spellcheck: 'false', autocomplete: 'off', enterkeyhint: 'next', 'aria-label': '할 일' });
-      const bl = el('span', { class: 'bl', title: '눌러서 선택 · 끌어서 여러 줄 선택' });
+      const bl = el('span', { class: 'bl' });
       const ddm = el('span', { class: 'ddm', title: 'D-day' }, icon('dday'));
       const row = el('div', { class: 'td' }, bl, inp, it.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null, ddm);
       row._it = it; row._bl = bl; row._dd = ddm;
@@ -1818,7 +1818,7 @@
       cols.map((i) => {
         const d = days[i];
         return el('th', { class: 'wcol go' + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i], },
-          `${d.getMonth() + 1}/${d.getDate()}`, el('span', { class: 'dw' }, ` (${DOW[d.getDay()]})`));
+          `${d.getMonth() + 1}.${d.getDate()}.`, el('span', { class: 'dw' }, ` (${DOW[d.getDay()]})`));
       }),
       el('th', { class: 'sum' }, '계'));
     const tbody = el('tbody');
@@ -2706,14 +2706,14 @@
     const draw = () => {
       const days = Array.from({ length: 7 }, (_, i) => new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + i)).filter((d) => !(PF.mwe && (d.getDay() === 0 || d.getDay() === 6)));
       const e = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 6);
-      ttl.textContent = `${sun.getMonth() + 1}/${sun.getDate()} ~ ${e.getMonth() + 1}/${e.getDate()}`;
+      ttl.textContent = `${sun.getMonth() + 1}.${sun.getDate()}. ~ ${e.getMonth() + 1}.${e.getDate()}.`;
       body.replaceChildren();
       if (!PF.school) { body.append(el('button', { class: 'pri', type: 'button', onclick: () => openSchool(openMealWeek) }, '학교 찾기')); return; }
       const data = cache[ymd(sun)];
       if (!data) { body.append(loading()); return; }
       const kinds = MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k));
       const tbl = el('table', { class: 'mtbl' },
-        el('thead', {}, el('tr', {}, el('th', {}), days.map((d) => el('th', { class: (ymd(d) === ymd(t0) ? 'today ' : '') + (d.getDay() === 0 ? 'sun' : d.getDay() === 6 ? 'sat' : '') }, `${d.getMonth() + 1}/${d.getDate()} (${DOW[d.getDay()]})`)))),
+        el('thead', {}, el('tr', {}, el('th', {}), days.map((d) => el('th', { class: (ymd(d) === ymd(t0) ? 'today ' : '') + (d.getDay() === 0 ? 'sun' : d.getDay() === 6 ? 'sat' : '') }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)))),
         el('tbody', {}, kinds.map((k) => el('tr', {}, el('th', { class: 'rk' }, k), days.map((d) => {
           const it = data && (data[ymd(d)] || []).find((x) => x.kind === k);
           return el('td', { class: ymd(d) === ymd(t0) ? 'today' : '' }, it ? it.menu.map((t) => el('div', {}, allergyStrip(t))) : null);
@@ -2779,7 +2779,7 @@
   /* ================= 상담 신청 (선생님) ================= */
   const bookUrl = (id) => new URL('book.html?c=' + id, location.href).href;
   const copyText = async (t) => { try { await navigator.clipboard.writeText(t); } catch (e) { ask('아래 링크를 길게 눌러 복사하세요\n' + t, '닫기', false); } };
-  const sidLabel = (sid) => `${sid.slice(4, 6)}/${sid.slice(6, 8)} ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
+  const sidLabel = (sid) => `${+sid.slice(4, 6)}.${+sid.slice(6, 8)}. ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
   function consultView() {
     const host = el('div', { class: 'cv' });
     S.cvHost = host;
@@ -2895,7 +2895,7 @@
           const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
           const tm = timeSel('16:00');
           return el('div', { class: 'cdc' },
-            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}/${d.getDate()}`), el('span', { class: 'mut' }, DOW[d.getDay()]), el('span', { class: 'grow' }),
+            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, DOW[d.getDay()]), el('span', { class: 'grow' }),
               el('button', { class: 'ib sm', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
             ts.map((t) => {
               const b = booked[k + '_' + t];
