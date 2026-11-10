@@ -1496,7 +1496,7 @@
     const st = {
       kind: init.kind || 'weekly', dows: new Set(init.dows || [base.getDay()]), dom: init.dom || base.getDate(), skipWE: !!init.skipWE,
       lunar: !!init.lunar, month: init.month || base.getMonth() + 1, day: init.day || base.getDate(),
-      start: init.start, end: init.end || '', text: init.text || '', fg: init.fg || '', bg: init.bg || '',
+      start: init.start, end: init.end || '', text: init.text || '', fg: init.fg || '', bg: init.bg || '', bl: init.bl || '',
     };
     const root = el('div', { class: 'rform' });
     let textIn = null;
@@ -1569,7 +1569,16 @@
 
     const sub = el('div', { class: 'rsub' }, oDaily, wrapW, oMonthly, oYearly);
     root.append(per, sub);
-    if (opt.withColors) root.append(swatches((p) => Object.assign(st, p), st));
+    if (opt.withColors) {
+      const sw = swatches((p) => Object.assign(st, p), st);
+      const blr = el('div', { class: 'swr' }, el('span', { class: 'swl' }, '기호'));
+      const blb = el('div', { class: 'pc2 blset' });
+      BUL.forEach(([k, name]) => blb.append(el('button', { type: 'button', class: 'blb' + ((st.bl || PF.tbl || 'dot') === k ? ' on' : ''), 'data-bl': k, title: name, 'aria-label': name, onclick: () => {
+        st.bl = k; blb.querySelectorAll('.blb').forEach((x) => x.classList.toggle('on', x.dataset.bl === k)); if (onChange && ready) onChange();
+      } }, bulIcon(k))));
+      blr.append(blb); sw.prepend(blr);
+      root.append(sw);
+    }
 
     function sync() {
       kinds.querySelectorAll('.sg-b').forEach((b) => b.classList.toggle('on', b.dataset.k === st.kind));
@@ -1600,7 +1609,7 @@
         f.month = st.month; f.day = st.day; f.lunar = st.lunar;
       }
       if (opt.withText) { if (!st.text.trim()) return null; f.text = st.text.trim(); }
-      if (opt.withColors) { f.fg = st.fg; f.bg = st.bg; }
+      if (opt.withColors) { f.fg = st.fg; f.bg = st.bg; f.bl = st.bl || ''; }
       return f;
     };
     return { node: root, read, focus: () => { if (textIn) textIn.focus(); } };
@@ -1676,7 +1685,9 @@
       ok.disabled = !form.read();
       ok.addEventListener('click', () => {
         const f = form.read(); if (!f) return;
-        Data.put('repeats', clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', bl: editing ? editing.bl : '', ...f }));
+        const rule = clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', ...f });
+        Data.put('repeats', rule);
+        if (editing) S.todos.filter((t) => t.rid === rule.id && !t.skip).forEach((t) => Data.put('todos', clean({ ...t, text: rule.text, fg: rule.fg || '', bg: rule.bg || '', bl: rule.bl || '' })));
         shut(); show(); render();
       });
       layer.append(el('div', { class: 'back', onclick: shut }),
