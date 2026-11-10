@@ -881,7 +881,14 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 
 /* 위젯 이동·크기 조절 중: 뒤쪽을 어둡게, 손잡이와 완료 버튼은 또렷하게 */
 #wedit { background: rgba(10, 12, 20, .55); box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 4px #fff; }
-#wedit i { box-shadow: 0 0 0 2px #fff; border-radius: 3px; }
+/* 손잡이는 테두리와 한 덩어리: 흰 선은 바깥(창 가장자리 2px)을 빼고 안쪽으로만 */
+#wedit i { background: none; box-shadow: none; border-radius: 0; z-index: 1; }
+#wedit i::before { content: ""; position: absolute; inset: -2px; background: #fff; clip-path: var(--cp); }
+#wedit i::after { content: ""; position: absolute; inset: 0; background: var(--accent); }
+#wedit i[data-e="n"] { --cp: inset(4px 0 0 0); } #wedit i[data-e="s"] { --cp: inset(0 0 4px 0); }
+#wedit i[data-e="w"] { --cp: inset(0 0 0 4px); } #wedit i[data-e="e"] { --cp: inset(0 4px 0 0); }
+#wedit i[data-e="nw"] { --cp: inset(4px 0 0 4px); } #wedit i[data-e="ne"] { --cp: inset(4px 4px 0 0); }
+#wedit i[data-e="sw"] { --cp: inset(0 0 4px 4px); } #wedit i[data-e="se"] { --cp: inset(0 4px 4px 0); }
 #wedit i[data-e="nw"], #wedit i[data-e="ne"], #wedit i[data-e="sw"], #wedit i[data-e="se"] { width: 14px; height: 14px; }
 #wedit .wdone { font-size: 16px; padding: 13px 34px; border-radius: 14px; box-shadow: 0 0 0 3px #fff; }
 
