@@ -2856,19 +2856,13 @@
     S.cleanup = () => { if (unsub) unsub(); unsub = null; };
     let nav = 0;
     const stop = () => { nav++; if (unsub) { unsub(); unsub = null; } };
-    let shellT = 0;
     let dir = ''; // 화면을 넘길 때만: 'next'(오른쪽에서 밀려 들어옴) · 'prev'(왼쪽에서)
     const shell = (title, body, back) => {
       const kids = [
         !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: () => { dir = 'prev'; back(); }, 'aria-label': '이전' }, icon('uturn')) : null, el('b', {}, title)), body].filter(Boolean);
-      const d = dir; dir = ''; const t = ++shellT;
-      if (d === 'prev' && host.children.length) { // 뒤로: 지금 화면이 오른쪽으로 밀려 나간 뒤 이전 화면
-        [...host.children].forEach((c) => c.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(100%)', opacity: .4 }], { duration: 240, easing: 'cubic-bezier(.4, 0, .8, .4)', fill: 'forwards' }));
-        setTimeout(() => { if (t !== shellT) return; host.replaceChildren(...kids); host.scrollTop = 0; }, 240);
-        return;
-      }
+      const d = dir; dir = '';
       host.replaceChildren(...kids);
-      if (d === 'next') { kids.forEach((c) => c.classList.add('cs-next')); host.scrollTop = 0; }
+      if (d) { kids.forEach((c) => c.classList.add('cs-' + d)); host.scrollTop = 0; } // 다음: 오른쪽에서 / 이전: 왼쪽에서 같은 속도로 들어와요
     };
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
     const dayLabel = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`; };
