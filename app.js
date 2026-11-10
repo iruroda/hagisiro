@@ -2801,6 +2801,7 @@
 
   /* ================= 상담 신청 (선생님) ================= */
   const bookUrl = (id) => new URL('book.html?c=' + id, location.href).href;
+  const shareText = (c) => `${c.title || '상담'}\n${bookUrl(c.id)}`;
   const copyText = async (t) => { try { await navigator.clipboard.writeText(t); } catch (e) { ask('아래 링크를 길게 눌러 복사하세요\n' + t, '닫기', false); } };
   const sidLabel = (sid) => `${+sid.slice(4, 6)}.${+sid.slice(6, 8)}. ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
   function consultView() {
@@ -2835,7 +2836,7 @@
       shell('', el('div', { class: 'clist' },
         rows.map((c) => el('div', { class: 'crow' },
           el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
-          el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(bookUrl(c.id)) }, icon('share')),
+          el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(shareText(c)) }, icon('share')),
           el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => fine(draftOf(c), c) }, icon('edit')),
           el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))),
         el('button', { class: 'pri cnew', type: 'button', onclick: () => { dir = 'next'; quick(); } }, icon('plus'), '새 테이블 만들기')));
@@ -2983,7 +2984,7 @@
         };
         shell(c.title || '상담', el('div', { class: 'cdet' },
           el('div', { class: 'crow2' }, el('span', { class: 'mut' }, `신청 ${n} / ${c.slots.length}`), el('span', { class: 'grow' }),
-            el('button', { class: 'pri sm', type: 'button', onclick: () => copyText(bookUrl(c.id)) }, icon('share'), '공유 링크 복사'),
+            el('button', { class: 'pri sm', type: 'button', onclick: () => copyText(shareText(c)) }, icon('share'), '공유 링크 복사'),
             el('button', { class: 'ghost sm', type: 'button', onclick: () => fine(draftOf(c), c) }, '수정'),
             el('button', { class: 'ghost sm danger', type: 'button', onclick: () => del(c) }, '삭제')),
           el('div', { class: 'cgrid' }, Object.keys(days).map(card))), list);
