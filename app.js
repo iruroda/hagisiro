@@ -846,7 +846,7 @@
             el('span', { class: 'sd' }, n === 0 ? 'D-DAY' : n > 0 ? `D-${n}` : `D+${-n}`),
             el('span', { class: 'st' }, t.text),
             el('span', { class: 'mut small' }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)),
-          el('button', { type: 'button', class: 'ib', 'aria-label': 'D-day 끄기', title: 'D-day 끄기', onclick: () => { Data.put('todos', clean({ ...t, dday: '' })); setTimeout(draw, 60); } }, icon('close'))));
+          el('button', { type: 'button', class: 'ib', 'aria-label': 'D-day 삭제', title: 'D-day 삭제', onclick: () => { Data.put('todos', clean({ ...t, dday: '' })); setTimeout(draw, 60); } }, icon('trash'))));
       });
     };
     draw();
