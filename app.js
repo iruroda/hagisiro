@@ -454,7 +454,6 @@
           if (tb) { [...tb.parentElement.children].filter((n) => n !== tb).forEach((n) => n.classList.add('hfade')); t = tb; }
         }
         if (S.view === 'cal' && !weekMode()) { const dg = c.querySelector('.days'); if (dg) t = dg; } // 요일 줄은 제자리
-        const ttl = document.querySelector('#top .ttl'); if (ttl) ttl.classList.add('hfade'); // 맨 위 '2026년 11월'도 부드럽게
         setTimeout(() => document.querySelectorAll('.hfade').forEach((n) => n.classList.remove('hfade')), 320);
         startBelt(main, c, t, snap);
       }
