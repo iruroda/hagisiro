@@ -606,7 +606,7 @@
     const ib = (name, fn, label) => el('button', { class: 'ib', onclick: fn, 'aria-label': label, title: label, disabled: cv }, icon(name));
     const nav = el('div', { class: 'nav' },
       ib('left', () => go(-1), weekMode() ? '이전 주' : '이전 달'),
-      el('span', { class: 'ttl' + (cv ? ' off' : ' jump'), title: cv ? '' : '눌러서 연·월 직접 입력', onclick: cv ? null : (e) => editTtl(e.currentTarget) }, weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
+      el('span', { class: 'ttl' + (cv ? ' off' : ' jump'), onclick: cv ? null : (e) => editTtl(e.currentTarget) }, weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
       ib('right', () => go(1), weekMode() ? '다음 주' : '다음 달'),
       el('button', { class: 'ghost sm', disabled: cv, onclick: goToday }, '오늘'));
     const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
@@ -981,8 +981,8 @@
           ),
         el('div', { class: 'tl' }, gl.map(gev), list.map(todoRow)),
         (PF.ab && attBy[ds]) || (PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length) ? el('div', { class: 'cbt' },
-          PF.ab && attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att', title: '출결 보기' }, `출결 ${attBy[ds]}`) : null,
-          PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal', title: '급식' }, '급식') : null) : null,
+          PF.ab && attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att' }, `출결 ${attBy[ds]}`) : null,
+          PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal' }, '급식') : null) : null,
         el('div', { class: 'dots' }, list.slice(0, 5).map((t) => el('i', { class: t.done ? 'on' : '' })), gl.length ? el('i', { class: 'g' }) : null)));
       }
     }
@@ -2924,7 +2924,7 @@
               el('button', { class: 'ib sm', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
             ts.map((t) => {
               const b = booked[k + '_' + t];
-              return el('button', { type: 'button', class: 'cchip' + (o[t] ? '' : ' off') + (b ? ' bk' : ''), title: b ? `${b.name} 신청` : o[t] ? '눌러서 잠그기' : '눌러서 열기',
+              return el('button', { type: 'button', class: 'cchip' + (o[t] ? '' : ' off') + (b ? ' bk' : ''),
                 onclick: () => { o[t] = !o[t]; draw(); } }, o[t] ? null : icon('lock'), `${t.slice(0, 2)}:${t.slice(2)}`, b ? el('small', {}, b.name) : null);
             }),
             el('div', { class: 'cadd' }, tm, el('button', { class: 'pri cplus', type: 'button', title: '시각 추가', 'aria-label': '시각 추가', onclick: () => {
@@ -2974,7 +2974,7 @@
             el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, DOW[d.getDay()])),
             days[k].map((sid) => {
               const b = by[sid];
-              return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'), title: b ? `${b.name}${b.info ? ' ' + b.info : ''} · 눌러서 신청 지우기` : null,
+              return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'),
                 onclick: b ? async () => {
                   if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''} 학생의 신청을 지울까요?`, '지우기'))) return;
                   try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
