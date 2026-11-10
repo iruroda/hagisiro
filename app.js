@@ -2789,7 +2789,7 @@
     let nav = 0;
     const stop = () => { nav++; if (unsub) { unsub(); unsub = null; } };
     const shell = (title, body, back) => host.replaceChildren(
-      el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body);
+      !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body);
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
     const dayLabel = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`; };
     const kOf = (d) => ymd(d).replace(/-/g, '');
@@ -2800,12 +2800,12 @@
     /* ---- 첫 화면: 새로 만들기 + 만들어 둔 상담표 목록 ---- */
     async function list() {
       S.cs = null; stop(); const my = nav;
-      shell('상담 신청', loading());
+      shell('', loading());
       let rows = [];
       try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); }
       if (my !== nav) return;
       rows.sort((a, b) => (b.created || 0) - (a.created || 0));
-      shell('상담 신청', el('div', { class: 'clist' },
+      shell('', el('div', { class: 'clist' },
         el('button', { class: 'pri cnew', type: 'button', onclick: quick }, icon('plus'), '새 테이블 만들기'),
         rows.length ? el('div', { class: 'pfs' }, '만들어 둔 테이블') : null,
         rows.map((c) => el('div', { class: 'crow' },
