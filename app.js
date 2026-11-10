@@ -1657,28 +1657,34 @@
     }
     function showList() {
       const list = S.repeats.slice().sort((a, b) => (a.created || 0) - (b.created || 0));
-      body.append(el('div', { class: 'abar' }, el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = null; mode = 'form'; show(); } }, icon('plus'), '반복 추가')));
+      body.append(el('div', { class: 'abar' }, el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = null; showForm(); } }, icon('plus'), '반복 추가')));
       if (!list.length) body.append(el('p', { class: 'mut rnone' }, '반복 없음'));
       list.forEach((r) => {
         const per = r.start + (r.end ? ` ~ ${r.end}` : ' ~ 계속');
         body.append(el('div', { class: 'rrow' },
           el('div', { class: 'rinfo' }, bulletRow(r), el('div', { class: 'mut small' }, `${ruleSummary(r)} · ${per}`)),
-          el('button', { class: 'ib', type: 'button', 'aria-label': '수정', onclick: () => { editing = r; mode = 'form'; show(); } }, icon('edit')),
+          el('button', { class: 'ib', type: 'button', 'aria-label': '수정', onclick: () => { editing = r; showForm(); } }, icon('edit')),
           el('button', { class: 'ib', type: 'button', 'aria-label': '삭제', onclick: () => delRule(r) }, icon('trash'))));
       });
     }
     function showForm() {
+      mode = 'list';
+      const layer = el('div', { class: 'askw' });
+      const shut = () => { layer.remove(); editing = null; };
       const ok = el('button', { class: 'pri', type: 'button' }, '저장');
       const form = repeatForm(editing ? { ...editing } : { start: S.sel || ymd(new Date()) }, { withText: true, withColors: true }, () => { ok.disabled = !form.read(); });
       ok.disabled = !form.read();
       ok.addEventListener('click', () => {
         const f = form.read(); if (!f) return;
         Data.put('repeats', clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', bl: editing ? editing.bl : '', ...f }));
-        mode = 'list'; editing = null; show(); render();
+        shut(); show(); render();
       });
-      body.append(form.node,
-        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
-          el('button', { class: 'ghost', type: 'button', onclick: () => { mode = 'list'; editing = null; show(); } }, '취소'), ok));
+      layer.append(el('div', { class: 'back', onclick: shut }),
+        el('div', { class: 'dlg rdlg' },
+          el('div', { class: 'shead' }, hb(editing ? 'edit' : 'plus', editing ? '반복 수정' : '반복 추가'), el('button', { class: 'ib', type: 'button', onclick: shut, 'aria-label': '닫기' }, icon('close'))),
+          el('div', { class: 'rbody' }, form.node,
+            el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
+      document.body.append(layer);
       slidePills(); setTimeout(() => form.focus(), 0);
     }
     async function delRule(r) {
