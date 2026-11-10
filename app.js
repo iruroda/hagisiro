@@ -2754,7 +2754,11 @@
     const fit = (first) => {
       if (!dlg) return;
       const n = PF.school ? MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k)).length : 0;
-      dlg.style.height = (PF.school ? 200 + n * 107 : 150) + 'px';
+      const h = (PF.school ? 200 + n * 107 : 150) + 'px';
+      if (!first && dlg.style.height !== h) { // 크기가 변하는 동안은 세로 스크롤바를 숨겨서 표 폭이 흔들리지 않게
+        dlg.classList.add('hgt'); clearTimeout(dlg._ht); dlg._ht = setTimeout(() => dlg.classList.remove('hgt'), 340);
+      }
+      dlg.style.height = h;
       if (first) { dlg.style.transition = 'none'; requestAnimationFrame(() => { dlg.style.transition = ''; }); }
     };
     const draw = () => {

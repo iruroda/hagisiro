@@ -1093,3 +1093,4 @@ body.widget .cell { padding-top: 5px; }
 /* 선 두께: 보라 3px · 흰색 3px (완료 박스 테두리와 같게), 손잡이도 그에 맞춰 조금 굵게 */
 #wedit i[data-e="n"], #wedit i[data-e="s"] { height: 10px; } #wedit i[data-e="w"], #wedit i[data-e="e"] { width: 10px; }
 #wedit i[data-e="nw"], #wedit i[data-e="ne"], #wedit i[data-e="sw"], #wedit i[data-e="se"] { width: 16px; height: 16px; }
+.mealdlg.hgt .mealwrap { overflow-y: hidden; }
