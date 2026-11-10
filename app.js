@@ -2526,7 +2526,7 @@
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
-    const name = el('input', { type: 'text', placeholder: '학급 이름 (예: 2학년 3반)', value: c ? c.name : '', 'aria-label': '학급 이름' });
+    const name = el('input', { type: 'text', value: c ? c.name : '', 'aria-label': '학급 이름' });
     const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 김네모\n2 이세모\n\n한글/엑셀 표 붙여넣기 가능', 'aria-label': '명단' });
     ta.value = c ? c.students.slice().sort((a, b) => a.no - b.no).map((s) => `${s.no} ${s.name}`).join('\n') : '';
 
@@ -2560,7 +2560,8 @@
     m.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg rosdlg' },
         el('div', { class: 'shead' }, hb(c ? 'users' : 'userplus', c ? '학급 수정' : '학급 추가'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        name, ta,
+        el('div', { class: 'pfr' }, el('span', { class: 'pl' }, '학급 이름'), fld(name)),
+        el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 번호 · 이름'), fld(ta)),
         el('div', { class: 'dlgf' },
           c ? el('button', { class: 'ghost sm danger', onclick: remove }, icon('trash'), '학급 삭제') : null,
           el('span', { class: 'grow' }),
