@@ -1577,7 +1577,7 @@
         st.bl = k; blb.querySelectorAll('.blb').forEach((x) => x.classList.toggle('on', x.dataset.bl === k)); if (onChange && ready) onChange();
       } }, bulIcon(k))));
       blr.append(blb); sw.prepend(blr);
-      root.append(sw);
+      root.insertBefore(sw, kinds);
     }
 
     function sync() {
