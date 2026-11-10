@@ -980,3 +980,15 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 @keyframes csprev { from { transform: translateX(-100%); opacity: .4; } }
 .cs-next { animation: csnext .28s cubic-bezier(.22, .8, .3, 1); }
 .cs-prev { animation: csprev .28s cubic-bezier(.22, .8, .3, 1); }
+
+/* 상담 시간표: 카드 폭 = 칩 폭 = 시각 추가 줄 폭, 칩은 더 크고 또렷하게 */
+.cdc { width: 144px; }
+.cdh { align-items: center; }
+.cdh .ib { align-self: center; }
+.cdc .cchip { padding: 8px 6px; font-size: 15px; font-weight: 700; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+.cdc .cchip .ic svg { width: 13px; height: 13px; }
+.cadd { display: grid; grid-template-columns: 1fr 34px; gap: 4px; align-items: stretch; margin-top: 2px; }
+.cadd .tsel { display: flex; min-width: 0; gap: 2px; }
+.cadd .tsel select { flex: 1; min-width: 0; padding: 0 2px; font-size: 13px; height: 34px; box-sizing: border-box; }
+.cadd .cplus { width: 34px; height: 34px; }
+.cadd .tsel select { appearance: none; -webkit-appearance: none; text-align: center; text-align-last: center; padding: 0; font-variant-numeric: tabular-nums; cursor: pointer; }
