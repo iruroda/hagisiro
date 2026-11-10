@@ -1657,6 +1657,7 @@
     }
     function showList() {
       const list = S.repeats.slice().sort((a, b) => (a.created || 0) - (b.created || 0));
+      body.append(el('div', { class: 'abar' }, el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = null; mode = 'form'; show(); } }, icon('plus'), '반복 추가')));
       if (!list.length) body.append(el('p', { class: 'mut rnone' }, '반복 없음'));
       list.forEach((r) => {
         const per = r.start + (r.end ? ` ~ ${r.end}` : ' ~ 계속');
@@ -1665,8 +1666,6 @@
           el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = r; mode = 'form'; show(); } }, '수정'),
           el('button', { class: 'ghost sm danger', type: 'button', onclick: () => delRule(r) }, '삭제')));
       });
-      body.append(el('div', { class: 'dlgf' }, el('button', { class: 'ghost', type: 'button', onclick: () => { editing = null; mode = 'form'; show(); } }, icon('plus'), '반복 추가'),
-        el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: close }, '닫기')));
     }
     function showForm() {
       const ok = el('button', { class: 'pri', type: 'button' }, '저장');
