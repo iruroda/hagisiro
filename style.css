@@ -1094,3 +1094,4 @@ body.widget .cell { padding-top: 5px; }
 #wedit i[data-e="n"], #wedit i[data-e="s"] { height: 10px; } #wedit i[data-e="w"], #wedit i[data-e="e"] { width: 10px; }
 #wedit i[data-e="nw"], #wedit i[data-e="ne"], #wedit i[data-e="sw"], #wedit i[data-e="se"] { width: 16px; height: 16px; }
 .mealdlg.hgt .mealwrap { overflow-y: hidden; }
+.beltclip > .mwrap { overflow: auto !important; scrollbar-gutter: stable; padding-bottom: 0 !important; }
