@@ -1002,3 +1002,7 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 /* 날짜 칸의 D-day·반복 아이콘: 글자 첫 줄 높이 안에서 세로 가운데 */
 .tl .td .ddm, .tl .td .rpt { margin-top: 0; display: inline-flex; align-items: center; height: calc(1em * var(--td-lh, 1.4)); line-height: 0; }
 .tl .td .ddm, .tl .td .rpt { position: relative; top: -.6px; }
+
+/* 오늘 날짜 알약이 셀 위쪽에 닿지 않게: 위 여백 5px(좌·우·아래와 동일), 알약 높이 = 날짜 줄 높이 */
+body.widget .cell { padding-top: 5px; }
+.cell .dn { line-height: 19px; }
