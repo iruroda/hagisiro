@@ -1063,6 +1063,8 @@ body.widget .cell { padding-top: 5px; }
 /* 닫은 칸은 신청자가 있어도 똑같이: 가운데 줄 + 흐린 글씨 + 배경 없음 */
 .cdc .cchip.bk.off { background: transparent; color: var(--mut); text-decoration: line-through; font-weight: 500; }
 
-/* 출결 표 스크롤바도 다른 곳과 같은 얇기로 통일 */
-.dv > .mwrap::-webkit-scrollbar, .wv > .mwrap::-webkit-scrollbar, .mv > .mwrap::-webkit-scrollbar { width: 8px; height: 8px; }
-.dv > .mwrap::-webkit-scrollbar-thumb, .wv > .mwrap::-webkit-scrollbar-thumb, .mv > .mwrap::-webkit-scrollbar-thumb { --w: 4px; border-width: 2px; }
+/* 스크롤바: 기본은 트랙 10 · 막대 6, 좁은 날짜 셀 안만 트랙 8 · 막대 4 */
+::-webkit-scrollbar, .dv > .mwrap::-webkit-scrollbar, .wv > .mwrap::-webkit-scrollbar, .mv > .mwrap::-webkit-scrollbar, textarea::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb, .dv > .mwrap::-webkit-scrollbar-thumb, .wv > .mwrap::-webkit-scrollbar-thumb, .mv > .mwrap::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb { --w: 6px; border-width: 0; }
+.cell .tl::-webkit-scrollbar { width: 8px; height: 8px; }
+.cell .tl::-webkit-scrollbar-thumb { --w: 4px; }
