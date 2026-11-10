@@ -71,6 +71,7 @@
     plus: '<path d="M12 5.5v13M5.5 12h13"/>',
     phone: '<path d="M3.20 6.00L4.27 4.50Q5.20 3.20 6.80 3.20L8.40 3.20Q10.00 3.20 10.72 4.63L12.26 7.73Q12.80 8.80 11.95 9.65L10.80 10.80Q12.00 12.00 13.20 13.20L14.35 12.05Q15.20 11.20 16.27 11.74L19.37 13.28Q20.80 14.00 20.80 15.60L20.80 17.20Q20.80 18.80 19.50 19.73L18.00 20.80Q5.30 18.60 3.20 6.00z"/>',
     table: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M3.5 10.5h17M9.9 10.5V20"/>',
+    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="15.5" cy="9.5" r="1.6"/><path d="M4 17.5l5-5 4 4 2.5-2.5 4.5 4.5"/>',
     upload: '<path d="M12 14.5v-10M7.5 8.5l4.5-4.5 4.5 4.5M5.5 19.5h13"/>',
     edit: '<g transform="translate(12 12) scale(1.22) translate(-12 -12)"><path stroke-width="2.2" d="M5.5 18.5l.9-3.6L15 6.3a2 2 0 012.8 2.8l-8.6 8.6-3.7.8z"/></g>',
     scan: '<path d="M5 8.5V6.5a1.5 1.5 0 011.5-1.5h2M15.5 5h2A1.5 1.5 0 0119 6.5v2M19 15.5v2a1.5 1.5 0 01-1.5 1.5h-2M8.5 19h-2A1.5 1.5 0 015 17.5v-2M5 12h14"/>',
@@ -2146,15 +2147,9 @@
     });
     return sheetJs;
   }
-  const decodeText = (buf) => { try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { return new TextDecoder('euc-kr').decode(buf); } };
   async function fileToDraft(f) {
     const buf = await f.arrayBuffer();
     if (/^image\//.test(f.type)) return { kind: 'image', img: await compressImage(f) };
-    if (/\.(csv|tsv|txt)$/i.test(f.name)) {
-      let t = decodeText(buf).replace(/^\uFEFF/, '');
-      if (/\.csv$/i.test(f.name)) t = t.replace(/\r/g, '').split('\n').map((l) => l.split(',').map((c) => c.replace(/^"|"$/g, '')).join('\t')).join('\n');
-      return { kind: 'text', text: t };
-    }
     if (/\.(xlsx|xlsm|xls)$/i.test(f.name)) {
       const X = await loadSheetJS();
       const wb = X.read(buf, { type: 'array' });
@@ -2166,7 +2161,7 @@
       const t = clean.map((r) => r.slice(0, w).join('\t')).join('\n');
       return { kind: 'text', text: t };
     }
-    throw new Error('엑셀(.xlsx/.xls/.csv)이나 이미지 파일만 올릴 수 있어요.');
+    throw new Error('엑셀(.xlsx/.xls/.xlsm)이나 이미지 파일만 올릴 수 있어요.');
   }
   /* 이미지 → 글자(OCR). 브라우저 안에서 Tesseract.js 로 읽고, 글자 위치로 행·열을 만들어요 */
   let ocrLib = null;
@@ -2276,10 +2271,10 @@
   /* 업로드 가능 형식 안내 (작은 말풍선) */
   function fmtPop(btn) {
     document.querySelector('.fmtpop')?.remove();
-    const pop = el('div', { class: 'fmtpop' }, el('b', {}, '업로드 가능 형식'),
-      el('div', {}, el('span', {}, '엑셀 표 파일'), el('small', {}, '.xlsx · .xls · .xlsm'), el('small', {}, '시트 1을 불러옵니다.')),
-      el('div', {}, el('span', {}, '텍스트 표 파일'), el('small', {}, '.csv · .tsv · .txt')),
-      el('div', {}, el('span', {}, '이미지 파일'), el('small', {}, '이미지를 그대로 보여줌')));
+    const pop = el('div', { class: 'fmtpop' },
+      el('div', {}, el('span', {}, '• 엑셀 업로드'), el('small', {}, '시트 1을 불러옵니다.')),
+      el('div', {}, el('span', {}, '• 이미지 업로드'), el('small', {}, '이미지를 그대로 보여줍니다.')),
+      el('div', {}, el('span', {}, '• OCR'), el('small', {}, '이미지로부터 글자를 추출합니다.')));
     document.body.append(pop);
     const r = btn.getBoundingClientRect();
     pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8)) + 'px';
@@ -2309,10 +2304,22 @@
           el('div', { class: 'dbody' }, docView(cur))));
     };
     let drawEdit = function () {
-      const file = el('input', { type: 'file', hidden: true, accept: '.xlsx,.xls,.xlsm,.csv,.tsv,.txt,image/*', onchange: async (e) => {
-        const f = e.target.files[0]; if (!f) return;
-        try { draft = await fileToDraft(f); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ }
-      } });
+      const pick = (accept, run) => { // 파일 고르기 → run(파일)
+        const inp = el('input', { type: 'file', accept, hidden: true, onchange: async () => { const f = inp.files[0]; inp.remove(); if (f) await run(f); } });
+        document.body.append(inp); inp.click();
+      };
+      const upload = (accept) => pick(accept, async (f) => { try { draft = await fileToDraft(f); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ } });
+      const ocr = (e) => {
+        const b = e.currentTarget, ic0 = b.firstChild;
+        pick('image/*', async (f) => {
+          const ring = el('i', { class: 'ring' }); b.disabled = true; ic0.replaceWith(ring);
+          try {
+            const t = await ocrImage(await compressImage(f));
+            if (t.trim()) { draft = { kind: 'text', text: t }; drawEdit(); return; }
+          } catch (er) { /* 못 읽으면 그대로 */ }
+          b.disabled = false; ring.replaceWith(ic0);
+        });
+      };
       const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀 또는 한글의 표를 복사하여 붙여 넣으세요.' });
       ta.value = draft.text || '';
       ta.addEventListener('input', () => { draft.text = ta.value; });
@@ -2337,16 +2344,10 @@
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(),
           el('div', { class: 'dsrc' },
-            el('button', { class: 'ghost sm', type: 'button', onclick: () => file.click() }, icon('upload'), '파일 업로드'), file,
-            el('button', { class: 'ib sm', type: 'button', 'aria-label': '업로드 가능 형식', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
-            draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: async (e) => {
-              const b = e.currentTarget, ic0 = b.firstChild, ring = el('i', { class: 'ring' }); b.disabled = true; ic0.replaceWith(ring);
-              try {
-                const t = await ocrImage(draft.img);
-                if (!t.trim()) { b.disabled = false; ring.replaceWith(ic0); return; }
-                draft = { kind: 'text', text: t }; drawEdit();
-              } catch (er) { b.disabled = false; ring.replaceWith(ic0); }
-            } }, icon('scan'), el('span', {}, 'OCR')) : null,
+            el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('upload'), '엑셀 업로드'),
+            el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('image/*') }, icon('image'), '이미지 업로드'),
+            el('button', { class: 'ghost sm', type: 'button', onclick: ocr }, icon('scan'), el('span', {}, 'OCR')),
+            el('button', { class: 'ib sm', type: 'button', 'aria-label': '업로드 설명', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
             draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, '직접 입력') : null,
             null),
           body,
@@ -2527,7 +2528,7 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const name = el('input', { type: 'text', value: c ? c.name : '', 'aria-label': '학급 이름' });
-    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 김네모\n2 이세모\n\n한글/엑셀 표 붙여넣기 가능', 'aria-label': '명단' });
+    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 김네모\n2 이세모\n\n엑셀 또는 한글의 표를 복사하여 붙여 넣을 수 있습니다.', 'aria-label': '명단' });
     ta.value = c ? c.students.slice().sort((a, b) => a.no - b.no).map((s) => `${s.no} ${s.name}`).join('\n') : '';
 
     function save() {
