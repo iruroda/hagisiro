@@ -2284,8 +2284,8 @@
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(),
           el('div', { class: 'dsrc' },
-            el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, '수정'),
-            el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { wipe(); } } }, '삭제')),
+            el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정'),
+            el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { wipe(); } } }, icon('trash'), '삭제')),
           el('div', { class: 'dbody' }, docView(cur))));
     };
     let drawEdit = function () {
