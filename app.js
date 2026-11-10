@@ -2789,10 +2789,10 @@
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
         el('div', { class: 'shead' }, hb('search', '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        el('div', { class: 'schq' }, fld(inp), el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res,
-        PF.school ? el('div', { class: 'dlgf' }, el('button', { class: 'ghost', type: 'button', onclick: () => {
+        PF.school ? el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, PF.school.name), el('button', { class: 'ghost sm', type: 'button', onclick: () => {
           PF.school = null; PF.meal = false; S.meal = {}; savePf(); render(); close(); if (done) done();
-        } }, '학교 삭제')) : null));
+        } }, '삭제')) : null,
+        el('div', { class: 'schq' }, fld(inp), el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res));
     document.body.append(layer);
     setTimeout(() => inp.focus(), 30);
   }
