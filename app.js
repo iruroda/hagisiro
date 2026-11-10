@@ -1618,6 +1618,14 @@
 
   const bulletRow = (i) => el('div', { class: 'td rtarget' }, blSpan(i.bl), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
 
+  async function removeRule(r) {
+    if (!(await ask('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.'))) return false;
+    const ovr = S.todos.filter((t) => t.rid === r.id);
+    Data.del('repeats', r.id); ovr.forEach((t) => Data.del('todos', t.id));
+    render();
+    return true;
+  }
+
   /* 반복 팝업(하나로 통일): 반복 관리의 추가·수정, 할 일에서 연 반복 설정이 모두 이 창이에요 */
   function openRuleDialog({ rule = null, items = [], ds, onClose } = {}) {
     const multi = items.length > 1;
@@ -1656,7 +1664,9 @@
         el('div', { class: 'rbody' },
           multi ? el('div', { class: 'rtargets' }, items.map(bulletRow)) : null,
           form.node,
-          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
+          el('div', { class: 'dlgf' },
+            rule ? el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await removeRule(rule)) shut(); } }, icon('trash'), '반복 삭제') : null,
+            el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
     document.addEventListener('keydown', key, true);
     document.body.append(layer);
     slidePills(); setTimeout(() => form.focus(), 0);
@@ -1699,12 +1709,7 @@
       });
     }
     function showForm() { openRuleDialog({ rule: editing, ds: S.sel, onClose: () => { editing = null; show(); } }); }
-    async function delRule(r) {
-      if (!(await ask('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.'))) return;
-      const ovr = S.todos.filter((t) => t.rid === r.id);
-      Data.del('repeats', r.id); ovr.forEach((t) => Data.del('todos', t.id));
-      show(); render();
-    }
+    async function delRule(r) { if (await removeRule(r)) show(); }
     show();
   }
 
