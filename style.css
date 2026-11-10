@@ -1052,3 +1052,10 @@ body.widget .cell { padding-top: 5px; }
 .crow { border: 0; background: var(--bg2); transition: background-color .12s; }
 .crow:hover { background: var(--sel); }
 .crow { padding: 3px 7px 3px 3px; }
+
+/* 상세 화면 텍스트 버튼: 아이콘 + 글자, 배경 없음 */
+.crow2 .tbn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; font-size: 12px; border-radius: var(--r); color: var(--text); }
+.crow2 .tbn:hover { background: var(--sel); }
+.crow2 .tbn.danger { color: var(--sun); }
+.crow2 .tbn .ic svg { width: 14px; height: 14px; }
+.cform > * { flex-shrink: 0; }
