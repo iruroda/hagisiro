@@ -1478,7 +1478,7 @@
       el('div', { class: 'panel' },
         el('div', { class: 'shead' }, el('b', {}, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`), el('span', { class: 'grow' }), close),
         g.length ? el('div', { class: 'sg' }, g) : null,
-        PF.meal && S.meal[ds] ? el('button', { class: 'ghost sm mealbtn', type: 'button', onclick: () => openMeal(ds) }, '급식 보기') : null, body, foot));
+        body, foot));
     sh.querySelector('.panel').addEventListener('mousedown', (e) => { if (!e.target.closest('input, textarea, select, button')) e.preventDefault(); });
     api = openEditor(body, ds, () => { sh.hidden = true; sh.replaceChildren(); }, { barHost: foot, focusId: opt.focusId });
   }

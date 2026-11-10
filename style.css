@@ -956,3 +956,8 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 .ed .td .ddm, .ed .td .rpt { margin-top: 0; align-self: center; display: inline-flex; line-height: 0; }
 .tb[aria-label="기호"] .ic svg { width: 22px; height: 22px; }
 .swl { position: relative; top: 1px; }
+
+/* 반복: 매년 양력·음력 토글 세로 가운데 / 수정 불가 할 일 제목은 배경 음영 없음 */
+.rln > .rc { align-self: center; }
+.rchip { background: var(--tbg, none); padding-left: 0; }
+.rtarget .rchip { padding-left: 0; }
