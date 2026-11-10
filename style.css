@@ -1028,3 +1028,9 @@ body.widget .cell { padding-top: 5px; }
   radial-gradient(circle at 0 50%, var(--c) calc(var(--w) / 2 - .6px), transparent calc(var(--w) / 2)),
   linear-gradient(var(--c), var(--c));
   background-position: left, right, center; background-size: calc(var(--w) / 2) 100%, calc(var(--w) / 2) 100%, calc(100% - var(--w)) var(--w); background-repeat: no-repeat; }
+
+/* 급식 주별 팝업: 세로는 보이는 끼니 개수에 따라(JS가 height 지정), 바뀔 때 부드럽게. 위치를 옮겨도 크기는 그대로 */
+.mealdlg { height: 520px; max-height: 92%; transition: height .28s cubic-bezier(.3, .7, .3, 1); }
+.mealdlg .mealwrap { flex: 1; min-height: 0; max-height: none; }
+.mealdlg .mopts { padding-top: 0; flex: none; }
+.mealdlg .mnav { flex: none; }

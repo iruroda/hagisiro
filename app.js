@@ -2704,7 +2704,16 @@
     let nav = 0;
     const body = el('div', { class: 'mealwrap' });
     const ttl = el('b', { class: 'mttl' });
+    let dlg;
+    /* 세로 크기는 보이는 끼니(조식·중식·석식) 개수에 따라 바뀌고, 바뀔 때 부드럽게 움직여요 (표 내용·불러오는 중에는 변하지 않음) */
+    const fit = (first) => {
+      if (!dlg) return;
+      const n = PF.school ? MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k)).length : 0;
+      dlg.style.height = (PF.school ? 200 + n * 107 : 150) + 'px';
+      if (first) { dlg.style.transition = 'none'; requestAnimationFrame(() => { dlg.style.transition = ''; }); }
+    };
     const draw = () => {
+      fit();
       const days = Array.from({ length: 7 }, (_, i) => new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + i)).filter((d) => !(PF.mwe && (d.getDay() === 0 || d.getDay() === 6)));
       const e = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 6);
       ttl.textContent = `${sun.getMonth() + 1}.${sun.getDate()}. ~ ${e.getMonth() + 1}.${e.getDate()}.`;
@@ -2731,22 +2740,26 @@
         .then(() => { if (my === nav && document.body.contains(body)) draw(); });
     };
     const mv = (n) => { sun = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 7 * n); load(); };
-    const opts = el('div', { class: 'mk' }, MEAL_KINDS.map((k) => el('label', { class: 'rchk' },
-      el('input', { type: 'checkbox', checked: (PF.mk || MEAL_KINDS).includes(k), onchange: (e) => {
-        const cur = new Set(PF.mk || MEAL_KINDS); if (e.target.checked) cur.add(k); else cur.delete(k);
+    /* 학교(왼쪽) · 조식/중식/석식/주말 제외 체크(오른쪽): 날짜 줄 위에 한 줄로 */
+    const chk = (label, on, fn) => el('label', { class: 'rchk' }, el('input', { type: 'checkbox', checked: on, onchange: (e) => fn(e.target.checked) }), label);
+    const opts = PF.school ? el('div', { class: 'mk mopts' },
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, PF.school.name), el('span', { class: 'grow' }),
+      MEAL_KINDS.map((k) => chk(k, (PF.mk || MEAL_KINDS).includes(k), (v) => {
+        const cur = new Set(PF.mk || MEAL_KINDS); if (v) cur.add(k); else cur.delete(k);
         PF.mk = MEAL_KINDS.filter((x) => cur.has(x)); savePf(); draw(); render();
-      } }), k)).concat(el('span', { class: 'grow' }), el('label', { class: 'rchk' },
-      el('input', { type: 'checkbox', checked: !!PF.mwe, onchange: (e) => { PF.mwe = e.target.checked; savePf(); draw(); } }), '주말 제외')));
-    m.replaceChildren(el('div', { class: 'back', onclick: close }),
-      el('div', { class: 'dlg mealdlg' },
-        el('div', { class: 'shead' }, hb('utensils', '급식'), el('span', { class: 'grow' }),
-          PF.school ? el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, PF.school.name) : null,
-          el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        el('div', { class: 'mnav' },
-          el('button', { class: 'ib', type: 'button', onclick: () => mv(-1), 'aria-label': '지난주' }, icon('left')), ttl,
-          el('button', { class: 'ib', type: 'button', onclick: () => mv(1), 'aria-label': '다음주' }, icon('right')),
-          el('button', { class: 'ghost sm', type: 'button', onclick: () => { sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay()); load(); } }, '이번 주')),
-        body, opts));
+      })),
+      chk('주말 제외', !!PF.mwe, (v) => { PF.mwe = v; savePf(); draw(); })) : null;
+    dlg = el('div', { class: 'dlg mealdlg' },
+      el('div', { class: 'shead' }, hb('utensils', '급식'), el('span', { class: 'grow' }),
+        el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      opts,
+      el('div', { class: 'mnav' },
+        el('button', { class: 'ib', type: 'button', onclick: () => mv(-1), 'aria-label': '지난주' }, icon('left')), ttl,
+        el('button', { class: 'ib', type: 'button', onclick: () => mv(1), 'aria-label': '다음주' }, icon('right')),
+        el('button', { class: 'ghost sm', type: 'button', onclick: () => { sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay()); load(); } }, '이번 주')),
+      body);
+    fit(true);
+    m.replaceChildren(el('div', { class: 'back', onclick: close }), dlg);
     load();
   }
   function openSchool(done) {
@@ -2772,7 +2785,10 @@
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
         el('div', { class: 'shead' }, hb('search', '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        el('div', { class: 'schq' }, fld(inp), el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res));
+        el('div', { class: 'schq' }, fld(inp), el('button', { class: 'pri', type: 'button', onclick: go }, '검색')), res,
+        PF.school ? el('div', { class: 'dlgf' }, el('button', { class: 'ghost', type: 'button', onclick: () => {
+          PF.school = null; PF.meal = false; S.meal = {}; savePf(); render(); close(); if (done) done();
+        } }, '학교 삭제')) : null));
     document.body.append(layer);
     setTimeout(() => inp.focus(), 30);
   }
@@ -3049,6 +3065,29 @@
   });
 
   window.__haru = { S, Data, render, toast, lastOf }; // 디버깅용
+  /* 모든 팝업: 안의 내용이 바뀌어 세로 크기가 달라질 때 부드럽게 늘고 줄어요 (급식 팝업은 자체 전환 사용) */
+  function watchPopups() {
+    const seen = new WeakSet();
+    const attach = (n) => {
+      if (seen.has(n) || n.classList.contains('mealdlg')) return;
+      seen.add(n);
+      let last = n.offsetHeight, busy = false;
+      new ResizeObserver(() => {
+        if (busy) return;
+        const h = n.offsetHeight;
+        if (noAnim() || Math.abs(h - last) < 2) { last = h; return; }
+        const from = last; last = h; busy = true;
+        const ov = n.style.overflow; n.style.overflow = 'hidden';
+        const a = n.animate([{ height: from + 'px' }, { height: h + 'px' }], { duration: 240, easing: 'cubic-bezier(.3,.7,.3,1)' });
+        const end = () => { busy = false; n.style.overflow = ov; last = n.offsetHeight; };
+        a.onfinish = end; a.oncancel = end;
+      }).observe(n);
+    };
+    const scan = () => document.querySelectorAll('.dlg, #sheet .panel').forEach(attach);
+    new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+    scan();
+  }
+  watchPopups();
   initWidgetEdit();
   { const tp = $('#top'); if (tp && window.ResizeObserver) new ResizeObserver(() => fitTop()).observe(tp); }
   boot();
