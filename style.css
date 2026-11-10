@@ -946,3 +946,8 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 
 /* 확인·취소 등 팝업 하단 버튼: 글자를 0.5px 아래로 (높이는 그대로) */
 .dlgf .pri, .dlgf .ghost { padding-top: calc(6px + .5px); padding-bottom: calc(6px - .5px); }
+
+/* 설정의 기호 줄: 색상 줄과 같은 폭·간격(칸 20px, 간격 6px)으로 맞춰 칸이 세로로 정렬되게 */
+.blset { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.blset .blb { width: 20px; height: 20px; border-radius: var(--r); }
+.blset .blb .ic svg { width: 14px; height: 14px; }
