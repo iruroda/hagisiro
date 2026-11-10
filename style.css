@@ -1088,3 +1088,4 @@ body.widget .cell { padding-top: 5px; }
 #wedit i[data-e="w"] { --rd: 0 4px 4px 0; --rw: 0 6px 6px 0; } #wedit i[data-e="e"] { --rd: 4px 0 0 4px; --rw: 6px 0 0 6px; }
 #wedit i[data-e="nw"] { --rd: 0 0 4px 0; --rw: 0 0 6px 0; } #wedit i[data-e="ne"] { --rd: 0 0 0 4px; --rw: 0 0 0 6px; }
 #wedit i[data-e="sw"] { --rd: 0 4px 0 0; --rw: 0 6px 0 0; } #wedit i[data-e="se"] { --rd: 4px 0 0 0; --rw: 6px 0 0 0; }
+#wedit { overflow: hidden; }
