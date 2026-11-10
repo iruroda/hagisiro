@@ -1663,11 +1663,10 @@
 
   /* 할 일의 반복 버튼: 이미 반복이면 그 반복의 수정 창, 아니면 새 반복 설정 */
   function openRepeat({ ds, ids = [], onClose } = {}) {
-    const its = ids.map(getItem).filter(Boolean);
-    const rep = its.length === 1 && its[0].rid ? ruleOf(its[0].rid) : null;
-    const fresh = its.filter((i) => !i.rid && i.text);
-    if (!rep && !fresh.length) { if (onClose) onClose(); return; }
-    openRuleDialog({ rule: rep, items: rep ? [] : fresh, ds, onClose });
+    const it = ids.map(getItem).find(Boolean); // 여러 개를 골랐어도 맨 위 하나에만 적용
+    const rep = it && it.rid ? ruleOf(it.rid) : null;
+    if (!rep && !(it && it.text)) { if (onClose) onClose(); return; }
+    openRuleDialog({ rule: rep, items: rep ? [] : [it], ds, onClose });
   }
 
   /* 햄버거 메뉴의 반복 관리: 목록 · 추가 · 수정 · 삭제 */
