@@ -75,6 +75,7 @@
     edit: '<g transform="translate(12 12) scale(1.22) translate(-12 -12)"><path stroke-width="2.2" d="M5.5 18.5l.9-3.6L15 6.3a2 2 0 012.8 2.8l-8.6 8.6-3.7.8z"/></g>',
     scan: '<path d="M5 8.5V6.5a1.5 1.5 0 011.5-1.5h2M15.5 5h2A1.5 1.5 0 0119 6.5v2M19 15.5v2a1.5 1.5 0 01-1.5 1.5h-2M8.5 19h-2A1.5 1.5 0 015 17.5v-2M5 12h14"/>',
     trash: '<path d="M5 7h14M10 7V5h4v2M7 7l.9 11.5a1 1 0 001 .9h6.2a1 1 0 001-.9L17 7"/>',
+    info: '<circle cx="12" cy="12" r="8.2"/><path d="M12 11v5.2M12 7.7v.01"/>',
     clock: '<circle cx="12" cy="12" r="8.2"/><path d="M12 7.6V12l3.2 2"/>',
     enter: '<path d="M19.5 5.5v7a3 3 0 01-3 3H5.5"/><path d="M10 10.5l-4.5 5 4.5 5"/>',
     palette: '<path d="M12 3.8a8.2 8.2 0 100 16.4c1.5 0 2.2-1 2.2-2 0-1.5-1.1-1.9-1.1-3 0-1 .8-1.8 1.9-1.8H17a3.3 3.3 0 003.3-3.3c0-3.8-3.7-6.3-8.3-6.3z"/><circle cx="7.7" cy="11.9" r="1.75" class="f"/><circle cx="10.5" cy="7.7" r="1.75" class="f"/><circle cx="14.9" cy="8.3" r="1.75" class="f"/>',
@@ -2252,6 +2253,21 @@
     });
     return grid.map((r) => Array.from(r, (x) => x || '').join('\t').replace(/\t+$/, '')).filter((l, i, arr) => l || arr[i + 1]).join('\n');
   }
+  /* 업로드 가능 형식 안내 (작은 말풍선) */
+  function fmtPop(btn) {
+    document.querySelector('.fmtpop')?.remove();
+    const pop = el('div', { class: 'fmtpop' }, el('b', {}, '업로드 가능 형식'),
+      el('div', {}, el('span', {}, '엑셀 표 파일'), el('small', {}, '.xlsx · .xls · .xlsm'), el('small', {}, '시트 1을 불러옵니다')),
+      el('div', {}, el('span', {}, '텍스트 표 파일'), el('small', {}, '.csv · .tsv · .txt')),
+      el('div', {}, el('span', {}, '이미지 파일'), el('small', {}, '이미지를 그대로 보여줌')));
+    document.body.append(pop);
+    const r = btn.getBoundingClientRect();
+    pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8)) + 'px';
+    pop.style.top = Math.min(r.bottom + 6, innerHeight - pop.offsetHeight - 8) + 'px';
+    const off = (e) => { if (pop.contains(e.target)) return; pop.remove(); document.removeEventListener('mousedown', off, true); document.removeEventListener('keydown', esc, true); };
+    const esc = (e) => { if (e.key === 'Escape') { e.stopPropagation(); pop.remove(); document.removeEventListener('mousedown', off, true); document.removeEventListener('keydown', esc, true); } };
+    setTimeout(() => { document.addEventListener('mousedown', off, true); document.addEventListener('keydown', esc, true); }, 0);
+  }
   function openDoc(id, forceEdit) {
     const meta = DOCS.find((x) => x[0] === id);
     const m = $('#modal');
@@ -2277,7 +2293,7 @@
         const f = e.target.files[0]; if (!f) return;
         try { draft = await fileToDraft(f); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ }
       } });
-      const ta = el('textarea', { class: 'dta', spellcheck: 'false' });
+      const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀 또는 한글의 표를 복사하여 붙여 넣으세요' });
       ta.value = draft.text || '';
       ta.addEventListener('input', () => { draft.text = ta.value; });
       ta.addEventListener('paste', (e) => {
@@ -2302,6 +2318,7 @@
         el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(),
           el('div', { class: 'dsrc' },
             el('button', { class: 'ghost sm', type: 'button', onclick: () => file.click() }, icon('upload'), '파일 업로드'), file,
+            el('button', { class: 'ib sm', type: 'button', 'aria-label': '업로드 가능 형식', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
             draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: async (e) => {
               const b = e.currentTarget, ic0 = b.firstChild, ring = el('i', { class: 'ring' }); b.disabled = true; ic0.replaceWith(ring);
               try {
@@ -2317,7 +2334,7 @@
             el('span', { class: 'grow' }),
             el('button', { class: 'ghost', onclick: () => { if (cur) { edit = false; drawView(); } else close(); } }, '취소'),
             el('button', { class: 'pri', onclick: save }, '저장'))));
-      if (draft.kind === 'text') ta.focus();
+      if (draft.kind === 'text' && draft.text) ta.focus();
     };
     function fitImg() { // 사진 크기에 맞춰 팝업 폭을 줄이고, 화면(세로)에 들어가도록 줄여요
       const d = m.querySelector('.imgdlg'), img = d && d.querySelector('img');

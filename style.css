@@ -1073,3 +1073,11 @@ body.widget .cell { padding-top: 5px; }
 .schcur { display: flex; align-items: center; gap: 8px; }
 .schcur .schnm { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mealdlg .mopts .ghost.sm { font-size: 13px; }
+
+/* 업로드 가능 형식 말풍선 / 직접 입력 안내는 클릭(포커스) 전까지만 */
+.fmtpop { position: fixed; z-index: 400; width: 230px; box-sizing: border-box; padding: 12px 14px; display: grid; gap: 10px; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: 0 8px 28px rgba(0, 0, 0, .18); font-size: 13px; animation: pop .16s ease-out; }
+.fmtpop > div { display: grid; gap: 1px; }
+.fmtpop span { font-weight: 600; }
+.fmtpop small { color: var(--mut); font-size: 12px; }
+.dta:focus::placeholder { opacity: 0; }
+.dsrc .ib.sm { margin-left: -2px; }
