@@ -1009,3 +1009,7 @@ body.widget .cell { padding-top: 5px; }
 
 /* 출결·급식 알약 위쪽 여백: 날짜~할 일 사이와 비슷하게 */
 .cbt { margin-top: 4px; }
+
+/* 출결 월별 머리글: 일별·주별과 같은 제목 크기·요약 위치 (‹ › 자리는 비워 둠) */
+.mhead .msum { margin-left: 8px; }
+.ib.ph { visibility: hidden; pointer-events: none; }

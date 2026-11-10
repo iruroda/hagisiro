@@ -1745,7 +1745,8 @@
   /* ---------- 월별: 한눈에 보는 표 ---------- */
   function monthView(cls) {
     const frag = el('div', { class: 'mv' });
-    frag.append(el('div', { class: 'dhead mhead' }));
+    const ph = () => el('span', { class: 'ib ph', 'aria-hidden': 'true' }); // 일별·주별의 ‹ › 자리 (월 이동은 위 헤더에 있어서 버튼 없음)
+    frag.append(el('div', { class: 'dhead mhead' }, ph(), el('b', { class: 'dttl' }, `${S.m + 1}월`), ph()));
     const recs = monthRecs(cls);
     const by = {};
     recs.forEach((a) => { (by[a.studentId + '|' + a.date] = by[a.studentId + '|' + a.date] || []).push(a); });
@@ -1783,7 +1784,7 @@
       setSel(c.dataset.d); setSub('day');
     });
     frag.append(mkWrap(tbl));
-    S.topSum = el('div', { class: 'msum' }, el('b', {}, `${S.m + 1}월`), ' ', sumLine(recs));
+    S.topSum = el('div', { class: 'msum' }, sumLine(recs));
     return frag;
   }
 
