@@ -1013,3 +1013,18 @@ body.widget .cell { padding-top: 5px; }
 /* 출결 월별 머리글: 일별·주별과 같은 제목 크기·요약 위치 (‹ › 자리는 비워 둠) */
 .mhead .msum { margin-left: 8px; }
 .ib.ph { visibility: hidden; pointer-events: none; }
+
+/* 스크롤바 썸: 알약 모양이면서 트랙 끝까지 닿게 (테두리로 줄이던 방식은 끝에서 안쪽으로 떨어져 보임) */
+::-webkit-scrollbar-thumb, .dv > .mwrap::-webkit-scrollbar-thumb, .wv > .mwrap::-webkit-scrollbar-thumb, .mv > .mwrap::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb { --w: 4px; --c: color-mix(in srgb, var(--mut) 42%, transparent); border: 0; border-radius: 0; background-color: transparent; background-clip: border-box; }
+::-webkit-scrollbar-thumb:hover { --c: color-mix(in srgb, var(--mut) 75%, transparent); }
+.dv > .mwrap::-webkit-scrollbar-thumb, .wv > .mwrap::-webkit-scrollbar-thumb, .mv > .mwrap::-webkit-scrollbar-thumb { --w: 8px; }
+::-webkit-scrollbar-thumb:vertical { background-image:
+  radial-gradient(circle at 50% 100%, var(--c) calc(var(--w) / 2 - .6px), transparent calc(var(--w) / 2)),
+  radial-gradient(circle at 50% 0, var(--c) calc(var(--w) / 2 - .6px), transparent calc(var(--w) / 2)),
+  linear-gradient(var(--c), var(--c));
+  background-position: top, bottom, center; background-size: 100% calc(var(--w) / 2), 100% calc(var(--w) / 2), var(--w) calc(100% - var(--w)); background-repeat: no-repeat; }
+::-webkit-scrollbar-thumb:horizontal { background-image:
+  radial-gradient(circle at 100% 50%, var(--c) calc(var(--w) / 2 - .6px), transparent calc(var(--w) / 2)),
+  radial-gradient(circle at 0 50%, var(--c) calc(var(--w) / 2 - .6px), transparent calc(var(--w) / 2)),
+  linear-gradient(var(--c), var(--c));
+  background-position: left, right, center; background-size: calc(var(--w) / 2) 100%, calc(var(--w) / 2) 100%, calc(100% - var(--w)) var(--w); background-repeat: no-repeat; }
