@@ -18,8 +18,6 @@ const LK = 'hagisiro:book:' + cid;
 const loadMine = () => { try { return JSON.parse(localStorage.getItem(LK) || '{}'); } catch (e) { return {}; } };
 const saveMine = (o) => { try { localStorage.setItem(LK, JSON.stringify(o)); } catch (e) { /* noop */ } };
 
-let toastT;
-function toast(msg) { const t = $('#bt'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 2600); }
 function modal(...kids) {
   const m = $('#bm'); m.hidden = false;
   const close = () => { m.hidden = true; m.replaceChildren(); };
@@ -93,7 +91,7 @@ const tref = (sid) => doc(db, 'consults', cid, 'taken', sid);
 const label = (sid) => { const p = sidParts(sid); return `${p.m}월 ${p.d}일 ${p.hh}:${p.mm}`; };
 
 function onFree(sid) {
-  if (closed()) { toast('신청이 마감됐어요.'); return; }
+  if (closed()) return;
   const v = readForm(); if (!v) return;
   const move = moving;
   const close = modal(el('b', {}, move ? '이 시간으로 바꿀까요?' : '이 시간으로 신청할까요?'), el('div', {}, label(sid)),
@@ -109,10 +107,10 @@ async function book(sid, v, move) {
     await b.commit();
     const mine = loadMine(); if (move) delete mine[move.sid];
     mine[sid] = v.pin; mine._n = v.name; mine._i = v.info; saveMine(mine);
-    moving = null; toast(move ? '시간을 바꿨어요.' : '신청했어요.'); draw();
+    moving = null; draw();
   } catch (e) {
     console.error(e);
-    toast(e && e.code === 'permission-denied' ? (move ? '비밀번호가 다르거나 이미 신청된 시간이에요.' : '이미 신청됐거나 마감된 시간이에요.') : '신청하지 못했어요.');
+    draw(); // 실패하면 아무 알림 없이 현재 상태(이미 신청된 칸 등)로 다시 그려요
   }
 }
 
@@ -128,8 +126,8 @@ function onTaken(sid) {
         if (!need()) return;
         try {
           const b = writeBatch(db); b.set(bref(sid), { cancelled: true, pin: pin.value }, { merge: true }); b.delete(tref(sid)); await b.commit();
-          const m = loadMine(); delete m[sid]; saveMine(m); close(); toast('신청을 취소했어요.');
-        } catch (e) { toast(e && e.code === 'permission-denied' ? '비밀번호가 달라요.' : '취소하지 못했어요.'); }
+          const m = loadMine(); delete m[sid]; saveMine(m); close();
+        } catch (e) { console.error(e); }
       } }, '신청 취소'),
       change = el('button', { class: 'pri', onclick: async () => {
         if (!need()) return;

@@ -582,6 +582,7 @@
     const snap = wantBelt(main);
     main.replaceChildren();
     if (needLogin()) main.append(loginView());
+    else if (S.ready && S.view === 'consult' && !S.cloud) { S.view = 'cal'; main.append(calView()); } // 로그인 전에는 상담 탭이 없으므로 캘린더로
     else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
     syncLoginWin();
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
@@ -611,7 +612,7 @@
       ib('right', () => go(1), weekMode() ? '다음 주' : '다음 달'),
       el('button', { class: 'ghost sm', disabled: cv, onclick: goToday }, '오늘'));
     const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
-    const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloudAvail ? tab('consult', '상담') : null);
+    const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloud ? tab('consult', '상담') : null);
     const right = el('div', { class: 'right' });
     // 오른쪽 도구들: 좁아지면 뒤에서부터 ⋯ 팝업으로 들어가요
     const tools = shortcutDefs().filter((x) => scOn(x)).map((x) => ({ ...x, node: () => scNode(x) }));
@@ -871,7 +872,7 @@
     const run = () => {
       const k = q.value.trim().toLowerCase();
       list.replaceChildren();
-      if (!k) { list.append(el('div', { class: 'mut small sempty' }, '입력한 할 일을 찾아서, 누르면 그 날짜로 이동해요.')); return; }
+      if (!k) return;
       const hit = all.filter((t) => !t.skip && t.text && t.text.toLowerCase().includes(k))
         .sort((a, b) => { const fa = a.date >= today, fb = b.date >= today; return fa !== fb ? (fa ? -1 : 1) : (fa ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)); });
       const rules = S.repeats.filter((r) => r.text && r.text.toLowerCase().includes(k));
@@ -1524,10 +1525,8 @@
     const wrapW = el('div', { class: 'rln' }, el('span', {}, '매주'), oWeekly);
 
     const domIn = el('input', { type: 'number', min: '1', max: '31', value: st.dom, 'aria-label': '일' });
-    const hint = el('span', { class: 'mut small' }, '짧은 달에는 그 달의 마지막 날에 표시돼요.');
-    domIn.addEventListener('input', () => { st.dom = +domIn.value; hint.style.visibility = st.dom > 28 ? '' : 'hidden'; sync(); });
-    hint.style.visibility = st.dom > 28 ? '' : 'hidden';
-    const oMonthly = el('div', { class: 'rln' }, el('span', {}, '매달'), domIn, el('span', {}, '일'), hint);
+    domIn.addEventListener('input', () => { st.dom = +domIn.value; sync(); });
+    const oMonthly = el('div', { class: 'rln' }, el('span', {}, '매달'), domIn, el('span', {}, '일'));
 
     const calSeg = el('div', { class: 'seg rc' },
       el('button', { type: 'button', class: 'sg-b', 'data-c': '0', onclick: () => setLunar(false) }, '양력'),
@@ -1717,7 +1716,6 @@
     if (!cls) {
       root.append(el('div', { class: 'empty' },
         el('p', {}, '학급 없음'),
-        el('p', { class: 'mut' }, '명단을 한 번만 붙여넣으면, 이후엔 문장으로 바로 기록돼요.'),
         el('button', { class: 'pri', onclick: () => openRoster(null) }, '학급 추가')));
       return root;
     }
@@ -2397,7 +2395,7 @@
           tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
           tog('ab', '출결 버튼', '', 'render'),
           tog('pastdd', '지난 D-day 표시하기', '', 'render'),
-          tog('meal', '급식 버튼', PF.school ? '' : '급식 창에서 학교를 먼저 골라요.', 'render', !PF.school),
+          tog('meal', '급식 버튼', '', 'render', !PF.school),
           S.cloud ? el('label', { class: 'pfr tg' },
             el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
               const cb = e.target;
@@ -2559,7 +2557,7 @@
   async function connectGcal() {
     try {
       const t = await S.cloud.calendarToken();
-      if (!t) throw new Error('토큰을 받지 못했어요.');
+      if (!t) return;
       try { sessionStorage.setItem(GK, JSON.stringify({ t, exp: Date.now() + 50 * 60e3 })); } catch (e) { /* noop */ }
       ls.set('hagisiro:gcal', '1');
       await loadGcal();
@@ -2825,7 +2823,7 @@
   function consultView() {
     const host = el('div', { class: 'cv' });
     S.cvHost = host;
-    if (!S.cloud) { host.append(el('div', { class: 'cvm mut' }, 'Google 로그인 후 사용할 수 있어요.')); return host; }
+    if (!S.cloud) return host;
     let unsub = null;
     S.cleanup = () => { if (unsub) unsub(); unsub = null; };
     let nav = 0;
