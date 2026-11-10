@@ -2260,6 +2260,8 @@
     let cur = docOf(id);
     let draft = cur ? { kind: cur.kind, text: cur.text || '', img: cur.img || '' } : { kind: 'text', text: '' };
     let edit = !!forceEdit || !cur;
+    /* 삭제하면 팝업은 닫지 않고 처음 입력 화면으로 */
+    const wipe = () => { Data.del('docs', id); cur = null; draft = { kind: 'text', text: '' }; edit = true; render(); drawEdit(); };
     const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
     /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정·삭제만 */
     let drawView = function () {
@@ -2267,7 +2269,7 @@
         el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(),
           el('div', { class: 'dsrc' },
             el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, '수정'),
-            el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { Data.del('docs', id); close(); } } }, '삭제')),
+            el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { wipe(); } } }, '삭제')),
           el('div', { class: 'dbody' }, docView(cur))));
     };
     let drawEdit = function () {
@@ -2291,7 +2293,7 @@
         ? el('div', { class: 'dbody' }, el('div', { class: 'dimg' }, el('img', { src: draft.img, alt: '' })))
         : ta;
       const save = () => {
-        if (draft.kind === 'text' && !draft.text.trim()) { if (cur) Data.del('docs', id); close(); return; }
+        if (draft.kind === 'text' && !draft.text.trim()) { if (cur) wipe(); else close(); return; }
         if (draft.kind === 'text' && draft.text.length > 300000) draft.text = draft.text.slice(0, 300000); // 너무 길면 뒤쪽을 잘라요
         const o = draft.kind === 'image' ? { id, kind: 'image', img: draft.img, updated: Date.now() } : { id, kind: 'text', text: draft.text, updated: Date.now() };
         Data.put('docs', o); cur = docOf(id) || o; edit = false; drawView();
