@@ -71,7 +71,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .ct { display: flex; justify-content: space-between; align-items: center; height: 21px; flex: none; }
 .dn { font-size: 12px; line-height: 20px; }
 .cell.sun .dn { color: var(--sun); } .cell.sat .dn { color: var(--sat); }
-.cell.today .dn { background: var(--grad); color: #fff; border-radius: 99px; padding: 0 6px; min-width: 20px; text-align: center; }
+.cell.today .dn { background: var(--accent); color: #fff; border-radius: 99px; padding: 0 6px; min-width: 20px; text-align: center; }
 .sb { flex: 1; min-width: 0; display: flex; gap: 4px; align-items: center; margin: 0 4px; overflow: hidden; white-space: nowrap; font-size: 10px; color: var(--mut); }
 .sb i { font-style: normal; overflow: hidden; text-overflow: ellipsis; }
 .sb .hn { color: var(--sun); font-weight: 600; } .sb .tm { color: #0b8f80; }
@@ -268,7 +268,7 @@ button, input, select, textarea { font-family: inherit; }
 /* 출결 입력줄 */
 .qrow { display: flex; gap: 8px; align-items: stretch; }
 .qrow input { flex: 1; min-width: 0; }
-.qgo { flex: none; width: 46px; border-radius: var(--r-md); background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; }
+.qgo { flex: none; width: 46px; border-radius: var(--r-md); background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; }
 .qgo .ic svg { width: 20px; height: 20px; }
 .qgo:hover { filter: brightness(1.08); }
 .pv { border-radius: var(--r-lg); padding: 7px 12px; min-height: 34px; margin-top: 8px; }
