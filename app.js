@@ -2935,7 +2935,7 @@
             ts.map((t) => {
               const b = booked[k + '_' + t];
               return el('button', { type: 'button', class: 'cchip' + (o[t] ? '' : ' off') + (b ? ' bk' : ''),
-                onclick: () => { o[t] = !o[t]; draw(); } }, o[t] ? null : icon('lock'), `${t.slice(0, 2)}:${t.slice(2)}`, b ? el('small', {}, b.name) : null);
+                onclick: () => { o[t] = !o[t]; draw(); } }, `${t.slice(0, 2)}:${t.slice(2)}`, b ? el('small', {}, b.name) : null);
             }),
             el('div', { class: 'cadd' }, tm, el('button', { class: 'pri cplus', type: 'button', title: '시각 추가', 'aria-label': '시각 추가', onclick: () => {
               const t = tm.value.replace(':', ''); if (!(t in o)) o[t] = true; draw();

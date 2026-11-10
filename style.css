@@ -1059,3 +1059,6 @@ body.widget .cell { padding-top: 5px; }
 .crow2 .tbn.danger { color: var(--sun); }
 .crow2 .tbn .ic svg { width: 14px; height: 14px; }
 .cform > * { flex-shrink: 0; }
+
+/* 닫은 칸은 신청자가 있어도 똑같이: 가운데 줄 + 흐린 글씨 + 배경 없음 */
+.cdc .cchip.bk.off { background: transparent; color: var(--mut); text-decoration: line-through; font-weight: 500; }
