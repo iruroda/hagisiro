@@ -784,8 +784,6 @@ body.wedit #wmove { background: var(--accent); color: #fff; }
 /* 입력칸: 연필 · X */
 .fld { position: relative; display: flex; flex: 1; min-width: 0; align-items: center; }
 .fld input { width: 100%; min-width: 0; padding-left: 32px; padding-right: 30px; box-sizing: border-box; }
-.fld .pen { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--mut); opacity: .55; pointer-events: none; display: grid; }
-.fld .pen .ic svg { width: 14px; height: 14px; }
 .fld .clr { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: var(--mut); }
 .fld .clr:hover { background: var(--bg2); color: var(--text); }
 .fld .clr .ic svg { width: 12px; height: 12px; }
@@ -817,8 +815,6 @@ input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 .qi input { padding-top: 7px; padding-bottom: 7px; }
 .qgo { width: 38px; }
 .qrow .fld input { padding-left: 38px; }
-.qrow .fld .pen { left: 12px; }
-.qrow .fld .pen .ic svg { width: 18px; height: 18px; }
 /* 저장 실패 표시 */
 #top .ib.err { color: #e5484d; }
 
@@ -964,13 +960,9 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 
 /* 입력칸: 연필 아이콘은 예시 문구처럼 — 비어 있을 때만, 글자는 왼쪽 끝에서 시작 */
 .fld input, .fld textarea { padding-left: 10px; padding-right: 30px; }
-.fld .pen { left: 10px; transition: opacity .1s; }
-.fld:not(.blank0) .pen { opacity: 0; }
-.fld.blank0 .pen { opacity: .55; }
 .qrow .fld input { padding-left: 12px; }
 .fld textarea { width: 100%; box-sizing: border-box; min-width: 0; resize: none; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding-top: 6px; padding-bottom: 6px; padding-right: 34px; line-height: 1.45; outline: 0; }
 .fld textarea:focus { border-color: var(--accent); }
-.fld.ta .pen { top: 9px; transform: none; }
 .fld.ta .clr { top: 6px; transform: none; right: 14px; }
 .pfr.col { flex-direction: column; align-items: stretch; gap: 6px; }
 
@@ -1046,9 +1038,6 @@ body.widget .cell { padding-top: 5px; }
 .cform .cgrid, .cdet .cgrid { flex: none; overflow-y: hidden; }
 
 /* 타이핑 아이콘(I자): 한 줄 입력칸에서 클릭(포커스)하는 순간 사라짐 */
-.fld:focus-within .pen { opacity: 0; }
-.fld .pen .ic svg { width: 16px; height: 16px; }
-.qrow .fld .pen .ic svg { width: 20px; height: 20px; }
 
 /* 출결 표: 번호·이름·칸 글자 모두 가운데 정렬, 월별 왼쪽 여백 제거 */
 .mt .c2 { text-align: center; padding-left: 8px; padding-right: 8px; }
