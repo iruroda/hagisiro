@@ -1617,35 +1617,57 @@
 
   const bulletRow = (i) => el('div', { class: 'td rtarget' }, blSpan(i.bl), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
 
-  /* 할 일에서 연 반복 설정: 고른 할 일을 반복으로 바꿔요 */
-  function openRepeat({ ds, ids = [], onClose } = {}) {
-    const fresh = ids.map(getItem).filter((i) => i && !i.rid && i.text);
-    if (!fresh.length) return;
-    const m = $('#modal');
-    m.hidden = false; m.replaceChildren();
-    const close = () => { m.hidden = true; m.replaceChildren(); if (onClose) onClose(); };
-    const ok = el('button', { class: 'pri', type: 'button' }, '반복으로 설정');
-    const form = repeatForm({ start: fresh[0].date || ds || ymd(new Date()) }, {}, () => { ok.disabled = !form.read(); });
-    const dlg = el('div', { class: 'dlg rdlg' },
-      el('div', { class: 'shead' }, hb('repeat', '반복'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      el('div', { class: 'rbody' },
-        el('div', { class: 'rtargets' }, fresh.map(bulletRow)),
-        form.node,
-        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: close }, '취소'), ok)));
-    m.append(el('div', { class: 'back', onclick: close }), dlg);
-    ok.disabled = !form.read(); slidePills();
+  /* 반복 팝업(하나로 통일): 반복 관리의 추가·수정, 할 일에서 연 반복 설정이 모두 이 창이에요 */
+  function openRuleDialog({ rule = null, items = [], ds, onClose } = {}) {
+    const multi = items.length > 1;
+    const one = items.length === 1 ? items[0] : null;
+    const layer = el('div', { class: 'askw' });
+    const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); shut(); } };
+    const shut = () => { document.removeEventListener('keydown', key, true); layer.remove(); if (onClose) onClose(); };
+    const ok = el('button', { class: 'pri', type: 'button' }, '저장');
+    const init = rule ? { ...rule } : one ? { text: one.text, fg: one.fg, bg: one.bg, bl: one.bl, start: one.date || ds } : { start: ds || S.sel || ymd(new Date()) };
+    const opt = multi ? {} : { withText: true, withColors: true };
+    const form = repeatForm(init, opt, () => { ok.disabled = !form.read(); });
+    ok.disabled = !form.read();
     ok.addEventListener('click', () => {
       const f = form.read(); if (!f) return;
-      fresh.forEach((it) => {
-        const rule = clean({ id: uid(), created: Date.now(), text: it.text, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, ...f });
-        Data.put('repeats', rule);
-        if (occursOn(rule, it.date)) { // 한 번짜리 항목은 반복 항목으로 바꿔치기 (완료 표시는 유지)
-          Data.del('todos', it.id);
-          if (it.done) Data.put('todos', clean({ id: oid(rule.id, it.date), rid: rule.id, date: it.date, text: it.text, done: true, fg: it.fg, bg: it.bg, ord: 0, created: Date.now() }));
-        }
-      });
-      close(); render();
+      if (rule) { // 규칙을 고치면 따로 고쳐둔 날짜 항목에도 글자·기호·색이 모두 적용돼요
+        const r = clean({ id: rule.id, created: rule.created, sz: rule.sz, ...f });
+        Data.put('repeats', r);
+        S.todos.filter((t) => t.rid === r.id && !t.skip).forEach((t) => Data.put('todos', clean({ ...t, text: r.text, fg: r.fg || '', bg: r.bg || '', bl: r.bl || '' })));
+      } else if (items.length) {
+        items.forEach((it) => {
+          const r = clean({ id: uid(), created: Date.now(), sz: it.sz, ...(multi ? { text: it.text, fg: it.fg, bg: it.bg, bl: it.bl } : {}), ...f });
+          Data.put('repeats', r);
+          if (occursOn(r, it.date)) { // 한 번짜리 항목은 반복 항목으로 바꿔치기 (완료 표시는 유지)
+            Data.del('todos', it.id);
+            if (it.done) Data.put('todos', clean({ id: oid(r.id, it.date), rid: r.id, date: it.date, text: r.text, done: true, fg: r.fg, bg: r.bg, sz: r.sz, bl: r.bl, ord: 0, created: Date.now() }));
+          }
+        });
+      } else {
+        Data.put('repeats', clean({ id: uid(), created: Date.now(), ...f }));
+      }
+      shut(); render();
     });
+    layer.append(el('div', { class: 'back', onclick: shut }),
+      el('div', { class: 'dlg rdlg' },
+        el('div', { class: 'shead' }, hb('repeat', '반복'), el('button', { class: 'ib', type: 'button', onclick: shut, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'rbody' },
+          multi ? el('div', { class: 'rtargets' }, items.map(bulletRow)) : null,
+          form.node,
+          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
+    document.addEventListener('keydown', key, true);
+    document.body.append(layer);
+    slidePills(); setTimeout(() => form.focus(), 0);
+  }
+
+  /* 할 일의 반복 버튼: 이미 반복이면 그 반복의 수정 창, 아니면 새 반복 설정 */
+  function openRepeat({ ds, ids = [], onClose } = {}) {
+    const its = ids.map(getItem).filter(Boolean);
+    const rep = its.length === 1 && its[0].rid ? ruleOf(its[0].rid) : null;
+    const fresh = its.filter((i) => !i.rid && i.text);
+    if (!rep && !fresh.length) { if (onClose) onClose(); return; }
+    openRuleDialog({ rule: rep, items: rep ? [] : fresh, ds, onClose });
   }
 
   /* 햄버거 메뉴의 반복 관리: 목록 · 추가 · 수정 · 삭제 */
@@ -1676,28 +1698,7 @@
           el('button', { class: 'ib', type: 'button', 'aria-label': '삭제', onclick: () => delRule(r) }, icon('trash'))));
       });
     }
-    function showForm() {
-      mode = 'list';
-      const layer = el('div', { class: 'askw' });
-      const shut = () => { layer.remove(); editing = null; };
-      const ok = el('button', { class: 'pri', type: 'button' }, '저장');
-      const form = repeatForm(editing ? { ...editing } : { start: S.sel || ymd(new Date()) }, { withText: true, withColors: true }, () => { ok.disabled = !form.read(); });
-      ok.disabled = !form.read();
-      ok.addEventListener('click', () => {
-        const f = form.read(); if (!f) return;
-        const rule = clean({ id: editing ? editing.id : uid(), created: editing ? editing.created : Date.now(), sz: editing ? editing.sz : '', ...f });
-        Data.put('repeats', rule);
-        if (editing) S.todos.filter((t) => t.rid === rule.id && !t.skip).forEach((t) => Data.put('todos', clean({ ...t, text: rule.text, fg: rule.fg || '', bg: rule.bg || '', bl: rule.bl || '' })));
-        shut(); show(); render();
-      });
-      layer.append(el('div', { class: 'back', onclick: shut }),
-        el('div', { class: 'dlg rdlg' },
-          el('div', { class: 'shead' }, hb(editing ? 'edit' : 'plus', editing ? '반복 수정' : '반복 추가'), el('button', { class: 'ib', type: 'button', onclick: shut, 'aria-label': '닫기' }, icon('close'))),
-          el('div', { class: 'rbody' }, form.node,
-            el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
-      document.body.append(layer);
-      slidePills(); setTimeout(() => form.focus(), 0);
-    }
+    function showForm() { openRuleDialog({ rule: editing, ds: S.sel, onClose: () => { editing = null; show(); } }); }
     async function delRule(r) {
       if (!(await ask('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.'))) return;
       const ovr = S.todos.filter((t) => t.rid === r.id);
