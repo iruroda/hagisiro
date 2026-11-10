@@ -871,7 +871,7 @@
     const run = () => {
       const k = q.value.trim().toLowerCase();
       list.replaceChildren();
-      if (!k) { list.append(el('div', { class: 'mut small sempty' }, '입력한 할 일을 찾아서, 누르면 그 날짜로 이동해요')); return; }
+      if (!k) { list.append(el('div', { class: 'mut small sempty' }, '입력한 할 일을 찾아서, 누르면 그 날짜로 이동해요.')); return; }
       const hit = all.filter((t) => !t.skip && t.text && t.text.toLowerCase().includes(k))
         .sort((a, b) => { const fa = a.date >= today, fb = b.date >= today; return fa !== fb ? (fa ? -1 : 1) : (fa ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)); });
       const rules = S.repeats.filter((r) => r.text && r.text.toLowerCase().includes(k));
@@ -1524,7 +1524,7 @@
     const wrapW = el('div', { class: 'rln' }, el('span', {}, '매주'), oWeekly);
 
     const domIn = el('input', { type: 'number', min: '1', max: '31', value: st.dom, 'aria-label': '일' });
-    const hint = el('span', { class: 'mut small' }, '짧은 달에는 그 달의 마지막 날에 표시돼요');
+    const hint = el('span', { class: 'mut small' }, '짧은 달에는 그 달의 마지막 날에 표시돼요.');
     domIn.addEventListener('input', () => { st.dom = +domIn.value; hint.style.visibility = st.dom > 28 ? '' : 'hidden'; sync(); });
     hint.style.visibility = st.dom > 28 ? '' : 'hidden';
     const oMonthly = el('div', { class: 'rln' }, el('span', {}, '매달'), domIn, el('span', {}, '일'), hint);
@@ -1717,7 +1717,7 @@
     if (!cls) {
       root.append(el('div', { class: 'empty' },
         el('p', {}, '학급 없음'),
-        el('p', { class: 'mut' }, '명단을 한 번만 붙여넣으면, 이후엔 문장으로 바로 기록돼요'),
+        el('p', { class: 'mut' }, '명단을 한 번만 붙여넣으면, 이후엔 문장으로 바로 기록돼요.'),
         el('button', { class: 'pri', onclick: () => openRoster(null) }, '학급 추가')));
       return root;
     }
@@ -2049,9 +2049,9 @@
     // 빠진 것 중 가장 중요한 하나만 안내: 사유 → 날짜 → 교시
     const it0 = r.items[0], info = r.info || {};
     let note = '';
-    if (!info.reason) note = '사유 미입력 시 미인정으로 등록됩니다';
-    else if (r.dateGuessed) note = `날짜 미입력 시 ${S.sel === ymd(new Date()) ? '오늘' : md(S.sel)}로 등록됩니다`;
-    else if (!info.period && it0.type !== '결석') note = `교시 미입력 시 ${P.rangeLabel(it0.from, it0.to)}로 등록됩니다`;
+    if (!info.reason) note = '사유 미입력 시 미인정으로 등록됩니다.';
+    else if (r.dateGuessed) note = `날짜 미입력 시 ${S.sel === ymd(new Date()) ? '오늘' : md(S.sel)}로 등록됩니다.`;
+    else if (!info.period && it0.type !== '결석') note = `교시 미입력 시 ${P.rangeLabel(it0.from, it0.to)}로 등록됩니다.`;
     if (note) pv.append(el('span', { class: 'mut' }, note));
   }
 
@@ -2122,7 +2122,7 @@
     if (window.XLSX) return Promise.resolve(window.XLSX);
     if (!sheetJs) sheetJs = new Promise((res, rej) => {
       document.head.append(el('script', { src: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-        onload: () => res(window.XLSX), onerror: () => { sheetJs = null; rej(new Error('엑셀 변환 도구를 불러오지 못했어요. 인터넷 연결을 확인하거나 내용을 복사해 붙여넣어주세요')); } }));
+        onload: () => res(window.XLSX), onerror: () => { sheetJs = null; rej(new Error('엑셀 변환 도구를 불러오지 못했어요. 인터넷 연결을 확인하거나 내용을 복사해 붙여넣어주세요.')); } }));
     });
     return sheetJs;
   }
@@ -2146,7 +2146,7 @@
       const t = clean.map((r) => r.slice(0, w).join('\t')).join('\n');
       return { kind: 'text', text: t };
     }
-    throw new Error('엑셀(.xlsx/.xls/.csv)이나 이미지 파일만 올릴 수 있어요');
+    throw new Error('엑셀(.xlsx/.xls/.csv)이나 이미지 파일만 올릴 수 있어요.');
   }
   /* 이미지 → 글자(OCR). 브라우저 안에서 Tesseract.js 로 읽고, 글자 위치로 행·열을 만들어요 */
   let ocrLib = null;
@@ -2154,7 +2154,7 @@
     if (window.Tesseract) return Promise.resolve(window.Tesseract);
     if (!ocrLib) ocrLib = new Promise((res, rej) => {
       document.head.append(el('script', { src: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
-        onload: () => res(window.Tesseract), onerror: () => { ocrLib = null; rej(new Error('글자 인식 도구를 불러오지 못했어요')); } }));
+        onload: () => res(window.Tesseract), onerror: () => { ocrLib = null; rej(new Error('글자 인식 도구를 불러오지 못했어요.')); } }));
     });
     return ocrLib;
   }
@@ -2202,7 +2202,7 @@
         } catch (e) { /* 실패하면 그냥 키운 그림으로 */ }
         res(c.toDataURL('image/png'));
       };
-      im.onerror = () => rej(new Error('이미지를 열지 못했어요'));
+      im.onerror = () => rej(new Error('이미지를 열지 못했어요.'));
       im.src = src;
     });
   }
@@ -2229,9 +2229,9 @@
           max = Math.round(max * 0.8); q = Math.max(0.5, q - 0.06);
         }
         URL.revokeObjectURL(url);
-        if (out.length >= 900000) rej(new Error('이미지가 너무 커요. 더 작은 이미지로 올려주세요')); else res(out);
+        if (out.length >= 900000) rej(new Error('이미지가 너무 커요. 더 작은 이미지로 올려주세요.')); else res(out);
       };
-      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('이미지를 열지 못했어요')); };
+      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('이미지를 열지 못했어요.')); };
       im.src = url;
     });
   }
@@ -2257,7 +2257,7 @@
   function fmtPop(btn) {
     document.querySelector('.fmtpop')?.remove();
     const pop = el('div', { class: 'fmtpop' }, el('b', {}, '업로드 가능 형식'),
-      el('div', {}, el('span', {}, '엑셀 표 파일'), el('small', {}, '.xlsx · .xls · .xlsm'), el('small', {}, '시트 1을 불러옵니다')),
+      el('div', {}, el('span', {}, '엑셀 표 파일'), el('small', {}, '.xlsx · .xls · .xlsm'), el('small', {}, '시트 1을 불러옵니다.')),
       el('div', {}, el('span', {}, '텍스트 표 파일'), el('small', {}, '.csv · .tsv · .txt')),
       el('div', {}, el('span', {}, '이미지 파일'), el('small', {}, '이미지를 그대로 보여줌')));
     document.body.append(pop);
@@ -2293,7 +2293,7 @@
         const f = e.target.files[0]; if (!f) return;
         try { draft = await fileToDraft(f); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ }
       } });
-      const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀 또는 한글의 표를 복사하여 붙여 넣으세요' });
+      const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀 또는 한글의 표를 복사하여 붙여 넣으세요.' });
       ta.value = draft.text || '';
       ta.addEventListener('input', () => { draft.text = ta.value; });
       ta.addEventListener('paste', (e) => {
@@ -2397,7 +2397,7 @@
           tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
           tog('ab', '출결 버튼', '', 'render'),
           tog('pastdd', '지난 D-day 표시하기', '', 'render'),
-          tog('meal', '급식 버튼', PF.school ? '' : '급식 창에서 학교를 먼저 골라요', 'render', !PF.school),
+          tog('meal', '급식 버튼', PF.school ? '' : '급식 창에서 학교를 먼저 골라요.', 'render', !PF.school),
           S.cloud ? el('label', { class: 'pfr tg' },
             el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
               const cb = e.target;
@@ -2559,7 +2559,7 @@
   async function connectGcal() {
     try {
       const t = await S.cloud.calendarToken();
-      if (!t) throw new Error('토큰을 받지 못했어요');
+      if (!t) throw new Error('토큰을 받지 못했어요.');
       try { sessionStorage.setItem(GK, JSON.stringify({ t, exp: Date.now() + 50 * 60e3 })); } catch (e) { /* noop */ }
       ls.set('hagisiro:gcal', '1');
       await loadGcal();
@@ -2820,12 +2820,12 @@
   const bookUrl = (id) => new URL('book.html?c=' + id, location.href).href;
   const cRange = (c) => { const d = c.slots.map((x) => x.split('_')[0]).sort(); const f = (k) => `${+k.slice(4, 6)}.${+k.slice(6, 8)}.`; return d.length ? `${f(d[0])} ~ ${f(d[d.length - 1])}` : ''; };
   const shareText = (c) => `${c.title || '상담'}\n${bookUrl(c.id)}`;
-  const copyText = async (t) => { try { await navigator.clipboard.writeText(t); } catch (e) { ask('아래 링크를 길게 눌러 복사하세요\n' + t, '닫기', false); } };
+  const copyText = async (t) => { try { await navigator.clipboard.writeText(t); } catch (e) { ask('아래 링크를 길게 눌러 복사하세요.\n' + t, '닫기', false); } };
   const sidLabel = (sid) => `${+sid.slice(4, 6)}.${+sid.slice(6, 8)}. ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
   function consultView() {
     const host = el('div', { class: 'cv' });
     S.cvHost = host;
-    if (!S.cloud) { host.append(el('div', { class: 'cvm mut' }, 'Google 로그인 후 사용할 수 있어요')); return host; }
+    if (!S.cloud) { host.append(el('div', { class: 'cvm mut' }, 'Google 로그인 후 사용할 수 있어요.')); return host; }
     let unsub = null;
     S.cleanup = () => { if (unsub) unsub(); unsub = null; };
     let nav = 0;

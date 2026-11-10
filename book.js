@@ -28,7 +28,7 @@ function modal(...kids) {
 }
 const msg = (t) => { root.replaceChildren(el('p', { class: 'mut' }, t)); };
 
-if (!cid || !(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey)) { msg('올바르지 않은 링크예요'); throw new Error('no cid'); }
+if (!cid || !(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey)) { msg('올바르지 않은 링크예요.'); throw new Error('no cid'); }
 
 const db = getFirestore(initializeApp(window.FIREBASE_CONFIG));
 const sidParts = (sid) => { const [d, t] = sid.split('_'); return { y: +d.slice(0, 4), m: +d.slice(4, 6), d: +d.slice(6, 8), hh: t.slice(0, 2), mm: t.slice(2, 4) }; };
@@ -46,12 +46,12 @@ const ready = () => /^\d{5}$/.test(f.sid.value) && f.name.value.trim() && /^\d{4
 (async () => {
   try {
     const s = await getDoc(doc(db, 'consults', cid));
-    if (!s.exists()) { msg('상담표를 찾을 수 없어요'); return; }
+    if (!s.exists()) { msg('상담표를 찾을 수 없어요.'); return; }
     C = s.data();
-  } catch (e) { msg('불러오지 못했어요'); return; }
+  } catch (e) { msg('불러오지 못했어요.'); return; }
   const mine0 = loadMine();
   if (mine0._n) { f.name.value = mine0._n; f.sid.value = /^\d{5}$/.test(mine0._i || '') ? mine0._i : ''; }
-  onSnapshot(collection(db, 'consults', cid, 'taken'), (snap) => { taken = new Set(snap.docs.map((d) => d.id)); draw(); }, () => msg('불러오지 못했어요'));
+  onSnapshot(collection(db, 'consults', cid, 'taken'), (snap) => { taken = new Set(snap.docs.map((d) => d.id)); draw(); }, () => msg('불러오지 못했어요.'));
   draw();
 })();
 
@@ -70,10 +70,10 @@ function draw() {
   root.replaceChildren(...[
     el('h1', {}, C.title || '상담 신청'),
     C.note ? el('p', { class: 'note' }, C.note) : null,
-    C.closeAt ? el('p', { class: 'mut small' }, closed() ? '신청이 마감됐어요' : `신청 마감 ${new Date(C.closeAt).getMonth() + 1}.${new Date(C.closeAt).getDate()}. ${String(new Date(C.closeAt).getHours()).padStart(2, '0')}:${String(new Date(C.closeAt).getMinutes()).padStart(2, '0')}`) : null,
+    C.closeAt ? el('p', { class: 'mut small' }, closed() ? '신청이 마감됐어요.' : `신청 마감 ${new Date(C.closeAt).getMonth() + 1}.${new Date(C.closeAt).getDate()}. ${String(new Date(C.closeAt).getHours()).padStart(2, '0')}:${String(new Date(C.closeAt).getMinutes()).padStart(2, '0')}`) : null,
     el('div', { class: 'form' },
       el('label', {}, '학번(숫자 5자리)', f.sid), el('label', {}, '이름', f.name), el('label', {}, '비밀번호(숫자 4자리)', f.pin)),
-    !ready() ? null : moving ? el('div', { class: 'banner' }, '옮길 시간을 골라 주세요', el('button', { onclick: () => { moving = null; draw(); } }, '그만두기')) : null,
+    !ready() ? null : moving ? el('div', { class: 'banner' }, '옮길 시간을 골라 주세요.', el('button', { onclick: () => { moving = null; draw(); } }, '그만두기')) : null,
     !ready() ? null : Object.keys(days).length ? Object.keys(days).map((k) => {
       const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
       return [el('div', { class: 'day' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
@@ -82,7 +82,7 @@ function draw() {
           return el('button', { class: 'chip' + (isT ? ' taken' : '') + (isMine ? ' mine' : ''), type: 'button', title: isT ? (isMine ? '내 신청' : '신청됨') : '',
             onclick: () => (isT ? onTaken(sid) : onFree(sid)) }, `${p.hh}:${p.mm}`);
         }))];
-    }) : el('p', { class: 'mut' }, '신청할 수 있는 시간이 없어요')].flat(Infinity).filter(Boolean));
+    }) : el('p', { class: 'mut' }, '신청할 수 있는 시간이 없어요.')].flat(Infinity).filter(Boolean));
   const fi = keep.indexOf(true);
   if (fi >= 0) { fs[fi].focus(); try { fs[fi].setSelectionRange(caret, caret); } catch (e) { /* noop */ } }
 }
@@ -93,7 +93,7 @@ const tref = (sid) => doc(db, 'consults', cid, 'taken', sid);
 const label = (sid) => { const p = sidParts(sid); return `${p.m}월 ${p.d}일 ${p.hh}:${p.mm}`; };
 
 function onFree(sid) {
-  if (closed()) { toast('신청이 마감됐어요'); return; }
+  if (closed()) { toast('신청이 마감됐어요.'); return; }
   const v = readForm(); if (!v) return;
   const move = moving;
   const close = modal(el('b', {}, move ? '이 시간으로 바꿀까요?' : '이 시간으로 신청할까요?'), el('div', {}, label(sid)),
@@ -109,10 +109,10 @@ async function book(sid, v, move) {
     await b.commit();
     const mine = loadMine(); if (move) delete mine[move.sid];
     mine[sid] = v.pin; mine._n = v.name; mine._i = v.info; saveMine(mine);
-    moving = null; toast(move ? '시간을 바꿨어요' : '신청했어요'); draw();
+    moving = null; toast(move ? '시간을 바꿨어요.' : '신청했어요.'); draw();
   } catch (e) {
     console.error(e);
-    toast(e && e.code === 'permission-denied' ? (move ? '비밀번호가 다르거나 이미 신청된 시간이에요' : '이미 신청됐거나 마감된 시간이에요') : '신청하지 못했어요');
+    toast(e && e.code === 'permission-denied' ? (move ? '비밀번호가 다르거나 이미 신청된 시간이에요.' : '이미 신청됐거나 마감된 시간이에요.') : '신청하지 못했어요.');
   }
 }
 
@@ -122,14 +122,14 @@ function onTaken(sid) {
   const need = () => /^\d{4}$/.test(pin.value);
   const sync = () => { [cancel, change].forEach((b) => { b.disabled = !need(); }); };
   let cancel, change;
-  const close = modal(el('b', {}, mine[sid] ? '내 신청' : '신청된 시간'), el('div', { class: 'mut small' }, label(sid) + ' · 신청한 사람만 바꿀 수 있어요'), pin,
+  const close = modal(el('b', {}, mine[sid] ? '내 신청' : '신청된 시간'), el('div', { class: 'mut small' }, label(sid) + ' · 신청한 사람만 바꿀 수 있어요.'), pin,
     el('div', { class: 'row' },
       cancel = el('button', { class: 'ghost danger', onclick: async () => {
         if (!need()) return;
         try {
           const b = writeBatch(db); b.set(bref(sid), { cancelled: true, pin: pin.value }, { merge: true }); b.delete(tref(sid)); await b.commit();
-          const m = loadMine(); delete m[sid]; saveMine(m); close(); toast('신청을 취소했어요');
-        } catch (e) { toast(e && e.code === 'permission-denied' ? '비밀번호가 달라요' : '취소하지 못했어요'); }
+          const m = loadMine(); delete m[sid]; saveMine(m); close(); toast('신청을 취소했어요.');
+        } catch (e) { toast(e && e.code === 'permission-denied' ? '비밀번호가 달라요.' : '취소하지 못했어요.'); }
       } }, '신청 취소'),
       change = el('button', { class: 'pri', onclick: async () => {
         if (!need()) return;
