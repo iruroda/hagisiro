@@ -83,7 +83,7 @@
     slash: '<path d="M8 19.5l8-15"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
     share: '<path stroke-width="2.2" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/>',
-    refresh: '<path d="M19.34 13.97A7.6 7.6 0 1 1 17.37 6.63"/><path d="M14.05 8.40L19.77 9.03L19.14 3.30z" fill="currentColor" stroke-width="1.6"/>',
+    refresh: '<path d="M19.34 13.97A7.6 7.6 0 1 1 17.37 6.63"/><path d="M14.05 8.40L19.77 9.03L19.14 3.30"/>',
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
     lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
@@ -2811,11 +2811,19 @@
     S.cleanup = () => { if (unsub) unsub(); unsub = null; };
     let nav = 0;
     const stop = () => { nav++; if (unsub) { unsub(); unsub = null; } };
+    let shellT = 0;
     let dir = ''; // 화면을 넘길 때만: 'next'(오른쪽에서 밀려 들어옴) · 'prev'(왼쪽에서)
     const shell = (title, body, back) => {
-      host.replaceChildren(...[
-        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('uturn')) : null, el('b', {}, title)), body].filter(Boolean));
-      if (dir) { [...host.children].forEach((c) => c.classList.add('cs-' + dir)); host.scrollTop = 0; dir = ''; }
+      const kids = [
+        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: () => { dir = 'prev'; back(); }, 'aria-label': '이전' }, icon('uturn')) : null, el('b', {}, title)), body].filter(Boolean);
+      const d = dir; dir = ''; const t = ++shellT;
+      if (d === 'prev' && host.children.length) { // 뒤로: 지금 화면이 오른쪽으로 밀려 나간 뒤 이전 화면
+        [...host.children].forEach((c) => c.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(100%)', opacity: .4 }], { duration: 240, easing: 'cubic-bezier(.4, 0, .8, .4)', fill: 'forwards' }));
+        setTimeout(() => { if (t !== shellT) return; host.replaceChildren(...kids); host.scrollTop = 0; }, 240);
+        return;
+      }
+      host.replaceChildren(...kids);
+      if (d === 'next') { kids.forEach((c) => c.classList.add('cs-next')); host.scrollTop = 0; }
     };
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
     const dayLabel = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`; };
@@ -2827,16 +2835,18 @@
     /* ---- 첫 화면: 새로 만들기 + 만들어 둔 상담표 목록 ---- */
     async function list() {
       S.cs = null; stop(); const my = nav;
-      shell('', loading());
+      const d0 = dir; dir = '';
+      if (!d0) shell('', loading());
       let rows = [];
       try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); }
       if (my !== nav) return;
+      dir = d0;
       rows.sort((a, b) => (b.created || 0) - (a.created || 0));
       shell('', el('div', { class: 'clist' },
         rows.map((c) => el('div', { class: 'crow' },
-          el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${cRange(c)}`)),
+          el('button', { class: 'ctitle', type: 'button', onclick: () => { dir = 'next'; detail(c); } }, el('b', {}, c.title || '상담'), el('small', {}, ` ${cRange(c)}`)),
           el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(shareText(c)) }, icon('share')),
-          el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => fine(draftOf(c), c, 'list') }, icon('edit')),
+          el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => { dir = 'next'; fine(draftOf(c), c, 'list'); } }, icon('edit')),
           el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))),
         el('button', { class: 'pri cnew', type: 'button', onclick: () => { dir = 'next'; quick(); } }, icon('plus'), '새 테이블 만들기')));
     }
@@ -2935,7 +2945,7 @@
           ...(c ? [r('제목', fld(tIn)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(nIn)), r('신청 마감(선택)', cIn)] : []),
           r('날짜 추가', addDate, el('button', { class: 'pri cplus', type: 'button', title: '날짜 추가', 'aria-label': '날짜 추가', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; addDate.value = ''; draw(); } }, icon('plus'))),
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
-          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: c ? () => { dir = 'prev'; from === 'detail' ? detail(c) : list(); } : quick }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
+          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: c ? () => { dir = 'prev'; from === 'detail' ? detail(c) : list(); } : () => { dir = 'prev'; quick(); } }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
             const btn = e.currentTarget, fb = btn.parentElement;
             fb.querySelector('.cerr')?.remove();
             const slots = [];
@@ -2984,7 +2994,7 @@
         shell(c.title || '상담', el('div', { class: 'cdet' },
           el('div', { class: 'crow2' }, el('span', { class: 'mut' }, cRange(c)), el('span', { class: 'grow' }),
             el('button', { class: 'tbn', type: 'button', onclick: () => copyText(shareText(c)) }, icon('share'), '링크 복사'),
-            el('button', { class: 'tbn', type: 'button', onclick: () => fine(draftOf(c), c, 'detail') }, icon('edit'), '수정'),
+            el('button', { class: 'tbn', type: 'button', onclick: () => { dir = 'next'; fine(draftOf(c), c, 'detail'); } }, icon('edit'), '수정'),
             el('button', { class: 'tbn danger', type: 'button', onclick: () => del(c) }, icon('trash'), '삭제')),
           el('div', { class: 'cgrid' }, Object.keys(days).map(card))), list);
       };
