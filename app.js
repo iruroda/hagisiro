@@ -1752,7 +1752,7 @@
   function monthView(cls) {
     const frag = el('div', { class: 'mv' });
     const ph = () => el('span', { class: 'ib ph', 'aria-hidden': 'true' }); // 일별·주별의 ‹ › 자리 (월 이동은 위 헤더에 있어서 버튼 없음)
-    frag.append(el('div', { class: 'dhead mhead' }, ph(), el('b', { class: 'dttl' }, `${S.m + 1}월`), ph()));
+    frag.append(el('div', { class: 'dhead mhead' }, el('b', { class: 'dttl mttl0' }, `${S.m + 1}월`)));
     const recs = monthRecs(cls);
     const by = {};
     recs.forEach((a) => { (by[a.studentId + '|' + a.date] = by[a.studentId + '|' + a.date] || []).push(a); });

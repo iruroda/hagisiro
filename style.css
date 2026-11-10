@@ -1049,3 +1049,9 @@ body.widget .cell { padding-top: 5px; }
 .fld:focus-within .pen { opacity: 0; }
 .fld .pen .ic svg { width: 16px; height: 16px; }
 .qrow .fld .pen .ic svg { width: 20px; height: 20px; }
+
+/* 출결 표: 번호·이름·칸 글자 모두 가운데 정렬, 월별 왼쪽 여백 제거 */
+.mt .c2 { text-align: center; padding-left: 8px; padding-right: 8px; }
+.wt .c1, .wt .c2 { text-align: center; }
+.mt td .mk { display: block; padding: 0; gap: 0; font-size: inherit; text-align: center; }
+.mhead .dttl.mttl0 { min-width: 0; text-align: left; }
