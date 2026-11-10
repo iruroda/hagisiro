@@ -383,13 +383,13 @@
     if (!S.belt) return;
     const b = S.belt; S.belt = null;
     S.cont = performance.now() - b.snap.t0 < 300 ? b.snap : null;
-    try { b.an.cancel(); } catch (e) { /* noop */ }
+    try { b.an.cancel(); if (b.an2) b.an2.cancel(); } catch (e) { /* noop */ }
     b.done();
   }
   function startBelt(main, c, t, snap) {
     if (snap.s == null) snap.s = Math.round(Math.abs(S.startDelta || 0) / 7); // 새 화면을 그린 뒤에야 몇 주 움직였는지 알 수 있어요
     const dir = snap.dir, opt = { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)' };
-    let an, done;
+    let an, an2, done;
     if (S.view === 'cal' && weekMode()) {
       const grid = c.querySelector('.days');
       const olds = [...snap.node.querySelectorAll('.days > .cell')];
@@ -424,20 +424,20 @@
       done = () => { take.forEach((n) => n.remove()); grid.style.cssText = saved; news.forEach((n, i) => { n.style.gridRow = saveRows[i]; }); if (clip.isConnected) clip.replaceWith(grid); };
     } else {
       const saved = t.style.cssText, node = snap.node;
-      const clip = el('div', { class: 'beltclip' }), strip = el('div');
+      const clip = el('div', { class: 'beltclip' });
       clip.style.cssText = t.classList.contains('mwrap') ? `flex:none;min-width:0;width:100%;height:${t.offsetHeight}px;position:relative;overflow:hidden` : 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
-      strip.style.cssText = 'position:absolute;top:0;bottom:0;left:0;width:200%;display:flex';
-      t.replaceWith(clip); clip.append(strip);
-      t.style.cssText = `${saved};flex:none;width:50%;height:100%;min-width:0`;
-      node.style.cssText = 'flex:none;width:50%;height:100%;min-width:0;pointer-events:none';
-      if (dir > 0) strip.append(node, t); else strip.append(t, node);
-      const a = dir > 0 ? 0 : -50, b = dir > 0 ? -50 : 0;
-      an = strip.animate([{ transform: `translateX(${a}%)` }, { transform: `translateX(${b}%)` }], opt);
+      t.replaceWith(clip); clip.append(t, node);
+      t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0`;
+      node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;pointer-events:none';
+      /* 끝에서 끝까지 밀지 않고, 가운데 가까이에서 페이드로 들어오며 제자리로 / 이전 화면은 반대쪽으로 조금 밀리며 사라져요 */
+      const D = 12;
+      an = t.animate([{ transform: `translateX(${dir * D}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
+      an2 = node.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * D}%)`, opacity: 0 }], { ...opt, fill: 'forwards' });
       done = () => { t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
     }
     const el0 = performance.now() - snap.t0;
-    if (el0 > 0) an.currentTime = el0;
-    S.belt = { an, done, snap };
+    if (el0 > 0) { an.currentTime = el0; if (an2) an2.currentTime = el0; }
+    S.belt = { an, an2, done, snap };
     an.onfinish = () => { if (S.belt && S.belt.an === an) { S.belt = null; done(); } };
   }
   function animateMain(main, snap) {
