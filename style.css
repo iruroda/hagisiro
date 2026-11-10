@@ -1006,3 +1006,6 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 /* 오늘 날짜 알약이 셀 위쪽에 닿지 않게: 위 여백 5px(좌·우·아래와 동일), 알약 높이 = 날짜 줄 높이 */
 body.widget .cell { padding-top: 5px; }
 .cell .dn { line-height: 19px; }
+
+/* 출결·급식 알약 위쪽 여백: 날짜~할 일 사이와 비슷하게 */
+.cbt { margin-top: 4px; }
