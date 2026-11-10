@@ -951,3 +951,8 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 .blset { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .blset .blb { width: 20px; height: 20px; border-radius: var(--r); }
 .blset .blb .ic svg { width: 14px; height: 14px; }
+
+/* 할 일 팝업: D-day·반복 아이콘이 줄 높이를 키우지 않게 / 기호 아이콘 크기 / 색 팝업 글자 세로 가운데 */
+.ed .td .ddm, .ed .td .rpt { margin-top: 0; align-self: center; display: inline-flex; line-height: 0; }
+.tb[aria-label="기호"] .ic svg { width: 22px; height: 22px; }
+.swl { position: relative; top: 1px; }
