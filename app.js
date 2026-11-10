@@ -138,8 +138,7 @@
     clr.addEventListener('mousedown', (e) => e.preventDefault());
     clr.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); sync(); input.focus(); });
     input.addEventListener('input', sync);
-    const ta = input.tagName === 'TEXTAREA'; /* 타이핑 아이콘은 한 줄 입력칸에만 */
-    const w = el('span', { class: 'fld' + (ta ? ' ta' : '') }, ta ? null : el('span', { class: 'pen' }, icon('type')), input, clr);
+    const w = el('span', { class: 'fld' + (input.tagName === 'TEXTAREA' ? ' ta' : '') }, input, clr);
     sync();
     w._sync = sync;
     return w;

@@ -1055,3 +1055,6 @@ body.widget .cell { padding-top: 5px; }
 .wt .c1, .wt .c2 { text-align: center; }
 .mt td .mk { display: block; padding: 0; gap: 0; font-size: inherit; text-align: center; }
 .mhead .dttl.mttl0 { min-width: 0; text-align: left; }
+
+/* 입력칸에는 아이콘을 두지 않는다 — 글자는 왼쪽 끝에서 시작 */
+.fld input, .fld textarea, .qrow .fld input { padding-left: 12px; }
