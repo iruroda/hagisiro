@@ -1174,7 +1174,7 @@
         if (ctx.setDone) ctx.setDone(ts, to); else ts.forEach((t) => t.set({ done: to }));
         if (ctx.after) ctx.after(false);
       }),
-      btn('spade', '글머리 기호', (b) => {
+      btn('spade', '기호', (b) => {
         const ts = ctx.targets(true);
         if (!ts.length) return;
         const cur = ts[0].get().bl || PF.tbl || 'dot';
