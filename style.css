@@ -880,16 +880,16 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 .cerr { color: #e5484d; font-size: 12px; margin-right: auto; }
 
 /* 위젯 이동·크기 조절 중: 뒤쪽을 어둡게, 손잡이와 완료 버튼은 또렷하게 */
-#wedit { background: rgba(10, 12, 20, .55); box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 4px #fff; }
+#wedit { background: rgba(10, 12, 20, .55); box-shadow: inset 0 0 0 3px var(--accent), inset 0 0 0 6px #fff; }
 /* 손잡이는 테두리와 한 덩어리: 흰 선은 바깥(창 가장자리 2px)을 빼고 안쪽으로만 */
 #wedit i { background: none; box-shadow: none; border-radius: 0; z-index: 1; }
 #wedit i::before { border-radius: var(--rw, 0); } #wedit i::after { border-radius: var(--rd, 0); }
-#wedit i::before { content: ""; position: absolute; inset: -2px; background: #fff; clip-path: var(--cp); }
+#wedit i::before { content: ""; position: absolute; inset: -3px; background: #fff; clip-path: var(--cp); }
 #wedit i::after { content: ""; position: absolute; inset: 0; background: var(--accent); }
-#wedit i[data-e="n"] { --cp: inset(4px 0 0 0); } #wedit i[data-e="s"] { --cp: inset(0 0 4px 0); }
-#wedit i[data-e="w"] { --cp: inset(0 0 0 4px); } #wedit i[data-e="e"] { --cp: inset(0 4px 0 0); }
-#wedit i[data-e="nw"] { --cp: inset(4px 0 0 4px); } #wedit i[data-e="ne"] { --cp: inset(4px 4px 0 0); }
-#wedit i[data-e="sw"] { --cp: inset(0 0 4px 4px); } #wedit i[data-e="se"] { --cp: inset(0 4px 4px 0); }
+#wedit i[data-e="n"] { --cp: inset(6px 0 0 0); } #wedit i[data-e="s"] { --cp: inset(0 0 6px 0); }
+#wedit i[data-e="w"] { --cp: inset(0 0 0 6px); } #wedit i[data-e="e"] { --cp: inset(0 6px 0 0); }
+#wedit i[data-e="nw"] { --cp: inset(6px 0 0 6px); } #wedit i[data-e="ne"] { --cp: inset(6px 6px 0 0); }
+#wedit i[data-e="sw"] { --cp: inset(0 0 6px 6px); } #wedit i[data-e="se"] { --cp: inset(0 6px 6px 0); }
 #wedit i[data-e="nw"], #wedit i[data-e="ne"], #wedit i[data-e="sw"], #wedit i[data-e="se"] { width: 14px; height: 14px; }
 #wedit .wdone { font-size: 16px; padding: 13px 34px; border-radius: 14px; box-shadow: 0 0 0 3px #fff; }
 
@@ -1084,8 +1084,12 @@ body.widget .cell { padding-top: 5px; }
 .dsrc .ib.sm { margin-left: -2px; }
 
 /* 손잡이는 안쪽 모서리만 둥글게 (창 가장자리에 닿는 쪽은 테두리와 이어지도록 각지게) */
-#wedit i[data-e="n"] { --rd: 0 0 4px 4px; --rw: 0 0 6px 6px; } #wedit i[data-e="s"] { --rd: 4px 4px 0 0; --rw: 6px 6px 0 0; }
-#wedit i[data-e="w"] { --rd: 0 4px 4px 0; --rw: 0 6px 6px 0; } #wedit i[data-e="e"] { --rd: 4px 0 0 4px; --rw: 6px 0 0 6px; }
-#wedit i[data-e="nw"] { --rd: 0 0 4px 0; --rw: 0 0 6px 0; } #wedit i[data-e="ne"] { --rd: 0 0 0 4px; --rw: 0 0 0 6px; }
-#wedit i[data-e="sw"] { --rd: 0 4px 0 0; --rw: 0 6px 0 0; } #wedit i[data-e="se"] { --rd: 4px 0 0 0; --rw: 6px 0 0 0; }
+#wedit i[data-e="n"] { --rd: 0 0 5px 5px; --rw: 0 0 8px 8px; } #wedit i[data-e="s"] { --rd: 5px 5px 0 0; --rw: 8px 8px 0 0; }
+#wedit i[data-e="w"] { --rd: 0 5px 5px 0; --rw: 0 8px 8px 0; } #wedit i[data-e="e"] { --rd: 5px 0 0 5px; --rw: 8px 0 0 8px; }
+#wedit i[data-e="nw"] { --rd: 0 0 5px 0; --rw: 0 0 8px 0; } #wedit i[data-e="ne"] { --rd: 0 0 0 5px; --rw: 0 0 0 8px; }
+#wedit i[data-e="sw"] { --rd: 0 5px 0 0; --rw: 0 8px 0 0; } #wedit i[data-e="se"] { --rd: 5px 0 0 0; --rw: 8px 0 0 0; }
 #wedit { overflow: hidden; }
+
+/* 선 두께: 보라 3px · 흰색 3px (완료 박스 테두리와 같게), 손잡이도 그에 맞춰 조금 굵게 */
+#wedit i[data-e="n"], #wedit i[data-e="s"] { height: 10px; } #wedit i[data-e="w"], #wedit i[data-e="e"] { width: 10px; }
+#wedit i[data-e="nw"], #wedit i[data-e="ne"], #wedit i[data-e="sw"], #wedit i[data-e="se"] { width: 16px; height: 16px; }
