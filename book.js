@@ -38,7 +38,8 @@ const digits = (n) => (e) => { const v = e.target.value.replace(/\D/g, '').slice
 const f = { sid: el('input', { maxlength: 5, inputmode: 'numeric', autocomplete: 'off', oninput: digits(5) }),
   name: el('input', { maxlength: 20, autocomplete: 'name' }),
   pin: el('input', { maxlength: 4, inputmode: 'numeric', autocomplete: 'off', type: 'password', oninput: digits(4) }) };
-['sid', 'name', 'pin'].forEach((k) => f[k].addEventListener('input', () => draw()));
+let drawSlots = () => {};
+['sid', 'name', 'pin'].forEach((k) => f[k].addEventListener('input', () => drawSlots())); // 입력 중에는 입력칸을 다시 만들지 않아요(한글 조합이 끊김)
 const ready = () => /^\d{5}$/.test(f.sid.value) && f.name.value.trim() && /^\d{4}$/.test(f.pin.value);
 
 (async () => {
@@ -62,15 +63,7 @@ function draw() {
   const now = Date.now();
   const days = {};
   C.slots.slice().sort().forEach((sid) => { if (slotTime(sid) > now || taken.has(sid)) (days[dayKey(sid)] = days[dayKey(sid)] || []).push(sid); });
-  const fs = [f.sid, f.name, f.pin];
-  const keep = fs.map((x) => document.activeElement === x);
-  const caret = keep.indexOf(true) >= 0 ? fs[keep.indexOf(true)].selectionStart : null;
-  root.replaceChildren(...[
-    el('h1', {}, C.title || '상담 신청'),
-    C.note ? el('p', { class: 'note' }, C.note) : null,
-    C.closeAt ? el('p', { class: 'mut small' }, closed() ? '신청이 마감됐어요.' : `신청 마감 ${new Date(C.closeAt).getMonth() + 1}.${new Date(C.closeAt).getDate()}. ${String(new Date(C.closeAt).getHours()).padStart(2, '0')}:${String(new Date(C.closeAt).getMinutes()).padStart(2, '0')}`) : null,
-    el('div', { class: 'form' },
-      el('label', {}, '학번(숫자 5자리)', f.sid), el('label', {}, '이름', f.name), el('label', {}, '비밀번호(숫자 4자리)', f.pin)),
+  const slotNodes = () => [
     !ready() ? null : moving ? el('div', { class: 'banner' }, '옮길 시간을 골라 주세요.', el('button', { onclick: () => { moving = null; draw(); } }, '그만두기')) : null,
     !ready() ? null : Object.keys(days).length ? Object.keys(days).map((k) => {
       const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
@@ -80,7 +73,20 @@ function draw() {
           return el('button', { class: 'chip' + (isT ? ' taken' : '') + (isMine ? ' mine' : ''), type: 'button', title: isT ? (isMine ? '내 신청' : '신청됨') : '',
             onclick: () => (isT ? onTaken(sid) : onFree(sid)) }, `${p.hh}:${p.mm}`);
         }))];
-    }) : el('p', { class: 'mut' }, '신청할 수 있는 시간이 없어요.')].flat(Infinity).filter(Boolean));
+    }) : el('p', { class: 'mut' }, '신청할 수 있는 시간이 없어요.')].flat(Infinity).filter(Boolean);
+  const slotHost = el('div', { class: 'slots', style: 'display:contents' });
+  drawSlots = () => slotHost.replaceChildren(...slotNodes());
+  const fs = [f.sid, f.name, f.pin];
+  const keep = fs.map((x) => document.activeElement === x);
+  const caret = keep.indexOf(true) >= 0 ? fs[keep.indexOf(true)].selectionStart : null;
+  root.replaceChildren(...[
+    el('h1', {}, C.title || '상담 신청'),
+    C.note ? el('p', { class: 'note' }, C.note) : null,
+    C.closeAt ? el('p', { class: 'mut small' }, closed() ? '신청이 마감됐어요.' : `신청 마감 ${new Date(C.closeAt).getMonth() + 1}.${new Date(C.closeAt).getDate()}. ${String(new Date(C.closeAt).getHours()).padStart(2, '0')}:${String(new Date(C.closeAt).getMinutes()).padStart(2, '0')}`) : null,
+    el('div', { class: 'form' },
+      el('label', {}, '학번(숫자 5자리)', f.sid), el('label', {}, '이름', f.name), el('label', {}, '비밀번호(숫자 4자리)', f.pin)),
+    slotHost].flat(Infinity).filter(Boolean));
+  slotHost.replaceChildren(...slotNodes());
   const fi = keep.indexOf(true);
   if (fi >= 0) { fs[fi].focus(); try { fs[fi].setSelectionRange(caret, caret); } catch (e) { /* noop */ } }
 }
