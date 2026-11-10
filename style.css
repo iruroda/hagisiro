@@ -1007,8 +1007,8 @@ body.widget .cell { padding-top: 5px; }
 .ib.ph { visibility: hidden; pointer-events: none; }
 
 /* 스크롤바 썸: 알약 모양이면서 트랙 끝까지 닿게 (테두리로 줄이던 방식은 끝에서 안쪽으로 떨어져 보임) */
-::-webkit-scrollbar-thumb, .dv > .mwrap::-webkit-scrollbar-thumb, .wv > .mwrap::-webkit-scrollbar-thumb, .mv > .mwrap::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb { --w: 4px; --c: color-mix(in srgb, var(--mut) 42%, transparent); border: 0; border-radius: 0; background-color: transparent; background-clip: border-box; }
-::-webkit-scrollbar-thumb:hover { --c: color-mix(in srgb, var(--mut) 75%, transparent); }
+::-webkit-scrollbar-thumb, .dv > .mwrap::-webkit-scrollbar-thumb, .wv > .mwrap::-webkit-scrollbar-thumb, .mv > .mwrap::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb { --w: 4px; --c: color-mix(in srgb, var(--mut) 42%, var(--bg-s)); border: 0; border-radius: 0; background-color: transparent; background-clip: border-box; }
+::-webkit-scrollbar-thumb:hover { --c: color-mix(in srgb, var(--mut) 75%, var(--bg-s)); }
 .dv > .mwrap::-webkit-scrollbar-thumb, .wv > .mwrap::-webkit-scrollbar-thumb, .mv > .mwrap::-webkit-scrollbar-thumb { --w: 8px; }
 ::-webkit-scrollbar-thumb:vertical { background-image:
   radial-gradient(circle at 50% 100%, var(--c) calc(var(--w) / 2 - .6px), transparent calc(var(--w) / 2)),
