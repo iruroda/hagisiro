@@ -1435,6 +1435,7 @@
       after: () => { if (opt.barHost) live(); },
       repeat: (ts) => { // 모달에서 입력해야 하니 편집을 먼저 저장해요
         const its = ts.map((t) => t.get());
+        clearPicks();
         if (opt.barHost) { // 할 일 팝업은 그대로 두고 그 위에 반복 팝업을 겹쳐서 열어요
           commitTodos(ds, rows().map((r) => r._it), origVirtual);
           const ids = its.map((i) => i.id).filter(Boolean);
