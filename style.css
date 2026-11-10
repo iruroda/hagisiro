@@ -861,10 +861,6 @@ body.widget #modal.opening .back, body.widget #modal.closing .back, body.widget 
 body.wedit #wmove { position: relative; z-index: 80; }
 #wedit .wdone { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 
-/* 크기 조절 손잡이: 창 가장자리에서 살짝 안쪽 (윈도우가 가장자리를 가로채 오른쪽·아래 손잡이가 안 보이는 것 방지) */
-#wedit i[data-e="n"] { top: 6px; } #wedit i[data-e="s"] { bottom: 6px; } #wedit i[data-e="w"] { left: 6px; } #wedit i[data-e="e"] { right: 6px; }
-#wedit i[data-e="nw"] { top: 6px; left: 6px; } #wedit i[data-e="ne"] { top: 6px; right: 6px; }
-#wedit i[data-e="sw"] { bottom: 6px; left: 6px; } #wedit i[data-e="se"] { bottom: 6px; right: 6px; }
 
 /* 출결 표 가로 스크롤바: 세로와 같게 — 양끝까지 꽉 차고, 표와 간격을 둠 */
 .dv > .mwrap::-webkit-scrollbar-track:horizontal, .wv > .mwrap::-webkit-scrollbar-track:horizontal, .mv > .mwrap::-webkit-scrollbar-track:horizontal { margin: 0; }
@@ -889,8 +885,7 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 
 /* 위젯 이동·크기 조절 중: 뒤쪽을 어둡게, 손잡이와 완료 버튼은 또렷하게 */
 #wedit { background: rgba(10, 12, 20, .55); }
-#wedit i { box-shadow: 0 0 0 2px #fff; }
-#wedit .wdone { font-size: 16px; padding: 13px 34px; border-radius: 14px; box-shadow: 0 0 0 3px #fff, 0 6px 22px rgba(0, 0, 0, .35); }
+#wedit .wdone { font-size: 16px; padding: 13px 34px; border-radius: 14px; box-shadow: 0 6px 22px rgba(0, 0, 0, .35); }
 
 /* 상담표 2/2: 날짜가 세로 한 줄(시간표)로 오른쪽으로 쭉 */
 .cform .cgrid { flex-direction: row; align-items: flex-start; gap: 8px; overflow-x: auto; overflow-y: visible; max-height: none; padding-bottom: 8px; }
