@@ -2807,8 +2807,8 @@
     const stop = () => { nav++; if (unsub) { unsub(); unsub = null; } };
     let dir = ''; // 화면을 넘길 때만: 'next'(오른쪽에서 밀려 들어옴) · 'prev'(왼쪽에서)
     const shell = (title, body, back) => {
-      host.replaceChildren(
-        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body);
+      host.replaceChildren(...[
+        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: back, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body].filter(Boolean));
       if (dir) { [...host.children].forEach((c) => c.classList.add('cs-' + dir)); host.scrollTop = 0; dir = ''; }
     };
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
