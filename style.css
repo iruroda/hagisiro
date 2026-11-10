@@ -943,6 +943,3 @@ body.widget .cell { padding: 0 5px 5px; }
 
 /* 위젯 창은 html이 스크롤되지 않으니 스크롤바 자리를 비워두지 않아요 (오른쪽 여백 제거) */
 html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
-
-/* 확인·취소 등 팝업 하단 버튼: 글자를 0.5px 아래로 (높이는 그대로) */
-.dlgf .pri, .dlgf .ghost { padding-top: calc(6px + .5px); padding-bottom: calc(6px - .5px); }
