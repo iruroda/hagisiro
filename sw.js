@@ -1,6 +1,6 @@
 // HAGISIRO 서비스워커 — 앱 껍데기를 캐시해서 오프라인에서도 열리게 함
 // (데이터 자체는 Firestore가 기기에 따로 캐시해요)
-const CACHE = 'hagisiro-v166';
+const CACHE = 'hagisiro-v190';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'parser.js', 'lunar.js', 'cloud.js', 'config.js', 'manifest.json', 'book.html', 'book.js', 'book.css', 'icons/icon.svg', 'icons/icon-192.png', 'fonts/SUITE-Variable.woff2'];
 
 self.addEventListener('install', (e) => {
@@ -30,7 +30,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   // 내 파일은 네트워크 우선(업데이트가 바로 반영), 실패하면 캐시
-  e.respondWith(fetch(req).then((res) => {
+  e.respondWith(fetch(req, { cache: 'no-cache' }).then((res) => { // GitHub Pages의 10분 캐시를 건너뛰고 매번 최신인지 확인
     const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res;
   }).catch(() => caches.match(req).then((hit) => hit || caches.match('index.html'))));
 });
