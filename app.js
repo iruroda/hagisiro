@@ -2257,13 +2257,14 @@
     let draft = cur ? { kind: cur.kind, text: cur.text || '', img: cur.img || '' } : { kind: 'text', text: '' };
     let edit = !!forceEdit || !cur;
     const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
+    /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정·삭제만 */
     let drawView = function () {
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(),
-          el('div', { class: 'dbody' }, docView(cur)),
-          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
-            el('button', { class: 'ghost', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정'),
-            el('button', { class: 'pri', onclick: close }, '닫기'))));
+          el('div', { class: 'dsrc' },
+            el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, '수정'),
+            el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { Data.del('docs', id); close(); } } }, '삭제')),
+          el('div', { class: 'dbody' }, docView(cur))));
     };
     let drawEdit = function () {
       const file = el('input', { type: 'file', hidden: true, accept: '.xlsx,.xls,.xlsm,.csv,.tsv,.txt,image/*', onchange: async (e) => {
@@ -2307,7 +2308,6 @@
             null),
           body,
           el('div', { class: 'dlgf' },
-            cur ? el('button', { class: 'ghost sm danger', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { Data.del('docs', id); close(); } } }, icon('trash'), '삭제') : null,
             el('span', { class: 'grow' }),
             el('button', { class: 'ghost', onclick: () => { if (cur) { edit = false; drawView(); } else close(); } }, '취소'),
             el('button', { class: 'pri', onclick: save }, '저장'))));
