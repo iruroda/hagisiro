@@ -1062,3 +1062,7 @@ body.widget .cell { padding-top: 5px; }
 
 /* 닫은 칸은 신청자가 있어도 똑같이: 가운데 줄 + 흐린 글씨 + 배경 없음 */
 .cdc .cchip.bk.off { background: transparent; color: var(--mut); text-decoration: line-through; font-weight: 500; }
+
+/* 출결 표 스크롤바도 다른 곳과 같은 얇기로 통일 */
+.dv > .mwrap::-webkit-scrollbar, .wv > .mwrap::-webkit-scrollbar, .mv > .mwrap::-webkit-scrollbar { width: 8px; height: 8px; }
+.dv > .mwrap::-webkit-scrollbar-thumb, .wv > .mwrap::-webkit-scrollbar-thumb, .mv > .mwrap::-webkit-scrollbar-thumb { --w: 4px; border-width: 2px; }
