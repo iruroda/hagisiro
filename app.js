@@ -72,6 +72,7 @@
     phone: '<path d="M3.20 6.00L4.27 4.50Q5.20 3.20 6.80 3.20L8.40 3.20Q10.00 3.20 10.72 4.63L12.26 7.73Q12.80 8.80 11.95 9.65L10.80 10.80Q12.00 12.00 13.20 13.20L14.35 12.05Q15.20 11.20 16.27 11.74L19.37 13.28Q20.80 14.00 20.80 15.60L20.80 17.20Q20.80 18.80 19.50 19.73L18.00 20.80Q5.30 18.60 3.20 6.00z"/>',
     table: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M3.5 10.5h17M9.9 10.5V20"/>',
     upload: '<path d="M12 14.5v-10M7.5 8.5l4.5-4.5 4.5 4.5M5.5 19.5h13"/>',
+    type: '<path d="M8.5 5h7M8.5 19h7M12 5v14"/>',
     edit: '<path d="M5.5 18.5l.9-3.6L15 6.3a2 2 0 012.8 2.8l-8.6 8.6-3.7.8z"/>',
     scan: '<path d="M5 8.5V6.5a1.5 1.5 0 011.5-1.5h2M15.5 5h2A1.5 1.5 0 0119 6.5v2M19 15.5v2a1.5 1.5 0 01-1.5 1.5h-2M8.5 19h-2A1.5 1.5 0 015 17.5v-2M5 12h14"/>',
     trash: '<path d="M5 7h14M10 7V5h4v2M7 7l.9 11.5a1 1 0 001 .9h6.2a1 1 0 001-.9L17 7"/>',
@@ -137,7 +138,8 @@
     clr.addEventListener('mousedown', (e) => e.preventDefault());
     clr.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); sync(); input.focus(); });
     input.addEventListener('input', sync);
-    const w = el('span', { class: 'fld' + (input.tagName === 'TEXTAREA' ? ' ta' : '') }, el('span', { class: 'pen' }, icon('edit')), input, clr);
+    const ta = input.tagName === 'TEXTAREA'; /* 타이핑 아이콘은 한 줄 입력칸에만 */
+    const w = el('span', { class: 'fld' + (ta ? ' ta' : '') }, ta ? null : el('span', { class: 'pen' }, icon('type')), input, clr);
     sync();
     w._sync = sync;
     return w;

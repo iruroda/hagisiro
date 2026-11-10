@@ -1044,3 +1044,8 @@ body.widget .cell { padding-top: 5px; }
 .crow2 .pri.sm .ic svg { width: 14px; height: 14px; }
 /* 날짜 카드 줄은 가로로만 스크롤하고, 세로는 화면(상담 영역) 스크롤바 하나만 써요 (안쪽에 세로 스크롤바가 또 생기던 문제) */
 .cform .cgrid, .cdet .cgrid { flex: none; overflow-y: hidden; }
+
+/* 타이핑 아이콘(I자): 한 줄 입력칸에서 클릭(포커스)하는 순간 사라짐 */
+.fld:focus-within .pen { opacity: 0; }
+.fld .pen .ic svg { width: 16px; height: 16px; }
+.qrow .fld .pen .ic svg { width: 20px; height: 20px; }
