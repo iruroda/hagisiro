@@ -41,6 +41,8 @@
       if (c == null || c === false) continue;
       e.append(c.nodeType ? c : document.createTextNode(c));
     }
+    /* 아이콘만 있는 버튼은 이름 툴팁을 항상 단다 */
+    if (tag === 'button' && !e.title && e.getAttribute('aria-label') && !e.textContent.trim()) e.title = e.getAttribute('aria-label');
     return e;
   }
 
@@ -2829,13 +2831,12 @@
       if (my !== nav) return;
       rows.sort((a, b) => (b.created || 0) - (a.created || 0));
       shell('', el('div', { class: 'clist' },
-        el('button', { class: 'pri cnew', type: 'button', onclick: () => { dir = 'next'; quick(); } }, icon('plus'), '새 테이블 만들기'),
-        rows.length ? el('div', { class: 'pfs' }, '만들어 둔 테이블') : null,
         rows.map((c) => el('div', { class: 'crow' },
           el('button', { class: 'ctitle', type: 'button', onclick: () => detail(c) }, el('b', {}, c.title || '상담'), el('small', {}, ` ${c.slots.length}칸`)),
           el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(bookUrl(c.id)) }, icon('share')),
           el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => fine(draftOf(c), c) }, icon('edit')),
-          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash'))))));
+          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))),
+        el('button', { class: 'pri cnew', type: 'button', onclick: () => { dir = 'next'; quick(); } }, icon('plus'), '새 테이블 만들기')));
     }
     async function del(c) {
       if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?\n신청 내용도 모두 사라져요.`))) return;
