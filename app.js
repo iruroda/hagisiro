@@ -2942,7 +2942,6 @@
         r('제목', fld(f.title)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(f.note)),
         r('시작일 · 종료일', tl(f.from, f.to)), wk, r('시작 시각 · 종료 시각', tl(f.t1, f.t2)), r('간격', f.step), r('신청 마감(선택)', f.closeD, f.closeT), nd,
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
-          el('button', { class: 'ghost', type: 'button', onclick: () => { S.qform = null; dir = 'prev'; list(); } }, '이전'),
           okb = el('button', { class: 'pri', type: 'button', onclick: () => {
           save();
           const a = parseYmd(q.from || today), z = parseYmd(q.to || today);
@@ -2957,7 +2956,7 @@
           if (!Object.values(days).some((o) => Object.keys(o).length)) return;
           dir = 'next';
           fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT}`).getTime() : 0, noDup: q.noDup, days, step }, null);
-        } }, '다음'))));
+        } }, '다음'))), () => { S.qform = null; list(); });
       limits();
       const chk = () => { okb.disabled = !(f.title.value.trim() && f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
       Object.values(f).forEach((x) => { x.addEventListener('input', chk); x.addEventListener('change', chk); }); chk();
@@ -3006,7 +3005,7 @@
           ...(c ? [r('제목', fld(tIn)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(nIn)), r('신청 마감(선택)', cIn), el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!dr.noDup, onchange: (e) => { dr.noDup = e.target.checked; } }), el('span', {}, '중복 신청 불가'))] : []),
           r('날짜 추가', addDate, el('button', { class: 'pri cplus', type: 'button', title: '날짜 추가', 'aria-label': '날짜 추가', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; addDate.value = ''; draw(); } }, icon('plus'))),
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
-          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: c ? () => { dir = 'prev'; from === 'detail' ? detail(c) : list(); } : () => { dir = 'prev'; quick(); } }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
+          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), c ? null : el('button', { class: 'ghost', type: 'button', onclick: () => { dir = 'prev'; quick(); } }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
             const btn = e.currentTarget, fb = btn.parentElement;
             fb.querySelector('.cerr')?.remove();
             const slots = [];
@@ -3024,7 +3023,7 @@
               console.error(er); btn.disabled = false;
               fb.prepend(el('span', { class: 'cerr' }, `저장 실패 (${(er && (er.code || er.message)) || '오류'})`));
             }
-          } }, '저장'))));
+          } }, '저장'))), c ? () => { from === 'detail' ? detail(c) : list(); } : quick);
       };
       draw();
       if (c) unsub = S.cloud.consultWatchBooks(c.id, (books) => { booked = {}; books.filter((b) => !b.cancelled).forEach((b) => { booked[b.id] = b; }); draw(); }, () => {});
