@@ -141,7 +141,7 @@
   const stepOpts = (cur) => STEPS.map((n) => el('option', { value: n, selected: n === cur }, n >= 60 ? `${n / 60}시간` : `${n}분`));
   /* 입력칸 꾸밈: 왼쪽 연필(채울 수 있는 칸), 오른쪽 X(내용이 있을 때만 보이고 자리는 항상 비워둬요) */
   function fld(input) {
-    const clr = el('button', { class: 'clr', type: 'button', tabindex: '-1', 'aria-label': '지우기' }, icon('close'));
+    const clr = el('button', { class: 'clr', type: 'button', tabindex: '-1', 'aria-label': '삭제' }, icon('close'));
     const sync = () => { clr.style.visibility = input.value ? 'visible' : 'hidden'; w.classList.toggle('blank0', !input.value); };
     clr.addEventListener('mousedown', (e) => e.preventDefault());
     clr.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); sync(); input.focus(); });
@@ -522,7 +522,7 @@
   new MutationObserver((ms) => { if (ms.every((m) => [...m.addedNodes, ...m.removedNodes].every((n) => n.classList && n.classList.contains('pill')))) return; cancelAnimationFrame(pillRaf); pillRaf = requestAnimationFrame(slidePills); })
     .observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   /* 팝업·메뉴·알림이 나타날 때만 효과를 줘요 (안의 내용만 다시 그릴 땐 그대로) */
-  ['modal', 'toast', 'sheet'].forEach((id) => {
+  ['modal', 'sheet'].forEach((id) => {
     const n = document.getElementById(id);
     if (!n) return;
     new MutationObserver(() => {
@@ -1683,7 +1683,7 @@
           multi ? el('div', { class: 'rtargets' }, items.map(bulletRow)) : null,
           form.node,
           el('div', { class: 'dlgf' },
-            rule ? el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await removeRule(rule)) shut(); } }, icon('trash'), '반복 삭제') : null,
+            rule ? el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await removeRule(rule)) shut(); } }, icon('trash'), '삭제') : null,
             el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
     document.addEventListener('keydown', key, true);
     document.body.append(layer);
@@ -1947,7 +1947,7 @@
       el('span', { class: 'grow' }),
       el('span', { class: 'mut small' }, ovr ? `기본 ${def ? def + '교시' : '수업 없음'} → 이 날만` : '이 날만'),
       cntSel,
-      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), '기본값으로') : null));
+      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), '기본값') : null));
 
     const recs = S.att.filter((a) => a.classId === cls.id && a.date === ds);
     const by = {}; recs.slice().sort((a, b) => (a.created || 0) - (b.created || 0)).forEach((a) => { (by[a.studentId] = by[a.studentId] || []).push(a); });
@@ -2581,7 +2581,7 @@
         el('div', { class: 'pfr' }, el('span', { class: 'pl' }, '학급 이름'), fld(name)),
         el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 번호 · 이름'), fld(ta)),
         el('div', { class: 'dlgf' },
-          c ? el('button', { class: 'ghost sm danger', onclick: remove }, icon('trash'), '학급 삭제') : null,
+          c ? el('button', { class: 'ghost sm danger', onclick: remove }, icon('trash'), '삭제') : null,
           el('span', { class: 'grow' }),
           el('button', { class: 'ghost', onclick: close }, '취소'),
           el('button', { class: 'pri', onclick: save }, '저장'))));
@@ -2784,7 +2784,7 @@
       const e = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 6);
       ttl.textContent = `${sun.getMonth() + 1}.${sun.getDate()}. ~ ${e.getMonth() + 1}.${e.getDate()}.`;
       body.replaceChildren();
-      if (!PF.school) { body.append(el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, icon('search'), '학교 찾기')); return; }
+      if (!PF.school) { body.append(el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, icon('search'), '학교 검색')); return; }
       const data = cache[ymd(sun)];
       if (!data) { body.append(loading()); return; }
       const kinds = MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k));
@@ -2850,7 +2850,7 @@
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, hb('search', '학교 찾기'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('search', '학교 검색'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         PF.school ? el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, PF.school.name), el('button', { class: 'ghost sm danger', type: 'button', onclick: () => {
           PF.school = null; PF.meal = false; S.meal = {}; savePf(); render(); close(); if (done) done();
         } }, icon('trash'), '삭제')) : null,
@@ -3043,7 +3043,7 @@
               const b = by[sid];
               return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'),
                 onclick: b ? async () => {
-                  if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''} 학생의 신청을 지울까요?`, '지우기'))) return;
+                  if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''} 학생의 신청을 지울까요?`, '삭제'))) return;
                   try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
                 } : null }, hm(sid), b ? el('small', {}, b.name) : null);
             }));
@@ -3071,7 +3071,7 @@
     function toggle() {
       if (layer) { layer.remove(); layer = null; document.body.classList.remove('wedit'); return; }
       document.body.classList.add('wedit');
-      const done = el('button', { class: 'pri sm wdone', type: 'button', onclick: (ev) => { ev.stopPropagation(); toggle(); } }, '완료');
+      const done = el('button', { class: 'pri sm wdone', type: 'button', onclick: (ev) => { ev.stopPropagation(); toggle(); } }, '확인');
       done.addEventListener('pointerdown', (ev) => ev.stopPropagation());
       layer = el('div', { id: 'wedit' }, ['n', 's', 'w', 'e', 'nw', 'ne', 'sw', 'se'].map((e) => el('i', { 'data-e': e })), done);
       const fit = () => { // 위젯 영역에 정확히 맞춰요 (창이 커져 있거나 스크롤바 자리가 있어도 오른쪽이 잘리지 않게)
@@ -3119,15 +3119,7 @@
     document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && layer) toggle(); });
   }
 
-  /* ================= 토스트 / 키보드 ================= */
-  let toastT;
-  function toast(msg, undo) {
-    const t = $('#toast');
-    t.hidden = false;
-    t.replaceChildren(...[el('span', {}, msg), undo ? el('button', { onclick: () => { undo(); t.hidden = true; } }, '되돌리기') : null].filter(Boolean));
-    clearTimeout(toastT);
-    toastT = setTimeout(() => { t.hidden = true; }, undo ? 7000 : 3500);
-  }
+  /* ================= 키보드 ================= */
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') clearPicked();
@@ -3145,7 +3137,7 @@
     }
   });
 
-  window.__haru = { S, Data, render, toast, lastOf }; // 디버깅용
+  window.__haru = { S, Data, render, lastOf }; // 디버깅용
   /* 모든 팝업: 안의 내용이 바뀌어 세로 크기가 달라질 때 부드럽게 늘고 줄어요 (급식 팝업은 자체 전환 사용) */
   function watchPopups() {
     const seen = new WeakSet();

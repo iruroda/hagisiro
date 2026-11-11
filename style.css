@@ -163,13 +163,11 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 /* 로그인 / 토스트 */
 .login { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px; text-align: center; }
 .login h1 { margin: 4px 0 0; font-size: 22px; } .login p { margin: 0 0 8px; }
-#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom)); background: #23262b; color: #fff; padding: 9px 14px; border-radius: var(--r); display: flex; gap: 14px; align-items: center; z-index: 60; font-size: 13px; max-width: 92vw; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
-#toast button { color: #b8a8ff; font-weight: 600; white-space: nowrap; }
 
 /* 바탕화면 위젯 모드 (?widget=1) — 데스크톱 래퍼에서 사용 */
 html.widget, body.widget { background: transparent; }
 body.widget { --bg: color-mix(in srgb, var(--bg-s) var(--wa, 90%), transparent); --bg2: color-mix(in srgb, var(--bg2-s) var(--wa, 90%), transparent); --wbg: var(--bg); font-weight: 500; }
-body.widget :is(.dlg, .menu, #toast, #sheet > *, .sbody) { --bg: var(--bg-s); --bg2: var(--bg2-s); }
+body.widget :is(.dlg, .menu, #sheet > *, .sbody) { --bg: var(--bg-s); --bg2: var(--bg2-s); }
 body.widget #app { background: none; padding: 3px; gap: 3px; }
 body.widget #top { background: var(--wbg); border: 0; border-radius: var(--r) var(--r) 0 0; padding-left: 40px; }
 body.widget .cal { gap: 2px; }
@@ -407,7 +405,6 @@ body.widget #top .right { margin-left: auto; flex: none; }
 .vprev { animation: vprev .14s ease-out var(--ad, 0s); }
 #modal.opening .back { animation: fadein .14s ease-out; }
 #modal.opening .dlg, #sheet.opening > *, .menu { animation: pop .14s ease-out; }
-#toast.opening { animation: pop .16s ease-out; }
 .seg button, .tab, .ghost, .ib, .pri, .mi, .dowb, .ab { transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s; }
 .cell { transition: background-color .12s; }
 /* 애니메이션은 기본으로 켜져 있고, 화면 설정에서 끌 수 있어요 (윈도우의 '애니메이션 효과' 설정과 무관) */
