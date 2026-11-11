@@ -861,7 +861,7 @@
         const d = parseYmd(t.date);
         list.append(el('div', { class: 'srow' + (n < 0 ? ' done' : '') },
           el('button', { type: 'button', class: 'sgo', onclick: () => { close(); gotoDate(t.date); } },
-            el('span', { class: 'sd' }, n === 0 ? 'D-DAY' : n > 0 ? `D-${n}` : `D+${-n}`),
+            el('span', { class: 'sd' }, n === 0 ? 'D-day' : n > 0 ? `D-${n}` : `D+${-n}`),
             el('span', { class: 'st' }, t.text),
             el('span', { class: 'mut small' }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)),
           el('button', { type: 'button', class: 'ib', 'aria-label': 'D-day 삭제', title: 'D-day 삭제', onclick: () => { Data.put('todos', clean({ ...t, dday: '' })); setTimeout(draw, 60); } }, icon('trash'))));
@@ -1039,7 +1039,7 @@
   function ddayList() {
     const today = dayNum(ymd(new Date()));
     return (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && !t.done && t.text && t.date && (PF.pastdd || dayNum(t.date) >= today))
-      .map((t) => { const n = dayNum(t.date) - today; return { t, n, label: n === 0 ? 'D-DAY' : n > 0 ? `D-${n}` : `D+${-n}` }; })
+      .map((t) => { const n = dayNum(t.date) - today; return { t, n, label: n === 0 ? 'D-day' : n > 0 ? `D-${n}` : `D+${-n}` }; })
       .sort((a, b) => (a.n >= 0) !== (b.n >= 0) ? (a.n >= 0 ? -1 : 1) : (a.n >= 0 ? a.n - b.n : b.n - a.n) || byOrd(a.t, b.t));
   }
 
