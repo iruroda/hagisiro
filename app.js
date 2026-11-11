@@ -623,6 +623,15 @@
     right.append(el('button', { class: 'ib', id: 'menuBtn', onclick: (e) => { e.stopPropagation(); openMenu(); }, 'aria-label': '메뉴', title: '메뉴' }, icon('menu')));
     t.append(nav, tabs, right);
     fitTop();
+    spinSync();
+  }
+  /* 새로고침 화살표: 누른 직후 상단 바가 다시 그려져도 돌던 걸 이어서 돌려요 */
+  function spinSync() {
+    const b = $('#syncBtn'), svg = b && b.querySelector('.ic svg');
+    if (!svg || !S.spinT) return;
+    const left = S.spinT - Date.now();
+    if (left <= 0) { S.spinT = 0; return; }
+    b.classList.add('spin'); svg.style.animationDelay = `-${600 - left}ms`;
   }
 
   /* 상단바가 좁아지면 오른쪽 도구를 뒤에서부터 숨기고 ⋯ 버튼으로 보여줘요 */
@@ -750,6 +759,7 @@
   function forceSync() {
     S.saveErr = false; markErr();
     const b = $('#syncBtn');
+    S.spinT = Date.now() + 600;
     if (b) { b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin'); }
     if (S.cloud) {
       stopWatches(); watchStatic(); watchRange();
