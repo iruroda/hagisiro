@@ -37,3 +37,4 @@ button:disabled { opacity: .4; cursor: default; }
 .chip.taken:disabled { opacity: 1; }
 .chip.taken:disabled:hover { border-color: transparent; }
 .pickbtn { width: 100%; margin: 0 0 6px; }
+.secret { -webkit-text-security: disc; }

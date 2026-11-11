@@ -44,9 +44,9 @@ const arefOf = (i, n) => doc(db, 'consults', cid, 'active', idKeyOf(i, n));
 const aref = () => arefOf(f.sid.value, f.name.value); // 지금 신청해 둔 시간 (중복 신청 불가일 때 확인)
 
 const digits = (n) => (e) => { const v = e.target.value.replace(/\D/g, '').slice(0, n); if (v !== e.target.value) e.target.value = v; };
-const f = { sid: el('input', { maxlength: 5, inputmode: 'numeric', autocomplete: 'off', oninput: digits(5) }),
+const f = { sid: el('input', { maxlength: 5, inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', oninput: digits(5) }),
   name: el('input', { maxlength: 20, autocomplete: 'name' }),
-  pin: el('input', { maxlength: 4, inputmode: 'numeric', autocomplete: 'off', type: 'password', oninput: digits(4) }) };
+  pin: el('input', { maxlength: 4, inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', class: 'secret', oninput: digits(4) }) };
 const pickBtn = el('button', { class: 'pri pickbtn', type: 'button', disabled: true, onclick: () => pickTimes() }, '상담 시간 선택');
 let busyPick = false;
 const syncPick = () => { pickBtn.disabled = !ready() || busyPick; };
