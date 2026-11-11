@@ -2929,7 +2929,7 @@
         el('button', { class: 'pri cnew', type: 'button', onclick: () => { dir = 'next'; quick(); } }, icon('plus'), '새 테이블 만들기')));
     }
     async function del(c) {
-      if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?\n신청 내용도 모두 사라져요.`))) return;
+      if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?`))) return;
       try { await S.cloud.consultDelete(c.id); list(); } catch (e) { console.error(e); }
     }
 
