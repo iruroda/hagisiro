@@ -90,6 +90,8 @@
     lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
     weekNow: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4M8 15.5h8"/>',
+    attend: '<circle cx="9.5" cy="8.5" r="3.5"/><path d="M3 20c0-3.7 2.8-5.8 6.5-5.8 1 0 1.9.2 2.7.5M14.5 17.5l2.4 2.4 4.1-4.6"/>',
+    chat: '<path d="M4.5 6.5a2 2 0 012-2h11a2 2 0 012 2v8a2 2 0 01-2 2H11l-4.5 3.5v-3.5a2 2 0 01-2-2z"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
     spade: '<path class="f" d="M12 3.6c3.6 3.4 7.2 6 7.2 9.4a3.5 3.5 0 01-6.2 2.2c.1 1.5.5 2.8 1.2 4.2h-4.4c.7-1.4 1.1-2.7 1.2-4.2A3.5 3.5 0 014.8 13c0-3.4 3.6-6 7.2-9.4z"/>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
@@ -613,8 +615,8 @@
       el('span', { class: 'ttl' + (cv ? ' off' : ' jump'), onclick: cv ? null : (e) => editTtl(e.currentTarget) }, weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
       ib('right', () => go(1), weekMode() ? '다음 주' : '다음 달'),
       el('button', { class: 'ghost sm', disabled: cv, onclick: goToday }, '오늘'));
-    const tab = (v, label) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, label);
-    const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더'), tab('att', '출결'), S.cloud ? tab('consult', '상담') : null);
+    const tab = (v, label, ic) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, icon(ic), label);
+    const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더', 'calendar'), tab('att', '출결', 'attend'), S.cloud ? tab('consult', '상담', 'chat') : null);
     const right = el('div', { class: 'right' });
     // 오른쪽 도구들: 좁아지면 뒤에서부터 ⋯ 팝업으로 들어가요
     const tools = shortcutDefs().filter((x) => scOn(x)).map((x) => ({ ...x, node: () => scNode(x) }));

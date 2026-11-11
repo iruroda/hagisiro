@@ -1135,3 +1135,8 @@ body.widget .cell { padding-top: 5px; }
 
 /* 연월 이동 팝업: 엔터 버튼 아이콘을 정가운데로 */
 .ttpop button.pri.sm { padding: 0; }
+
+/* 최상위 탭: 아이콘 + 글자 */
+#top .tab { gap: 5px; }
+#top .tab .ic svg { width: 15px; height: 15px; }
+#top .tab .ic { transform: none; }
