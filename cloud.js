@@ -97,10 +97,13 @@ export async function consultCreate(data) {
 }
 export function consultUpdate(id, data) { return updateDoc(doc(db, 'consults', id), data); }
 export async function consultDelete(id) {
-  for (const sub of ['books', 'taken', 'people', 'active']) {
+  // active는 규칙상 목록을 읽을 수 없어서, people과 같은 키로 지워요
+  for (const sub of ['books', 'taken', 'people']) {
     const snap = await getDocs(collection(db, 'consults', id, sub));
-    for (let i = 0; i < snap.docs.length; i += 400) {
-      const b = writeBatch(db); snap.docs.slice(i, i + 400).forEach((d) => b.delete(d.ref)); await b.commit();
+    const refs = snap.docs.map((d) => d.ref);
+    if (sub === 'people') snap.docs.forEach((d) => refs.push(doc(db, 'consults', id, 'active', d.id)));
+    for (let i = 0; i < refs.length; i += 400) {
+      const b = writeBatch(db); refs.slice(i, i + 400).forEach((r) => b.delete(r)); await b.commit();
     }
   }
   await deleteDoc(doc(db, 'consults', id));

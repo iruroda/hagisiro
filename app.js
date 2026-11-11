@@ -2930,7 +2930,7 @@
     }
     async function del(c) {
       if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?`))) return;
-      try { await S.cloud.consultDelete(c.id); list(); } catch (e) { console.error(e); }
+      try { await S.cloud.consultDelete(c.id); list(); } catch (e) { console.error(e); await notice('삭제에 실패했습니다.'); }
     }
 
     /* ---- 1단계: 빠른 만들기 (기간·시각·간격) ---- */
