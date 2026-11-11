@@ -3032,6 +3032,45 @@
     }
 
     /* ---- 완성된 테이블: 링크 복사 · 신청 현황 ---- */
+    /* 선생님이 학생 대신 신청 (비어 있는 칸을 누르면): 학번·이름·비밀번호를 정해 주면 학생은 그 비밀번호로만 고칠 수 있어요 */
+    function proxyBook(c, sid) {
+      const layer = el('div', { class: 'askw' });
+      const close = () => { layer.remove(); document.removeEventListener('keydown', key, true); };
+      const digits = (n) => (e) => { const v = e.target.value.replace(/\D/g, '').slice(0, n); if (v !== e.target.value) e.target.value = v; };
+      const fi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 5, autocomplete: 'off', 'aria-label': '학번', oninput: digits(5) });
+      const fn = el('input', { type: 'text', maxlength: 20, autocomplete: 'off', 'aria-label': '이름' });
+      const fp = el('input', { type: 'text', inputmode: 'numeric', maxlength: 4, autocomplete: 'off', 'aria-label': '비밀번호', oninput: digits(4) });
+      const err = el('div', { class: 'cerr' });
+      const ok = el('button', { class: 'pri', type: 'button', disabled: true }, '확인');
+      const valid = () => fi.value.length === 5 && fn.value.trim() && fp.value.length === 4;
+      const chk = () => { ok.disabled = !valid(); err.textContent = ''; };
+      [fi, fn, fp].forEach((x) => x.addEventListener('input', chk));
+      const go = async () => {
+        if (!valid() || ok.disabled) return;
+        ok.disabled = true;
+        try {
+          await S.cloud.consultBookFor(c.id, sid, { info: fi.value, name: fn.value.trim(), pin: fp.value }, !!c.noDup);
+          close();
+        } catch (e) {
+          console.error(e);
+          err.textContent = e.code === 'pin-mismatch' ? '이미 다른 비밀번호로 등록된 학번·이름입니다.' : e.code === 'dup' ? '이미 신청한 상담이 있습니다.' : '저장에 실패했습니다.';
+          ok.disabled = false;
+        }
+      };
+      ok.addEventListener('click', go);
+      const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } else if (e.key === 'Enter') { e.stopPropagation(); go(); } };
+      const p = (l, i) => el('div', { class: 'pfr' }, el('span', { class: 'pl' }, l), el('div', { class: 'pc2' }, i));
+      layer.append(el('div', { class: 'back', onclick: close }),
+        el('div', { class: 'dlg proxd', role: 'dialog' },
+          el('div', { class: 'shead' }, el('b', {}, '상담 신청')),
+          el('div', { class: 'mut small proxt' }, sidLabel(sid)),
+          el('div', { class: 'cform' }, p('학번', fi), p('이름', fn), p('비밀번호', fp)),
+          err,
+          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: close }, '취소'), ok)));
+      document.addEventListener('keydown', key, true);
+      document.body.append(layer);
+      fi.focus();
+    }
     function detail(c) {
       S.cs = { c };
       const draw = (books) => {
@@ -3050,7 +3089,7 @@
                 onclick: b ? async () => {
                   if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''} 학생의 신청을 지울까요?`, '삭제'))) return;
                   try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
-                } : null }, hm(sid), b ? el('small', {}, b.name) : null);
+                } : () => proxyBook(c, sid) }, hm(sid), b ? el('small', {}, b.name) : null);
             }));
         };
         shell(c.title || '상담', el('div', { class: 'cdet' },

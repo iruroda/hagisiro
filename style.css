@@ -1162,3 +1162,14 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 /* 상담 상세: 긴 이름은 한 줄에서 뒤쪽을 …로 줄여요 (칩 높이가 늘지 않게) */
 .cdet .cdc .cchip { white-space: nowrap; }
 .cdet .cdc .cchip small { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 상담 상세: 비어 있는 칸을 눌러 선생님이 대신 신청 */
+.cchip.ro { cursor: pointer; }
+.cdet .cchip.ro:hover { background: var(--sel); }
+.proxd { width: min(320px, 92vw); }
+.proxd .shead { margin-bottom: 2px; }
+.proxd .proxt { padding: 0 2px 8px; }
+.proxd .cform { padding-right: 0; }
+.proxd .pfr .pl { min-width: 64px; }
+.proxd .pc2 input { width: 100%; box-sizing: border-box; }
+.proxd .cerr { min-height: 18px; font-size: 12px; color: var(--sun); padding: 2px 2px 0; }

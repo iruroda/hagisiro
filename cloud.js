@@ -6,7 +6,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  collection, doc, setDoc, deleteDoc, onSnapshot, query, where, getDocs, writeBatch, addDoc, updateDoc,
+  collection, doc, getDoc, setDoc, deleteDoc, onSnapshot, query, where, getDocs, writeBatch, addDoc, updateDoc,
 } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 
 let app, auth, db, user = null;
@@ -111,5 +111,20 @@ export function consultWatchBooks(id, cb, err) {
 export async function consultRemoveBooking(cid, sid) {
   const b = writeBatch(db);
   b.delete(doc(db, 'consults', cid, 'books', sid)); b.delete(doc(db, 'consults', cid, 'taken', sid));
+  await b.commit();
+}
+
+// 선생님이 학생 대신 신청: 학생 페이지와 같은 문서를 써요 (taken · active · people · books)
+export async function consultBookFor(cid, sid, v, noDup) {
+  const key = `${v.info}_${String(v.name).trim().replace(/[\/.]/g, ' ')}`;
+  const pr = doc(db, 'consults', cid, 'people', key), ar = doc(db, 'consults', cid, 'active', key);
+  const ps = await getDoc(pr);
+  if (ps.exists() && ps.data().pin !== v.pin) { const e = new Error('pin'); e.code = 'pin-mismatch'; throw e; }
+  if (noDup) { const as = await getDoc(ar); if (as.exists()) { const e = new Error('dup'); e.code = 'dup'; throw e; } }
+  const b = writeBatch(db);
+  b.set(doc(db, 'consults', cid, 'taken', sid), { t: 1 });
+  b.set(ar, { sid });
+  b.set(pr, { pin: v.pin });
+  b.set(doc(db, 'consults', cid, 'books', sid), { name: v.name, info: v.info, pin: v.pin, at: Date.now(), cancelled: false });
   await b.commit();
 }

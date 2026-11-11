@@ -21,9 +21,9 @@ service cloud.firestore {
       // 신청된 시간 표시 (이름 없음 — 누구나 볼 수 있어요)
       match /taken/{sid} {
         allow get, list: if true;
-        allow create: if sid in cdoc().slots && isOpen()
+        allow create: if isOwner() || (sid in cdoc().slots && isOpen()
                       && request.resource.data.keys().hasOnly(['t'])
-                      && existsAfter(/databases/$(database)/documents/consults/$(cid)/books/$(sid));
+                      && existsAfter(/databases/$(database)/documents/consults/$(cid)/books/$(sid)));
         allow delete: if isOwner()
                       || getAfter(/databases/$(database)/documents/consults/$(cid)/books/$(sid)).data.cancelled == true;
       }
@@ -31,18 +31,18 @@ service cloud.firestore {
       // 학번+이름의 비밀번호 (이 상담표에서만 유효). 읽을 수 없고, 같은 비밀번호로 다시 쓸 때만 허락돼요 → 다른 비밀번호로 같은 사람인 척 신청하는 걸 막아요
       match /people/{key} {
         allow read: if isOwner();
-        allow create: if isOpen() && request.resource.data.keys().hasOnly(['pin'])
-                      && request.resource.data.pin is string && request.resource.data.pin.size() == 4;
-        allow update: if isOpen() && request.resource.data.keys().hasOnly(['pin'])
-                      && request.resource.data.pin == resource.data.pin;
+        allow create: if isOwner() || (isOpen() && request.resource.data.keys().hasOnly(['pin'])
+                      && request.resource.data.pin is string && request.resource.data.pin.size() == 4);
+        allow update: if isOwner() || (isOpen() && request.resource.data.keys().hasOnly(['pin'])
+                      && request.resource.data.pin == resource.data.pin);
         allow delete: if isOwner();
       }
 
       // 학번+이름이 지금 신청해 둔 시간 (중복 신청 불가 확인용, 키를 아는 사람만 하나씩 읽을 수 있어요)
       match /active/{key} {
         allow get: if true;
-        allow create, update: if isOpen() && request.resource.data.keys().hasOnly(['sid'])
-                              && request.resource.data.sid in cdoc().slots;
+        allow create, update: if isOwner() || (isOpen() && request.resource.data.keys().hasOnly(['sid'])
+                              && request.resource.data.sid in cdoc().slots);
         allow delete: if true;
       }
 
@@ -59,7 +59,7 @@ service cloud.firestore {
         }
         allow read: if isOwner();
         allow delete: if isOwner();
-        allow create: if valid();
+        allow create: if valid() || isOwner();
         // 취소된 칸은 다시 신청 가능
         allow update: if (resource.data.cancelled == true && valid())
         // 비밀번호가 맞을 때만 취소 가능 (읽지 않고도 확인돼요)
