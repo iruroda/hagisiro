@@ -71,12 +71,12 @@
     plus: '<path d="M12 5.5v13M5.5 12h13"/>',
     phone: '<path d="M3.20 6.00L4.27 4.50Q5.20 3.20 6.80 3.20L8.40 3.20Q10.00 3.20 10.72 4.63L12.26 7.73Q12.80 8.80 11.95 9.65L10.80 10.80Q12.00 12.00 13.20 13.20L14.35 12.05Q15.20 11.20 16.27 11.74L19.37 13.28Q20.80 14.00 20.80 15.60L20.80 17.20Q20.80 18.80 19.50 19.73L18.00 20.80Q5.30 18.60 3.20 6.00z"/>',
     table: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M3.5 10.5h17M9.9 10.5V20"/>',
-    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="15.5" cy="9.5" r="1.6"/><path d="M4 17.5l5-5 4 4 2.5-2.5 4.5 4.5"/>',
+    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M3.5 17.5l6-6 8 8"/><circle cx="15" cy="9.4" r="2.2" class="f"/>',
     upload: '<path d="M12 14.5v-10M7.5 8.5l4.5-4.5 4.5 4.5M5.5 19.5h13"/>',
     edit: '<g transform="translate(12 12) scale(1.22) translate(-12 -12)"><path stroke-width="2.2" d="M5.5 18.5l.9-3.6L15 6.3a2 2 0 012.8 2.8l-8.6 8.6-3.7.8z"/></g>',
     scan: '<path d="M5 8.5V6.5a1.5 1.5 0 011.5-1.5h2M15.5 5h2A1.5 1.5 0 0119 6.5v2M19 15.5v2a1.5 1.5 0 01-1.5 1.5h-2M8.5 19h-2A1.5 1.5 0 015 17.5v-2M5 12h14"/>',
     trash: '<path d="M5 7h14M10 7V5h4v2M7 7l.9 11.5a1 1 0 001 .9h6.2a1 1 0 001-.9L17 7"/>',
-    info: '<circle cx="12" cy="12" r="8.2"/><path d="M12 11v5.2M12 7.7v.01"/>',
+    info: '<circle cx="12" cy="12" r="8.2"/><path d="M12 13v3M12 8.2v.01"/>',
     clock: '<circle cx="12" cy="12" r="8.2"/><path d="M12 7.6V12l3.2 2"/>',
     enter: '<path d="M19.5 5.5v7a3 3 0 01-3 3H5.5"/><path d="M10 10.5l-4.5 5 4.5 5"/>',
     palette: '<path d="M12 3.8a8.2 8.2 0 100 16.4c1.5 0 2.2-1 2.2-2 0-1.5-1.1-1.9-1.1-3 0-1 .8-1.8 1.9-1.8H17a3.3 3.3 0 003.3-3.3c0-3.8-3.7-6.3-8.3-6.3z"/><circle cx="7.7" cy="11.9" r="1.75" class="f"/><circle cx="10.5" cy="7.7" r="1.75" class="f"/><circle cx="14.9" cy="8.3" r="1.75" class="f"/>',
@@ -92,6 +92,10 @@
     weekNow: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4M8 15.5h8"/>',
     attend: '<circle cx="9.5" cy="8.5" r="3.5"/><path d="M3 20c0-3.7 2.8-5.8 6.5-5.8 1 0 1.9.2 2.7.5M14.5 17.5l2.4 2.4 4.1-4.6"/>',
     chat: '<path d="M4.5 6.5a2 2 0 012-2h11a2 2 0 012 2v8a2 2 0 01-2 2H11l-4.5 3.5v-3.5a2 2 0 01-2-2z"/>',
+    excel: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M3.5 10.5h17M9.9 10.5V20M9.9 15.25h10.6M15.2 10.5V20"/>',
+    today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.5" r="1.3" class="f"/>',
+    undo: '<path d="M4.7 13.97A7.6 7.6 0 1 0 6.63 6.63"/><path d="M9.95 8.40L4.23 9.03L4.86 3.30"/>',
+    textT: '<path d="M6 6.5h12M12 6.5V18.5"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
     spade: '<path class="f" d="M12 3.6c3.6 3.4 7.2 6 7.2 9.4a3.5 3.5 0 01-6.2 2.2c.1 1.5.5 2.8 1.2 4.2h-4.4c.7-1.4 1.1-2.7 1.2-4.2A3.5 3.5 0 014.8 13c0-3.4 3.6-6 7.2-9.4z"/>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
@@ -614,7 +618,7 @@
       ib('left', () => go(-1), weekMode() ? '이전 주' : '이전 달'),
       el('span', { class: 'ttl' + (cv ? ' off' : ' jump'), onclick: cv ? null : (e) => editTtl(e.currentTarget) }, weekMode() ? (() => { const a = parseYmd(S.anchor); return `${a.getFullYear()}년 ${a.getMonth() + 1}월`; })() : `${S.y}년 ${S.m + 1}월`),
       ib('right', () => go(1), weekMode() ? '다음 주' : '다음 달'),
-      el('button', { class: 'ghost sm', disabled: cv, onclick: goToday }, '오늘'));
+      el('button', { class: 'ghost sm', disabled: cv, onclick: goToday }, icon('today'), '오늘'));
     const tab = (v, label, ic) => el('button', { class: 'tab' + (S.view === v ? ' on' : ''), onclick: () => setView(v) }, icon(ic), label);
     const tabs = el('div', { class: 'tabs' }, tab('cal', '캘린더', 'calendar'), tab('att', '출결', 'attend'), S.cloud ? tab('consult', '상담', 'chat') : null);
     const right = el('div', { class: 'right' });
@@ -937,7 +941,7 @@
     return el('div', { class: 'login' },
       logo,
       el('h1', {}, 'HAGISIRO'),
-      el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, 'Google 로그인'),
+      el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, icon('google'), 'Google 로그인'),
       el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '이 기기에만 저장'));
   }
 
@@ -1943,7 +1947,7 @@
       el('span', { class: 'grow' }),
       el('span', { class: 'mut small' }, ovr ? `기본 ${def ? def + '교시' : '수업 없음'} → 이 날만` : '이 날만'),
       cntSel,
-      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, '기본값으로') : null));
+      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), '기본값으로') : null));
 
     const recs = S.att.filter((a) => a.classId === cls.id && a.date === ds);
     const by = {}; recs.slice().sort((a, b) => (a.created || 0) - (b.created || 0)).forEach((a) => { (by[a.studentId] = by[a.studentId] || []).push(a); });
@@ -2357,11 +2361,11 @@
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(),
           el('div', { class: 'dsrc' },
-            el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('upload'), '엑셀 업로드'),
+            el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('excel'), '엑셀 업로드'),
             el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('image/*') }, icon('image'), '이미지 업로드'),
             el('button', { class: 'ghost sm', type: 'button', onclick: ocr }, icon('scan'), el('span', {}, 'OCR')),
             el('button', { class: 'ib sm', type: 'button', 'aria-label': '업로드 설명', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
-            draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, '직접 입력') : null,
+            draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, icon('textT'), '직접 입력') : null,
             null),
           body,
           el('div', { class: 'dlgf' },
