@@ -1029,9 +1029,9 @@
     wrap.append(grid);
     const dd = ddayList();
     if (dd.length) {
-      wrap.classList.add('hasdd');
-      wrap.append(el('div', { class: 'ddbar', title: dd.map((x) => `${x.label} ${x.t.text}`).join('\n') },
-        dd.map((x) => el('button', { type: 'button', class: 'ddc', style: x.t.fg ? `--tfg:${x.t.fg};` : null, onclick: () => gotoDate(x.t.date) }, el('b', {}, x.label), ' ', x.t.text))));
+      const bar = el('div', { class: 'ddbar' + (PF.ddtop ? ' top' : ''), title: dd.map((x) => `${x.label} ${x.t.text}`).join('\n') },
+        dd.map((x) => el('button', { type: 'button', class: 'ddc', style: x.t.fg ? `--tfg:${x.t.fg};` : null, onclick: () => gotoDate(x.t.date) }, el('b', {}, x.label), ' ', x.t.text)));
+      if (PF.ddtop) wrap.prepend(bar); else { wrap.classList.add('hasdd'); wrap.append(bar); }
     }
     return wrap;
   }
@@ -2435,6 +2435,7 @@
           tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
           tog('ab', '출결 버튼', '', 'render'),
           tog('pastdd', '지난 D-day 표시하기', '', 'render'),
+          tog('ddtop', 'D-day 줄을 요일 위에 표시', '', 'render'),
           tog('meal', '급식 버튼', '', 'render', !PF.school),
           S.cloud ? el('label', { class: 'pfr tg' },
             el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
