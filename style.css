@@ -1152,3 +1152,6 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 
 /* 여러 줄 입력창: X 버튼이 없으니 오른쪽 여백도 일반 폭으로 */
 .fld.ta textarea { padding-right: 10px; }
+
+/* 출결 학급 선택: '3학년 7반' 정도가 들어가는 고정 폭, 더 길면 뒤쪽은 잘려요 (전체 이름은 학급 수정에서) */
+.abar select { width: 99px; flex: none; text-overflow: clip; }
