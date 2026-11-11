@@ -43,3 +43,4 @@ button:disabled { opacity: .4; cursor: default; }
 .who .ib { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; }
 .who .ib:hover { background: var(--bg2); }
 .who .ic svg { width: 18px; height: 18px; display: block; }
+.form input { color: var(--text); }

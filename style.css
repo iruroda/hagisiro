@@ -1131,3 +1131,4 @@ body.widget .cell { padding-top: 5px; }
 .pnav button { font-weight: 600; }
 .pnav button:not(.on) { font-weight: 500; }
 .dt tr:not(.has) .ksel { color: var(--text); }
+.fld .clr, .mic .ic, .blb { color: var(--text); }
