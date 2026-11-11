@@ -1106,3 +1106,20 @@ body.widget .cell { padding-top: 5px; }
 .cell .tl::-webkit-scrollbar-thumb:vertical, .cell .tl::-webkit-scrollbar-thumb:vertical:hover { background-image: none; background-color: color-mix(in srgb, var(--mut) 42%, var(--bg-s)); border-radius: 99px; }
 .cell .tl::-webkit-scrollbar-thumb:vertical:hover { background-color: color-mix(in srgb, var(--mut) 75%, var(--bg-s)); }
 .cell .tl { padding-right: 4px; }
+
+/* 스크롤바 썸: 그라데이션 대신 투명 테두리로 안쪽 여백을 두고 둥글게 (모든 배율에서 계단 없이, 끝은 트랙 끝까지) */
+::-webkit-scrollbar-thumb:vertical, .dv > .mwrap::-webkit-scrollbar-thumb:vertical, .wv > .mwrap::-webkit-scrollbar-thumb:vertical, .mv > .mwrap::-webkit-scrollbar-thumb:vertical, textarea::-webkit-scrollbar-thumb:vertical,
+::-webkit-scrollbar-thumb:horizontal, .dv > .mwrap::-webkit-scrollbar-thumb:horizontal, .wv > .mwrap::-webkit-scrollbar-thumb:horizontal, .mv > .mwrap::-webkit-scrollbar-thumb:horizontal, textarea::-webkit-scrollbar-thumb:horizontal {
+  background-image: none; background-color: color-mix(in srgb, var(--mut) 42%, var(--bg-s)); background-clip: padding-box; border: 0 solid transparent; border-radius: 99px; }
+::-webkit-scrollbar-thumb:vertical, .dv > .mwrap::-webkit-scrollbar-thumb:vertical, .wv > .mwrap::-webkit-scrollbar-thumb:vertical, .mv > .mwrap::-webkit-scrollbar-thumb:vertical, textarea::-webkit-scrollbar-thumb:vertical { border-left-width: 2px; border-right-width: 2px; }
+::-webkit-scrollbar-thumb:horizontal, .dv > .mwrap::-webkit-scrollbar-thumb:horizontal, .wv > .mwrap::-webkit-scrollbar-thumb:horizontal, .mv > .mwrap::-webkit-scrollbar-thumb:horizontal, textarea::-webkit-scrollbar-thumb:horizontal { border-top-width: 2px; border-bottom-width: 2px; }
+::-webkit-scrollbar-thumb:vertical:hover, ::-webkit-scrollbar-thumb:horizontal:hover { background-color: color-mix(in srgb, var(--mut) 75%, var(--bg-s)); }
+.cell .tl::-webkit-scrollbar-thumb:vertical, .cell .tl::-webkit-scrollbar-thumb:vertical:hover { border-width: 0; }
+
+/* 글자색 통일안: 검정 = 누르거나 고칠 수 있는 것 / 회색 = 고칠 수 없는 정보·이름표, 또는 비활성 */
+.ab { color: var(--text); }
+.ab, .ab:hover { background: var(--bg2-s); }
+.ab:hover { color: var(--accent); }
+.rper .rchk, .tour-f .rchk, .link { color: var(--text); }
+.mt thead th, .dt thead th { text-align: center; padding-left: 0; padding-right: 0; }
+.dt thead th.kc, .dt thead th.rs-h, .mt thead th.c2 { text-align: center; padding-left: 0; padding-right: 0; }
