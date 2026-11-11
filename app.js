@@ -1849,7 +1849,7 @@
       el('span', { class: 'grow' }),
       (() => {
         const setAll = (v) => { if (S.weekAll === v) return; S.weekAll = v; ls.set('hagisiro:weekall', v ? '1' : ''); render(); };
-        return el('div', { class: 'seg' }, el('button', { type: 'button', class: S.weekAll ? 'on' : '', onclick: () => setAll(true) }, '전체'), el('button', { type: 'button', class: S.weekAll ? '' : 'on', onclick: () => setAll(false) }, '기록 있음'));
+        return el('div', { class: 'seg' }, el('button', { type: 'button', class: S.weekAll ? 'on' : '', onclick: () => setAll(true) }, '전체'), el('button', { type: 'button', class: S.weekAll ? '' : 'on', onclick: () => setAll(false) }, '기록 있는 학생만'));
       })()));
 
     const all = S.att.filter((a) => a.classId === cls.id && keys.includes(a.date));
