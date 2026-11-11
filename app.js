@@ -573,6 +573,22 @@
     });
   }
 
+  /* 확인 버튼 하나뿐인 알림창 (학생 신청 페이지의 알림창과 같은 모양) */
+  function notice(msg) {
+    return new Promise((res) => {
+      const done = () => { w.remove(); document.removeEventListener('keydown', key, true); res(); };
+      const t0 = performance.now(); // 알림을 띄운 바로 그 엔터 키로 곧바로 닫히지 않게
+      const key = (e) => { if (e.timeStamp <= t0) return; if (e.key === 'Escape' || e.key === 'Enter') { e.stopPropagation(); done(); } };
+      const w = el('div', { class: 'askw' }, el('div', { class: 'back', onclick: done }),
+        el('div', { class: 'dlg askd', role: 'alertdialog' },
+          el('div', { class: 'askm' }, String(msg).split('\n').map((l) => el('div', {}, l))),
+          el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', onclick: done }, '확인'))));
+      document.addEventListener('keydown', key, true);
+      document.body.append(w);
+      w.querySelector('.pri').focus();
+    });
+  }
+
   /* ================= 렌더 ================= */
   function render() {
     if (S.editing) return; // 편집 중엔 화면을 갈아엎지 않음 (끝나면 다시 그림)
@@ -3040,10 +3056,9 @@
       const fi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 5, autocomplete: 'off', 'aria-label': '학번', oninput: digits(5) });
       const fn = el('input', { type: 'text', maxlength: 20, autocomplete: 'off', 'aria-label': '이름' });
       const fp = el('input', { type: 'text', inputmode: 'numeric', maxlength: 4, autocomplete: 'off', 'aria-label': '비밀번호', oninput: digits(4) });
-      const err = el('div', { class: 'cerr' });
       const ok = el('button', { class: 'pri', type: 'button', disabled: true }, '확인');
       const valid = () => fi.value.length === 5 && fn.value.trim() && fp.value.length === 4;
-      const chk = () => { ok.disabled = !valid(); err.textContent = ''; };
+      const chk = () => { ok.disabled = !valid(); };
       [fi, fn, fp].forEach((x) => x.addEventListener('input', chk));
       const go = async () => {
         if (!valid() || ok.disabled) return;
@@ -3053,19 +3068,19 @@
           close();
         } catch (e) {
           console.error(e);
-          err.textContent = e.code === 'pin-mismatch' ? '이미 다른 비밀번호로 등록된 학번·이름입니다.' : e.code === 'dup' ? '이미 신청한 상담이 있습니다.' : '저장에 실패했습니다.';
           ok.disabled = false;
+          await notice(e.code === 'pin-mismatch' ? '비밀번호가 일치하지 않습니다.' : e.code === 'dup' ? '이미 신청한 상담이 있습니다.' : '저장에 실패했습니다.');
+          fp.focus(); fp.select();
         }
       };
       ok.addEventListener('click', go);
-      const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } else if (e.key === 'Enter') { e.stopPropagation(); go(); } };
+      const key = (e) => { if (document.querySelector('.askd')) return; if (e.key === 'Escape') { e.stopPropagation(); close(); } else if (e.key === 'Enter') { e.stopPropagation(); go(); } };
       const p = (l, i) => el('div', { class: 'pfr' }, el('span', { class: 'pl' }, l), el('div', { class: 'pc2' }, i));
       layer.append(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg proxd', role: 'dialog' },
           el('div', { class: 'shead' }, el('b', {}, '상담 신청')),
           el('div', { class: 'mut small proxt' }, sidLabel(sid)),
           el('div', { class: 'cform' }, p('학번', fi), p('이름', fn), p('비밀번호', fp)),
-          err,
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: close }, '취소'), ok)));
       document.addEventListener('keydown', key, true);
       document.body.append(layer);
