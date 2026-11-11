@@ -739,7 +739,7 @@
       const show = i === yi ? showY : showM;
       i.addEventListener('input', () => { closeDD(); i.value = i.value.replace(/\D/g, ''); if (i === yi && i.value.length === 4) { mi.focus(); mi.select(); } });
       i.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true); else if (e.key === 'Escape') { if (dd) closeDD(); else close(); } else if (e.key === 'ArrowDown' && !dd) show(); e.stopPropagation(); });
-      i.addEventListener('focus', () => { i.select(); show(); });
+      i.addEventListener('focus', () => { i.select(); });
       i.addEventListener('click', () => { if (!dd || !i.parentElement.contains(dd)) show(); });
     });
     go.addEventListener('click', () => finish(true));
