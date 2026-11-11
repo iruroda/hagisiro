@@ -3061,8 +3061,11 @@
           el('div', { class: 'cgrid' }, Object.keys(days).map(card))), list);
       };
       stop();
-      draw([]);
-      unsub = S.cloud.consultWatchBooks(c.id, draw, (e) => console.error(e));
+      /* 처음 한 번만 오른쪽에서 밀려 들어와요 (불러오는 동안은 이전 화면이 그대로, 이후 신청 변화는 제자리에서 갱신) */
+      const d0 = dir; dir = '';
+      if (!d0) shell('', loading());
+      let first = true;
+      unsub = S.cloud.consultWatchBooks(c.id, (books) => { if (first) { first = false; dir = d0; } draw(books); }, (e) => console.error(e));
     }
     if (S.cs && S.cs.c) detail(S.cs.c); else list();
     return host;
