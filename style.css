@@ -1173,3 +1173,8 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 .proxd .pfr .pl { min-width: 64px; }
 .proxd .pc2 input { width: 100%; box-sizing: border-box; }
 .proxd .cerr { min-height: 18px; font-size: 12px; color: var(--sun); padding: 2px 2px 0; }
+
+/* 업로드 안내 팝업: 불릿 대신 각 기능 아이콘 */
+.fmtpop span { display: flex; align-items: center; gap: 6px; }
+.fmtpop span .ic svg { width: 15px; height: 15px; }
+.fmtpop small { padding-left: 21px; }

@@ -2310,9 +2310,9 @@
   function fmtPop(btn) {
     document.querySelector('.fmtpop')?.remove();
     const pop = el('div', { class: 'fmtpop' },
-      el('div', {}, el('span', {}, '• 엑셀 업로드'), el('small', {}, '시트 1을 불러옵니다.')),
-      el('div', {}, el('span', {}, '• 이미지 업로드'), el('small', {}, '이미지를 그대로 보여줍니다.')),
-      el('div', {}, el('span', {}, '• OCR'), el('small', {}, '이미지로부터 글자를 추출합니다.')));
+      el('div', {}, el('span', {}, icon('excel'), '엑셀 업로드'), el('small', {}, '시트 1을 불러옵니다.')),
+      el('div', {}, el('span', {}, icon('image'), '이미지 업로드'), el('small', {}, '이미지를 그대로 보여줍니다.')),
+      el('div', {}, el('span', {}, icon('scan'), 'OCR'), el('small', {}, '이미지로부터 글자를 추출합니다.')));
     document.body.append(pop);
     const r = btn.getBoundingClientRect();
     pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8)) + 'px';
