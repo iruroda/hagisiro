@@ -141,12 +141,15 @@
   const stepOpts = (cur) => STEPS.map((n) => el('option', { value: n, selected: n === cur }, n >= 60 ? `${n / 60}시간` : `${n}분`));
   /* 입력칸 꾸밈: 왼쪽 연필(채울 수 있는 칸), 오른쪽 X(내용이 있을 때만 보이고 자리는 항상 비워둬요) */
   function fld(input) {
-    const clr = el('button', { class: 'clr', type: 'button', tabindex: '-1', 'aria-label': '삭제' }, icon('close'));
-    const sync = () => { clr.style.visibility = input.value ? 'visible' : 'hidden'; w.classList.toggle('blank0', !input.value); };
-    clr.addEventListener('mousedown', (e) => e.preventDefault());
-    clr.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); sync(); input.focus(); });
+    const multi = input.tagName === 'TEXTAREA'; // 여러 줄 입력창에는 지우기(X) 버튼을 두지 않아요
+    const clr = multi ? null : el('button', { class: 'clr', type: 'button', tabindex: '-1', 'aria-label': '삭제' }, icon('close'));
+    const sync = () => { if (clr) clr.style.visibility = input.value ? 'visible' : 'hidden'; w.classList.toggle('blank0', !input.value); };
+    if (clr) {
+      clr.addEventListener('mousedown', (e) => e.preventDefault());
+      clr.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); sync(); input.focus(); });
+    }
     input.addEventListener('input', sync);
-    const w = el('span', { class: 'fld' + (input.tagName === 'TEXTAREA' ? ' ta' : '') }, input, clr);
+    const w = el('span', { class: 'fld' + (multi ? ' ta' : '') }, input, clr);
     sync();
     w._sync = sync;
     return w;
