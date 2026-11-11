@@ -611,6 +611,8 @@
 
   function renderTop() {
     const t = $('#top');
+    /* 새로고침 화살표가 도는 1초 동안은 상단 바를 다시 그리지 않아요 (다시 그리면 돌던 게 끊겨요). 끝난 뒤에 한 번만 그려요 */
+    if (S.spinT > Date.now() && $('#syncBtn')) { clearTimeout(S.topT); S.topT = setTimeout(renderTop, S.spinT - Date.now() + 30); return; }
     t.replaceChildren();
     closeMenu();
     if (needLogin()) { t.hidden = true; return; }
