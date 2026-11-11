@@ -1178,3 +1178,6 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 .fmtpop span { display: flex; align-items: center; gap: 6px; }
 .fmtpop span .ic svg { width: 15px; height: 15px; }
 .fmtpop small { padding-left: 21px; }
+
+/* 급식: 학교 드롭다운 (출결의 학급 선택과 같은 모양) */
+.mopts select { height: 28px; padding-top: 0; padding-bottom: 0; box-sizing: border-box; width: 150px; flex: none; text-overflow: ellipsis; }

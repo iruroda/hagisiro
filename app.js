@@ -196,6 +196,10 @@
   const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], show: [], mwe: false, mk: ['조식', '중식', '석식'] },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
+    if (!Array.isArray(PF.schools)) PF.schools = [];
+    if (PF.school && !PF.schools.some((x) => x.code === PF.school.code)) PF.schools.unshift(PF.school);
+    PF.schools = PF.schools.slice(0, 5);
+    if (!PF.school && PF.schools.length) PF.school = PF.schools[0];
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
     PF.past = Math.min(5, PF.weeks - 1, Math.max(0, Math.round(+PF.past) || 0));
     PF.opacity = Math.min(100, Math.max(30, Math.round(+PF.opacity) || 90));
@@ -2806,7 +2810,7 @@
       const e = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 6);
       ttl.textContent = `${sun.getMonth() + 1}.${sun.getDate()}. ~ ${e.getMonth() + 1}.${e.getDate()}.`;
       body.replaceChildren();
-      if (!PF.school) { body.append(el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, icon('search'), '학교 검색')); return; }
+      if (!PF.school) { body.append(el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek, 'add') }, icon('userplus'), '학교 추가')); return; }
       const data = cache[ymd(sun)];
       if (!data) { body.append(loading()); return; }
       const kinds = MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k));
@@ -2830,8 +2834,15 @@
     const mv = (n) => { sun = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 7 * n); load(); };
     /* 학교(왼쪽) · 조식/중식/석식/주말 제외 체크(오른쪽): 날짜 줄 위에 한 줄로 */
     const chk = (label, on, fn) => el('label', { class: 'rchk' }, el('input', { type: 'checkbox', checked: on, onchange: (e) => fn(e.target.checked) }), label);
+    const schSel = el('select', { 'aria-label': '학교', onchange: (e) => {
+      PF.school = PF.schools.find((x) => x.code === e.target.value) || PF.school; S.meal = {};
+      Object.keys(cache).forEach((k) => delete cache[k]); savePf(); loadMeal(); load();
+    } }, PF.schools.map((x) => el('option', { value: x.code, selected: PF.school && x.code === PF.school.code }, x.name)));
     const opts = PF.school ? el('div', { class: 'mk mopts' },
-      el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, PF.school.name), el('span', { class: 'grow' }),
+      schSel,
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek, 'edit') }, icon('users'), '학교 수정'),
+      PF.schools.length < 5 ? el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek, 'add') }, icon('userplus'), '학교 추가') : null,
+      el('span', { class: 'grow' }),
       MEAL_KINDS.map((k) => chk(k, (PF.mk || MEAL_KINDS).includes(k), (v) => {
         const cur = new Set(PF.mk || MEAL_KINDS); if (v) cur.add(k); else cur.delete(k);
         PF.mk = MEAL_KINDS.filter((x) => cur.has(x)); savePf(); draw(); render();
@@ -2850,7 +2861,8 @@
     m.replaceChildren(el('div', { class: 'back', onclick: close }), dlg);
     load();
   }
-  function openSchool(done) {
+  function openSchool(done, mode) {
+    const edit = mode === 'edit' && PF.school;
     const layer = el('div', { class: 'askw' });
     const close = () => layer.remove();
     const res = el('div', { class: 'schres' });
@@ -2863,7 +2875,11 @@
       try {
         const rows = await neis('schoolInfo', { SCHUL_NM: q });
         res.replaceChildren(...(rows.length ? rows.map((x) => el('button', { type: 'button', class: 'schrow', onclick: () => {
-          PF.school = { name: x.SCHUL_NM, edu: x.ATPT_OFCDC_SC_CODE, code: x.SD_SCHUL_CODE }; PF.meal = true; S.meal = {};
+          const ns = { name: x.SCHUL_NM, edu: x.ATPT_OFCDC_SC_CODE, code: x.SD_SCHUL_CODE };
+          const at = edit ? PF.schools.findIndex((z) => z.code === PF.school.code) : -1;
+          PF.schools = PF.schools.filter((z) => z.code !== ns.code);
+          if (at >= 0) PF.schools.splice(Math.min(at, PF.schools.length), 0, ns); else PF.schools.push(ns);
+          PF.school = ns; PF.meal = true; S.meal = {};
           savePf(); loadMeal(); close(); if (done) done();
         } }, el('b', {}, x.SCHUL_NM), el('small', {}, ' ' + (x.ORG_RDNMA || x.LCTN_SC_NM || '')))) : [el('div', { class: 'mut' }, '학교 없음')]));
       } catch (e) { console.error(e); res.replaceChildren(el('div', { class: 'mut' }, '학교 없음')); }
@@ -2872,9 +2888,9 @@
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, hb('search', '학교 검색'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        PF.school ? el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, PF.school.name), el('button', { class: 'ghost sm danger', type: 'button', onclick: () => {
-          PF.school = null; PF.meal = false; S.meal = {}; savePf(); render(); close(); if (done) done();
+        el('div', { class: 'shead' }, hb(edit ? 'users' : 'userplus', edit ? '학교 수정' : '학교 추가'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        edit ? el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, PF.school.name), el('button', { class: 'ghost sm danger', type: 'button', onclick: () => {
+          PF.schools = PF.schools.filter((z) => z.code !== PF.school.code); PF.school = PF.schools[0] || null; if (!PF.school) PF.meal = false; S.meal = {}; savePf(); loadMeal(); render(); close(); if (done) done();
         } }, icon('trash'), '삭제')) : null,
         el('div', { class: 'schq' }, fld(inp), el('button', { class: 'ghost sm', type: 'button', onclick: go }, icon('search'), '검색')), res));
     document.body.append(layer);
