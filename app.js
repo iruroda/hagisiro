@@ -1848,9 +1848,9 @@
     const shiftW = (n) => { setSel(ymd(new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + n * 7))); render(); };
     const fri = days[4];
     wrap.append(el('div', { class: 'dhead' },
-      el('button', { class: 'ib', 'aria-label': '이전', onclick: () => shiftW(-1) }, icon('left')),
+      el('button', { class: 'ib', 'aria-label': '이전 주', onclick: () => shiftW(-1) }, icon('left')),
       el('b', { class: 'dttl wttl' }, `${mon.getMonth() + 1}월 ${mon.getDate()}일 ~ ${fri.getMonth() + 1}월 ${fri.getDate()}일`),
-      el('button', { class: 'ib', 'aria-label': '다음', onclick: () => shiftW(1) }, icon('right')),
+      el('button', { class: 'ib', 'aria-label': '다음 주', onclick: () => shiftW(1) }, icon('right')),
       el('span', { class: 'grow' }),
       (() => {
         const setAll = (v) => { if (S.weekAll === v) return; S.weekAll = v; ls.set('hagisiro:weekall', v ? '1' : ''); render(); };
@@ -1946,9 +1946,9 @@
     const cntSel = el('select', { class: 'cnt' + (ovr ? ' ovr' : ''), 'aria-label': '이 날 교시 수', onchange: (e) => { setDayPeriods(ds, +e.target.value); render(); } },
       Array.from({ length: 11 }, (_, n) => el('option', { value: n, selected: n === last }, n ? `${n}교시` : '수업 없음')));
     wrap.append(el('div', { class: 'dhead' },
-      el('button', { class: 'ib', 'aria-label': '이전', onclick: () => shift(-1) }, icon('left')),
+      el('button', { class: 'ib', 'aria-label': '이전 날', onclick: () => shift(-1) }, icon('left')),
       el('b', { class: 'dttl' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
-      el('button', { class: 'ib', 'aria-label': '다음', onclick: () => shift(1) }, icon('right')),
+      el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
       el('span', { class: 'mut small' }, ovr ? `기본 ${def ? def + '교시' : '수업 없음'} → 이 날만` : '이 날만'),
       cntSel,
@@ -2826,8 +2826,8 @@
         el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
       opts,
       PF.school ? el('div', { class: 'mnav' },
-        el('button', { class: 'ib', type: 'button', onclick: () => mv(-1), 'aria-label': '지난주' }, icon('left')), ttl,
-        el('button', { class: 'ib', type: 'button', onclick: () => mv(1), 'aria-label': '다음주' }, icon('right')),
+        el('button', { class: 'ib', type: 'button', onclick: () => mv(-1), 'aria-label': '이전 주' }, icon('left')), ttl,
+        el('button', { class: 'ib', type: 'button', onclick: () => mv(1), 'aria-label': '다음 주' }, icon('right')),
         el('button', { class: 'ghost sm', type: 'button', onclick: () => { sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay()); load(); } }, icon('weekNow'), '이번 주')) : null,
       body);
     fit(true);
