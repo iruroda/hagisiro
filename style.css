@@ -464,7 +464,7 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 /* 교시 칸 토글 */
 .dt .slc.tg { cursor: pointer; transition: background-color .1s; }
 .dt .slc.tg:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
-#syncBtn.spin .ic svg { transform-box: view-box; transform-origin: 50% 50%; animation: spin 1s linear; }
+#syncBtn.spin .ic svg { transform-origin: 50% 50%; animation: spin 1s linear; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* 얇고 둥근 미니멀 스크롤바 (기본 모양 대신) */
