@@ -585,7 +585,7 @@
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', type: 'button', onclick: done }, '확인'))));
       document.addEventListener('keydown', key, true);
       document.body.append(w);
-      w.querySelector('.pri').focus();
+      setTimeout(() => { const b = w.querySelector('.pri'); if (b && b.isConnected) b.focus(); }, 60); // 같은 엔터 키의 기본 동작(버튼 클릭)이 새 팝업을 닫지 않게 늦게 포커스
     });
   }
 
