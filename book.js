@@ -16,6 +16,7 @@ const cid = new URLSearchParams(location.search).get('c');
 const root = $('#bk');
 const LK = 'hagisiro:book:' + cid;
 const loadMine = () => { try { return JSON.parse(localStorage.getItem(LK) || '{}'); } catch (e) { return {}; } };
+const recOf = (m, sid) => { const r = m[sid]; return !r ? null : typeof r === 'string' ? { p: r, n: m._n, i: m._i } : r; }; // 예전 기록(비밀번호만)도 읽어요
 const saveMine = (o) => { try { localStorage.setItem(LK, JSON.stringify(o)); } catch (e) { /* noop */ } };
 
 function modal(...kids) {
@@ -69,9 +70,11 @@ function draw() {
       const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
       return [el('div', { class: 'day' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
         el('div', { class: 'chips' }, days[k].map((sid) => {
-          const p = sidParts(sid), isT = taken.has(sid), isMine = isT && mine[sid];
+          const p = sidParts(sid), isT = taken.has(sid), rec = isT ? recOf(mine, sid) : null;
+          // 학번·이름·비밀번호가 신청할 때와 모두 같을 때만 내 신청으로 보여주고 눌러서 바꿀 수 있어요
+          const isMine = !!rec && rec.i === f.sid.value && rec.n === f.name.value.trim() && rec.p === f.pin.value;
           return el('button', { class: 'chip' + (isT ? ' taken' : '') + (isMine ? ' mine' : ''), type: 'button', title: isT ? (isMine ? '내 신청' : '신청됨') : '',
-            onclick: () => (isT ? onTaken(sid) : onFree(sid)) }, `${p.hh}:${p.mm}`);
+            disabled: isT && !isMine, onclick: () => (isMine ? onTaken(sid, rec) : isT ? null : onFree(sid)) }, `${p.hh}:${p.mm}`);
         }))];
     }) : el('p', { class: 'mut' }, '신청할 수 있는 시간이 없어요.')].flat(Infinity).filter(Boolean);
   const slotHost = el('div', { class: 'slots', style: 'display:contents' });
@@ -112,7 +115,7 @@ async function book(sid, v, move) {
   try {
     await b.commit();
     const mine = loadMine(); if (move) delete mine[move.sid];
-    mine[sid] = v.pin; mine._n = v.name; mine._i = v.info; saveMine(mine);
+    mine[sid] = { p: v.pin, n: v.name, i: v.info }; mine._n = v.name; mine._i = v.info; saveMine(mine);
     moving = null; draw();
   } catch (e) {
     console.error(e);
@@ -120,25 +123,14 @@ async function book(sid, v, move) {
   }
 }
 
-function onTaken(sid) {
-  const mine = loadMine();
-  const pin = el('input', { maxlength: 4, inputmode: 'numeric', type: 'password', value: mine[sid] || '', oninput: (e) => { digits(4)(e); sync(); } });
-  const need = () => /^\d{4}$/.test(pin.value);
-  const sync = () => { [cancel, change].forEach((b) => { b.disabled = !need(); }); };
-  let cancel, change;
-  const close = modal(el('b', {}, mine[sid] ? '내 신청' : '신청된 시간'), el('div', { class: 'mut small' }, label(sid) + ' · 신청한 사람만 바꿀 수 있어요.'), pin,
+function onTaken(sid, rec) {
+  const close = modal(el('b', {}, '내 신청'), el('div', {}, label(sid)),
     el('div', { class: 'row' },
-      cancel = el('button', { class: 'ghost danger', onclick: async () => {
-        if (!need()) return;
+      el('button', { class: 'ghost danger', onclick: async () => {
         try {
-          const b = writeBatch(db); b.set(bref(sid), { cancelled: true, pin: pin.value }, { merge: true }); b.delete(tref(sid)); await b.commit();
+          const b = writeBatch(db); b.set(bref(sid), { cancelled: true, pin: rec.p }, { merge: true }); b.delete(tref(sid)); await b.commit();
           const m = loadMine(); delete m[sid]; saveMine(m); close();
         } catch (e) { console.error(e); }
       } }, '신청 취소'),
-      change = el('button', { class: 'pri', onclick: async () => {
-        if (!need()) return;
-        // 비밀번호 확인: 아무것도 바꾸지 않는 쓰기로 검증할 수 없어서, 바꾸는 순간에 규칙이 확인해요
-        moving = { sid, pin: pin.value }; close(); draw();
-      } }, '시간 바꾸기')));
-  sync();
+      el('button', { class: 'pri', onclick: () => { moving = { sid, pin: rec.p }; close(); draw(); } }, '시간 바꾸기')));
 }
