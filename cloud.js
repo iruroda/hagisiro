@@ -97,7 +97,7 @@ export async function consultCreate(data) {
 }
 export function consultUpdate(id, data) { return updateDoc(doc(db, 'consults', id), data); }
 export async function consultDelete(id) {
-  for (const sub of ['books', 'taken']) {
+  for (const sub of ['books', 'taken', 'people', 'active']) {
     const snap = await getDocs(collection(db, 'consults', id, sub));
     for (let i = 0; i < snap.docs.length; i += 400) {
       const b = writeBatch(db); snap.docs.slice(i, i + 400).forEach((d) => b.delete(d.ref)); await b.commit();

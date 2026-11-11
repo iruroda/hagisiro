@@ -14,7 +14,8 @@ const kids=(c)=>{const s=load();const pre=c.path+'/';return Object.keys(s).filte
 export const getDocs=async(c)=>({docs:kids(c)});
 export const getDoc=async(r)=>{const s=load();return{exists:()=>r.path in s,data:()=>s[r.path],id:r.id}};
 const apply=(op)=>{const s=load();
- if(op.t==='set'){ if(op.path.includes('/taken/')&&op.path in s) {const e=new Error('denied');e.code='permission-denied';throw e;}
+ if(op.t==='set'){ if(op.path.includes('/people/')&&op.path in s&&s[op.path].pin!==op.d.pin){const e=new Error('denied');e.code='permission-denied';throw e;}
+  if(op.path.includes('/taken/')&&op.path in s) {const e=new Error('denied');e.code='permission-denied';throw e;}
    s[op.path]=op.o&&op.o.merge?Object.assign({},s[op.path]||{},op.d):op.d;}
  else if(op.t==='del'){delete s[op.path];}
  save(s);};

@@ -35,12 +35,23 @@ const slotTime = (sid) => { const p = sidParts(sid); return new Date(p.y, p.m - 
 const dayKey = (sid) => sid.split('_')[0];
 
 let C = null, taken = new Set(), moving = null;
+let verified = ''; // 학번·이름·비밀번호를 확인하고 '상담 시간 선택'을 누른 값
+const curKey = () => `${f.sid.value}|${f.name.value.trim()}|${f.pin.value}`;
+const idKeyOf = (i, n) => `${i}_${String(n).trim().replace(/[\/.]/g, ' ')}`;
+const idKey = () => idKeyOf(f.sid.value, f.name.value); // 학번+이름 (이 상담표 안에서만 쓰는 이름표)
+const pref = () => doc(db, 'consults', cid, 'people', idKey()); // 비밀번호 (읽을 수 없고, 같은 비밀번호로 쓸 때만 허락돼요)
+const arefOf = (i, n) => doc(db, 'consults', cid, 'active', idKeyOf(i, n));
+const aref = () => arefOf(f.sid.value, f.name.value); // 지금 신청해 둔 시간 (중복 신청 불가일 때 확인)
+
 const digits = (n) => (e) => { const v = e.target.value.replace(/\D/g, '').slice(0, n); if (v !== e.target.value) e.target.value = v; };
 const f = { sid: el('input', { maxlength: 5, inputmode: 'numeric', autocomplete: 'off', oninput: digits(5) }),
   name: el('input', { maxlength: 20, autocomplete: 'name' }),
   pin: el('input', { maxlength: 4, inputmode: 'numeric', autocomplete: 'off', type: 'password', oninput: digits(4) }) };
+const pickBtn = el('button', { class: 'pri pickbtn', type: 'button', disabled: true, onclick: () => pickTimes() }, '상담 시간 선택');
+let busyPick = false;
+const syncPick = () => { pickBtn.disabled = !ready() || busyPick; };
 let drawSlots = () => {};
-['sid', 'name', 'pin'].forEach((k) => f[k].addEventListener('input', () => drawSlots())); // 입력 중에는 입력칸을 다시 만들지 않아요(한글 조합이 끊김)
+['sid', 'name', 'pin'].forEach((k) => f[k].addEventListener('input', () => { drawSlots(); })); // 입력 중에는 입력칸을 다시 만들지 않아요(한글 조합이 끊김)
 const ready = () => /^\d{5}$/.test(f.sid.value) && f.name.value.trim() && /^\d{4}$/.test(f.pin.value);
 
 (async () => {
@@ -65,8 +76,8 @@ function draw() {
   const days = {};
   C.slots.slice().sort().forEach((sid) => { if (slotTime(sid) > now || taken.has(sid)) (days[dayKey(sid)] = days[dayKey(sid)] || []).push(sid); });
   const slotNodes = () => [
-    !ready() ? null : moving ? el('div', { class: 'banner' }, '옮길 시간을 골라 주세요.', el('button', { onclick: () => { moving = null; draw(); } }, '그만두기')) : null,
-    !ready() ? null : Object.keys(days).length ? Object.keys(days).map((k) => {
+    !ready() || verified !== curKey() ? null : moving ? el('div', { class: 'banner' }, '옮길 시간을 골라 주세요.', el('button', { onclick: () => { moving = null; draw(); } }, '그만두기')) : null,
+    !ready() || verified !== curKey() ? null : Object.keys(days).length ? Object.keys(days).map((k) => {
       const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
       return [el('div', { class: 'day' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
         el('div', { class: 'chips' }, days[k].map((sid) => {
@@ -78,7 +89,7 @@ function draw() {
         }))];
     }) : el('p', { class: 'mut' }, '신청할 수 있는 시간이 없어요.')].flat(Infinity).filter(Boolean);
   const slotHost = el('div', { class: 'slots', style: 'display:contents' });
-  drawSlots = () => slotHost.replaceChildren(...slotNodes());
+  drawSlots = () => { syncPick(); slotHost.replaceChildren(...slotNodes()); };
   const fs = [f.sid, f.name, f.pin];
   const keep = fs.map((x) => document.activeElement === x);
   const caret = keep.indexOf(true) >= 0 ? fs[keep.indexOf(true)].selectionStart : null;
@@ -88,8 +99,9 @@ function draw() {
     C.closeAt ? el('p', { class: 'mut small' }, closed() ? '신청이 마감됐어요.' : `신청 마감 ${new Date(C.closeAt).getMonth() + 1}.${new Date(C.closeAt).getDate()}. ${String(new Date(C.closeAt).getHours()).padStart(2, '0')}:${String(new Date(C.closeAt).getMinutes()).padStart(2, '0')}`) : null,
     el('div', { class: 'form' },
       el('label', {}, '학번(숫자 5자리)', f.sid), el('label', {}, '이름', f.name), el('label', {}, '비밀번호(숫자 4자리)', f.pin)),
+    pickBtn,
     slotHost].flat(Infinity).filter(Boolean));
-  slotHost.replaceChildren(...slotNodes());
+  syncPick(); slotHost.replaceChildren(...slotNodes());
   const fi = keep.indexOf(true);
   if (fi >= 0) { fs[fi].focus(); try { fs[fi].setSelectionRange(caret, caret); } catch (e) { /* noop */ } }
 }
@@ -99,18 +111,40 @@ const bref = (sid) => doc(db, 'consults', cid, 'books', sid);
 const tref = (sid) => doc(db, 'consults', cid, 'taken', sid);
 const label = (sid) => { const p = sidParts(sid); return `${p.m}월 ${p.d}일 ${p.hh}:${p.mm}`; };
 
+const alertBox = (t) => { const close = modal(el('div', {}, t), el('div', { class: 'row' }, el('button', { class: 'pri', onclick: () => close() }, '확인'))); };
+
+/* 학번·이름·비밀번호 확인: 같은 학번·이름은 이 상담표에서 처음 쓴 비밀번호로만 들어올 수 있어요 */
+async function pickTimes() {
+  if (!ready() || busyPick) return;
+  busyPick = true; syncPick();
+  try {
+    if (!closed()) await setDoc(pref(), { pin: f.pin.value });
+    verified = curKey(); draw();
+  } catch (e) {
+    if (e && e.code === 'permission-denied') alertBox('비밀번호가 일치하지 않습니다.'); else console.error(e);
+  } finally { busyPick = false; syncPick(); }
+}
+
 function onFree(sid) {
   if (closed()) return;
   const v = readForm(); if (!v) return;
   const move = moving;
+  if (C.noDup && !move) { // 중복 신청 불가: 이미 신청한 시간이 남아 있으면 막아요
+    getDoc(aref()).then((d) => { if (d.exists() && taken.has(d.data().sid)) alertBox('이미 신청한 상담이 있습니다.'); else ask(); }).catch(() => ask());
+    return;
+  }
+  ask();
+  function ask() {
   const close = modal(el('b', {}, move ? '이 시간으로 바꿀까요?' : '이 시간으로 신청할까요?'), el('div', {}, label(sid)),
     el('div', { class: 'row' }, el('button', { class: 'ghost', onclick: () => close() }, '취소'),
       el('button', { class: 'pri', onclick: async (e) => { e.target.disabled = true; await book(sid, v, move); close(); } }, move ? '바꾸기' : '신청')));
+  }
 }
 async function book(sid, v, move) {
   const b = writeBatch(db);
   if (move) { b.set(bref(move.sid), { cancelled: true, pin: move.pin }, { merge: true }); b.delete(tref(move.sid)); }
   b.set(tref(sid), { t: 1 });
+  b.set(arefOf(v.info, v.name), { sid });
   b.set(bref(sid), { name: v.name, info: v.info, pin: v.pin, at: Date.now(), cancelled: false });
   try {
     await b.commit();
@@ -128,7 +162,7 @@ function onTaken(sid, rec) {
     el('div', { class: 'row' },
       el('button', { class: 'ghost danger', onclick: async () => {
         try {
-          const b = writeBatch(db); b.set(bref(sid), { cancelled: true, pin: rec.p }, { merge: true }); b.delete(tref(sid)); await b.commit();
+          const b = writeBatch(db); b.set(bref(sid), { cancelled: true, pin: rec.p }, { merge: true }); b.delete(tref(sid)); b.delete(arefOf(rec.i, rec.n)); await b.commit();
           const m = loadMine(); delete m[sid]; saveMine(m); close();
         } catch (e) { console.error(e); }
       } }, '신청 취소'),

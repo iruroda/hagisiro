@@ -36,3 +36,4 @@ input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px col
 button:disabled { opacity: .4; cursor: default; }
 .chip.taken:disabled { opacity: 1; }
 .chip.taken:disabled:hover { border-color: transparent; }
+.pickbtn { width: 100%; margin: 0 0 6px; }

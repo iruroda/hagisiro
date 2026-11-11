@@ -2898,7 +2898,7 @@
     function quick() {
       stop();
       const today = ymd(new Date());
-      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '16:00', t2: '18:00', step: 20, skipWE: true, closeD: '', closeT: '18:00' });
+      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '16:00', t2: '18:00', step: 20, skipWE: true, closeD: '', closeT: '18:00', noDup: false });
       const f = {
         title: el('input', { type: 'text', maxlength: 40, value: q.title }),
         note: el('textarea', { rows: 3, maxlength: 500, spellcheck: 'false' }, q.note),
@@ -2908,7 +2908,8 @@
         closeD: el('input', { type: 'date', value: q.closeD }), closeT: timeSel(q.closeT),
       };
       const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: q.skipWE }), el('span', {}, '주말 제외'));
-      const save = () => { Object.keys(f).forEach((k) => { q[k] = k === 'step' ? +f[k].value : f[k].value; }); q.skipWE = wk.querySelector('input').checked; };
+      const nd = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: q.noDup }), el('span', {}, '중복 신청 불가'));
+      const save = () => { Object.keys(f).forEach((k) => { q[k] = k === 'step' ? +f[k].value : f[k].value; }); q.skipWE = wk.querySelector('input').checked; q.noDup = nd.querySelector('input').checked; };
       const tl = (...c) => el('span', { class: 'rng' }, c[0], el('span', { class: 'tld' }, '~'), c[1]);
       /* 시작이 종료보다 뒤로 가지 못하게: 달력·시각 목록에서 막고, 직접 입력해도 같은 값으로 맞춰요 */
       const limits = () => { f.from.max = f.to.value || ''; f.to.min = f.from.value || ''; f.t1.limit('', f.t2.value); f.t2.limit(f.t1.value, ''); };
@@ -2918,7 +2919,7 @@
       let okb;
       shell('새 테이블 만들기 (1/2)', el('div', { class: 'cform' },
         r('제목', fld(f.title)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(f.note)),
-        r('시작일 · 종료일', tl(f.from, f.to)), wk, r('시작 시각 · 종료 시각', tl(f.t1, f.t2)), r('간격', f.step), r('신청 마감(선택)', f.closeD, f.closeT),
+        r('시작일 · 종료일', tl(f.from, f.to)), wk, r('시작 시각 · 종료 시각', tl(f.t1, f.t2)), r('간격', f.step), r('신청 마감(선택)', f.closeD, f.closeT), nd,
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }),
           el('button', { class: 'ghost', type: 'button', onclick: () => { S.qform = null; dir = 'prev'; list(); } }, '이전'),
           okb = el('button', { class: 'pri', type: 'button', onclick: () => {
@@ -2934,7 +2935,7 @@
           }
           if (!Object.values(days).some((o) => Object.keys(o).length)) return;
           dir = 'next';
-          fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT}`).getTime() : 0, days, step }, null);
+          fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT}`).getTime() : 0, noDup: q.noDup, days, step }, null);
         } }, '다음'))));
       limits();
       const chk = () => { okb.disabled = !(f.title.value.trim() && f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
@@ -2945,7 +2946,7 @@
     function draftOf(c) {
       const days = {};
       c.slots.forEach((sid) => { (days[sid.slice(0, 8)] = days[sid.slice(0, 8)] || {})[sid.slice(9, 13)] = true; });
-      return { title: c.title || '', note: c.note || '', closeAt: c.closeAt || 0, days, step: 20 };
+      return { title: c.title || '', note: c.note || '', closeAt: c.closeAt || 0, noDup: !!c.noDup, days, step: 20 };
     }
     function fine(dr, c, from) {
       stop();
@@ -2981,7 +2982,7 @@
             } }, icon('plus'))));
         };
         shell(c ? '테이블 수정' : '새 테이블 만들기 (2/2)', el('div', { class: 'cform' },
-          ...(c ? [r('제목', fld(tIn)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(nIn)), r('신청 마감(선택)', cIn)] : []),
+          ...(c ? [r('제목', fld(tIn)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(nIn)), r('신청 마감(선택)', cIn), el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!dr.noDup, onchange: (e) => { dr.noDup = e.target.checked; } }), el('span', {}, '중복 신청 불가'))] : []),
           r('날짜 추가', addDate, el('button', { class: 'pri cplus', type: 'button', title: '날짜 추가', 'aria-label': '날짜 추가', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; addDate.value = ''; draw(); } }, icon('plus'))),
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: c ? () => { dir = 'prev'; from === 'detail' ? detail(c) : list(); } : () => { dir = 'prev'; quick(); } }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
@@ -2992,7 +2993,7 @@
             if (!slots.length || slots.length > 400) return;
             btn.disabled = true;
             try {
-              const data = { title: dr.title.trim() || '상담', note: dr.note.trim(), slots, closeAt: dr.closeAt || 0 };
+              const data = { title: dr.title.trim() || '상담', note: dr.note.trim(), slots, closeAt: dr.closeAt || 0, noDup: !!dr.noDup };
               let id;
               if (c) { await S.cloud.consultUpdate(c.id, data); id = c.id; } else id = await S.cloud.consultCreate(data);
               let nc = { ...data, id, created: Date.now() };
