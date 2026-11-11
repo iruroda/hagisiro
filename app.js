@@ -89,6 +89,7 @@
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
     lock: '<rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/>',
     move: '<path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/>',
+    weekNow: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4M8 15.5h8"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
     spade: '<path class="f" d="M12 3.6c3.6 3.4 7.2 6 7.2 9.4a3.5 3.5 0 01-6.2 2.2c.1 1.5.5 2.8 1.2 4.2h-4.4c.7-1.4 1.1-2.7 1.2-4.2A3.5 3.5 0 014.8 13c0-3.4 3.6-6 7.2-9.4z"/>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
@@ -2764,7 +2765,7 @@
     const fit = (first) => {
       if (!dlg) return;
       const n = PF.school ? MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k)).length : 0;
-      const h = (PF.school ? 200 + n * 107 : 150) + 'px';
+      const h = (PF.school ? 200 + n * 107 : 110) + 'px';
       if (!first && dlg.style.height !== h) { // 크기가 변하는 동안은 세로 스크롤바를 숨겨서 표 폭이 흔들리지 않게
         dlg.classList.add('hgt'); clearTimeout(dlg._ht); dlg._ht = setTimeout(() => dlg.classList.remove('hgt'), 340);
       }
@@ -2812,10 +2813,10 @@
       el('div', { class: 'shead' }, hb('utensils', '급식'), el('span', { class: 'grow' }),
         el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
       opts,
-      el('div', { class: 'mnav' },
+      PF.school ? el('div', { class: 'mnav' },
         el('button', { class: 'ib', type: 'button', onclick: () => mv(-1), 'aria-label': '지난주' }, icon('left')), ttl,
         el('button', { class: 'ib', type: 'button', onclick: () => mv(1), 'aria-label': '다음주' }, icon('right')),
-        el('button', { class: 'ghost sm', type: 'button', onclick: () => { sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay()); load(); } }, '이번 주')),
+        el('button', { class: 'ghost sm', type: 'button', onclick: () => { sun = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - t0.getDay()); load(); } }, icon('weekNow'), '이번 주')) : null,
       body);
     fit(true);
     m.replaceChildren(el('div', { class: 'back', onclick: close }), dlg);
