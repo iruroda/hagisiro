@@ -146,9 +146,9 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .mt td.d { cursor: pointer; }
 .mt td.d:hover { background: var(--sel); }
 .mk { font-weight: 700; color: var(--tc); }
-.mt th.sum { color: var(--tc); }
+.mt th.sum { color: var(--mut); }
 .mt .sum { min-width: 26px; border-left: 0; }
-.mt td.sum.has { font-weight: 700; color: var(--tc); }
+.mt td.sum.has { font-weight: 700; color: var(--mut); }
 .msum { font-size: 12px; color: var(--mut); }
 .msum b { color: var(--text); }
 .rl { display: flex; flex-direction: column; }
@@ -209,9 +209,9 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
 }
 
 /* ===== 사유구분 색 ===== */
-.c-질병 { --cc: #e5484d; } .c-미인정 { --cc: var(--text); } .c-기타 { --cc: #d98a00; } .c-출석인정 { --cc: #2e9e5b; }
-:root[data-theme="dark"] .c-질병 { --cc: #ff6b6f; } :root[data-theme="dark"] .c-기타 { --cc: #f5a524; } :root[data-theme="dark"] .c-출석인정 { --cc: #4ecb8a; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .c-질병 { --cc: #ff6b6f; } :root:not([data-theme="light"]) .c-기타 { --cc: #f5a524; } :root:not([data-theme="light"]) .c-출석인정 { --cc: #4ecb8a; } }
+.c-질병 { --cc: #2f6df6; } .c-미인정 { --cc: #e5484d; } .c-기타 { --cc: #d98a00; } .c-출석인정 { --cc: #2e9e5b; }
+:root[data-theme="dark"] .c-질병 { --cc: #6ea0ff; } :root[data-theme="dark"] .c-미인정 { --cc: #ff6b6f; } :root[data-theme="dark"] .c-기타 { --cc: #f5a524; } :root[data-theme="dark"] .c-출석인정 { --cc: #4ecb8a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .c-질병 { --cc: #6ea0ff; } :root:not([data-theme="light"]) .c-미인정 { --cc: #ff6b6f; } :root:not([data-theme="light"]) .c-기타 { --cc: #f5a524; } :root:not([data-theme="light"]) .c-출석인정 { --cc: #4ecb8a; } }
 
 /* ===== 출결: 일별 / 월별 ===== */
 .seg { display: inline-flex; background: var(--bg2); padding: 2px; border-radius: var(--r-md); }
@@ -280,9 +280,9 @@ button, input, select, textarea { font-family: inherit; }
 
 /* 드롭다운 목록 안의 글자는 각자 색 유지 (선택된 값 색이 목록 전체로 번지지 않게) */
 .ksel option, .ksel optgroup { background: var(--bg); color: var(--text); font-weight: 400; }
-.ksel option.c-질병 { color: var(--cc); } .ksel option.c-미인정 { color: var(--text); }
+.ksel option.c-질병 { color: var(--cc); } .ksel option.c-미인정 { color: var(--cc); }
 .ksel option.c-기타 { color: var(--cc); } .ksel option.c-출석인정 { color: var(--cc); }
-.ksel option.o-ok { color: var(--mut); }
+.ksel option.o-ok { color: var(--text); }
 
 /* 주별: 학생 × 요일 */
 .wv { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
@@ -631,7 +631,7 @@ body { font-variant-numeric: tabular-nums; }
 .pill { position: absolute; z-index: 0; background: var(--bg); box-shadow: 0 0 0 1px var(--line); border-radius: var(--r-sm); pointer-events: none; }
 .has-pill > .on { background: none !important; box-shadow: none !important; }
 body.widget #main > .login { border-radius: var(--r); }
-.msum .sc { color: var(--tc); font-weight: 600; }
+.msum .sc { color: var(--mut); font-weight: 600; }
 
 /* 연월 입력: 제목은 그대로 두고 아래에 띄움 (헤더 높이·폭이 변하지 않음) */
 .ttpop { position: fixed; z-index: 60; display: flex; align-items: center; gap: 6px; padding: 8px; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 8px 24px rgba(0,0,0,.22); animation: pop .14s ease-out; font-size: 14px; }
