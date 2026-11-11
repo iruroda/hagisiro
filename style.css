@@ -1158,3 +1158,7 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 
 /* 오늘 칩 아이콘: 탭 아이콘과 같은 크기 */
 #top .nav .ghost .ic svg { width: 15px; height: 15px; }
+
+/* 상담 상세: 긴 이름은 한 줄에서 뒤쪽을 …로 줄여요 (칩 높이가 늘지 않게) */
+.cdet .cdc .cchip { white-space: nowrap; }
+.cdet .cdc .cchip small { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

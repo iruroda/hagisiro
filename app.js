@@ -3046,7 +3046,7 @@
             el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, DOW[d.getDay()])),
             days[k].map((sid) => {
               const b = by[sid];
-              return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'),
+              return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'), title: b ? `${b.name}${b.info ? ' (' + b.info + ')' : ''}` : null,
                 onclick: b ? async () => {
                   if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''} 학생의 신청을 지울까요?`, '삭제'))) return;
                   try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
