@@ -158,13 +158,13 @@ async function book(sid, v, move) {
 }
 
 function onTaken(sid, rec) {
-  const close = modal(el('b', {}, '내 신청'), el('div', {}, label(sid)),
+  const close = modal(el('b', {}, '상담 신청 변경'), el('div', {}, label(sid)),
     el('div', { class: 'row' },
       el('button', { class: 'ghost danger', onclick: async () => {
         try {
           const b = writeBatch(db); b.set(bref(sid), { cancelled: true, pin: rec.p }, { merge: true }); b.delete(tref(sid)); b.delete(arefOf(rec.i, rec.n)); await b.commit();
           const m = loadMine(); delete m[sid]; saveMine(m); close();
         } catch (e) { console.error(e); }
-      } }, '신청 취소'),
-      el('button', { class: 'pri', onclick: () => { moving = { sid, pin: rec.p }; close(); draw(); } }, '시간 바꾸기')));
+      } }, '취소'),
+      el('button', { class: 'pri', onclick: () => { moving = { sid, pin: rec.p }; close(); draw(); } }, '변경')));
 }
