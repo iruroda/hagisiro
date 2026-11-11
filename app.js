@@ -1038,7 +1038,7 @@
   /* D-day로 표시한 할 일 중 오늘 이후(완료한 것 제외)를 가까운 날부터 */
   function ddayList() {
     const today = dayNum(ymd(new Date()));
-    return (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && !t.done && t.text && t.date && (PF.pastdd || dayNum(t.date) >= today))
+    return (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && t.text && t.date && (PF.pastdd || dayNum(t.date) >= today))
       .map((t) => { const n = dayNum(t.date) - today; return { t, n, label: n === 0 ? 'D-day' : n > 0 ? `D-${n}` : `D+${-n}` }; })
       .sort((a, b) => (a.n >= 0) !== (b.n >= 0) ? (a.n >= 0 ? -1 : 1) : (a.n >= 0 ? a.n - b.n : b.n - a.n) || byOrd(a.t, b.t));
   }
