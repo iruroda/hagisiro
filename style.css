@@ -1140,8 +1140,8 @@ body.widget .cell { padding-top: 5px; }
 
 /* 헤더: 오늘 칩은 날짜 이동(‹ ›)과 한 묶음, 탭과는 확실히 떨어뜨려요 */
 #top .nav .ghost { margin-left: 0; }
-#top .nav + .tabs { margin-left: 14px; }
-body.widget #top .nav + .tabs { margin-left: 10px; }
+#top .nav + .tabs { margin-left: 0; }
+body.widget #top .nav + .tabs { margin-left: 0; }
 
 /* D-day 줄을 요일 위에 둘 때 */
 .ddbar.top { border-top: 0; border-bottom: 1px solid var(--line); }
@@ -1155,3 +1155,6 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 
 /* 출결 학급 선택: '한글 2글자 + 숫자·공백 5개(+여유 1개) 정도가 들어가는 고정 폭, 더 길면 뒤쪽은 잘려요 (전체 이름은 학급 수정에서) */
 .abar select { width: 117px; flex: none; text-overflow: clip; }
+
+/* 오늘 칩 아이콘: 탭 아이콘과 같은 크기 */
+#top .nav .ghost .ic svg { width: 15px; height: 15px; }

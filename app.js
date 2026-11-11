@@ -93,7 +93,7 @@
     attend: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c0-3.7 2.8-5.8 6.5-5.8M14 17.8l2.7 2.7 4.6-5.1"/>',
     chat: '<path d="M10.44 17.70L5.6 20.2L5.11 15.37A9 6.8 0 1 1 10.44 17.70z"/>',
     excel: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M3.5 10.5h17M9.9 10.5V20M9.9 15.25h10.6M15.2 10.5V20"/>',
-    today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.5" r="1.3" class="f"/>',
+    today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.5" r="2.65" class="f"/>',
     undo: '<path d="M4.7 13.97A7.6 7.6 0 1 0 6.63 6.63"/><path d="M9.95 8.40L4.23 9.03L4.86 3.30"/>',
     textT: '<path d="M6 6.5h12M12 6.5V18.5"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
