@@ -1147,7 +1147,7 @@
     const row = (label, key, list) => {
       const r = el('div', { class: 'swr' }, el('span', { class: 'swl' }, label));
       list.forEach(([val, name]) => {
-        const b = el('button', { type: 'button', class: 'swb' + (key === 'bg' ? ' sq' : '') + (val ? '' : ' none') + ((cur && (cur[key] || '') === val) ? ' on' : ''), title: `${label} ${name}`, 'aria-label': `${label} ${name}`, style: val ? `background:${val}` : null });
+        const b = el('button', { type: 'button', class: 'swb' + (key === 'bg' ? ' sq' : '') + (val ? '' : ' none') + ((cur && (cur[key] || '') === val) ? ' on' : ''), 'aria-label': `${label} ${name}`, style: val ? `background:${val}` : null });
         b.addEventListener('click', (e) => {
           e.stopPropagation();
           r.querySelectorAll('.swb').forEach((x) => x.classList.remove('on')); b.classList.add('on');
@@ -1203,7 +1203,7 @@
         if (!ts.length) return;
         const cur = ts[0].get().bl || PF.tbl || 'dot';
         const box = el('div', { class: 'blpick' });
-        BUL.forEach(([k, name]) => box.append(el('button', { type: 'button', class: 'blb' + (cur === k ? ' on' : ''), 'data-bl': k, title: name, 'aria-label': name, onclick: (e) => {
+        BUL.forEach(([k, name]) => box.append(el('button', { type: 'button', class: 'blb' + (cur === k ? ' on' : ''), 'data-bl': k, 'aria-label': name, onclick: (e) => {
           e.stopPropagation(); ctx.targets(true).forEach((t) => t.set({ bl: k })); closePal(); if (ctx.after) ctx.after(false);
         } }, bulIcon(k))));
         openPalette(b, null, null, box);
@@ -1592,7 +1592,7 @@
       const sw = swatches((p) => Object.assign(st, p), st);
       const blr = el('div', { class: 'swr' }, el('span', { class: 'swl' }, '기호'));
       const blb = el('div', { class: 'pc2 blset' });
-      BUL.forEach(([k, name]) => blb.append(el('button', { type: 'button', class: 'blb' + ((st.bl || PF.tbl || 'dot') === k ? ' on' : ''), 'data-bl': k, title: name, 'aria-label': name, onclick: () => {
+      BUL.forEach(([k, name]) => blb.append(el('button', { type: 'button', class: 'blb' + ((st.bl || PF.tbl || 'dot') === k ? ' on' : ''), 'data-bl': k, 'aria-label': name, onclick: () => {
         st.bl = k; blb.querySelectorAll('.blb').forEach((x) => x.classList.toggle('on', x.dataset.bl === k)); if (onChange && ready) onChange();
       } }, bulIcon(k))));
       blr.append(blb); sw.prepend(blr);
@@ -2467,13 +2467,13 @@
 ] : []),
       ],
       td: () => {
-        const dots = (key, list) => el('div', { class: 'pc2 pdots' }, list.map(([val, name]) => el('button', { type: 'button', class: 'swb' + (key === 'tbg' ? ' sq' : '') + (val ? '' : ' none') + ((PF[key] || '') === val ? ' on' : ''), title: name, 'aria-label': name, style: val ? `background:${val}` : null,
+        const dots = (key, list) => el('div', { class: 'pc2 pdots' }, list.map(([val, name]) => el('button', { type: 'button', class: 'swb' + (key === 'tbg' ? ' sq' : '') + (val ? '' : ' none') + ((PF[key] || '') === val ? ' on' : ''), 'aria-label': name, style: val ? `background:${val}` : null,
           onclick: () => { PF[key] = val; commit('render'); } })));
         return [
           el('div', { class: 'pfs' }, '기본 모양'),
           row('글자 크기', el('div', { class: 'seg szseg' }, SIZES.map(([v, l]) => el('button', { type: 'button', class: (PF.tsz || 's') === v ? 'on' : '', onclick: () => { PF.tsz = v === 's' ? '' : v; commit('render'); } }, l)))),
           row('줄 간격', el('div', { class: 'seg szseg' }, [[0, '아주 좁게'], [1, '좁게'], [2, '보통'], [3, '넓게'], [4, '아주 넓게']].map(([v, l]) => el('button', { type: 'button', class: PF.tlh === v ? 'on' : '', onclick: () => { PF.tlh = v; commit('render'); } }, l)))),
-          row('기호', el('div', { class: 'pc2 blset' }, BUL.map(([k, name]) => el('button', { type: 'button', class: 'blb' + ((PF.tbl || 'dot') === k ? ' on' : ''), 'data-bl': k, title: name, 'aria-label': name,
+          row('기호', el('div', { class: 'pc2 blset' }, BUL.map(([k, name]) => el('button', { type: 'button', class: 'blb' + ((PF.tbl || 'dot') === k ? ' on' : ''), 'data-bl': k, 'aria-label': name,
             onclick: () => { PF.tbl = k === 'dot' ? '' : k; commit('render'); } }, bulIcon(k))))),
           row('글자색', dots('tfg', FG)),
           row('배경색', dots('tbg', BGC)),

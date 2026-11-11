@@ -1146,3 +1146,6 @@ body.widget #top .nav + .tabs { margin-left: 10px; }
 /* D-day 줄을 요일 위에 둘 때 */
 .ddbar.top { border-top: 0; border-bottom: 1px solid var(--line); }
 body.widget .ddbar.top { border: 0; border-radius: 0; }
+
+/* 위젯 헤더 아래 여백: 웹과 같게 (위 7 / 아래 2) */
+body.widget #top { padding-top: 7px; padding-bottom: 2px; }
