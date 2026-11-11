@@ -1101,3 +1101,8 @@ body.widget .cell { padding-top: 5px; }
 .cform > .pfr { max-width: 480px; }
 .cform > .pfr:not(.col) { justify-content: flex-start; }
 .cform > .pfr:not(.col) > .pl { flex: none; width: 132px; }
+/* 칸 안 목록의 4px 스크롤바: 그라데이션으로 그리면 125%·150% 배율에서 끝이 계단져 보여서, 트랙 자체를 4px로 하고 둥근 모서리로 그려요 */
+.cell .tl::-webkit-scrollbar { width: 4px; height: 4px; }
+.cell .tl::-webkit-scrollbar-thumb:vertical, .cell .tl::-webkit-scrollbar-thumb:vertical:hover { background-image: none; background-color: color-mix(in srgb, var(--mut) 42%, var(--bg-s)); border-radius: 99px; }
+.cell .tl::-webkit-scrollbar-thumb:vertical:hover { background-color: color-mix(in srgb, var(--mut) 75%, var(--bg-s)); }
+.cell .tl { padding-right: 4px; }
