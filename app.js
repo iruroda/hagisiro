@@ -631,7 +631,7 @@
     if (!svg || !S.spinT) return;
     const left = S.spinT - Date.now();
     if (left <= 0) { S.spinT = 0; return; }
-    b.classList.add('spin'); svg.style.animationDelay = `-${600 - left}ms`;
+    b.classList.add('spin'); svg.style.animationDelay = `-${1000 - left}ms`;
   }
 
   /* 상단바가 좁아지면 오른쪽 도구를 뒤에서부터 숨기고 ⋯ 버튼으로 보여줘요 */
@@ -759,7 +759,7 @@
   function forceSync() {
     S.saveErr = false; markErr();
     const b = $('#syncBtn');
-    S.spinT = Date.now() + 600;
+    S.spinT = Date.now() + 1000;
     if (b) { b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin'); }
     if (S.cloud) {
       stopWatches(); watchStatic(); watchRange();
