@@ -1128,7 +1128,7 @@ body.widget .cell { padding-top: 5px; }
 .pnav button { font-weight: 600; }
 .pnav button:not(.on) { font-weight: 500; }
 .dt tr:not(.has) .ksel { color: var(--text); }
-.fld .clr, .mic .ic, .blb { color: var(--text); }
+.fld .clr, .mic .ic { color: var(--text); }
 
 /* 연월 이동 팝업: 엔터 버튼 아이콘을 정가운데로 */
 .ttpop button.pri.sm { padding: 0; }
