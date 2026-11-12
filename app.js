@@ -3145,9 +3145,9 @@
       const p = (l, i) => el('div', { class: 'pfr' }, el('span', { class: 'pl' }, l), el('div', { class: 'pc2' }, i));
       layer.append(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg proxd', role: 'dialog' },
-          el('div', { class: 'shead' }, el('b', {}, '상담 신청')),
+          el('div', { class: 'shead' }, el('b', {}, '상담 신청'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
           el('div', { class: 'mut small proxt' }, sidLabel(sid)),
-          el('div', { class: 'cform' }, p('학번', fi), p('이름', fn), p('비밀번호', fp)),
+          el('div', { class: 'cform' }, p('학번(숫자 5자리)', fi), p('이름', fn), p('비밀번호(숫자 4자리)', fp)),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: close }, '취소'), ok)));
       document.addEventListener('keydown', key, true);
       document.body.append(layer);
