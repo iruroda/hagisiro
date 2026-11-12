@@ -1784,7 +1784,7 @@
 
   function attView() {
     const root = el('div', { class: 'att' });
-    if (!S.clsLoaded) { root.append(loading()); return root; }
+    if (!S.clsLoaded) { root.append(loading(true)); return root; }
     const real = curClass();
     const none = !real; // 학급이 없어도 같은 틀을 보여주고, 학급 추가만 켜 둬요
     const cls = real || { id: '', name: '', students: [], periods: [] };
@@ -1934,7 +1934,7 @@
     return w;
   }
   /* 불러오는 중: 글자 대신 보라~파랑 도넛 링이 빙글빙글 */
-  const loading = () => el('div', { class: 'ldg', role: 'status', 'aria-label': '불러오는 중' }, el('i', { class: 'ring' }));
+  const loading = (page) => el('div', { class: 'ldg' + (page ? ' page' : ''), role: 'status', 'aria-label': '불러오는 중' }, el('i', { class: 'ring' }));
   const hb = (ic, t) => el('b', { class: 'hb' }, icon(ic), t);
   /* 팝업 제목줄을 잡아 끌면 팝업이 이동 (뒤에 있는 내용을 볼 수 있게) */
   document.addEventListener('mousedown', (e) => {
@@ -2932,7 +2932,7 @@
     async function list() {
       S.cs = null; stop(); const my = nav;
       const d0 = dir; dir = '';
-      if (!d0) shell('', loading());
+      if (!d0) shell('', loading(true));
       let rows = [];
       try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); }
       if (my !== nav) return;
@@ -3064,7 +3064,7 @@
       if (!c) { draw(); return; }
       /* 수정: 신청 현황이 도착한 뒤 한 번만 그려야 오른쪽에서 밀려 들어오는 효과가 끊기지 않아요 */
       const d0 = dir; dir = '';
-      if (!d0) shell('', loading());
+      if (!d0) shell('', loading(true));
       let first = true;
       const once = () => { if (first) { first = false; dir = d0; } };
       unsub = S.cloud.consultWatchBooks(c.id, (books) => { once(); booked = {}; books.filter((b) => !b.cancelled).forEach((b) => { booked[b.id] = b; }); draw(); }, () => { once(); draw(); });
@@ -3140,7 +3140,7 @@
       stop();
       /* 처음 한 번만 오른쪽에서 밀려 들어와요 (불러오는 동안은 이전 화면이 그대로, 이후 신청 변화는 제자리에서 갱신) */
       const d0 = dir; dir = '';
-      if (!d0) shell('', loading());
+      if (!d0) shell('', loading(true));
       let first = true;
       unsub = S.cloud.consultWatchBooks(c.id, (books) => { if (first) { first = false; dir = d0; } draw(books); }, (e) => console.error(e));
     }

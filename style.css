@@ -1228,3 +1228,5 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 @keyframes tourin { from { opacity: 0; } to { opacity: 1; } }
 .tour { animation: tourin .22s ease-out; }
 .tour.out { opacity: 0; transition: opacity .22s ease-out; pointer-events: none; }
+/* 화면 전체를 불러오는 중이면 도넛을 창(본문) 정가운데에 */
+.ldg.page { position: absolute; inset: 0; width: auto; padding: 0; z-index: 1; }
