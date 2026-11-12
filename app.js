@@ -3069,6 +3069,9 @@
         const addDate = el('input', { type: 'date' });
         const aEmp = () => addDate.classList.toggle('empty', !addDate.value); /* 비어 있는 날짜(연도-월-일)는 회색 */
         addDate.addEventListener('input', aEmp); addDate.addEventListener('change', aEmp); aEmp();
+        const dPlus = el('button', { class: 'pri cplus', type: 'button', title: '날짜 추가', 'aria-label': '날짜 추가', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; addDate.value = ''; draw(); } }, icon('plus'));
+        const dChk = () => { dPlus.disabled = addDate.value.replace(/-/g, '') in dr.days; }; /* 이미 있는 날짜면 추가 불가 */
+        addDate.addEventListener('input', dChk); addDate.addEventListener('change', dChk); dChk();
         const dayCard = (k) => {
           const o = dr.days[k], ts = Object.keys(o).sort();
           const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
@@ -3076,6 +3079,11 @@
           const stepM = (() => { const m = ts.map((t) => +t.slice(0, 2) * 60 + +t.slice(2)); return m.length > 1 ? (m[m.length - 1] - m[m.length - 2]) || dr.step || 20 : dr.step || 20; })();
           const nextM = ts.length ? Math.min(+ts[ts.length - 1].slice(0, 2) * 60 + +ts[ts.length - 1].slice(2) + stepM, 23 * 60 + 55) : 16 * 60;
           const tm = timeSel(`${pad(Math.floor(nextM / 60))}:${pad(nextM % 60 - (nextM % 5))}`);
+          const tPlus = el('button', { class: 'pri cplus', type: 'button', title: '시각 추가', 'aria-label': '시각 추가', onclick: () => {
+            const t = tm.value.replace(':', ''); if (!(t in o)) o[t] = true; draw();
+          } }, icon('plus'));
+          const tChk = () => { tPlus.disabled = tm.value.replace(':', '') in o; }; /* 이미 있는 시각이면 추가 불가 */
+          tm.addEventListener('change', tChk); tm.addEventListener('input', tChk); tChk();
           return el('div', { class: 'cdc' },
             el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`), el('span', { class: 'grow' }),
               el('button', { class: 'ib sm', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
@@ -3084,13 +3092,11 @@
               return el('button', { type: 'button', class: 'cchip' + (o[t] ? '' : ' off') + (b ? ' bk' : ''),
                 onclick: () => { o[t] = !o[t]; draw(); } }, `${t.slice(0, 2)}:${t.slice(2)}`, b ? el('small', {}, b.name) : null);
             }),
-            el('div', { class: 'cadd' }, tm, el('button', { class: 'pri cplus', type: 'button', title: '시각 추가', 'aria-label': '시각 추가', onclick: () => {
-              const t = tm.value.replace(':', ''); if (!(t in o)) o[t] = true; draw();
-            } }, icon('plus'))));
+            el('div', { class: 'cadd' }, tm, tPlus));
         };
         shell(c ? '테이블 수정' : '새 테이블 만들기 (2/2)', el('div', { class: 'cform' },
           ...(c ? [r('제목', fld(tIn)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(nIn)), r('신청 마감(선택)', cIn), el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!dr.noDup, onchange: (e) => { dr.noDup = e.target.checked; } }), el('span', {}, '중복 신청 불가'))] : []),
-          r('날짜 추가', addDate, el('button', { class: 'pri cplus', type: 'button', title: '날짜 추가', 'aria-label': '날짜 추가', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; addDate.value = ''; draw(); } }, icon('plus'))),
+          r('날짜 추가', addDate, dPlus),
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), c ? null : el('button', { class: 'ghost', type: 'button', onclick: () => { dir = 'prev'; quick(); } }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
             const btn = e.currentTarget, fb = btn.parentElement;
