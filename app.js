@@ -3053,6 +3053,9 @@
       let booked = {};
       const total = () => Object.values(dr.days).reduce((n, o) => n + Object.values(o).filter(Boolean).length, 0);
       const draw = () => {
+        /* 화면을 다시 그려도 보고 있던 위치(세로·가로 스크롤)를 그대로 유지해요 */
+        const sv = (q) => { const n = host.querySelector(q); return n ? [n.scrollTop, n.scrollLeft] : null; };
+        const keepPos = [['.cform', sv('.cform')], ['.cgrid', sv('.cgrid')]];
         const keys = Object.keys(dr.days).sort();
         const tIn = el('input', { type: 'text', value: dr.title, maxlength: 40, oninput: (e) => { dr.title = e.target.value; } });
         const nIn = el('textarea', { rows: 3, maxlength: 500, spellcheck: 'false', oninput: (e) => { dr.note = e.target.value; } }, dr.note);
@@ -3108,6 +3111,7 @@
               fb.prepend(el('span', { class: 'cerr' }, `저장 실패 (${(er && (er.code || er.message)) || '오류'})`));
             }
           } }, '저장'))), c ? () => { from === 'detail' ? detail(c) : list(); } : quick);
+        keepPos.forEach(([q, pos]) => { const n = pos && host.querySelector(q); if (n) { n.scrollTop = pos[0]; n.scrollLeft = pos[1]; } });
       };
       if (!c) { draw(); return; }
       /* 수정: 신청 현황이 도착한 뒤 한 번만 그려야 오른쪽에서 밀려 들어오는 효과가 끊기지 않아요 */
