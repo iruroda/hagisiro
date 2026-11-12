@@ -1283,3 +1283,6 @@ input[type=date].empty { color: var(--mut); }
 
 /* 대리 신청 팝업: 스크롤이 없는 입력 영역이라 오른쪽 스크롤 자리(여백)를 비우고, 포커스 테두리가 잘리지 않게 */
 .proxd .cform { scrollbar-gutter: auto; overflow: visible; }
+
+/* 상담 테이블 만들기·수정: 날짜 카드 줄 · 가로 스크롤바 · 저장 버튼의 오른쪽 끝을 같은 선에 */
+.cform .cgrid { padding-right: 0; }
