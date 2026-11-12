@@ -61,6 +61,7 @@
     power: '<path d="M12 3.8v7.2"/><path d="M7.2 6.7a7.2 7.2 0 109.6 0"/>',
     minimize: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M8 15h8"/>',
     bell: '<path d="M6 15.75v-6a6 6 0 0112 0v6l1.5 2h-15zM10 20.25h4"/>',
+    school: '<path d="M10.5 2.8V11"/><path d="M11.1 3.4l5.6 2.5-5.6 2.5z" class="f"/><rect x="3.5" y="11" width="17" height="9.5" rx="2.2"/><path d="M10 20.5v-5.5h4v5.5"/>',
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c0-3.7 2.8-5.8 6.5-5.8s6.5 2.1 6.5 5.8M19 8v6M16 11h6"/>',
     utensils: '<path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 21V3c-2.5 1.5-3.5 4.5-3.5 8H17"/>',
     sliders: '<path d="M4.5 8h7M17.5 8h2M4.5 16h2M12.5 16h7"/><circle cx="14.5" cy="8" r="2.6"/><circle cx="9.5" cy="16" r="2.6"/>',
@@ -2872,8 +2873,8 @@
     } }, PF.schools.map((x) => el('option', { value: x.code, selected: PF.school && x.code === PF.school.code }, x.name)));
     const opts = el('div', { class: 'mk mopts' },
       schSel,
-      el('button', { class: 'ghost sm', type: 'button', disabled: !PF.school, onclick: () => openSchool(openMealWeek, 'edit') }, icon('users'), '학교 수정'),
-      el('button', { class: 'ghost sm', type: 'button', disabled: PF.schools.length >= 5, title: PF.schools.length >= 5 ? '학교는 최대 5개까지 추가할 수 있어요' : null, onclick: () => openSchool(openMealWeek, 'add') }, icon('userplus'), '학교 추가'),
+      el('button', { class: 'ghost sm danger', type: 'button', disabled: !PF.school, onclick: async () => { if (!(await ask(`${PF.school.name} 학교를 삭제할까요?`))) return; PF.schools = PF.schools.filter((z) => z.code !== PF.school.code); PF.school = PF.schools[0] || null; if (!PF.school) PF.meal = false; S.meal = {}; savePf(); loadMeal(); render(); openMealWeek(); } }, icon('trash'), '학교 삭제'),
+      el('button', { class: 'ghost sm', type: 'button', disabled: PF.schools.length >= 5, title: PF.schools.length >= 5 ? '학교는 최대 5개까지 추가할 수 있어요' : null, onclick: () => openSchool(openMealWeek) }, icon('school'), '학교 추가'),
       el('span', { class: 'grow' }),
       MEAL_KINDS.map((k) => chk(k, (PF.mk || MEAL_KINDS).includes(k), (v) => {
         const cur = new Set(PF.mk || MEAL_KINDS); if (v) cur.add(k); else cur.delete(k);
@@ -2893,8 +2894,7 @@
     m.replaceChildren(el('div', { class: 'back', onclick: close }), dlg);
     load();
   }
-  function openSchool(done, mode) {
-    const edit = mode === 'edit' && PF.school;
+  function openSchool(done) {
     const layer = el('div', { class: 'askw' });
     const close = () => layer.remove();
     const res = el('div', { class: 'schres' });
@@ -2908,9 +2908,8 @@
         const rows = await neis('schoolInfo', { SCHUL_NM: q });
         res.replaceChildren(...(rows.length ? rows.map((x) => el('button', { type: 'button', class: 'schrow', onclick: () => {
           const ns = { name: x.SCHUL_NM, edu: x.ATPT_OFCDC_SC_CODE, code: x.SD_SCHUL_CODE };
-          const at = edit ? PF.schools.findIndex((z) => z.code === PF.school.code) : -1;
           PF.schools = PF.schools.filter((z) => z.code !== ns.code);
-          if (at >= 0) PF.schools.splice(Math.min(at, PF.schools.length), 0, ns); else PF.schools.push(ns);
+          PF.schools.push(ns);
           PF.school = ns; PF.meal = true; S.meal = {};
           savePf(); loadMeal(); close(); if (done) done();
         } }, el('b', {}, x.SCHUL_NM), el('small', {}, ' ' + (x.ORG_RDNMA || x.LCTN_SC_NM || '')))) : [el('div', { class: 'mut' }, '학교 없음')]));
@@ -2920,10 +2919,7 @@
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, hb(edit ? 'users' : 'userplus', edit ? '학교 수정' : '학교 추가'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        edit ? el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, PF.school.name), el('button', { class: 'ghost sm danger', type: 'button', onclick: () => {
-          PF.schools = PF.schools.filter((z) => z.code !== PF.school.code); PF.school = PF.schools[0] || null; if (!PF.school) PF.meal = false; S.meal = {}; savePf(); loadMeal(); render(); close(); if (done) done();
-        } }, icon('trash'), '삭제')) : null,
+        el('div', { class: 'shead' }, hb('school', '학교 추가'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         el('div', { class: 'schq' }, fld(inp), el('button', { class: 'ghost sm', type: 'button', onclick: go }, icon('search'), '검색')), res));
     document.body.append(layer);
     setTimeout(() => inp.focus(), 30);

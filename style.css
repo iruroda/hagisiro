@@ -1065,8 +1065,6 @@ body.widget .cell { padding-top: 5px; }
 .cell .tl::-webkit-scrollbar-thumb { --w: 4px; }
 
 /* 학교 찾기: 현재 학교(왼쪽)·삭제(오른쪽)를 검색창 위에 / 급식 팝업의 학교 이름은 옆 체크 글씨와 같은 크기 */
-.schcur { display: flex; align-items: center; gap: 8px; }
-.schcur .schnm { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mealdlg .mopts .ghost.sm { font-size: 13px; }
 
 /* 업로드 가능 형식 말풍선 / 직접 입력 안내는 클릭(포커스) 전까지만 */
