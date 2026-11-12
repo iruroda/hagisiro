@@ -2567,7 +2567,7 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const name = el('input', { type: 'text', value: c ? c.name : '', 'aria-label': '학급 이름' });
-    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 김네모\n2 이세모\n\n엑셀 또는 한글의 표를 복사하여 붙여 넣을 수 있습니다.', 'aria-label': '명단' });
+    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '김네모\n이세모\n\n엑셀 또는 한글의 표를 복사하여 붙여 넣을 수 있습니다.', 'aria-label': '명단' });
     ta.value = c ? c.students.slice().sort((a, b) => a.no - b.no).map((s) => `${s.no} ${s.name}`).join('\n') : '';
 
     function save() {
