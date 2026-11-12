@@ -1144,9 +1144,6 @@ body.widget #top .nav + .tabs { margin-left: 0; }
 .ddbar.top { border-top: 0; border-bottom: 1px solid var(--line); }
 body.widget .ddbar.top { border: 0; border-radius: 0; }
 
-/* 위젯 헤더 아래 여백: 웹과 같게 (위 7 / 아래 2) */
-body.widget #top { padding-top: 7px; padding-bottom: 2px; }
-
 /* 여러 줄 입력창: X 버튼이 없으니 오른쪽 여백도 일반 폭으로 */
 .fld.ta textarea { padding-right: 10px; }
 
