@@ -1181,3 +1181,7 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 
 /* 월별 칸의 결·지·조·과 표시: 글자마다 유형색 */
 .mt td .mk > span { color: var(--tc); }
+
+/* 급식 팝업: 비활성(학교 없음 · 5개 가득)은 흐리게 */
+.mealdlg button:disabled, .mealdlg select:disabled { opacity: .35; pointer-events: none; }
+.mealdlg label:has(input:disabled) { opacity: .45; }
