@@ -1243,3 +1243,5 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 body.widget #top .tab .ic { transform: translateY(-1px); }
 .tsel select.ph { color: var(--mut); }
 .cdh > .mut { position: relative; top: -1px; }
+/* 할 일 검색: 처음엔 검색창만, 결과가 있으면 그 양만큼 (최대 300px) 부드럽게 늘어남 */
+.srl.sr { height: 0; margin-top: -10px; transition: height .3s cubic-bezier(.3, .7, .3, 1), margin-top .3s cubic-bezier(.3, .7, .3, 1); }

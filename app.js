@@ -911,7 +911,7 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const q = el('input', { type: 'text', class: 'sqi', spellcheck: 'false', autocomplete: 'off', 'aria-label': '할 일 검색' });
-    const list = el('div', { class: 'srl' });
+    const list = el('div', { class: 'srl sr' });
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('search', '할 일 검색'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
       fld(q), list);
@@ -926,11 +926,17 @@
     const run = () => {
       const k = q.value.trim().toLowerCase();
       list.replaceChildren();
-      if (!k) return;
+      const fit = () => {
+        const cur = list.style.height; list.style.transition = 'none'; list.style.height = 'auto';
+        const h = list.children.length ? Math.min(300, list.scrollHeight) : 0;
+        list.style.height = cur || '0px'; void list.offsetHeight; list.style.transition = '';
+        list.style.height = h + 'px'; list.style.marginTop = h ? '' : '-10px';
+      };
+      if (!k) { fit(); return; }
       const hit = all.filter((t) => !t.skip && t.text && t.text.toLowerCase().includes(k))
         .sort((a, b) => { const fa = a.date >= today, fb = b.date >= today; return fa !== fb ? (fa ? -1 : 1) : (fa ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)); });
       const rules = S.repeats.filter((r) => r.text && r.text.toLowerCase().includes(k));
-      if (!hit.length && !rules.length) { list.append(el('div', { class: 'mut small sempty' }, '할 일 없음')); return; }
+      if (!hit.length && !rules.length) { list.append(el('div', { class: 'mut small sempty' }, '일치하는 할 일 없음')); fit(); return; }
       hit.slice(0, 100).forEach((t) => {
         const d = parseYmd(t.date);
         list.append(el('button', { type: 'button', class: 'srow' + (t.done ? ' done' : ''), onclick: () => { close(); gotoDate(t.date); } },
@@ -940,6 +946,7 @@
       rules.forEach((r) => list.append(el('button', { type: 'button', class: 'srow', onclick: () => { close(); openRepeatManage(); } },
         el('span', { class: 'sd' }, '반복'), el('span', { class: 'st' }, r.text), el('span', { class: 'mut small' }, ruleSummary(r)))));
       if (hit.length > 100) list.append(el('div', { class: 'mut small sempty' }, `위 100개만 보여요 (전체 ${hit.length}개)`));
+      fit();
     };
     q.addEventListener('input', run);
     q.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); else if (e.key === 'Enter') { const f = list.querySelector('.srow'); if (f) f.click(); } e.stopPropagation(); });
