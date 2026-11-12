@@ -1162,7 +1162,7 @@ body.widget .ddbar.top { border: 0; border-bottom: 1px solid var(--line); border
 .cdet .cchip.ro:hover { background: var(--sel); }
 .proxd { width: min(320px, 92vw); }
 .proxd .shead { margin-bottom: 2px; }
-.proxd .proxt { padding: 0 2px 8px; }
+.proxd .proxt { padding: 0 0 8px; }
 .proxd .cform { padding-right: 0; }
 .proxd .pfr .pl { min-width: 64px; }
 .proxd .pc2 input { width: 100%; box-sizing: border-box; }
@@ -1280,3 +1280,6 @@ body.widget #top .tab .ic { transform: none; }
 /* 교시 설정: 요일 목록 ↔ 체크 ↔ 버튼 간격을 팝업 공통 간격(10px)으로 통일 */
 .keepbox { margin: 0; }
 input[type=date].empty { color: var(--mut); }
+
+/* 대리 신청 팝업: 스크롤이 없는 입력 영역이라 오른쪽 스크롤 자리(여백)를 비우고, 포커스 테두리가 잘리지 않게 */
+.proxd .cform { scrollbar-gutter: auto; overflow: visible; }

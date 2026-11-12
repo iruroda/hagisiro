@@ -3060,6 +3060,8 @@
         const cDate = el('input', { type: 'date', value: c0 ? ymd(c0) : '' }), cTime = timeSel(c0 && !(c0.getHours() === 23 && c0.getMinutes() === 59) ? `${pad(c0.getHours())}:${pad(Math.floor(c0.getMinutes() / 5) * 5)}` : '', true);
         const cSync = () => { dr.closeAt = cDate.value ? new Date(`${cDate.value}T${cTime.value || '23:59'}`).getTime() : 0; };
         cDate.addEventListener('change', cSync); cTime.addEventListener('change', cSync);
+        const cEmp = () => cDate.classList.toggle('empty', !cDate.value); /* 비어 있는 날짜(연도-월-일)는 회색 */
+        cDate.addEventListener('input', cEmp); cDate.addEventListener('change', cEmp); cEmp();
         const cIn = el('span', { class: 'pc2' }, cDate, cTime);
         const addDate = el('input', { type: 'date' });
         const dayCard = (k) => {
