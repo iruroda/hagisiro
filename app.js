@@ -2840,6 +2840,7 @@
     };
     const draw = () => {
       fit();
+      if (dlg) dlg.classList.toggle('nosch', !PF.school); // 학교가 없으면 주 제목·표도 다른 비활성 요소처럼 흐리게
       const days = Array.from({ length: 7 }, (_, i) => new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + i)).filter((d) => !(PF.mwe && (d.getDay() === 0 || d.getDay() === 6)));
       const e = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 6);
       ttl.textContent = `${sun.getMonth() + 1}.${sun.getDate()}. ~ ${e.getMonth() + 1}.${e.getDate()}.`;

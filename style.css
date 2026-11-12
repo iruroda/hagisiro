@@ -1298,3 +1298,6 @@ input[type=date].empty { color: var(--mut); }
 .schcur { display: flex; align-items: center; gap: 8px; }
 .schcur .schnm { flex: 1; min-width: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .schq input:disabled, .schq .ghost:disabled { opacity: .4; }
+
+/* 급식: 학교가 하나도 없으면 주 제목과 표도 비활성(흐림) */
+.mealdlg.nosch .mttl, .mealdlg.nosch .mtbl { opacity: .4; }
