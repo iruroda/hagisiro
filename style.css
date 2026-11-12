@@ -1279,3 +1279,4 @@ body.widget #top .tab .ic { transform: none; }
 
 /* 교시 설정: 요일 목록 ↔ 체크 ↔ 버튼 간격을 팝업 공통 간격(10px)으로 통일 */
 .keepbox { margin: 0; }
+input[type=date].empty { color: var(--mut); }

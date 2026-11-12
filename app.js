@@ -3038,6 +3038,8 @@
       limits();
       const chk = () => { okb.disabled = !(f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
       Object.values(f).forEach((x) => { x.addEventListener('input', chk); x.addEventListener('change', chk); }); chk();
+      const emp = () => f.closeD.classList.toggle('empty', !f.closeD.value); /* 비어 있는 날짜(연도-월-일)는 회색 */
+      f.closeD.addEventListener('input', emp); f.closeD.addEventListener('change', emp); emp();
     }
 
     /* ---- 2단계: 칸마다 잠그기 · 날짜별로 다르게 ---- */
