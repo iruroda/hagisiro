@@ -516,7 +516,7 @@
       if (!box.classList.contains('has-pill')) box.classList.add('has-pill');
       Object.assign(pill.style, { left: g.l + 'px', top: (r.top - b.top - box.clientTop) + 'px', width: g.w + 'px', height: r.height + 'px' });
       const prev = pillPos[key];
-      const opt = { duration: 240, easing: 'cubic-bezier(.3,1.25,.4,1)' };
+      const opt = { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)' };
       const idx = [...box.children].indexOf(on);
       if (prev && prev.idx !== idx && pill.animate) {
         const run = prev.run && performance.now() - prev.run.t0 < 240 && Math.abs(prev.run.to - g.l) < 2 ? prev.run : null; // 이동 중에 다시 그려진 경우: 이어서 재생
@@ -1877,7 +1877,7 @@
       el('button', { class: 'ib', 'aria-label': '다음 주', onclick: () => shiftW(1) }, icon('right')),
       el('span', { class: 'grow' }),
       (() => {
-        const setAll = (v) => { if (S.weekAll === v) return; S.weekAll = v; ls.set('hagisiro:weekall', v ? '1' : ''); render(); const t = $('#main .wv > .mwrap, #main .wv > .empty'); if (t && t.animate) t.animate({ opacity: [0, 1] }, { duration: 280, easing: 'ease-out' }); };
+        const setAll = (v) => { if (S.weekAll === v) return; S.weekAll = v; ls.set('hagisiro:weekall', v ? '1' : ''); render(); const t = $('#main .wv > .mwrap, #main .wv > .empty'); if (t && t.animate) t.animate({ opacity: [0, 1] }, { duration: 220, easing: 'ease-out' }); };
         return el('div', { class: 'seg' }, el('button', { type: 'button', class: S.weekAll ? 'on' : '', onclick: () => setAll(true) }, '전체'), el('button', { type: 'button', class: S.weekAll ? '' : 'on', onclick: () => setAll(false) }, '기록 있는 학생만'));
       })()));
 
@@ -2078,7 +2078,7 @@
     const r = row.getBoundingClientRect();
     const hole = el('div', { class: 'tour-hole' });
     const never = el('input', { type: 'checkbox' });
-    const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.classList.add('out'); setTimeout(() => box.remove(), 260); };
+    const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.classList.add('out'); setTimeout(() => box.remove(), 230); };
     const tip = el('div', { class: 'tour-tip' },
       el('div', {}, '출결은 문장으로도 입력 가능합니다.'),
       el('div', { class: 'mut' }, '예) 김네모 오늘 4교시부터 감기로 조퇴 /'),
@@ -3236,7 +3236,7 @@
         if (noAnim() || Math.abs(h - last) < 2) { last = h; return; }
         const from = last; last = h; busy = true;
         const ov = n.style.overflow; n.style.overflow = 'hidden';
-        const a = n.animate([{ height: from + 'px' }, { height: h + 'px' }], { duration: 240, easing: 'cubic-bezier(.3,.7,.3,1)' });
+        const a = n.animate([{ height: from + 'px' }, { height: h + 'px' }], { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)' });
         const end = () => { busy = false; n.style.overflow = ov; last = n.offsetHeight; };
         a.onfinish = end; a.oncancel = end;
       }).observe(n);

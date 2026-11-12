@@ -178,7 +178,7 @@ body.widget .cell.sel { background: color-mix(in srgb, var(--sel) var(--wa, 90%)
 body.widget .cell.editing { background: var(--bg); }
 body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(--r) var(--r); }
 /* 이동·크기 변경 모드 */
-#wedit { position: fixed; inset: 0; z-index: 70; cursor: move; background: color-mix(in srgb, var(--accent) 7%, transparent); box-shadow: inset 0 0 0 2px var(--accent); border-radius: var(--r); animation: fadein .15s; touch-action: none; }
+#wedit { position: fixed; inset: 0; z-index: 70; cursor: move; background: color-mix(in srgb, var(--accent) 7%, transparent); box-shadow: inset 0 0 0 2px var(--accent); border-radius: var(--r); animation: fadein .22s ease-out; touch-action: none; }
 #wedit i { position: absolute; width: 14px; height: 14px; background: var(--accent); border-radius: var(--r); }
 #wedit i[data-e="n"], #wedit i[data-e="s"] { left: calc(50% - 20px); width: 40px; height: 8px; cursor: ns-resize; }
 #wedit i[data-e="w"], #wedit i[data-e="e"] { top: calc(50% - 20px); width: 8px; height: 40px; cursor: ew-resize; }
@@ -394,11 +394,11 @@ body.widget #top .right { margin-left: auto; flex: none; }
 @keyframes vprev { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
 @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
 @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
-.vin { animation: vin .14s ease-out var(--ad, 0s); }
-.vnext { animation: vnext .14s ease-out var(--ad, 0s); }
-.vprev { animation: vprev .14s ease-out var(--ad, 0s); }
-#modal.opening .back { animation: fadein .14s ease-out; }
-#modal.opening .dlg, #sheet.opening > *, .menu { animation: pop .14s ease-out; }
+.vin { animation: vin .22s ease-out var(--ad, 0s); }
+.vnext { animation: vnext .22s ease-out var(--ad, 0s); }
+.vprev { animation: vprev .22s ease-out var(--ad, 0s); }
+#modal.opening .back { animation: fadein .22s ease-out; }
+#modal.opening .dlg, #sheet.opening > *, .menu { animation: pop .22s ease-out; }
 .seg button, .tab, .ghost, .ib, .pri, .mi, .dowb, .ab { transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s; }
 .cell { transition: background-color .12s; }
 /* 애니메이션은 기본으로 켜져 있고, 화면 설정에서 끌 수 있어요 (윈도우의 '애니메이션 효과' 설정과 무관) */
@@ -453,7 +453,7 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 #top button:disabled { opacity: .4; cursor: default; pointer-events: none; }
 
 /* 교시 칸 토글 */
-.dt .slc.tg { cursor: pointer; transition: background-color .1s; }
+.dt .slc.tg { cursor: pointer; transition: background-color .12s; }
 .dt .slc.tg:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
 #syncBtn.spin .ic svg { will-change: transform; transform-origin: 50% 50%; animation: spin 1s linear; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -461,7 +461,7 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 /* 얇고 둥근 미니멀 스크롤바 (기본 모양 대신) */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
-::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--mut) 42%, transparent); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; min-height: 28px; transition: background-color .15s; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--mut) 42%, transparent); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; min-height: 28px; transition: background-color .12s; }
 ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--mut) 75%, transparent); background-clip: padding-box; }
 ::-webkit-scrollbar-button { display: none; }
 .cell, .cell .tl, .cell .td { min-width: 0; }
@@ -503,7 +503,7 @@ textarea::-webkit-resizer { display: none; }
 input[type=text]:focus, input[type=number]:focus, input[type=date]:focus, input[type=time]:focus, input[type=datetime-local]:focus, input[type=search]:focus, textarea:focus, select:focus {
   border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
 }
-.ib, .ghost, .pri, .tab, .tb, .mi, input, select, textarea { transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s, transform .1s; }
+.ib, .ghost, .pri, .tab, .tb, .mi, input, select, textarea { transition: background-color .12s, color .12s, border-color .12s, box-shadow .12s, transform .12s; }
 
 /* ===== 글자 위계 통일 ===== */
 .shead b { font-size: var(--fs-1); font-weight: 700; }
@@ -514,20 +514,20 @@ input[type=text]:focus, input[type=number]:focus, input[type=date]:focus, input[
 @keyframes tin { from { color: transparent; } }
 @keyframes tinup { from { color: transparent; transform: translateY(4px); } }
 body.widget .vin, body.widget .vnext, body.widget .vprev { animation: none; }
-body.widget .vin *, body.widget .vnext *, body.widget .vprev * { animation: tin .32s ease-out var(--ad, 0s); }
-body.widget .vnext :is(.dttl, .msum, .cvh b), body.widget .vprev :is(.dttl, .msum, .cvh b) { animation: tinup .32s ease-out var(--ad, 0s); }
+body.widget .vin *, body.widget .vnext *, body.widget .vprev * { animation: tin .22s ease-out var(--ad, 0s); }
+body.widget .vnext :is(.dttl, .msum, .cvh b), body.widget .vprev :is(.dttl, .msum, .cvh b) { animation: tinup .22s ease-out var(--ad, 0s); }
 
 /* 모든 곳의 작은 움직임 */
 .pri:not(:disabled):hover, .qgo:hover { filter: brightness(1.08); }
-.ic { transition: transform .15s; }
+.ic { transition: transform .12s; }
 
-input[type=checkbox] { transition: transform .15s, background-color .15s; }
-.pfr.tg, .mi, .cell, .crow, .td, .dt .sl { transition: background-color .15s, border-color .15s, opacity .2s; }
-.cell:hover, .mi:hover { transition-duration: .08s; }
+input[type=checkbox] { transition: transform .12s, background-color .12s; }
+.pfr.tg, .mi, .cell, .crow, .td, .dt .sl { transition: background-color .12s, border-color .12s, opacity .12s; }
+
 @keyframes rowin { from { opacity: 0; transform: translateY(3px); } }
-.menu .mi { animation: rowin .2s ease-out backwards; }
+.menu .mi { animation: rowin .22s ease-out backwards; }
 .menu .mi:nth-child(2) { animation-delay: .02s; } .menu .mi:nth-child(3) { animation-delay: .04s; } .menu .mi:nth-child(4) { animation-delay: .06s; } .menu .mi:nth-child(5) { animation-delay: .08s; } .menu .mi:nth-child(6) { animation-delay: .1s; }
-.tabs .tab.on, .seg button.on { transition: background-color .2s, color .2s, box-shadow .2s; }
+.tabs .tab.on, .seg button.on { transition: background-color .12s, color .12s, box-shadow .12s; }
 
 .mhead { min-height: 28px; } .mhead .msum { margin-left: 0; }
 
@@ -560,8 +560,8 @@ body { font-variant-numeric: tabular-nums; }
 .pri.sm { padding: 3px 10px; font-size: var(--fs-4); }
 
 .askw { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; }
-.askw .back { position: absolute; inset: 0; background: rgba(0,0,0,.35); animation: fadein .14s; }
-.askd { width: min(320px, 90vw); animation: pop .14s ease-out; --bg: var(--bg-s); --bg2: var(--bg2-s); }
+.askw .back { position: absolute; inset: 0; background: rgba(0,0,0,.35); animation: fadein .22s ease-out; }
+.askd { width: min(320px, 90vw); animation: pop .22s ease-out; --bg: var(--bg-s); --bg2: var(--bg2-s); }
 .askm { display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-3); word-break: break-all; padding: 4px 2px; }
 .pri.danger { background: var(--sun); color: #fff; }
 
@@ -570,8 +570,8 @@ body { font-variant-numeric: tabular-nums; }
 .imgdlg .dimg img { max-width: 100%; display: block; margin: 0 auto; }
 @keyframes fadeout { to { opacity: 0; } }
 @keyframes popout { to { opacity: 0; transform: translateY(6px) scale(.985); } }
-#modal.closing .back { animation: fadeout .15s ease-in forwards; }
-#modal.closing .dlg, #sheet.closing > * { animation: popout .15s ease-in forwards; }
+#modal.closing .back { animation: fadeout .22s ease-out forwards; }
+#modal.closing .dlg, #sheet.closing > * { animation: popout .22s ease-out forwards; }
 
 /* 출결 칸: 빗금이 있든 없든 줄 높이 고정 */
 .dt tbody tr { height: 40px; }
@@ -625,7 +625,7 @@ body.widget #main > .login { border-radius: var(--r); }
 .msum .sc { color: var(--tc); font-weight: 600; }
 
 /* 연월 입력: 제목은 그대로 두고 아래에 띄움 (헤더 높이·폭이 변하지 않음) */
-.ttpop { position: fixed; z-index: 60; display: flex; align-items: center; gap: 6px; padding: 8px; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 8px 24px rgba(0,0,0,.25); animation: pop .14s ease-out; font-size: 14px; }
+.ttpop { position: fixed; z-index: 60; display: flex; align-items: center; gap: 6px; padding: 8px; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 8px 24px rgba(0,0,0,.25); animation: pop .22s ease-out; font-size: 14px; }
 .ttpop .ttin { border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-s); padding: 4px 6px; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .ttpop .ttin:focus { border-color: var(--accent); }
 .ttpop .pri { width: 32px; height: 30px; padding: 0; display: grid; place-items: center; }
@@ -962,8 +962,8 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 .cv { overflow-x: hidden; }
 @keyframes csnext { from { transform: translateX(100%); opacity: .4; } }
 @keyframes csprev { from { transform: translateX(-100%); opacity: .4; } }
-.cs-next { animation: csnext .28s cubic-bezier(.22, .8, .3, 1); }
-.cs-prev { animation: csprev .28s cubic-bezier(.22, .8, .3, 1); }
+.cs-next { animation: csnext .3s cubic-bezier(.3, .7, .3, 1); }
+.cs-prev { animation: csprev .3s cubic-bezier(.3, .7, .3, 1); }
 
 /* 상담 시간표: 카드 폭 = 칩 폭 = 시각 추가 줄 폭, 칩은 더 크고 또렷하게 */
 .cdc { width: 144px; }
@@ -1014,7 +1014,7 @@ body.widget .cell { padding-top: 5px; }
   background-position: left, right, center; background-size: calc(var(--w) / 2) 100%, calc(var(--w) / 2) 100%, calc(100% - var(--w)) var(--w); background-repeat: no-repeat; }
 
 /* 급식 주별 팝업: 세로는 보이는 끼니 개수에 따라(JS가 height 지정), 바뀔 때 부드럽게. 위치를 옮겨도 크기는 그대로 */
-.mealdlg { height: 520px; max-height: 92%; transition: height .28s cubic-bezier(.3, .7, .3, 1); }
+.mealdlg { height: 520px; max-height: 92%; transition: height .3s cubic-bezier(.3, .7, .3, 1); }
 .mealdlg .mealwrap { flex: 1; min-height: 0; max-height: none; }
 .mealdlg .mopts { padding-top: 0; flex: none; }
 .mealdlg .mnav { flex: none; }
@@ -1067,7 +1067,7 @@ body.widget .cell { padding-top: 5px; }
 .mealdlg .mopts .ghost.sm { font-size: 13px; }
 
 /* 업로드 가능 형식 말풍선 / 직접 입력 안내는 클릭(포커스) 전까지만 */
-.fmtpop { position: fixed; z-index: 400; width: 230px; box-sizing: border-box; padding: 12px 14px; display: grid; gap: 10px; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: 0 8px 28px rgba(0,0,0,.25); font-size: 13px; animation: pop .16s ease-out; }
+.fmtpop { position: fixed; z-index: 400; width: 230px; box-sizing: border-box; padding: 12px 14px; display: grid; gap: 10px; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: 0 8px 28px rgba(0,0,0,.25); font-size: 13px; animation: pop .22s ease-out; }
 .fmtpop > div { display: grid; gap: 1px; }
 .fmtpop span { font-weight: 600; }
 .fmtpop small { color: var(--mut); font-size: 12px; }
@@ -1222,9 +1222,9 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 /* 팝업 닫힘: 배경 어둠이 천천히 걷히도록 (끝이 급해 보이지 않게 ease-out, 위젯에서도 닫을 때는 페이드) */
 @keyframes fadeout { to { opacity: 0; } }
 #modal.closing .back, .askw.closing .back { animation: fadeout .22s ease-out forwards !important; }
-#modal.closing .dlg, #sheet.closing > *, .askw.closing .dlg { animation: popout .2s ease-out forwards; }
+#modal.closing .dlg, #sheet.closing > *, .askw.closing .dlg { animation: popout .22s ease-out forwards; }
 .askw.closing { pointer-events: none; }
 /* 출결 안내: 깜짝 뜨지 않게 천천히 나타나고 사라짐 */
 @keyframes tourin { from { opacity: 0; } to { opacity: 1; } }
-.tour { animation: tourin .6s ease-out; }
-.tour.out { opacity: 0; transition: opacity .25s ease-out; pointer-events: none; }
+.tour { animation: tourin .22s ease-out; }
+.tour.out { opacity: 0; transition: opacity .22s ease-out; pointer-events: none; }
