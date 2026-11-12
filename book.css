@@ -39,7 +39,7 @@ button:disabled { opacity: .4; cursor: default; }
 .pickbtn { width: 100%; margin: 0 0 6px; }
 .secret { -webkit-text-security: disc; }
 .pri.danger { background: var(--sun); color: #fff; }
-.who { display: flex; align-items: center; gap: 8px; margin: 14px 0 4px; font-size: 14px; }
+.who { display: flex; align-items: center; gap: 8px; margin: 14px 0 4px; font-size: 15px; }
 .who .ib { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; }
 .who .ib:hover { background: var(--bg2); }
 .who .ic svg { width: 18px; height: 18px; display: block; }

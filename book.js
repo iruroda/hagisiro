@@ -99,7 +99,7 @@ function draw() {
     C.closeAt ? el('p', { class: 'mut small' }, closed() ? '신청이 마감됐어요.' : `신청 마감 ${new Date(C.closeAt).getMonth() + 1}.${new Date(C.closeAt).getDate()}. ${String(new Date(C.closeAt).getHours()).padStart(2, '0')}:${String(new Date(C.closeAt).getMinutes()).padStart(2, '0')}`) : null,
     listMode ? el('div', { class: 'who' },
       el('button', { class: 'ib', type: 'button', 'aria-label': '이전', title: '이전', onclick: () => { verified = ''; draw(); } }, backIcon()),
-      el('span', {}, `${f.sid.value} ${f.name.value.trim()}`)) : null,
+      el('span', {}, `${f.name.value.trim()} (${f.sid.value})`)) : null,
     listMode ? slotNodes() : [el('div', { class: 'form' },
       el('label', {}, '학번(숫자 5자리)', f.sid), el('label', {}, '이름', f.name), el('label', {}, '비밀번호(숫자 4자리)', f.pin)),
     pickBtn]].flat(Infinity).filter(Boolean));
