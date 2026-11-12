@@ -2905,7 +2905,7 @@
     const close = () => { layer.remove(); if (changed && done) done(); };
     const list = el('div', { class: 'schlist' });
     const res = el('div', { class: 'schres' });
-    const inp = el('input', { type: 'text', 'aria-label': '학교 이름', autocomplete: 'off', spellcheck: 'false', placeholder: '추가할 학교 이름' });
+    const inp = el('input', { type: 'text', 'aria-label': '학교 이름', autocomplete: 'off', spellcheck: 'false' });
     const sbtn = el('button', { class: 'ghost sm', type: 'button', onclick: () => go() }, icon('search'), '검색');
     const note = el('div', { class: 'mut small' }, '학교는 최대 5개까지 추가할 수 있어요.');
     const drawList = () => {
