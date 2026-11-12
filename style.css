@@ -126,9 +126,10 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 .pv { min-height: 24px; margin-top: 7px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
 .pv.err { color: var(--sun); }
-.t-결석 { --tc: #e5484d; } .t-지각 { --tc: #d98a00; } .t-조퇴 { --tc: #2f6df6; } .t-결과 { --tc: #8b5cf6; }
-:root[data-theme="dark"] .t-조퇴 { --tc: #6ea0ff; } :root[data-theme="dark"] .t-결과 { --tc: #a78bfa; } :root[data-theme="dark"] .t-지각 { --tc: #f5a524; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .t-조퇴 { --tc: #6ea0ff; } :root:not([data-theme="light"]) .t-결과 { --tc: #a78bfa; } :root:not([data-theme="light"]) .t-지각 { --tc: #f5a524; } }
+/* 색은 유형별: 결석 노랑 · 지각 파랑 · 조퇴 보라 · 결과 초록 */
+.t-결석 { --tc: #d98a00; } .t-지각 { --tc: #2f6df6; } .t-조퇴 { --tc: #8b5cf6; } .t-결과 { --tc: #2e9e5b; }
+:root[data-theme="dark"] .t-결석 { --tc: #f5a524; } :root[data-theme="dark"] .t-지각 { --tc: #6ea0ff; } :root[data-theme="dark"] .t-조퇴 { --tc: #a78bfa; } :root[data-theme="dark"] .t-결과 { --tc: #4ecb8a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .t-결석 { --tc: #f5a524; } :root:not([data-theme="light"]) .t-지각 { --tc: #6ea0ff; } :root:not([data-theme="light"]) .t-조퇴 { --tc: #a78bfa; } :root:not([data-theme="light"]) .t-결과 { --tc: #4ecb8a; } }
 .chip { display: inline-block; font-size: 11px; line-height: 15px; padding: 1px 8px; border-radius: var(--r); color: var(--tc); background: color-mix(in srgb, var(--tc) 12%, transparent); white-space: nowrap; }
 .mwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-lg); flex: none; }
 .mt { border-collapse: separate; border-spacing: 0; font-size: 12px; width: 100%; }
@@ -206,10 +207,6 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
   body:not(.widget) .rs { flex-basis: 100%; order: 9; white-space: normal; color: var(--mut); }
 }
 
-/* ===== 사유구분 색 ===== */
-.c-질병 { --cc: #2f6df6; } .c-미인정 { --cc: #e5484d; } .c-기타 { --cc: #d98a00; } .c-출석인정 { --cc: #2e9e5b; }
-:root[data-theme="dark"] .c-질병 { --cc: #6ea0ff; } :root[data-theme="dark"] .c-미인정 { --cc: #ff6b6f; } :root[data-theme="dark"] .c-기타 { --cc: #f5a524; } :root[data-theme="dark"] .c-출석인정 { --cc: #4ecb8a; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .c-질병 { --cc: #6ea0ff; } :root:not([data-theme="light"]) .c-미인정 { --cc: #ff6b6f; } :root:not([data-theme="light"]) .c-기타 { --cc: #f5a524; } :root:not([data-theme="light"]) .c-출석인정 { --cc: #4ecb8a; } }
 
 /* ===== 출결: 일별 / 월별 ===== */
 .seg { display: inline-flex; background: var(--bg2); padding: 2px; border-radius: var(--r-md); }
@@ -235,11 +232,11 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
 .tilde { margin: 0 3px; color: var(--mut); display: inline-flex; vertical-align: middle; }
 .tilde .ic svg { width: 16px; height: 16px; }
 .dt .slc, .dt th.sl-h { min-width: 42px; width: 42px; }
-.dt .sl { color: var(--cc); font-weight: 700; font-size: 17px; background: color-mix(in srgb, var(--cc) 11%, transparent); }
+.dt .sl { color: var(--tc); font-weight: 700; font-size: 17px; background: color-mix(in srgb, var(--tc) 11%, transparent); }
 .dt th.rs-h, .dt td.rs { min-width: 76px; text-align: left; padding: 0 6px; }
 .rsw { display: flex; gap: 4px; align-items: center; }
 .rin { flex: 1; min-width: 0; font-size: 12px; padding: 3px 8px; border-radius: var(--r-sm); }
-.ksel[class*="c-"] { color: var(--cc); font-weight: 600; border-color: color-mix(in srgb, var(--cc) 45%, var(--line)); }
+.ksel[class*="t-"] { color: var(--tc); font-weight: 600; border-color: color-mix(in srgb, var(--tc) 45%, var(--line)); }
 .dt tr:not(.has) .ksel { color: var(--mut); }
 .dt tr.has td.c1, .dt tr.has td.c2 { font-weight: 600; }
 
@@ -278,8 +275,7 @@ button, input, select, textarea { font-family: inherit; }
 
 /* 드롭다운 목록 안의 글자는 각자 색 유지 (선택된 값 색이 목록 전체로 번지지 않게) */
 .ksel option, .ksel optgroup { background: var(--bg); color: var(--text); font-weight: 400; }
-.ksel option.c-질병 { color: var(--cc); } .ksel option.c-미인정 { color: var(--cc); }
-.ksel option.c-기타 { color: var(--cc); } .ksel option.c-출석인정 { color: var(--cc); }
+.ksel option[class*="t-"] { color: var(--tc); }
 .ksel option.o-ok { color: var(--text); }
 
 /* 주별: 학생 × 요일 */
@@ -297,7 +293,8 @@ button, input, select, textarea { font-family: inherit; }
 .wt .c1, .wt .c2 { vertical-align: top; padding-top: 6px; }
 .wt .c2 { font-weight: 600; }
 .wi + .wi { margin-top: 5px; padding-top: 5px; border-top: 1px dashed var(--line); }
-.wkd { color: var(--cc); font-weight: 700; font-size: 13px; line-height: 1.25; }
+.wi { color: var(--tc); }
+.wkd { font-weight: 700; font-size: 13px; line-height: 1.25; }
 .wg { font-size: 12px; line-height: 1.3; }
 .wr2 { font-size: 12px; line-height: 1.3; }
 .wt td.sum.has { color: var(--text); font-weight: 700; vertical-align: top; padding-top: 6px; }
@@ -628,7 +625,7 @@ body { font-variant-numeric: tabular-nums; }
 .pill { position: absolute; z-index: 0; background: var(--bg); box-shadow: 0 0 0 1px var(--line); border-radius: var(--r-sm); pointer-events: none; }
 .has-pill > .on { background: none !important; box-shadow: none !important; }
 body.widget #main > .login { border-radius: var(--r); }
-.msum .sc { color: var(--mut); font-weight: 600; }
+.msum .sc { color: var(--tc); font-weight: 600; }
 
 /* 연월 입력: 제목은 그대로 두고 아래에 띄움 (헤더 높이·폭이 변하지 않음) */
 .ttpop { position: fixed; z-index: 60; display: flex; align-items: center; gap: 6px; padding: 8px; background: var(--bg-s); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 8px 24px rgba(0,0,0,.22); animation: pop .14s ease-out; font-size: 14px; }
@@ -1181,3 +1178,6 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 
 /* 급식: 학교 드롭다운 (출결의 학급 선택과 같은 모양) */
 .mopts select { height: 28px; padding-top: 0; padding-bottom: 0; box-sizing: border-box; width: 150px; flex: none; text-overflow: ellipsis; }
+
+/* 월별 칸의 결·지·조·과 표시: 글자마다 유형색 */
+.mt td .mk > span { color: var(--tc); }

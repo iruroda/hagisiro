@@ -1835,7 +1835,7 @@
         const arr = by[s.id + '|' + ds];
         const td = el('td', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (ds === todayS ? ' tdy' : ''), 'data-d': ds });
         if (arr) {
-          td.append(el('span', { class: 'mk t-' + arr[0].type, title: arr.map((a) => `${kindLabel(a)} ${recLabel(a)}${a.reason ? ' · ' + a.reason : ''}`).join('\n') }, arr.map((a) => SHORT[a.type]).join('')));
+          td.append(el('span', { class: 'mk', title: arr.map((a) => `${kindLabel(a)} ${recLabel(a)}${a.reason ? ' · ' + a.reason : ''}`).join('\n') }, arr.map((a) => el('span', { class: 't-' + a.type }, SHORT[a.type]))));
         }
         tr.append(td);
       }
@@ -1900,8 +1900,8 @@
         const arr = by[s.id + '|' + keys[i]] || [];
         n += arr.length;
         const td = el('td', { class: 'wc go' + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i] });
-        arr.forEach((a) => td.append(el('div', { class: 'wi' },
-          el('div', { class: 'wkd c-' + a.cat }, kindLabel(a)),
+        arr.forEach((a) => td.append(el('div', { class: 'wi t-' + a.type },
+          el('div', { class: 'wkd' }, kindLabel(a)),
           el('div', { class: 'wg' }, recLabel(a)),
           a.reason ? el('div', { class: 'wr2 mut' }, a.reason) : null)));
         tr.append(td);
@@ -1986,14 +1986,14 @@
 
     function addRow(s, rec, first) {
       const cells = [el('td', { class: 'c1' }, first ? s.no : ''), el('td', { class: 'c2' }, first ? s.name : '')];
-      const ksel = el('select', { class: 'ksel' + (rec ? ' c-' + rec.cat : ''), 'aria-label': `${s.name} 출결 종류` },
+      const ksel = el('select', { class: 'ksel' + (rec ? ' t-' + rec.type : ''), 'aria-label': `${s.name} 출결 종류` },
         el('option', { class: 'o-ok', value: '출석' }, '출석'),
-        CATS.map((c) => TYPES.map((t) => el('option', { class: 'c-' + c, value: c + t, selected: !!rec && rec.cat === c && rec.type === t }, c + t))));
+        TYPES.map((t) => CATS.map((c) => el('option', { class: 't-' + t, value: c + t, selected: !!rec && rec.cat === c && rec.type === t }, c + t))));
       ksel.addEventListener('change', () => setKind(s, rec, ksel.value, ds, cls));
       cells.push(el('td', { class: 'kc' }, ksel));
       if (rec) {
         const on = new Set(recCols(rec, last));
-        for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc tg' + (on.has(i) ? ' sl c-' + rec.cat : ''), title: on.has(i) ? kindLabel(rec) : null, onclick: () => toggleSlot(s, rec, i, ds, cls) }, on.has(i) ? icon('slash') : ''));
+        for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc tg' + (on.has(i) ? ' sl t-' + rec.type : ''), title: on.has(i) ? kindLabel(rec) : null, onclick: () => toggleSlot(s, rec, i, ds, cls) }, on.has(i) ? icon('slash') : ''));
         const rin = el('input', { type: 'text', class: 'rin', value: rec.reason || '', 'aria-label': `${s.name} 사유`, spellcheck: 'false' });
         rin.addEventListener('change', () => Data.put('att', { ...rec, reason: rin.value.trim() }));
         rin.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) rin.blur(); });
@@ -2841,7 +2841,7 @@
     const opts = PF.school ? el('div', { class: 'mk mopts' },
       schSel,
       el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek, 'edit') }, icon('users'), '학교 수정'),
-      PF.schools.length < 5 ? el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek, 'add') }, icon('userplus'), '학교 추가') : null,
+      el('button', { class: 'ghost sm', type: 'button', disabled: PF.schools.length >= 5, title: PF.schools.length >= 5 ? '학교는 최대 5개까지 추가할 수 있어요' : null, onclick: () => openSchool(openMealWeek, 'add') }, icon('userplus'), '학교 추가'),
       el('span', { class: 'grow' }),
       MEAL_KINDS.map((k) => chk(k, (PF.mk || MEAL_KINDS).includes(k), (v) => {
         const cur = new Set(PF.mk || MEAL_KINDS); if (v) cur.add(k); else cur.delete(k);
