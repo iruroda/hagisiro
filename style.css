@@ -1233,3 +1233,6 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 .tour.out { opacity: 0; transition: opacity .22s ease-out; pointer-events: none; }
 /* 화면 전체를 불러오는 중이면 도넛을 창(본문) 정가운데에 */
 .ldg.page { position: absolute; inset: 0; width: auto; padding: 0; z-index: 1; }
+/* 링크 복사 안내 팝업 */
+.lkmsg { margin: 8px 0 10px; }
+.lkbox { background: var(--bg2); border-radius: var(--r-lg); padding: 10px 12px; font-size: 12px; line-height: 1.5; word-break: break-all; user-select: text; }
