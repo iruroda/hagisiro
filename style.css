@@ -970,7 +970,7 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 
 /* 상담 시간표: 카드 폭 = 칩 폭 = 시각 추가 줄 폭, 칩은 더 크고 또렷하게 */
 .cdc { width: 144px; }
-.cdh { align-items: center; }
+.cdh { align-items: baseline; }
 .cdh .ib { align-self: center; }
 .cdc .cchip { padding: 8px 6px; font-size: 15px; font-weight: 700; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
 .cdc .cchip .ic svg { width: 13px; height: 13px; }
@@ -1242,3 +1242,4 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 /* 위젯 머리줄 탭(캘린더·출결·상담): 글자 먹선 중심에 아이콘 중심을 맞춤 */
 body.widget #top .tab .ic { transform: translateY(-1px); }
 .tsel select.ph { color: var(--mut); }
+.cdh > .mut { position: relative; top: -1px; }
