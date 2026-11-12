@@ -154,7 +154,7 @@
     w._sync = sync;
     return w;
   }
-  const LOGO = '<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="lg-g" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#7c4dff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient></defs><rect x="34" y="0" width="30" height="30" rx="9" fill="url(#lg-g)" opacity="0.62"/><rect x="0" y="34" width="30" height="30" rx="9" fill="url(#lg-g)" opacity="0.62"/><rect x="0" y="0" width="30" height="30" rx="9" fill="url(#lg-g)"/><rect x="34" y="34" width="30" height="30" rx="9" fill="url(#lg-g)"/><path d="M8.7 6.5v17M21.3 6.5v17M8.7 15h12.6" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round"/><path d="M40 49.5l6.4 6.6 12-14.2" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const LOGO = '<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="lg-g" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#6d4aff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient></defs><rect x="34" y="0" width="30" height="30" rx="9" fill="url(#lg-g)" opacity="0.62"/><rect x="0" y="34" width="30" height="30" rx="9" fill="url(#lg-g)" opacity="0.62"/><rect x="0" y="0" width="30" height="30" rx="9" fill="url(#lg-g)"/><rect x="34" y="34" width="30" height="30" rx="9" fill="url(#lg-g)"/><path d="M8.7 6.5v17M21.3 6.5v17M8.7 15h12.6" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round"/><path d="M40 49.5l6.4 6.6 12-14.2" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* 한글 입력(IME) 중 엔터 처리: 마지막 글자가 확정된 뒤 한 번에 동작하도록 */
   function onEnter(inp, fn) {
@@ -1164,8 +1164,8 @@
   }
 
   /* ---------- 글자색 · 배경색 팔레트 ---------- */
-  const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#2f6df6', '파랑'], ['#8b5cf6', '보라'], ['#d6409f', '분홍'], ['#8b9098', '회색']];
-  const BGC = [['', '없음'], ['rgba(239,68,68,.24)', '빨강'], ['rgba(251,146,60,.32)', '주황'], ['rgba(34,197,94,.26)', '초록'], ['rgba(59,130,246,.26)', '파랑'], ['rgba(139,92,246,.26)', '보라'], ['rgba(236,72,153,.24)', '분홍'], ['rgba(128,128,128,.28)', '회색']];
+  const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#2f6df6', '파랑'], ['#6d4aff', '보라'], ['#d6409f', '분홍'], ['#8b9098', '회색']];
+  const BGC = [['', '없음'], ['rgba(229,72,77,.24)', '빨강'], ['rgba(217,138,0,.28)', '주황'], ['rgba(46,158,91,.26)', '초록'], ['rgba(47,109,246,.26)', '파랑'], ['rgba(109,74,255,.26)', '보라'], ['rgba(214,64,159,.24)', '분홍'], ['rgba(139,144,152,.28)', '회색']];
   const SIZES = [['xs', '아주 작게'], ['s', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
   function swatches(onPick, cur) {
     const wrap = el('div', { class: 'sw' });
