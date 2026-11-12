@@ -1908,7 +1908,7 @@
         return el('th', { class: 'wcol go' + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i], },
           `${d.getMonth() + 1}.${d.getDate()}.`, el('span', { class: 'dw' }, ` (${DOW[d.getDay()]})`));
       }),
-      el('th', { class: 'sum' }, '계'));
+      null);
     const tbody = el('tbody');
     const students = cls.students.slice().sort((a, b) => a.no - b.no)
       .filter((s) => S.weekAll || all.some((a) => a.studentId === s.id));
@@ -1925,10 +1925,9 @@
           a.reason ? el('div', { class: 'wr2 mut' }, a.reason) : null)));
         tr.append(td);
       });
-      tr.append(el('td', { class: 'sum' + (n ? ' has' : '') }, n || ''));
       tbody.append(tr);
     });
-    const tbl = el('table', { class: 'mt wt', style: `width:${36 + 76 + cols.length * 118 + 44}px;min-width:100%` }, el('thead', {}, head), tbody);
+    const tbl = el('table', { class: 'mt wt', style: `width:${36 + 76 + cols.length * 118}px;min-width:100%` }, el('thead', {}, head), tbody);
     tbl.addEventListener('click', (e) => {
       const c = e.target.closest('[data-d]');
       if (c) { setSel(c.dataset.d); setSub('day'); }
