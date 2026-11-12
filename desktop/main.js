@@ -5,6 +5,7 @@ const fs = require('fs');
 const URL = 'https://iruroda.github.io/hagisiro/?widget=1';
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 
+app.setName('HAGISIRO'); // 창·작업표시줄에 package 이름(hagisiro-widget)이 아니라 HAGISIRO가 보이게
 let win, tray, st;
 const file = () => path.join(app.getPath('userData'), 'widget.json');
 const load = () => { try { return JSON.parse(fs.readFileSync(file(), 'utf8')); } catch (e) { return {}; } };
@@ -119,12 +120,12 @@ function create() {
   win.loadURL(URL);
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/accounts\.google\.com|firebaseapp\.com|google\.com\/o\/oauth/.test(url)) {
-      return { action: 'allow', overrideBrowserWindowOptions: { width: 480, height: 640, frame: true, transparent: false, backgroundColor: '#ffffff', hasShadow: true, roundedCorners: true, thickFrame: true, resizable: true, skipTaskbar: false, alwaysOnTop: false, autoHideMenuBar: true, parent: win, modal: false } };
+      return { action: 'allow', overrideBrowserWindowOptions: { width: 480, height: 640, frame: true, transparent: false, backgroundColor: '#ffffff', title: 'HAGISIRO', hasShadow: true, roundedCorners: true, thickFrame: true, resizable: true, skipTaskbar: false, alwaysOnTop: false, autoHideMenuBar: true, parent: win, modal: false } };
     }
     shell.openExternal(url); return { action: 'deny' };
   });
   // 로그인 팝업에도 같은 UA 적용(안 하면 구글이 다른 화면을 내려줘 깨져 보임)
-  win.webContents.on('did-create-window', (child) => { child.webContents.setUserAgent(UA); child.setMenuBarVisibility(false); });
+  win.webContents.on('did-create-window', (child) => { child.webContents.setUserAgent(UA); child.setMenuBarVisibility(false); child.setTitle('HAGISIRO'); child.on('page-title-updated', (ev) => { ev.preventDefault(); child.setTitle('HAGISIRO'); }); });
   // 위젯 위에서 오른쪽 버튼 → 트레이와 같은 메뉴 (입력칸에서는 기본 메뉴)
   win.webContents.on('context-menu', (e, params) => { if (!params.isEditable) menu().popup({ window: win }); });
   win.on('moved', () => { if (inLogin || expanded) return; st.bounds = win.getBounds(); save(); });
