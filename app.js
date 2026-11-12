@@ -2583,6 +2583,13 @@
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', onclick: close }, '취소'), el('button', { class: 'pri', onclick: save }, '저장'))));
   }
 
+  /* 이름이 비어 있으면 '이름 1', '이름 2' … 중 비어 있는 가장 작은 번호로 (결번도 채워요) */
+  function autoName(base, names) {
+    const used = new Set(names.map((n) => String(n || '').trim()));
+    let n = 1; while (used.has(`${base} ${n}`)) n++;
+    return `${base} ${n}`;
+  }
+
   /* ---------- 명단 편집 ---------- */
   function openRoster(cid) {
     const c = cid && S.classes.find((x) => x.id === cid);
@@ -2593,7 +2600,7 @@
     const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 김네모\n2 이세모\n\n엑셀 또는 한글의 표를 복사하여 붙여 넣을 수 있습니다.', 'aria-label': '명단' });
     ta.value = c ? c.students.slice().sort((a, b) => a.no - b.no).map((s) => `${s.no} ${s.name}`).join('\n') : '';
 
-    function save() {
+    function parseList() {
       const list = [];
       let auto = 0;
       ta.value.split(/\r?\n/).forEach((line) => {
@@ -2604,6 +2611,11 @@
         auto = no;
         list.push({ no, name: nm });
       });
+      return list;
+    }
+    let sv;
+    function save() {
+      const list = parseList();
       if (!list.length) { ta.focus(); return; }
       const old = c ? c.students : [];
       const used = new Set();
@@ -2611,7 +2623,7 @@
       list.forEach((s) => { if (!s.id) { const o = old.find((x) => !used.has(x.id) && +x.no === s.no); if (o) { s.id = o.id; used.add(o.id); } } });
       list.forEach((s) => { if (!s.id) s.id = uid(); });
       const id = c ? c.id : uid();
-      Data.put('classes', { id, name: name.value.trim() || '학급', students: list, ord: c ? c.ord : Date.now(), created: c ? c.created : Date.now() });
+      Data.put('classes', { id, name: name.value.trim() || autoName('학급', S.classes.filter((x) => !c || x.id !== c.id).map((x) => x.name)), students: list, ord: c ? c.ord : Date.now(), created: c ? c.created : Date.now() });
       S.clsId = id; ls.set('hagisiro:cls', id);
       close(); render();
     }
@@ -2629,7 +2641,9 @@
           c ? el('button', { class: 'ghost sm danger', onclick: remove }, icon('trash'), '삭제') : null,
           el('span', { class: 'grow' }),
           el('button', { class: 'ghost', onclick: close }, '취소'),
-          el('button', { class: 'pri', onclick: save }, '저장'))));
+          sv = el('button', { class: 'pri', onclick: save }, '저장'))));
+    const chkSave = () => { sv.disabled = !parseList().length; };
+    ta.addEventListener('input', chkSave); chkSave();
     (c ? ta : name).focus();
   }
 
@@ -2964,6 +2978,7 @@
       try { rows = await S.cloud.consultList(); } catch (e) { console.error(e); }
       if (my !== nav) return;
       dir = d0;
+      S.ctitles = rows.map((r) => r.title || '');
       rows.sort((a, b) => (b.created || 0) - (a.created || 0));
       shell('', el('div', { class: 'clist' },
         rows.map((c) => el('div', { class: 'crow' },
@@ -3018,10 +3033,10 @@
           }
           if (!Object.values(days).some((o) => Object.keys(o).length)) return;
           dir = 'next';
-          fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT || '23:59'}`).getTime() : 0, noDup: q.noDup, days, step }, null);
+          fine({ title: q.title.trim() || autoName('상담 신청 테이블', S.ctitles || []), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT || '23:59'}`).getTime() : 0, noDup: q.noDup, days, step }, null);
         } }, '다음'))), () => { S.qform = null; list(); });
       limits();
-      const chk = () => { okb.disabled = !(f.title.value.trim() && f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
+      const chk = () => { okb.disabled = !(f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
       Object.values(f).forEach((x) => { x.addEventListener('input', chk); x.addEventListener('change', chk); }); chk();
     }
 
