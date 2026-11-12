@@ -143,7 +143,6 @@ function menu() {
 
 app.whenReady().then(() => {
   create();
-  if (!app.getLoginItemSettings().openAtLogin && st.firstRun !== false) { app.setLoginItemSettings({ openAtLogin: true }); st.firstRun = false; save(); }
   const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 16, height: 16 });
   tray = new Tray(icon);
   tray.setToolTip('HAGISIRO');
