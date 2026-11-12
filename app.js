@@ -118,14 +118,17 @@
     return s;
   }
   /* 시각 고르기: 24시간제 드롭다운 (시 · 분). value 는 'HH:MM'. limit(최소, 최대)로 고를 수 있는 범위를 막아요 */
-  function timeSel(val) {
-    const [h0, m0] = (val || '16:00').split(':').map(Number);
-    const hs = el('select', { 'aria-label': '시' }, Array.from({ length: 24 }, (_, i) => el('option', { value: i, selected: i === h0 }, pad(i))));
-    const ms = el('select', { 'aria-label': '분' }, Array.from({ length: 12 }, (_, i) => el('option', { value: i * 5, selected: i * 5 === m0 }, pad(i * 5))));
+  function timeSel(val, blank) {
+    const isB = blank && !val; // blank: 빈칸을 고를 수 있고 처음에도 비어 있음 (신청 마감처럼 선택 사항일 때)
+    const [h0, m0] = isB ? [-1, -1] : (val || '16:00').split(':').map(Number);
+    const bo = (sel) => (blank ? [el('option', { value: '', selected: isB }, '')] : []);
+    const hs = el('select', { 'aria-label': '시' }, bo(), Array.from({ length: 24 }, (_, i) => el('option', { value: i, selected: i === h0 }, pad(i))));
+    const ms = el('select', { 'aria-label': '분' }, bo(), Array.from({ length: 12 }, (_, i) => el('option', { value: i * 5, selected: i * 5 === m0 }, pad(i * 5))));
     const w = el('span', { class: 'tsel' }, hs, el('span', {}, ':'), ms);
     let lo = 0, hi = 1439;
     const toM = (v) => { const [h, m] = String(v).split(':').map(Number); return h * 60 + m; };
     const refresh = () => {
+      if (blank) { if (hs.value === '') { ms.value = ''; return; } if (ms.value === '') ms.value = '0'; }
       let c = +hs.value * 60 + +ms.value;
       c = Math.min(hi, Math.max(lo, c));
       hs.value = Math.floor(c / 60); ms.value = c % 60;
@@ -133,7 +136,7 @@
       [...ms.options].forEach((o) => { const t = +hs.value * 60 + +o.value; o.disabled = t < lo || t > hi; });
     };
     hs.addEventListener('change', refresh); ms.addEventListener('change', refresh);
-    Object.defineProperty(w, 'value', { get: () => `${pad(+hs.value)}:${pad(+ms.value)}`, set: (v) => { const [h, m] = String(v).split(':').map(Number); hs.value = h; ms.value = m; refresh(); } });
+    Object.defineProperty(w, 'value', { get: () => (hs.value === '' ? '' : `${pad(+hs.value)}:${pad(+ms.value)}`), set: (v) => { if (blank && !v) { hs.value = ''; ms.value = ''; refresh(); return; } const [h, m] = String(v).split(':').map(Number); hs.value = h; ms.value = m; refresh(); } });
     w.limit = (min, max) => { lo = min ? toM(min) : 0; hi = max ? toM(max) : 1439; refresh(); };
     return w;
   }
@@ -2947,14 +2950,14 @@
     function quick() {
       stop();
       const today = ymd(new Date());
-      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '16:00', t2: '18:00', step: 20, skipWE: true, closeD: '', closeT: '18:00', noDup: false });
+      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '16:00', t2: '18:00', step: 20, skipWE: true, closeD: '', closeT: '', noDup: false });
       const f = {
         title: el('input', { type: 'text', maxlength: 40, value: q.title }),
         note: el('textarea', { rows: 3, maxlength: 500, spellcheck: 'false' }, q.note),
         from: el('input', { type: 'date', value: q.from }), to: el('input', { type: 'date', value: q.to }),
         t1: timeSel(q.t1), t2: timeSel(q.t2),
         step: el('select', {}, stepOpts(q.step)),
-        closeD: el('input', { type: 'date', value: q.closeD }), closeT: timeSel(q.closeT),
+        closeD: el('input', { type: 'date', value: q.closeD }), closeT: timeSel(q.closeT, true),
       };
       const wk = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: q.skipWE }), el('span', {}, '주말 제외'));
       const nd = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: q.noDup }), el('span', {}, '중복 신청 불가'));
@@ -2983,7 +2986,7 @@
           }
           if (!Object.values(days).some((o) => Object.keys(o).length)) return;
           dir = 'next';
-          fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT}`).getTime() : 0, noDup: q.noDup, days, step }, null);
+          fine({ title: q.title.trim(), note: q.note.trim(), closeAt: q.closeD ? new Date(`${q.closeD}T${q.closeT || '23:59'}`).getTime() : 0, noDup: q.noDup, days, step }, null);
         } }, '다음'))), () => { S.qform = null; list(); });
       limits();
       const chk = () => { okb.disabled = !(f.title.value.trim() && f.from.value && f.to.value && f.from.value <= f.to.value && mins(f.t1.value) + +f.step.value <= mins(f.t2.value)); };
@@ -3005,8 +3008,8 @@
         const tIn = el('input', { type: 'text', value: dr.title, maxlength: 40, oninput: (e) => { dr.title = e.target.value; } });
         const nIn = el('textarea', { rows: 3, maxlength: 500, spellcheck: 'false', oninput: (e) => { dr.note = e.target.value; } }, dr.note);
         const c0 = dr.closeAt ? new Date(dr.closeAt) : null;
-        const cDate = el('input', { type: 'date', value: c0 ? ymd(c0) : '' }), cTime = timeSel(c0 ? `${pad(c0.getHours())}:${pad(Math.floor(c0.getMinutes() / 5) * 5)}` : '18:00');
-        const cSync = () => { dr.closeAt = cDate.value ? new Date(`${cDate.value}T${cTime.value}`).getTime() : 0; };
+        const cDate = el('input', { type: 'date', value: c0 ? ymd(c0) : '' }), cTime = timeSel(c0 && !(c0.getHours() === 23 && c0.getMinutes() === 59) ? `${pad(c0.getHours())}:${pad(Math.floor(c0.getMinutes() / 5) * 5)}` : '', true);
+        const cSync = () => { dr.closeAt = cDate.value ? new Date(`${cDate.value}T${cTime.value || '23:59'}`).getTime() : 0; };
         cDate.addEventListener('change', cSync); cTime.addEventListener('change', cSync);
         const cIn = el('span', { class: 'pc2' }, cDate, cTime);
         const addDate = el('input', { type: 'date' });
