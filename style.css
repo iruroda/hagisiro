@@ -1185,3 +1185,7 @@ body.widget #top { padding-top: 7px; padding-bottom: 2px; }
 /* 급식 팝업: 비활성(학교 없음 · 5개 가득)은 흐리게 */
 .mealdlg button:disabled, .mealdlg select:disabled { opacity: .35; pointer-events: none; }
 .mealdlg label:has(input:disabled) { opacity: .45; }
+
+/* 학급이 없을 때: 틀은 그대로, 학급 추가를 뺀 나머지는 흐리게 비활성 */
+.att.off .seg, .att.off .qi, .att.off .mv, .att.off .wv, .att.off .dv, .att.off .dtw, .att.off .dhead, .att.off .mt, .att.off .mtw { opacity: .35; pointer-events: none; }
+.att.off button:disabled, .att.off select:disabled { opacity: .35; pointer-events: none; }

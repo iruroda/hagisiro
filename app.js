@@ -1777,36 +1777,32 @@
   function attView() {
     const root = el('div', { class: 'att' });
     if (!S.clsLoaded) { root.append(loading()); return root; }
-    const cls = curClass();
-    if (!cls) {
-      root.append(el('div', { class: 'empty' },
-        el('p', {}, '학급 없음'),
-        el('button', { class: 'ghost sm', onclick: () => openRoster(null) }, icon('userplus'), '학급 추가')));
-      return root;
-    }
-    S.clsId = cls.id;
+    const real = curClass();
+    const none = !real; // 학급이 없어도 같은 틀을 보여주고, 학급 추가만 켜 둬요
+    const cls = real || { id: '', name: '', students: [], periods: [] };
+    if (!none) S.clsId = cls.id;
+    if (none) root.classList.add('off');
 
-    const sel = el('select', { 'aria-label': '학급', onchange: (e) => { S.clsId = e.target.value; ls.set('hagisiro:cls', S.clsId); S.extra = {}; render(); } },
+    const sel = el('select', { 'aria-label': '학급', disabled: none, onchange: (e) => { S.clsId = e.target.value; ls.set('hagisiro:cls', S.clsId); S.extra = {}; render(); } },
       S.classes.map((c) => el('option', { value: c.id, selected: c.id === cls.id }, c.name)));
     const seg = (v, label) => el('button', { class: 'sg-b' + (S.sub === v ? ' on' : ''), onclick: () => setSub(v) }, label);
     root.append(el('div', { class: 'abar' }, sel,
       el('div', { class: 'seg' }, seg('day', '일별'), seg('week', '주별'), seg('month', '월별')),
       el('span', { class: 'grow' }),
-      el('button', { class: 'ghost sm', onclick: () => openRoster(cls.id) }, icon('users'), '학급 수정'),
+      el('button', { class: 'ghost sm', disabled: none, onclick: () => openRoster(cls.id) }, icon('users'), '학급 수정'),
       el('button', { class: 'ghost sm', onclick: () => openRoster(null) }, icon('userplus'), '학급 추가'),
-      el('button', { class: 'ghost sm', onclick: openSettings }, icon('bell'), '교시 설정'),
-      el('button', { class: 'ghost sm', onclick: () => exportCsv(cls) }, icon('download'), '파일로 저장')));
+      el('button', { class: 'ghost sm', disabled: none, onclick: openSettings }, icon('bell'), '교시 설정'),
+      el('button', { class: 'ghost sm', disabled: none, onclick: () => exportCsv(cls) }, icon('download'), '파일로 저장')));
 
-    const q = el('input', { id: 'q', type: 'text', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'done', 'aria-label': '출결 입력' });
+    const q = el('input', { id: 'q', type: 'text', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'done', 'aria-label': '출결 입력', disabled: none });
     q.addEventListener('input', preview);
     onEnter(q, submitQuick);
     root.append(el('div', { class: 'qi' },
-      el('div', { class: 'qrow' }, fld(q), el('button', { class: 'qgo', type: 'button', id: 'qgo', 'aria-label': '출결 입력 확인', onclick: submitQuick }, icon('enter'))),
+      el('div', { class: 'qrow' }, fld(q), el('button', { class: 'qgo', type: 'button', id: 'qgo', disabled: none, 'aria-label': '출결 입력 확인', onclick: submitQuick }, icon('enter'))),
       el('div', { id: 'pv', class: 'pv' })));
 
     root.append(S.sub === 'month' ? monthView(cls) : S.sub === 'week' ? weekView(cls) : dayView(cls));
-    setTimeout(preview, 0);
-    setTimeout(maybeTour, 400);
+    if (!none) { setTimeout(preview, 0); setTimeout(maybeTour, 400); }
     return root;
   }
 
