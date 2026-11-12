@@ -2907,7 +2907,6 @@
     const res = el('div', { class: 'schres' });
     const inp = el('input', { type: 'text', 'aria-label': '학교 이름', autocomplete: 'off', spellcheck: 'false' });
     const sbtn = el('button', { class: 'ghost sm', type: 'button', onclick: () => go() }, icon('search'), '검색');
-    const note = el('div', { class: 'mut small' }, '학교는 최대 5개까지 추가할 수 있어요.');
     const drawList = () => {
       list.replaceChildren(...PF.schools.map((z) => el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, z.name),
         el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
@@ -2917,7 +2916,7 @@
           S.meal = {}; savePf(); loadMeal(); render(); changed = true; drawList();
         } }, icon('trash'), '삭제'))));
       const full = PF.schools.length >= 5;
-      list.hidden = !PF.schools.length; inp.disabled = full; sbtn.disabled = full; note.hidden = !full;
+      list.hidden = !PF.schools.length; inp.disabled = full; sbtn.disabled = full;
     };
     let busy = false;
     const go = async () => {
@@ -2941,7 +2940,7 @@
       el('div', { class: 'dlg' },
         el('div', { class: 'shead' }, hb('school', '학교 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list,
-        el('div', { class: 'schq' }, fld(inp), sbtn), note, res));
+        el('div', { class: 'schq' }, fld(inp), sbtn), res));
     drawList();
     document.body.append(layer);
     setTimeout(() => inp.focus(), 30);

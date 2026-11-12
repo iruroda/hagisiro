@@ -1301,3 +1301,4 @@ input[type=date].empty { color: var(--mut); }
 
 /* 급식: 학교가 하나도 없으면 주 제목과 표도 비활성(흐림) */
 .mealdlg.nosch .mttl, .mealdlg.nosch .mtbl { opacity: .4; }
+.schq .ghost:disabled, .schq input:disabled { pointer-events: none; } /* 비활성 검색 버튼은 올려도 색이 변하지 않게 */
