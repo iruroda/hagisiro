@@ -1206,3 +1206,6 @@ body.widget :is(.vnext, .vprev, .vin) :is(.dhead, .dhead *) { animation: none; }
 
 /* 위젯: 마지막 주 칸의 아래 선이 이미 있으니 D-day 줄 위 선은 두지 않음 (선이 두 겹으로 굵어 보이지 않게) */
 body.widget .ddbar:not(.top) { border-top: 0; }
+
+/* 상담 표의 날짜·요일: 날짜의 위쪽 여백 때문에 요일이 위로 떠 보이던 것 → 세로 가운데 */
+.cdh .cday { margin: 0; }
