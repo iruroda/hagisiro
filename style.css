@@ -168,7 +168,7 @@ body.widget { --bg: color-mix(in srgb, var(--bg-s) var(--wa, 90%), transparent);
 body.widget :is(.dlg, .menu, #sheet > *, .sbody) { --bg: var(--bg-s); --bg2: var(--bg2-s); }
 body.widget #app { background: none; padding: 3px; gap: 3px; }
 body.widget #top { background: var(--wbg); border: 0; border-bottom: 1px solid var(--line); border-radius: var(--r) var(--r) 0 0; padding-left: 40px; }
-body.widget .cal { gap: 2px; }
+body.widget .cal { gap: 0; }
 body.widget .wk { background: var(--wbg); border-radius: 0; }
 body.widget .days { gap: 0; border: 0; border-top: 1px solid var(--line); }
 body.widget .cell { border-radius: 0; background: var(--wbg); }
