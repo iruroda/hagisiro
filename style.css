@@ -2,18 +2,18 @@
 :root {
   /* ★ 색 팔레트(라이트/다크) — 새 색은 만들지 말고 아래 값만 쓸 것. 새 색이 필요하면 먼저 물어볼 것.
      글자 --text · 회색글자 --mut · 선 --line · 연한배경 --bg2 · 배경 --bg · 포인트 --accent(보라) · 선택 --sel
-     파랑 --sat · 빨강 --sun · 노랑 --yel · 초록 --grn · 청록 --teal · 그림자/가림막은 검정+투명도 */
+     파랑 --sat · 빨강 --sun · 노랑 --yel · 청록 --teal · 그림자/가림막은 검정+투명도 */
   /* 글자 위계: 제목 16/700 · 본문 13 · 보조 12 · 캡션 11 (굵기: 제목 700, 강조 600, 보통 400~500) */
   --fs-1: 16px; --fs-2: 14px; --fs-3: 13px; --fs-4: 12px; --fs-5: 11px;
   --r: 8px; --r-xs: var(--r); --r-sm: var(--r); --r-md: var(--r); --r-lg: var(--r); --r-xl: var(--r); --r-pill: 99px;
   --bg: #ffffff; --bg2: #f5f6f8; --bg-s: #ffffff; --bg2-s: #f5f6f8; --text: #1b1d21; --mut: #8b9098; --line: #ebedf0;
-  --accent: #6d4aff; --yel: #d98a00; --grn: #2e9e5b; --teal: #12c9b3; --grad: linear-gradient(135deg, #6d4aff 0%, #2f6df6 55%, #12c9b3 100%); --sel: #f4f1ff; --sun: #e5484d; --sat: #2f6df6;
+  --accent: #6d4aff; --yel: #d98a00; --teal: #12c9b3; --grad: linear-gradient(135deg, #6d4aff 0%, #2f6df6 55%, #12c9b3 100%); --sel: #f4f1ff; --sun: #e5484d; --sat: #2f6df6;
   --font: "SUITE", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
-:root[data-theme="dark"] { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --bg-s: #16181c; --bg2-s: #1d2025; --text: #e8eaed; --mut: #8b9098; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; --grn: #4ecb8a; }
+:root[data-theme="dark"] { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --bg-s: #16181c; --bg2-s: #1d2025; --text: #e8eaed; --mut: #8b9098; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; }
 :root[data-theme="light"] { color-scheme: light; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --bg-s: #16181c; --bg2-s: #1d2025; --text: #e8eaed; --mut: #8b9098; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; --grn: #4ecb8a; }
+  :root:not([data-theme="light"]) { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --bg-s: #16181c; --bg2-s: #1d2025; --text: #e8eaed; --mut: #8b9098; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; }
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -126,7 +126,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .pv { min-height: 24px; margin-top: 7px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
 .pv.err { color: var(--sun); }
 /* 색은 유형별: 결석 노랑 · 지각 파랑 · 조퇴 보라 · 결과 초록 */
-.t-결석 { --tc: var(--yel); } .t-지각 { --tc: var(--sat); } .t-조퇴 { --tc: var(--accent); } .t-결과 { --tc: var(--grn); }
+.t-결석 { --tc: var(--yel); } .t-지각 { --tc: var(--sat); } .t-조퇴 { --tc: var(--accent); } .t-결과 { --tc: var(--teal); }
 .chip { display: inline-block; font-size: 11px; line-height: 15px; padding: 1px 8px; border-radius: var(--r); color: var(--tc); background: color-mix(in srgb, var(--tc) 12%, transparent); white-space: nowrap; }
 .mwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-lg); flex: none; }
 .mt { border-collapse: separate; border-spacing: 0; font-size: 12px; width: 100%; }
