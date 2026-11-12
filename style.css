@@ -1209,3 +1209,9 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 
 /* 상담 표의 날짜·요일: 날짜의 위쪽 여백 때문에 요일이 위로 떠 보이던 것 → 세로 가운데 */
 .cdh .cday { margin: 0; }
+
+/* 날짜 추가 + 버튼: 아이콘을 버튼 정가운데로 */
+.cplus { line-height: 0; }
+.cplus .ic { display: grid; place-items: center; width: 16px; height: 16px; }
+.cplus .ic svg { display: block; }
+.cplus .ic { transform: none; }
