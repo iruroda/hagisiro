@@ -3064,6 +3064,8 @@
         cDate.addEventListener('input', cEmp); cDate.addEventListener('change', cEmp); cEmp();
         const cIn = el('span', { class: 'pc2' }, cDate, cTime);
         const addDate = el('input', { type: 'date' });
+        const aEmp = () => addDate.classList.toggle('empty', !addDate.value); /* 비어 있는 날짜(연도-월-일)는 회색 */
+        addDate.addEventListener('input', aEmp); addDate.addEventListener('change', aEmp); aEmp();
         const dayCard = (k) => {
           const o = dr.days[k], ts = Object.keys(o).sort();
           const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
