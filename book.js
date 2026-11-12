@@ -113,7 +113,7 @@ const bref = (sid) => doc(db, 'consults', cid, 'books', sid);
 const tref = (sid) => doc(db, 'consults', cid, 'taken', sid);
 const label = (sid) => { const p = sidParts(sid); return `${p.m}.${p.d}. (${DOW[new Date(p.y, p.m - 1, p.d).getDay()]}) ${p.hh}:${p.mm}`; };
 
-const alertBox = (t) => { const close = modal(el('div', {}, t), el('div', { class: 'row' }, el('button', { class: 'pri', onclick: () => close() }, '확인'))); };
+const alertBox = (t, title) => { const close = modal(title ? el('b', {}, title) : null, el('div', {}, t), el('div', { class: 'row' }, el('button', { class: 'pri', onclick: () => close() }, '확인'))); };
 
 /* 학번·이름·비밀번호 확인: 같은 학번·이름은 이 상담표에서 처음 쓴 비밀번호로만 들어올 수 있어요 */
 async function pickTimes() {
@@ -136,7 +136,7 @@ function onFree(sid) {
         el('button', { class: 'pri', onclick: async (e) => { e.target.disabled = true; await book(sid, v); close(); } }, '신청')));
   };
   if (C.noDup) { // 중복 신청 불가: 이미 신청한 시간이 남아 있으면 막아요
-    getDoc(aref()).then((d) => { if (d.exists() && taken.has(d.data().sid)) alertBox('이미 신청한 상담이 있습니다.'); else ask(); }).catch(() => ask());
+    getDoc(aref()).then((d) => { if (d.exists() && taken.has(d.data().sid)) alertBox('이미 신청한 상담이 있습니다.', '중복 신청 불가'); else ask(); }).catch(() => ask());
     return;
   }
   ask();
