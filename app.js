@@ -2911,7 +2911,7 @@
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('share', '링크 복사'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      el('div', { class: 'lkmsg' }, ok ? '링크를 복사하였습니다.' : '아래 링크를 길게 눌러 복사하세요.'),
+      el('div', { class: 'lkmsg' }, ok ? '아래 링크를 복사했어요.' : '아래 링크를 길게 눌러 복사하세요.'),
       el('div', { class: 'lkbox' }, url));
     m.append(el('div', { class: 'back', onclick: close }), dlg);
   };
