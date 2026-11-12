@@ -3056,8 +3056,13 @@
             }
           } }, '저장'))), c ? () => { from === 'detail' ? detail(c) : list(); } : quick);
       };
-      draw();
-      if (c) unsub = S.cloud.consultWatchBooks(c.id, (books) => { booked = {}; books.filter((b) => !b.cancelled).forEach((b) => { booked[b.id] = b; }); draw(); }, () => {});
+      if (!c) { draw(); return; }
+      /* 수정: 신청 현황이 도착한 뒤 한 번만 그려야 오른쪽에서 밀려 들어오는 효과가 끊기지 않아요 */
+      const d0 = dir; dir = '';
+      if (!d0) shell('', loading());
+      let first = true;
+      const once = () => { if (first) { first = false; dir = d0; } };
+      unsub = S.cloud.consultWatchBooks(c.id, (books) => { once(); booked = {}; books.filter((b) => !b.cancelled).forEach((b) => { booked[b.id] = b; }); draw(); }, () => { once(); draw(); });
     }
 
     /* ---- 완성된 테이블: 링크 복사 · 신청 현황 ---- */
