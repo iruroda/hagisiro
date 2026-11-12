@@ -171,12 +171,14 @@
     /* 3) 종류 (결석/지각/조퇴/결과) + 사유구분 */
     let type = null;
     let forcedCat = null;
+    let impliedReason = null; // 줄임말이 뜻하는 사유 (생결 → 생리)
     let arrive = null; // "N교시 등교" → 조회~(N-1)교시 지각
     if (/출석\s*인정/.test(t)) { forcedCat = '출석인정'; t = t.replace(/출석\s*인정/g, ' '); }
-    const em = /조퇴|지각|결과|결석|병결/.exec(t);
+    const em = /조퇴|지각|결과|결석|병결|생결/.exec(t);
     if (em) {
-      type = { 조퇴: '조퇴', 지각: '지각', 결과: '결과', 결석: '결석', 병결: '결석' }[em[0]];
+      type = { 조퇴: '조퇴', 지각: '지각', 결과: '결과', 결석: '결석', 병결: '결석', 생결: '결석' }[em[0]];
       if (em[0] === '병결') forcedCat = forcedCat || '질병';
+      if (em[0] === '생결') { forcedCat = forcedCat || '출석인정'; impliedReason = '생리'; } // 생리결석(출석인정결석)
       let cut = em.index;
       const pre = /(질병|미인정|기타)\s*$/.exec(t.slice(0, em.index)); // '기타결석', '질병 조퇴' 처럼 붙은 사유구분
       if (pre) { forcedCat = forcedCat || pre[1]; cut = pre.index; }
@@ -230,6 +232,7 @@
       .join(' ')
       .replace(/(?:으로\s*인해서?|로\s*인해서?|으로\s*인한|로\s*인한|때문에|으로|로)$/, '')
       .trim();
+    if (!reason && impliedReason) reason = impliedReason;
     if (/^(질병|미인정|인정|기타)$/.test(reason)) { forcedCat = forcedCat || (reason === '인정' ? '출석인정' : reason); reason = ''; }
     const cat = classify(reason, forcedCat);
 
