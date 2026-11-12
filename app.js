@@ -1073,7 +1073,7 @@
     const dd = ddayList();
     if (dd.length) {
       const bar = el('div', { class: 'ddbar' + (PF.ddtop ? ' top' : ''), title: dd.map((x) => `${x.label} ${x.t.text}`).join('\n') },
-        dd.map((x) => el('button', { type: 'button', class: 'ddc', style: x.t.fg ? `--tfg:${x.t.fg};` : null, onclick: () => gotoDate(x.t.date) }, el('b', {}, x.label), ' ', x.t.text)));
+        dd.map((x) => el('button', { type: 'button', class: 'ddc', style: colorVars(x.t) || null, onclick: () => gotoDate(x.t.date) }, el('b', {}, x.label), ' ', el('span', { class: 'ddt' }, x.t.text))));
       if (PF.ddtop) wrap.prepend(bar); else { wrap.classList.add('hasdd'); wrap.append(bar); }
     }
     return wrap;
@@ -1459,7 +1459,10 @@
         selDrag = { state };
       });
       inp.addEventListener('mousedown', (e) => { clearPicks(); if (e.button === 0) rowDrag = { row, on: false }; });
-      inp.addEventListener('input', () => { it.text = inp.value; });
+      const fit = () => { if (!inp.isConnected) return; inp.style.width = '0px'; inp.style.width = Math.max(inp.scrollWidth, 8) + 'px'; }; // 배경색은 입력한 글자 뒤에만
+      requestAnimationFrame(fit);
+      row.addEventListener('mousedown', (e) => { if (e.target === row) { e.preventDefault(); inp.focus(); const n = inp.value.length; inp.setSelectionRange(n, n); } });
+      inp.addEventListener('input', () => { it.text = inp.value; fit(); });
       onEnter(inp, () => {
         if (inp.value.trim() === '' && row === rows().at(-1)) return; // 빈 줄에서 엔터는 아무 일도 안 해요 (닫기는 Esc · 바깥 클릭 · X)
         const nr = mkRow({ text: '', done: false });

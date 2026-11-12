@@ -1251,3 +1251,8 @@ body.widget #top .tab .ic { transform: translateY(-1px); }
 .rbody:has(.rrow) { gap: 0; }
 .rbody > .abar + .rrow { margin-top: 4px; }
 .rrow { padding: 6px 0; }
+/* 입력 중인 할 일: 배경색은 줄 전체가 아니라 입력한 글자 뒤에만 */
+.ed .td input { flex: none; max-width: 100%; }
+/* D-day 줄: 글자색·배경색 모두 셀과 같이 (배경은 할 일 글자 뒤에만) */
+.ddc { color: var(--tfg, var(--tfg-d, var(--text))); }
+.ddc .ddt { background: var(--tbg, var(--tbg-d, transparent)); border-radius: var(--r-xs); padding: 0 3px; margin: 0 -3px; }
