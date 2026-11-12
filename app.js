@@ -2904,14 +2904,14 @@
   const cRange = (c) => { const d = c.slots.map((x) => x.split('_')[0]).sort(); const f = (k) => `${+k.slice(4, 6)}.${+k.slice(6, 8)}.`; return d.length ? `${f(d[0])} ~ ${f(d[d.length - 1])}` : ''; };
   const shareText = (c) => `${c.title || '상담'}\n${bookUrl(c.id)}`;
   const copyText = async (c) => {
-    const url = bookUrl(c.id); let ok = true;
-    try { await navigator.clipboard.writeText(shareText(c)); } catch (e) { ok = false; }
+    const url = bookUrl(c.id);
+    try { await navigator.clipboard.writeText(shareText(c)); } catch (e) { console.warn(e); }
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('share', '링크 복사'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      ok ? el('div', { class: 'lkmsg' }, '아래 링크를 복사했어요.') : null,
+      el('div', { class: 'lkmsg' }, '아래 링크를 복사했어요.'),
       el('div', { class: 'lkbox' }, url));
     m.append(el('div', { class: 'back', onclick: close }), dlg);
   };
