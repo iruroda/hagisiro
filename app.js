@@ -1810,7 +1810,7 @@
       el('div', { id: 'pv', class: 'pv' })));
 
     root.append(S.sub === 'month' ? monthView(cls) : S.sub === 'week' ? weekView(cls) : dayView(cls));
-    if (!none) { setTimeout(preview, 0); setTimeout(maybeTour, 400); }
+    if (!none) { setTimeout(preview, 0); setTimeout(maybeTour, 600); }
     return root;
   }
 
@@ -2078,7 +2078,7 @@
     const r = row.getBoundingClientRect();
     const hole = el('div', { class: 'tour-hole' });
     const never = el('input', { type: 'checkbox' });
-    const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.remove(); };
+    const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.classList.add('out'); setTimeout(() => box.remove(), 260); };
     const tip = el('div', { class: 'tour-tip' },
       el('div', {}, '출결은 문장으로도 입력 가능합니다.'),
       el('div', { class: 'mut' }, '예) 김네모 오늘 4교시부터 감기로 조퇴 /'),

@@ -1225,3 +1225,7 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 #modal.closing .back, .askw.closing .back { animation: fadeout .22s ease-out forwards !important; }
 #modal.closing .dlg, #sheet.closing > *, .askw.closing .dlg { animation: popout .2s ease-out forwards; }
 .askw.closing { pointer-events: none; }
+/* 출결 안내: 깜짝 뜨지 않게 천천히 나타나고 사라짐 */
+@keyframes tourin { from { opacity: 0; } to { opacity: 1; } }
+.tour { animation: tourin .6s ease-out; }
+.tour.out { opacity: 0; transition: opacity .25s ease-out; pointer-events: none; }
