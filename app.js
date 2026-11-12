@@ -1966,9 +1966,8 @@
       el('b', { class: 'dttl' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
-      el('span', { class: 'mut small' }, ovr ? `기본 ${def ? def + '교시' : '수업 없음'} → 이 날만` : '이 날만'),
-      cntSel,
-      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), '기본값') : null));
+      ovr ? el('button', { class: 'ghost sm', title: '기본 교시 수로 되돌리기', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
+      cntSel));
 
     const recs = S.att.filter((a) => a.classId === cls.id && a.date === ds);
     const by = {}; recs.slice().sort((a, b) => (a.created || 0) - (b.created || 0)).forEach((a) => { (by[a.studentId] = by[a.studentId] || []).push(a); });
