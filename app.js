@@ -429,7 +429,7 @@
       s = Math.min(s, dir > 0 ? Ro : R);
       if (!s) return;
       const take = (dir > 0 ? olds.slice(0, s * 7) : olds.slice((Ro - s) * 7)).map((n) => n.cloneNode(true));
-      const h = news[0].offsetHeight, gap = parseFloat(getComputedStyle(grid).rowGap) || 0, G = 10;
+      const h = news[0].offsetHeight, gap = parseFloat(getComputedStyle(grid).rowGap) || 0, G = 5;
       const saved = grid.style.cssText, saveRows = news.map((n) => n.style.gridRow);
       const clip = el('div', { class: 'beltclip' });
       clip.style.cssText = 'flex:1;min-height:0;position:relative;overflow:hidden';
@@ -1013,7 +1013,7 @@
     }
     const tracks = []; // 줄마다 1fr, 달이 바뀌는 줄 앞에는 얇은 구분 칸
     const gapIdx = [];
-    rowsL.forEach((row, ri) => { if (row.gap && ri > 0) tracks.push('var(--mg, 10px)'); gapIdx.push(tracks.length + 1); tracks.push('minmax(0,1fr)'); });
+    rowsL.forEach((row, ri) => { if (row.gap && ri > 0) tracks.push('var(--mg, 5px)'); gapIdx.push(tracks.length + 1); tracks.push('minmax(0,1fr)'); });
     grid.style.gridTemplateRows = tracks.join(' ');
     for (let ri = 0; ri < rowsL.length; ri++) {
       const row = rowsL[ri];
