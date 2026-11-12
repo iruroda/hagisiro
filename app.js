@@ -2950,7 +2950,7 @@
     function quick() {
       stop();
       const today = ymd(new Date());
-      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '16:00', t2: '18:00', step: 20, skipWE: true, closeD: '', closeT: '', noDup: false });
+      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '09:00', t2: '16:00', step: 60, skipWE: true, closeD: '', closeT: '', noDup: false });
       const f = {
         title: el('input', { type: 'text', maxlength: 40, value: q.title }),
         note: el('textarea', { rows: 3, maxlength: 500, spellcheck: 'false' }, q.note),
