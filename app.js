@@ -975,7 +975,7 @@
     return el('div', { class: 'login' },
       logo,
       el('h1', {}, 'HAGISIRO'),
-      el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, icon('google'), 'Google 로그인'),
+      el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, 'Google 로그인'),
       el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '이 기기에만 저장'));
   }
 

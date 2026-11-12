@@ -11,7 +11,14 @@ const load = () => { try { return JSON.parse(fs.readFileSync(file(), 'utf8')); }
 const save = () => { try { fs.writeFileSync(file(), JSON.stringify(st)); } catch (e) { /* noop */ } };
 
 if (!app.requestSingleInstanceLock()) app.quit();
-app.on('second-instance', () => { if (win) { win.show(); win.focus(); } });
+/* 이미 떠 있는 위젯(시작 프로그램·트레이)이 있을 때 exe를 또 열면: 맨 뒤로 보내지 않고 맨 앞으로 꺼내 보여줌. 다른 곳을 누르면 원래 위치로 */
+let raised = false;
+app.on('second-instance', () => {
+  if (!win) return;
+  if (win.isMinimized()) win.restore();
+  raised = true;
+  win.show(); win.setAlwaysOnTop(true); win.focus();
+});
 
 function bounds() {
   const wa = screen.getPrimaryDisplay().workArea;
@@ -50,7 +57,7 @@ ipcMain.on('min-w', (e, w) => { MINW = Math.max(240, Math.min(900, Math.round(+w
 const zmode = () => st.z || (st.top ? 'top' : 'normal');
 let zTimer = null;
 function sendBottom() {
-  if (!win || process.platform !== 'win32' || zmode() !== 'bottom') return;
+  if (raised || !win || process.platform !== 'win32' || zmode() !== 'bottom') return;
   clearTimeout(zTimer);
   zTimer = setTimeout(() => {
     try {
@@ -121,7 +128,7 @@ function create() {
   // 위젯 위에서 오른쪽 버튼 → 트레이와 같은 메뉴 (입력칸에서는 기본 메뉴)
   win.webContents.on('context-menu', (e, params) => { if (!params.isEditable) menu().popup({ window: win }); });
   win.on('moved', () => { if (inLogin || expanded) return; st.bounds = win.getBounds(); save(); });
-  win.on('blur', sendBottom); win.on('show', sendBottom); win.on('restore', sendBottom);
+  win.on('blur', () => { if (raised) { raised = false; win.setAlwaysOnTop(zmode() === 'top'); } sendBottom(); }); win.on('show', sendBottom); win.on('restore', sendBottom);
   win.webContents.on('did-finish-load', sendBottom);
   win.on('closed', () => { win = null; });
 }
