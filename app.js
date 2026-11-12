@@ -450,12 +450,18 @@
       const clip = el('div', { class: 'beltclip' });
       clip.style.cssText = t.classList.contains('mwrap') ? `flex:none;min-width:0;width:100%;height:${t.offsetHeight}px;position:relative;overflow:hidden` : 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
       t.replaceWith(clip); clip.append(t, node);
-      t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0`;
+      const curtain = S.view === 'cal'; // 캘린더: 기존 달력은 그대로 두고 새 달력이 반투명 커튼처럼 그 위로 들어와요
+      t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0${curtain ? ';position:relative;z-index:1' : ''}`;
       node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;pointer-events:none';
       /* 끝에서 끝까지 밀지 않고, 가운데 가까이에서 페이드로 들어오며 제자리로 / 이전 화면은 반대쪽으로 조금 밀리며 사라져요 */
       const D = 12;
-      an = t.animate([{ transform: `translateX(${dir * D}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
-      an2 = node.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * D}%)`, opacity: 0 }], { ...opt, fill: 'forwards' });
+      if (curtain) {
+        an = t.animate([{ transform: `translateX(${dir * 6}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
+        an2 = node.animate([{ opacity: 1, offset: 0 }, { opacity: 1, offset: .55 }, { opacity: 0, offset: 1 }], { ...opt, fill: 'forwards' });
+      } else {
+        an = t.animate([{ transform: `translateX(${dir * D}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
+        an2 = node.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * D}%)`, opacity: 0 }], { ...opt, fill: 'forwards' });
+      }
       done = () => { t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
     }
     const el0 = performance.now() - snap.t0;
