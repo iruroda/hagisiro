@@ -1291,3 +1291,10 @@ input[type=date].empty { color: var(--mut); }
 
 /* 업로드 형식 안내: 아이콘이 글씨 줄보다 아래로 내려 보이던 것을 위로 1px */
 .fmtpop span .ic { transform: translateY(-1px); }
+
+/* 학교 설정 팝업: 등록한 학교 목록(이름 + 삭제) */
+.schlist { display: flex; flex-direction: column; gap: 6px; }
+.schlist[hidden], .dlg .mut[hidden] { display: none; }
+.schcur { display: flex; align-items: center; gap: 8px; }
+.schcur .schnm { flex: 1; min-width: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.schq input:disabled, .schq .ghost:disabled { opacity: .4; }
