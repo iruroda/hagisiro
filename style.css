@@ -1264,3 +1264,4 @@ body.widget #top .tab .ic { transform: translateY(-1px); }
 .dt2 th, .dt2 td, .dtxt { text-align: center; }
 /* 월별 계(결·지·조·과) 머리글과 건수에 유형 색을 입혀요 */
 .mt th.sum[class*="t-"], .mt td.sum.has { color: var(--tc); }
+.cell.other .sb { opacity: .4; }

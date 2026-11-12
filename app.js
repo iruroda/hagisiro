@@ -429,7 +429,9 @@
       s = Math.min(s, dir > 0 ? Ro : R);
       if (!s) return;
       const take = (dir > 0 ? olds.slice(0, s * 7) : olds.slice((Ro - s) * 7)).map((n) => n.cloneNode(true));
-      const h = news[0].offsetHeight, gap = parseFloat(getComputedStyle(grid).rowGap) || 0, G = 5;
+      const gap = parseFloat(getComputedStyle(grid).rowGap) || 0, G = 5, bt = parseFloat(getComputedStyle(grid).borderTopWidth) || 0;
+      const nG = [...Array(R).keys()].filter((i) => i > 0 && news[i * 7].classList.contains('mgap')).length;
+      const h = (grid.getBoundingClientRect().height - bt - nG * G - gap * (R - 1 + nG)) / R; // 줄 높이를 소수점까지 맞춰서 끝에서 아래가 비지 않게
       const saved = grid.style.cssText, saveRows = news.map((n) => n.style.gridRow);
       const clip = el('div', { class: 'beltclip' });
       clip.style.cssText = 'flex:1;min-height:0;position:relative;overflow:hidden';
@@ -441,10 +443,10 @@
         all[i * 7].dataset.tr = tr.length + 1; tr.push(h);
         for (let k = 0; k < 7; k++) all[i * 7 + k].style.gridRow = String(tr.length);
       }
-      tot = tr.reduce((a, b) => a + b, 0) + gap * (tr.length - 1);
+      tot = tr.reduce((a, b) => a + b, 0) + gap * (tr.length - 1) + bt;
       grid.style.cssText = `${saved};position:absolute;left:0;right:0;top:0;height:${tot}px;grid-template-rows:${tr.map((x) => x + 'px').join(' ')}`;
       if (dir > 0) grid.prepend(...take); else grid.append(...take);
-      const dist = news[0].isConnected ? grid.children[s * 7].offsetTop : 0;
+      const dist = news[0].isConnected ? grid.children[s * 7].getBoundingClientRect().top - grid.getBoundingClientRect().top - bt : 0;
       const a = dir > 0 ? 0 : -dist, b = dir > 0 ? -dist : 0;
       an = grid.animate([{ transform: `translateY(${a}px)` }, { transform: `translateY(${b}px)` }], opt);
       done = () => { take.forEach((n) => n.remove()); grid.style.cssText = saved; news.forEach((n, i) => { n.style.gridRow = saveRows[i]; }); if (clip.isConnected) clip.replaceWith(grid); };
