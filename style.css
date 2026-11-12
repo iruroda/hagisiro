@@ -835,6 +835,9 @@ body.xprep #app, body.xprep #modal, body.xprep #sheet, body.xprep .askw { opacit
   background: conic-gradient(from 0deg, transparent 0%, #6d4aff 35%, #2f6df6 90%);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
   animation: ringspin .8s linear infinite; }
+.ring { position: relative; }
+.ring::after { content: ''; position: absolute; left: calc(50% - 2px); top: 0; width: 4px; height: 4px; border-radius: 50%; background: #2f6df6; }
+button .ring::after { left: calc(50% - 1px); width: 2px; height: 2px; }
 .ldg { display: grid; place-items: center; width: 100%; padding: 28px 0; }
 button .ring { width: 16px; height: 16px; -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); }
 @keyframes ringspin { to { transform: rotate(360deg); } }
