@@ -1262,3 +1262,5 @@ body.widget #top .tab .ic { transform: translateY(-1px); }
 .days.msplit .cell:not(.blank):not(.sel):not(.editing) { background: var(--bg); }
 /* 연락처·일과 진행 시간표·내 시간표: 보기 화면의 내용은 모두 가운데 정렬 (입력칸은 그대로) */
 .dt2 th, .dt2 td, .dtxt { text-align: center; }
+/* 월별 계(결·지·조·과) 머리글과 건수에 유형 색을 입혀요 */
+.mt th.sum[class*="t-"], .mt td.sum.has { color: var(--tc); }
