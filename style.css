@@ -1236,3 +1236,9 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 /* 링크 복사 안내 팝업 */
 .lkmsg { margin: 0 0 8px; }
 .lkbox { background: var(--bg2); border-radius: var(--r-lg); padding: 10px 12px; font-size: 12px; line-height: 1.5; word-break: break-all; user-select: text; }
+/* 팝업 안쪽 여백: 좌·우가 같게 (스크롤바는 오른쪽 여백 안쪽으로 겹쳐 들어가고, 틀 자체는 빈 공간을 따로 잡지 않음) */
+.dlg.pfdlg { scrollbar-gutter: auto; }
+.pmain .pbody { margin-right: -10px; padding-right: 0; }
+/* 위젯 머리줄 탭(캘린더·출결·상담): 글자 먹선 중심에 아이콘 중심을 맞춤 */
+body.widget #top .tab .ic { transform: translateY(-1px); }
+.tsel select.ph { color: var(--mut); }
