@@ -173,8 +173,8 @@ body.widget #app { background: none; padding: 3px; gap: 3px; }
 body.widget #top { background: var(--wbg); border: 0; border-radius: var(--r) var(--r) 0 0; padding-left: 40px; }
 body.widget .cal { gap: 2px; }
 body.widget .wk { background: var(--wbg); border-radius: 0; }
-body.widget .days { gap: 2px; border: 0; }
-body.widget .cell { border: 0; border-radius: 0; background: var(--wbg); }
+body.widget .days { gap: 0; border: 0; }
+body.widget .cell { border-radius: 0; background: var(--wbg); }
 body.widget .cell:nth-last-child(7) { border-bottom-left-radius: var(--r); }
 body.widget .cell:last-child { border-bottom-right-radius: var(--r); }
 body.widget .cell.sel { background: color-mix(in srgb, var(--sel) var(--wa, 90%), transparent); }
