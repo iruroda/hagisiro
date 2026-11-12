@@ -1877,7 +1877,7 @@
       el('button', { class: 'ib', 'aria-label': '다음 주', onclick: () => shiftW(1) }, icon('right')),
       el('span', { class: 'grow' }),
       (() => {
-        const setAll = (v) => { if (S.weekAll === v) return; S.weekAll = v; ls.set('hagisiro:weekall', v ? '1' : ''); render(); };
+        const setAll = (v) => { if (S.weekAll === v) return; S.weekAll = v; ls.set('hagisiro:weekall', v ? '1' : ''); render(); const t = $('#main .wv > .mwrap, #main .wv > .empty'); if (t && t.animate) t.animate({ opacity: [0, 1] }, { duration: 280, easing: 'ease-out' }); };
         return el('div', { class: 'seg' }, el('button', { type: 'button', class: S.weekAll ? 'on' : '', onclick: () => setAll(true) }, '전체'), el('button', { type: 'button', class: S.weekAll ? '' : 'on', onclick: () => setAll(false) }, '기록 있는 학생만'));
       })()));
 
