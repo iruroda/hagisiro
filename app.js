@@ -60,7 +60,7 @@
     logout: '<path d="M10 5.5H7a2 2 0 00-2 2v9a2 2 0 002 2h3"/><path d="M14.5 8.5L18 12l-3.5 3.5M18 12H9.5"/>',
     power: '<path d="M12 3.8v7.2"/><path d="M7.2 6.7a7.2 7.2 0 109.6 0"/>',
     minimize: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M8 15h8"/>',
-    bell: '<path d="M6 17v-6a6 6 0 0112 0v6l1.5 2h-15zM10 21.5h4"/>',
+    bell: '<path d="M6 15.75v-6a6 6 0 0112 0v6l1.5 2h-15zM10 20.25h4"/>',
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c0-3.7 2.8-5.8 6.5-5.8s6.5 2.1 6.5 5.8M19 8v6M16 11h6"/>',
     utensils: '<path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 21V3c-2.5 1.5-3.5 4.5-3.5 8H17"/>',
     sliders: '<path d="M4.5 8h7M17.5 8h2M4.5 16h2M12.5 16h7"/><circle cx="14.5" cy="8" r="2.6"/><circle cx="9.5" cy="16" r="2.6"/>',

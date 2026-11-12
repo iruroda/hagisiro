@@ -802,7 +802,7 @@ input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
 /* 출결 입력창: 높이 줄이기, 연필 키우기 */
 .qi input { padding-top: 7px; padding-bottom: 7px; }
-.qgo { width: 38px; }
+.qgo { width: 52px; }
 .qrow .fld input { padding-left: 38px; }
 /* 저장 실패 표시 */
 #top .ib.err { color: #e5484d; }
@@ -1276,3 +1276,6 @@ body.widget #top .tab .ic { transform: none; }
 .wt th.wcol .dw { font-size: inherit; }
 .cdh > .mut { color: var(--text); }
 .crow .ib:hover { background: var(--bg); }
+
+/* 교시 설정: 요일 목록 ↔ 체크 ↔ 버튼 간격을 팝업 공통 간격(10px)으로 통일 */
+.keepbox { margin: 0; }
