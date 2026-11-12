@@ -3169,7 +3169,7 @@
               const b = by[sid];
               return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'), title: b ? `${b.name}${b.info ? ' (' + b.info + ')' : ''}` : null,
                 onclick: b ? async () => {
-                  if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''} 학생의 신청을 지울까요?`, '삭제'))) return;
+                  if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''}의 신청을 지울까요?`, '삭제'))) return;
                   try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
                 } : () => proxyBook(c, sid) }, hm(sid), b ? el('small', {}, b.name) : null);
             }));
