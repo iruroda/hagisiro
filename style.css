@@ -1203,3 +1203,6 @@ body.widget :is(.vnext, .vprev, .vin) :is(.dhead, .dhead *) { animation: none; }
 /* 주별 토글: 선택에 따라 글자 굵기가 바뀌어도 폭이 변하지 않게 */
 .wv .seg > button { text-align: center; }
 .wv .seg > button:nth-child(1) { min-width: 32px; } .wv .seg > button:nth-child(2) { min-width: 84px; }
+
+/* 위젯: 마지막 주 칸의 아래 선이 이미 있으니 D-day 줄 위 선은 두지 않음 (선이 두 겹으로 굵어 보이지 않게) */
+body.widget .ddbar:not(.top) { border-top: 0; }
