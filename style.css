@@ -1189,3 +1189,6 @@ body.widget .ddbar.top { border: 0; border-radius: 0; }
 
 /* 위젯: 상단 헤더와 요일 줄 사이의 투명한 띠 제거 */
 body.widget #app { gap: 0; }
+
+/* 헤더 바로가기 버튼: 전부 같은 크기의 정사각형 */
+#top .right > .ib:not([hidden]), #top .right > .dbtn { width: 32px; height: 32px; min-width: 32px; padding: 0; display: inline-grid; place-items: center; box-sizing: border-box; }
