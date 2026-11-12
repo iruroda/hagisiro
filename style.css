@@ -1275,3 +1275,4 @@ body.widget #top .tab .ic { transform: none; }
 /* 주별 표 머리의 요일도 날짜와 같은 크기 */
 .wt th.wcol .dw { font-size: inherit; }
 .cdh > .mut { color: var(--text); }
+.crow .ib:hover { background: var(--bg); }
