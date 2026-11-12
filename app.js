@@ -2123,8 +2123,7 @@
     if (r.errors.length) {
       const info = r.info || {};
       if (r.errors.includes('student') && !info.type && !info.period && !info.date) { pv.append(el('span', { class: 'mut' }, ASK)); return; } // 이름 쓰는 중
-      pv.classList.add('err');
-      pv.append(r.errors.includes('student') ? '학생 이름을 입력해주세요.' : '출결 종류(결석/지각/조퇴/결과)를 입력해주세요.');
+      pv.append(el('span', { class: 'mut' }, r.errors.includes('student') ? '학생 이름을 입력해주세요.' : '출결 종류(결석/지각/조퇴/결과)를 입력해주세요.')); // 오류가 아니라 입력 중 안내라서 회색
       return;
     }
     r.items.slice(0, 5).forEach((it) => pv.append(el('span', { class: 'chip t-' + it.type }, chipText(it))));
