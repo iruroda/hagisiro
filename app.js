@@ -387,7 +387,7 @@
   /* 날짜·달·주를 넘길 땐 화면이 벨트처럼 이어져 움직여요: 월별·출결은 좌우, 이번 주 보기는 상하 */
   const noAnim = () => document.documentElement.classList.contains('noanim') || !PF.anim;
   /* 출결: 날짜 줄·통계는 제자리에서 사르륵 바뀌고, 아래 표만 벨트처럼 움직여요 */
-  const attTable = (c) => { const v = c && c.classList.contains('att') ? c.lastElementChild : null; return v ? v.querySelector(':scope > .mwrap') : null; };
+  const attTable = (c) => { const v = c && c.classList.contains('att') ? c.lastElementChild : null; return v ? v.querySelector(':scope > .mwrap, :scope > .empty') : null; };
   const beltTarget = (c) => (S.view === 'att' ? attTable(c) || c : S.view === 'cal' && !weekMode() && c ? c.querySelector('.days') || c : c);
   function wantBelt(main) {
     const cont = S.cont; S.cont = null;

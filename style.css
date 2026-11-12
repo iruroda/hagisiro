@@ -1195,3 +1195,11 @@ body.widget #app { gap: 0; }
 
 /* 출결 일별 머리줄(날짜·카운터·이 날만 교시 수): 날짜를 넘길 때 깜빡이지 않게 */
 body.widget :is(.vnext, .vprev, .vin) :is(.dhead, .dhead *) { animation: none; }
+
+/* 일별·주별 머리줄: 제목 길이가 바뀌어도 ‹ › 버튼 위치는 그대로 */
+.dv .dttl { display: inline-block; min-width: 150px; text-align: center; }
+.wv .dttl { display: inline-block; min-width: 163px; text-align: center; }
+
+/* 주별 토글: 선택에 따라 글자 굵기가 바뀌어도 폭이 변하지 않게 */
+.wv .seg > button { text-align: center; }
+.wv .seg > button:nth-child(1) { min-width: 32px; } .wv .seg > button:nth-child(2) { min-width: 84px; }
