@@ -1284,3 +1284,10 @@ input[type=date].empty { color: var(--mut); }
 
 /* 상담 테이블 만들기·수정: 날짜 카드 줄 · 가로 스크롤바 · 저장 버튼의 오른쪽 끝을 같은 선에 */
 .cform .cgrid { padding-right: 0; }
+
+/* 팝업 안 스크롤 영역: 오른쪽에 따로 붙던 안쪽 여백(8px)과 스크롤바 예약 자리를 없애서, 표·목록의 오른쪽 끝이 왼쪽 끝(팝업 안쪽 여백)과 같게.
+   스크롤이 생길 때만 스크롤바가 맨 오른쪽 끝에 붙어요. */
+.dlg .dbody, .dlg .dtw, .dlg .dtxt, .dlg .dimg, .dlg .rbody, .dlg .schres, .dlg .meals, .dlg .clist, .dlg .cform, .dlg .cdet, .dlg .cgrid { padding-right: 0; scrollbar-gutter: auto; }
+
+/* 업로드 형식 안내: 아이콘이 글씨 줄보다 아래로 내려 보이던 것을 위로 1px */
+.fmtpop span .ic { transform: translateY(-1px); }
