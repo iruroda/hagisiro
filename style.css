@@ -844,7 +844,7 @@ button .ring { width: 16px; height: 16px; -webkit-mask: radial-gradient(farthest
 .dv > .mwrap, .wv > .mwrap, .mv > .mwrap { border-radius: 0; }
 
 /* 위젯(투명 창): 창 전체를 덮는 어두운 막은 페이드 없이 바로 — 전체 화면 합성이 매 프레임 다시 그려지며 메인이 깜빡이는 걸 방지 */
-body.widget #modal.opening .back, body.widget #modal.closing .back, body.widget #sheet .back, body.widget .askw .back { animation: none !important; }
+body.widget #modal.opening:not(.closing) .back, body.widget #sheet .back, body.widget .askw:not(.closing) .back { animation: none !important; }
 
 #wedit .wdone { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 
@@ -1220,3 +1220,8 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 .menu .msep { height: 0; background: none; border-top: 1px solid var(--line); margin: 4px 6px; flex: none; }
 /* 월 달력의 비어 있는 칸(달 경계) — 투명이 아니라 회색으로 */
 .cell.blank { background: var(--bg2) !important; }
+/* 팝업 닫힘: 배경 어둠이 천천히 걷히도록 (끝이 급해 보이지 않게 ease-out, 위젯에서도 닫을 때는 페이드) */
+@keyframes fadeout { to { opacity: 0; } }
+#modal.closing .back, .askw.closing .back { animation: fadeout .22s ease-out forwards !important; }
+#modal.closing .dlg, #sheet.closing > *, .askw.closing .dlg { animation: popout .2s ease-out forwards; }
+.askw.closing { pointer-events: none; }

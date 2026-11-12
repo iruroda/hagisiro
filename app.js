@@ -564,16 +564,17 @@
         logical = true;
         if (document.documentElement.classList.contains('noanim')) { desc.set.call(n, true); return; }
         n.classList.add('closing');
-        timer = setTimeout(() => { timer = null; n.classList.remove('closing'); if (logical) { desc.set.call(n, true); rc(); } }, 150);
+        timer = setTimeout(() => { timer = null; n.classList.remove('closing'); if (logical) { desc.set.call(n, true); rc(); } }, 220);
       },
     });
     n.replaceChildren = (...k) => { if (timer && !k.length) return; if (k.length) cancel(); rc(...k); };
   });
 
+  const closeAsk = (w) => { if (w.classList.contains('closing')) return; w.classList.add('closing'); setTimeout(() => w.remove(), 220); };
   /* 윈도우 기본 팝업 대신 앱 안의 확인창 */
   function ask(msg, ok = '삭제', danger = true) {
     return new Promise((res) => {
-      const done = (v) => { w.remove(); document.removeEventListener('keydown', key, true); res(v); };
+      const done = (v) => { closeAsk(w); document.removeEventListener('keydown', key, true); res(v); };
       const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); done(false); } else if (e.key === 'Enter') { e.stopPropagation(); done(true); } };
       const w = el('div', { class: 'askw' }, el('div', { class: 'back', onclick: () => done(false) }),
         el('div', { class: 'dlg askd', role: 'alertdialog' },
@@ -589,7 +590,7 @@
   /* 확인 버튼 하나뿐인 알림창 (학생 신청 페이지의 알림창과 같은 모양) */
   function notice(msg) {
     return new Promise((res) => {
-      const done = () => { w.remove(); document.removeEventListener('keydown', key, true); res(); };
+      const done = () => { closeAsk(w); document.removeEventListener('keydown', key, true); res(); };
       const t0 = performance.now(); // 알림을 띄운 바로 그 엔터 키로 곧바로 닫히지 않게
       const key = (e) => { if (e.timeStamp <= t0) return; if (e.key === 'Escape' || e.key === 'Enter') { e.stopPropagation(); done(); } };
       const w = el('div', { class: 'askw' }, el('div', { class: 'back', onclick: done }),
