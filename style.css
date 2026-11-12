@@ -1189,3 +1189,6 @@ body.widget #app { gap: 0; }
 
 /* 헤더 바로가기 버튼: 전부 같은 크기의 정사각형 */
 #top .right > .ib:not([hidden]), #top .right > .dbtn { width: 32px; height: 32px; min-width: 32px; padding: 0; display: inline-grid; place-items: center; box-sizing: border-box; }
+
+/* 연락처·시간표 표도 출결·급식 표처럼 바깥쪽 테두리 */
+.dt2 { border: 1px solid var(--line); }
