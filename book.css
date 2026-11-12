@@ -8,7 +8,7 @@ button { border: 0; background: none; cursor: pointer; padding: 0; }
 #bk { max-width: 560px; margin: 0 auto; padding: 20px 16px 60px; }
 h1 { font-size: 20px; margin: 4px 0 2px; }
 .mut { color: var(--mut); } .small { font-size: 12px; }
-.note { white-space: pre-wrap; margin: 6px 0 0; color: var(--mut); }
+.note { white-space: pre-wrap; margin: 12px 0 0; padding: 12px 14px; background: var(--bg2); border-radius: 8px; color: var(--mut); }
 .form { display: grid; gap: 8px; margin: 16px 0 8px; }
 .form label { display: grid; grid-template-columns: 132px 1fr; align-items: center; gap: 8px; color: var(--mut); }
 input { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); transition: border-color .12s, box-shadow .12s; }
