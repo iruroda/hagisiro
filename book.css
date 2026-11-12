@@ -44,3 +44,8 @@ button:disabled { opacity: .4; cursor: default; }
 .who .ib:hover { background: var(--bg2); }
 .who .ic svg { width: 18px; height: 18px; display: block; }
 .form input { color: var(--text); }
+
+/* 날짜별 카드: 날짜와 시간을 한 박스에 (선생님 페이지의 날짜 카드와 같은 모양) */
+.dcard { margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+.dcard .day { margin: 0; }
+.dcard .chips { margin-top: 8px; }

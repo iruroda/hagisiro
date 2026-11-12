@@ -79,14 +79,14 @@ function draw() {
   const slotNodes = () => [
     Object.keys(days).length ? Object.keys(days).map((k) => {
       const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
-      return [el('div', { class: 'day' }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`),
+      return el('div', { class: 'dcard' }, el('div', { class: 'day' }, el('b', {}, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, ` (${DOW[d.getDay()]})`)),
         el('div', { class: 'chips' }, days[k].map((sid) => {
           const p = sidParts(sid), isT = taken.has(sid), rec = isT ? recOf(mine, sid) : null;
           // 학번·이름·비밀번호가 신청할 때와 모두 같을 때만 내 신청으로 보여주고 눌러서 삭제할 수 있어요
           const isMine = !!rec && rec.i === f.sid.value && rec.n === f.name.value.trim() && rec.p === f.pin.value;
           return el('button', { class: 'chip' + (isT ? ' taken' : '') + (isMine ? ' mine' : ''), type: 'button', title: isT ? (isMine ? '내 신청' : '신청됨') : '',
             disabled: isT && !isMine, onclick: () => (isMine ? onTaken(sid, rec) : isT ? null : onFree(sid)) }, `${p.hh}:${p.mm}`);
-        }))];
+        })));
     }) : el('p', { class: 'mut' }, '신청할 수 있는 시간이 없어요.')].flat(Infinity).filter(Boolean);
   const listMode = ready() && verified === curKey();
   drawSlots = () => { syncPick(); };
