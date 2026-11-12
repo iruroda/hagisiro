@@ -1020,6 +1020,7 @@
     }
     const tracks = []; // 줄마다 1fr, 달이 바뀌는 줄 앞에는 얇은 구분 칸
     const gapIdx = [];
+    if (rowsL.some((r) => r.gap)) grid.classList.add('msplit');
     rowsL.forEach((row, ri) => { if (row.gap && ri > 0) tracks.push('var(--mg, 5px)'); gapIdx.push(tracks.length + 1); tracks.push('minmax(0,1fr)'); });
     grid.style.gridTemplateRows = tracks.join(' ');
     for (let ri = 0; ri < rowsL.length; ri++) {

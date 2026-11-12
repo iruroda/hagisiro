@@ -1256,3 +1256,7 @@ body.widget #top .tab .ic { transform: translateY(-1px); }
 /* D-day 줄: 글자색·배경색 모두 셀과 같이 (배경은 할 일 글자 뒤에만) */
 .ddc { color: var(--tfg, var(--tfg-d, var(--text))); }
 .ddc .ddt { background: var(--tbg, var(--tbg-d, transparent)); border-radius: var(--r-xs); padding: 0 3px; margin: 0 -3px; }
+/* 월 사이 구분: 빈 칸·달 사이 간격은 모두 선 색과 같은 회색 */
+.cell.blank { background: var(--line) !important; }
+.days.msplit { background: var(--line); }
+.days.msplit .cell:not(.blank):not(.sel):not(.editing) { background: var(--bg); }
