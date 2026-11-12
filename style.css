@@ -1272,3 +1272,5 @@ body.widget #top .tab .ic { transform: translateY(-1px); }
 body.widget #top .tab:nth-of-type(1) { width: 74.6px; } body.widget #top .tab:nth-of-type(2) { width: 64.4px; } body.widget #top .tab:nth-of-type(3) { width: 64.6px; }
 body.widget #top .tab .ic { transform: none; }
 #top .ghost.sm:has(.ic) .ic { transform: translateY(-0.5px); }
+/* 주별 표 머리의 요일도 날짜와 같은 크기 */
+.wt th.wcol .dw { font-size: inherit; }

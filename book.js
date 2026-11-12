@@ -79,7 +79,7 @@ function draw() {
   const slotNodes = () => [
     Object.keys(days).length ? Object.keys(days).map((k) => {
       const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
-      return [el('div', { class: 'day' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
+      return [el('div', { class: 'day' }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`),
         el('div', { class: 'chips' }, days[k].map((sid) => {
           const p = sidParts(sid), isT = taken.has(sid), rec = isT ? recOf(mine, sid) : null;
           // 학번·이름·비밀번호가 신청할 때와 모두 같을 때만 내 신청으로 보여주고 눌러서 삭제할 수 있어요
@@ -111,7 +111,7 @@ function draw() {
 const readForm = () => (ready() ? { name: f.name.value.trim(), info: f.sid.value, pin: f.pin.value } : null);
 const bref = (sid) => doc(db, 'consults', cid, 'books', sid);
 const tref = (sid) => doc(db, 'consults', cid, 'taken', sid);
-const label = (sid) => { const p = sidParts(sid); return `${p.m}월 ${p.d}일 ${p.hh}:${p.mm}`; };
+const label = (sid) => { const p = sidParts(sid); return `${p.m}.${p.d}. (${DOW[new Date(p.y, p.m - 1, p.d).getDay()]}) ${p.hh}:${p.mm}`; };
 
 const alertBox = (t) => { const close = modal(el('div', {}, t), el('div', { class: 'row' }, el('button', { class: 'pri', onclick: () => close() }, '확인'))); };
 

@@ -1551,7 +1551,7 @@
     const g = (S.gcal[ds] || []).map(gev);
     sh.append(el('div', { class: 'back', onclick: () => api && api.finish() }),
       el('div', { class: 'panel' },
-        el('div', { class: 'shead' }, el('b', {}, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`), el('span', { class: 'grow' }), close),
+        el('div', { class: 'shead' }, el('b', {}, `${md(ymd(d))}`), el('span', { class: 'grow' }), close),
         g.length ? el('div', { class: 'sg' }, g) : null,
         body, foot));
     sh.querySelector('.panel').addEventListener('mousedown', (e) => { if (!e.target.closest('input, textarea, select, button')) e.preventDefault(); });
@@ -1890,7 +1890,7 @@
     const fri = days[4];
     wrap.append(el('div', { class: 'dhead' },
       el('button', { class: 'ib', 'aria-label': '이전 주', onclick: () => shiftW(-1) }, icon('left')),
-      el('b', { class: 'dttl wttl' }, `${mon.getMonth() + 1}월 ${mon.getDate()}일 ~ ${fri.getMonth() + 1}월 ${fri.getDate()}일`),
+      el('b', { class: 'dttl wttl' }, `${md(ymd(mon))} ~ ${md(ymd(fri))}`),
       el('button', { class: 'ib', 'aria-label': '다음 주', onclick: () => shiftW(1) }, icon('right')),
       el('span', { class: 'grow' }),
       (() => {
@@ -1987,7 +1987,7 @@
       Array.from({ length: 11 }, (_, n) => el('option', { value: n, selected: n === last }, n ? `${n}교시` : '수업 없음')));
     wrap.append(el('div', { class: 'dhead' },
       el('button', { class: 'ib', 'aria-label': '이전 날', onclick: () => shift(-1) }, icon('left')),
-      el('b', { class: 'dttl' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
+      el('b', { class: 'dttl' }, md(ymd(d))),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
       ovr ? el('button', { class: 'ghost sm', title: '기본 교시 수로 되돌리기', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
@@ -2789,7 +2789,7 @@
     const list = mealShown(S.meal[ds] || []);
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' + (list.length > 1 ? ' mealday' : '') },
-        el('div', { class: 'shead' }, hb('utensils', `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]}) 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('utensils', `${md(ymd(d))} 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list.length ? el('div', { class: 'meals' + (list.length > 1 ? ' hz' : '') }, list.map(mealRow)) : el('div', { class: 'mut' }, '급식 없음')));
   }
   /* 상단바 급식 버튼: 주별 급식 표 (행: 날짜·조식·중식·석식 / 열: 요일) + 지난주·다음주 이동 */
@@ -2917,7 +2917,7 @@
 
   /* ================= 상담 신청 (선생님) ================= */
   const bookUrl = (id) => new URL('book.html?c=' + id, location.href).href;
-  const cRange = (c) => { const d = c.slots.map((x) => x.split('_')[0]).sort(); const f = (k) => `${+k.slice(4, 6)}.${+k.slice(6, 8)}.`; return d.length ? `${f(d[0])} ~ ${f(d[d.length - 1])}` : ''; };
+  const cRange = (c) => { const d = c.slots.map((x) => x.split('_')[0]).sort(); const f = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`; }; return d.length ? `${f(d[0])} ~ ${f(d[d.length - 1])}` : ''; };
   const shareText = (c) => `${c.title || '상담'}\n${bookUrl(c.id)}`;
   const copyText = async (c) => {
     const url = bookUrl(c.id);
@@ -2931,7 +2931,7 @@
       el('div', { class: 'lkbox' }, url));
     m.append(el('div', { class: 'back', onclick: close }), dlg);
   };
-  const sidLabel = (sid) => `${+sid.slice(4, 6)}.${+sid.slice(6, 8)}. ${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
+  const sidLabel = (sid) => { const d = new Date(+sid.slice(0, 4), +sid.slice(4, 6) - 1, +sid.slice(6, 8)); return `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]}) ${sid.slice(9, 11)}:${sid.slice(11, 13)}`; };
   function consultView() {
     const host = el('div', { class: 'cv' });
     S.cvHost = host;
@@ -2949,7 +2949,7 @@
       if (d) { kids.forEach((c) => c.classList.add('cs-' + d)); host.scrollTop = 0; } // 다음: 오른쪽에서 / 이전: 왼쪽에서 같은 속도로 들어와요
     };
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
-    const dayLabel = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`; };
+    const dayLabel = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`; };
     const kOf = (d) => ymd(d).replace(/-/g, '');
     const mins = (s) => { const [h, m] = (s || '0:0').split(':').map(Number); return h * 60 + m; };
     const tkey = (t) => pad(Math.floor(t / 60)) + pad(t % 60);
@@ -3053,7 +3053,7 @@
           const nextM = ts.length ? Math.min(+ts[ts.length - 1].slice(0, 2) * 60 + +ts[ts.length - 1].slice(2) + stepM, 23 * 60 + 55) : 16 * 60;
           const tm = timeSel(`${pad(Math.floor(nextM / 60))}:${pad(nextM % 60 - (nextM % 5))}`);
           return el('div', { class: 'cdc' },
-            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, DOW[d.getDay()]), el('span', { class: 'grow' }),
+            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`), el('span', { class: 'grow' }),
               el('button', { class: 'ib sm', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
             ts.map((t) => {
               const b = booked[k + '_' + t];
@@ -3147,7 +3147,7 @@
         const card = (k) => {
           const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
           return el('div', { class: 'cdc' },
-            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, DOW[d.getDay()])),
+            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`)),
             days[k].map((sid) => {
               const b = by[sid];
               return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'), title: b ? `${b.name}${b.info ? ' (' + b.info + ')' : ''}` : null,
