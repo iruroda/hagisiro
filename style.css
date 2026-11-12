@@ -1215,3 +1215,8 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 .cplus .ic { display: grid; place-items: center; width: 16px; height: 16px; }
 .cplus .ic svg { display: block; }
 .cplus .ic { transform: none; }
+/* 메뉴 구분선: 항목 높이를 정수 px로 고정해 선이 어디서나 같은 굵기로 그려지게 */
+.menu .mh { line-height: 20px; } .menu .mi { line-height: 20px; }
+.menu .msep { height: 0; background: none; border-top: 1px solid var(--line); margin: 4px 6px; flex: none; }
+/* 월 달력의 비어 있는 칸(달 경계) — 투명이 아니라 회색으로 */
+.cell.blank { background: var(--bg2) !important; }

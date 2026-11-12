@@ -849,7 +849,6 @@
     else { m.append(el('div', { class: 'mh' }, '이 기기에만 저장')); sep(); }
     m.append(item('할 일 검색', openSearch, 'search'));
     m.append(item('새로고침', forceSync, 'refresh'));
-    sep();
     m.append(item('반복 관리', () => openRepeatManage(), 'repeat'));
     m.append(item('D-day 관리', openDdays, 'dday'));
     sep();
@@ -857,7 +856,6 @@
     DOCS.forEach(([id, label, ic]) => m.append(item(label, () => openDoc(id), ic)));
     sep();
     m.append(item('설정', openPrefs, 'gear'));
-    sep();
     if (S.user) m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout'));
     if (!S.cloud) m.append(item('백업 저장', exportJson, 'download'));
     if ((S.user || !S.cloud) && (IS_WIDGET || (window.hagisiroWidget && (window.hagisiroWidget.hide || window.hagisiroWidget.quit)))) sep();
