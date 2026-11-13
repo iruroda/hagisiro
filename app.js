@@ -462,7 +462,8 @@
       clip.style.cssText = t.classList.contains('mwrap') ? `flex:none;min-width:0;width:100%;height:${t.offsetHeight}px;position:relative;overflow:hidden` : 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
       t.replaceWith(clip); clip.append(t, node);
       const curtain = false; // 월 넘김도 출결 날짜 넘김과 같은 연출 (새 화면은 옆에서 페이드인, 기존 화면은 반대쪽으로 페이드아웃)
-      const solid = S.view === 'cal' ? ';background:var(--bg)' : ''; // 겹쳐지는 동안 뒤가 비치지 않게 바탕을 깔아요
+      const solid = ';background:var(--bg-s)'; // 겹쳐지는 동안 뒤가 비치지 않게 불투명 바탕을 깔아요 (위젯은 --bg가 반투명이라 --bg-s)
+      clip.style.background = 'var(--bg-s)'; // 두 화면이 동시에 옅어지는 순간에도 뒤가 비치지 않게 틀 자체에도 깔아요
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0${solid}`;
       node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;pointer-events:none' + solid;
       /* 끝에서 끝까지 밀지 않고, 가운데 가까이에서 페이드로 들어오며 제자리로 / 이전 화면은 반대쪽으로 조금 밀리며 사라져요 */
