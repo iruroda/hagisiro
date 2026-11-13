@@ -1302,3 +1302,14 @@ input[type=date].empty { color: var(--mut); }
 /* 급식: 학교가 하나도 없으면 주 제목과 표도 비활성(흐림) */
 .mealdlg.nosch .mttl, .mealdlg.nosch .mtbl { opacity: .4; }
 .schq .ghost:disabled, .schq input:disabled { pointer-events: none; } /* 비활성 검색 버튼은 올려도 색이 변하지 않게 */
+
+/* 결석 서류 제출 확인 */
+.dt td.absc { padding: 0; position: relative; }
+.absw { position: relative; display: flex; height: 40px; }
+.absw > .sl { flex: 1 1 0; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--tc) 11%, transparent); opacity: .45; pointer-events: none; }
+.absw .docchk { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); gap: 6px; padding: 3px 9px; border-radius: var(--r); background: var(--bg); font-size: 12px; white-space: nowrap; }
+.wi.wdoc { display: flex; align-items: center; gap: 6px; }
+.wi.wdoc .wtx { flex: 1; min-width: 0; }
+.wi.wdoc .docchk { flex: none; }
+.mk .docok { position: relative; display: inline-block; isolation: isolate; }
+.mk .docok::before { content: ''; z-index: -1; position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; transform: translate(-50%, -50%); background: currentColor; opacity: .38; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center/contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center/contain no-repeat; }

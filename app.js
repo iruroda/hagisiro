@@ -14,7 +14,12 @@
     const parts = TYPES.map((t) => [t, recs.filter((a) => a.type === t).length]).filter((x) => x[1]);
     if (!parts.length) return '기록 없음';
     const out = [];
-    parts.forEach((x, i) => { if (i) out.push(' · '); out.push(el('span', { class: 'sc t-' + x[0] }, `${x[0]} ${x[1]}`)); });
+    const nodoc = recs.filter((a) => a.type === '결석' && !a.doc).length; // 결석은 서류를 받아요
+    parts.forEach((x, i) => {
+      if (i) out.push(' · ');
+      out.push(el('span', { class: 'sc t-' + x[0] }, `${x[0]} ${x[1]}`));
+      if (x[0] === '결석' && nodoc) out.push(' · ', el('span', { class: 'sc t-결석' }, `서류 미제출 ${nodoc}`));
+    });
     return out;
   }
   const SHORT = { 결석: '결', 지각: '지', 조퇴: '조', 결과: '과' };
@@ -1858,7 +1863,7 @@
         const arr = by[s.id + '|' + ds];
         const td = el('td', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (ds === todayS ? ' tdy' : ''), 'data-d': ds });
         if (arr) {
-          td.append(el('span', { class: 'mk', title: arr.map((a) => `${kindLabel(a)} ${recLabel(a)}${a.reason ? ' · ' + a.reason : ''}`).join('\n') }, arr.map((a) => el('span', { class: 't-' + a.type }, SHORT[a.type]))));
+          td.append(el('span', { class: 'mk', title: arr.map((a) => `${kindLabel(a)} ${recLabel(a)}${a.reason ? ' · ' + a.reason : ''}`).join('\n') }, arr.map((a) => el('span', { class: 't-' + a.type + (a.type === '결석' && a.doc ? ' docok' : '') }, SHORT[a.type]))));
         }
         tr.append(td);
       }
@@ -1879,6 +1884,13 @@
     return frag;
   }
 
+
+  /* 결석 서류 제출 확인 (일별·주별 공용, 눌러서 바로 저장) */
+  function docChk(rec, mode) {
+    const cb = el('input', { type: 'checkbox', checked: !!rec.doc, 'aria-label': '서류 제출 확인' });
+    cb.addEventListener('change', () => { Data.put('att', { ...rec, doc: cb.checked }); render(); });
+    return el('label', { class: 'docchk rchk', title: mode === 'nolabel' ? '서류 제출 확인' : null }, cb, mode === 'nolabel' ? null : el('span', {}, '서류 제출 확인'));
+  }
 
   /* ---------- 주별: 학생(행) × 월~금(열) — 언제, 어떤 종류로, 어떤 사유로 빠졌는지 한눈에 ---------- */
   function weekView(cls) {
@@ -1923,16 +1935,21 @@
         const arr = by[s.id + '|' + keys[i]] || [];
         n += arr.length;
         const td = el('td', { class: 'wc go' + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i] });
-        arr.forEach((a) => td.append(el('div', { class: 'wi t-' + a.type },
-          el('div', { class: 'wkd' }, kindLabel(a)),
-          el('div', { class: 'wg' }, recLabel(a)),
-          a.reason ? el('div', { class: 'wr2 mut' }, a.reason) : null)));
+        arr.forEach((a) => {
+          const txt = el('div', { class: 'wtx' },
+            el('div', { class: 'wkd' }, kindLabel(a)),
+            el('div', { class: 'wg' }, recLabel(a)),
+            a.reason ? el('div', { class: 'wr2 mut' }, a.reason) : null);
+          td.append(el('div', { class: 'wi t-' + a.type + (a.type === '결석' ? ' wdoc' : '') }, txt,
+            a.type === '결석' ? docChk(a, 'nolabel') : null));
+        });
         tr.append(td);
       });
       tbody.append(tr);
     });
     const tbl = el('table', { class: 'mt wt', style: `width:${36 + 76 + cols.length * 118}px;min-width:100%` }, el('thead', {}, head), tbody);
     tbl.addEventListener('click', (e) => {
+      if (e.target.closest('.docchk')) return; // 서류 체크는 날짜 이동 없이 바로 저장
       const c = e.target.closest('[data-d]');
       if (c) { setSel(c.dataset.d); setSub('day'); }
     });
@@ -2012,7 +2029,14 @@
         TYPES.map((t) => CATS.map((c) => el('option', { class: 't-' + t, value: c + t, selected: !!rec && rec.cat === c && rec.type === t }, c + t))));
       ksel.addEventListener('change', () => setKind(s, rec, ksel.value, ds, cls));
       cells.push(el('td', { class: 'kc' }, ksel));
-      if (rec) {
+      if (rec && rec.type === '결석') { // 결석은 조회~종례가 전부 빗금(건드릴 수 없음) + 가운데에 서류 제출 확인
+        cells.push(el('td', { class: 'slc absc', colspan: slotN },
+          el('div', { class: 'absw' }, Array.from({ length: slotN }, () => el('span', { class: 'sl t-결석' }, icon('slash'))), docChk(rec))));
+        const rin = el('input', { type: 'text', class: 'rin', value: rec.reason || '', 'aria-label': `${s.name} 사유`, spellcheck: 'false' });
+        rin.addEventListener('change', () => Data.put('att', { ...rec, reason: rin.value.trim() }));
+        rin.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) rin.blur(); });
+        cells.push(el('td', { class: 'rs' }, el('div', { class: 'rsw' }, rin)));
+      } else if (rec) {
         const on = new Set(recCols(rec, last));
         for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc tg' + (on.has(i) ? ' sl t-' + rec.type : ''), title: on.has(i) ? kindLabel(rec) : null, onclick: () => toggleSlot(s, rec, i, ds, cls) }, on.has(i) ? icon('slash') : ''));
         const rin = el('input', { type: 'text', class: 'rin', value: rec.reason || '', 'aria-label': `${s.name} 사유`, spellcheck: 'false' });
