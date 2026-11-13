@@ -2123,8 +2123,8 @@
     const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.classList.add('out'); setTimeout(() => box.remove(), 230); };
     const tip = el('div', { class: 'tour-tip' },
       el('div', {}, '출결은 문장으로도 입력 가능합니다.'),
-      el('div', { class: 'mut' }, '예) 김네모 오늘 4교시부터 감기로 조퇴 /'),
-      el('div', { class: 'mut' }, '12일에 이세모 가족여행으로 체험학습'),
+      el('div', { class: 'mut' }, '예) 김네모 감기로 12일 4교시에 조퇴 /'),
+      el('div', { class: 'mut' }, '내일부터 3일간 이세모 가족여행 체험학습'),
       el('div', { class: 'tour-f' }, el('label', { class: 'rchk' }, never, '다시 열지 않음'), el('button', { class: 'pri sm', type: 'button', onclick: close }, '닫기')));
     const box = el('div', { class: 'tour' }, hole, tip);
     document.body.append(box);
