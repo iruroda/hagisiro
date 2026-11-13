@@ -2006,7 +2006,7 @@
       Array.from({ length: 11 }, (_, n) => el('option', { value: n, selected: n === last }, n ? `${n}교시` : '수업 없음')));
     wrap.append(el('div', { class: 'dhead' },
       el('button', { class: 'ib', 'aria-label': '이전 날', onclick: () => shift(-1) }, icon('left')),
-      el('b', { class: 'dttl' }, md(ymd(d))),
+      el('b', { class: 'dttl' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
       ovr ? el('button', { class: 'ghost sm', title: '기본 교시 수로 되돌리기', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
