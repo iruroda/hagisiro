@@ -65,6 +65,11 @@
     return d;
   }
 
+  /* 이번/다음/지난 주의 월요일 */
+  function weekMon(today, which) {
+    const off = which === '다음' ? 7 : which === '지난' || which === '저번' ? -7 : 0;
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7) + off);
+  }
   function expandRange(a, b) {
     const out = [];
     if (b < a) return [a];
@@ -141,6 +146,18 @@
       const a = resolveMD(today, +m[1], +m[2]);
       const b = resolveMD(today, m[3] ? +m[3] : +m[1], +m[4]);
       if (a && b) dates = expandRange(a, b);
+    } else if ((m = take(/(?:(이번|다음|지난|저번)\s*주\s*)?([일월화수목금토])요일\s*(?:~|∼|-|–|부터)\s*([일월화수목금토])요일(?:\s*까지)?/))) {
+      const mon = weekMon(today, m[1]);
+      const a = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + (DOW.indexOf(m[2]) + 6) % 7);
+      const b = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + (DOW.indexOf(m[3]) + 6) % 7);
+      dates = expandRange(a, b);
+    } else if ((m = take(/(이번|다음|지난|저번)\s*주\s*(?:내내|전체|동안|종일|계속|쭉|전부|통째로)/))) {
+      const mon = weekMon(today, m[1]);
+      dates = expandRange(mon, new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 4));
+    } else if ((m = take(/(?<![\d월.])(\d{1,2})\s*일?\s*(?:~|∼|-|–|부터)\s*(\d{1,2})\s*일(?!\s*간)(?:\s*까지)?/))) {
+      const a = new Date(base.getFullYear(), base.getMonth(), +m[1]);
+      const b = new Date(base.getFullYear(), base.getMonth(), +m[2]);
+      if (a.getMonth() === base.getMonth() && b.getMonth() === base.getMonth()) dates = expandRange(a, b);
     } else if ((m = take(/(\d{1,2})\s*월\s*(\d{1,2})\s*일/))) {
       const d = resolveMD(today, +m[1], +m[2]);
       if (d) dates = [d];
@@ -167,6 +184,15 @@
       dates = [new Date(today.getFullYear(), today.getMonth(), today.getDate() - back)];
     }
     if (!dates.length) { dates = [base]; res.dateGuessed = true; }
+    /* "N일간 / N일 동안": 시작일부터 평일 N일 (이미 기간을 적었으면 글자만 지워요) */
+    const cm = take(/(\d{1,2})\s*일\s*(?:간|동안)/);
+    if (cm && dates.length === 1 && !res.dateGuessed || cm && res.dateGuessed) {
+      let d = new Date(dates[0]); const out = []; const n = Math.min(+cm[1], 31);
+      for (let i = 0; i < 62 && out.length < n; i++) { if (d.getDay() !== 0 && d.getDay() !== 6) out.push(new Date(d)); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
+      if (out.length) dates = out;
+      res.dateGuessed = false;
+    }
+    if (cm || dates.length > 1) t = t.replace(/(?:^|\s)(?:부터|까지)(?=\s)/g, ' ');
 
     /* 3) 종류 (결석/지각/조퇴/결과) + 사유구분 */
     let type = null;
@@ -224,6 +250,7 @@
     if (arrive != null) { p = Math.max(0, arrive - 1); q = null; }
     if (!type && saenggyeol) type = p == null ? '결석' : q != null ? '결과' : '조퇴'; // 4교시부터 생결 → 4교시 조퇴, 2~3교시 생결 → 결과, 교시 없으면 결석
     if (!type && p != null) type = '결과';
+    if (!type && p == null && RE_OK.test(t)) type = '결석'; // "체험학습", "가족여행" 처럼 사유만 적으면 결석
 
     /* 5) 사유 */
     const stop = /^(?:이|가|은|는|도|을|를|에|의|께서|학생|님|으로|로|때문에|사유|사유는|사유로|사유:|왔어요|왔음|왔습니다|왔어|옴|했어요|했음|함|했습니다|갔어요|갔음|감|입니다|이에요|예요)$/;
