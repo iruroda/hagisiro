@@ -154,7 +154,7 @@
     } else if ((m = take(/(이번|다음|지난|저번)\s*주\s*(?:내내|전체|동안|종일|계속|쭉|전부|통째로)/))) {
       const mon = weekMon(today, m[1]);
       dates = expandRange(mon, new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 4));
-    } else if ((m = take(/(?<![\d월.])(\d{1,2})\s*일?\s*(?:~|∼|-|–|부터)\s*(\d{1,2})\s*일(?!\s*간)(?:\s*까지)?/))) {
+    } else if ((m = take(/(?<![\d월.])(\d{1,2})\s*일?\s*(?:~|∼|-|–|부터)\s*(\d{1,2})\s*일(?!\s*간|\s*동안)(?:\s*까지)?/))) {
       const a = new Date(base.getFullYear(), base.getMonth(), +m[1]);
       const b = new Date(base.getFullYear(), base.getMonth(), +m[2]);
       if (a.getMonth() === base.getMonth() && b.getMonth() === base.getMonth()) dates = expandRange(a, b);
@@ -164,7 +164,7 @@
     } else if ((m = take(/(?<![\d.])(\d{1,2})\s*[./]\s*(\d{1,2})(?![\d.]|\s*교시)/))) {
       const d = resolveMD(today, +m[1], +m[2]);
       if (d) dates = [d];
-    } else if ((m = take(/(?<![\d월])(\d{1,2})\s*일(?!\s*간|\s*째)/))) {
+    } else if ((m = take(/(?<![\d월])(\d{1,2})\s*일(?!\s*간|\s*동안|\s*째)/))) {
       const d = new Date(base.getFullYear(), base.getMonth(), +m[1]);
       if (d.getMonth() === base.getMonth()) dates = [d];
     } else if ((m = take(/그\s*저께|엊그제|그제/))) {
@@ -187,8 +187,11 @@
     /* "N일간 / N일 동안": 시작일부터 평일 N일 (이미 기간을 적었으면 글자만 지워요) */
     const cm = take(/(\d{1,2})\s*일\s*(?:간|동안)/);
     if (cm && dates.length === 1 && !res.dateGuessed || cm && res.dateGuessed) {
+      const back = /까지\s*(?:\d{1,2}\s*일\s*(?:간|동안))/.test(String(text)); // "어제까지 3일동안" → 어제가 마지막 날, 거꾸로 N일
+      const step = back ? -1 : 1;
       let d = new Date(dates[0]); const out = []; const n = Math.min(+cm[1], 31);
-      for (let i = 0; i < 62 && out.length < n; i++) { if (d.getDay() !== 0 && d.getDay() !== 6) out.push(new Date(d)); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
+      for (let i = 0; i < 62 && out.length < n; i++) { if (d.getDay() !== 0 && d.getDay() !== 6) out.push(new Date(d)); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + step); }
+      if (back) out.reverse();
       if (out.length) dates = out;
       res.dateGuessed = false;
     }
