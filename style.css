@@ -1305,9 +1305,13 @@ input[type=date].empty { color: var(--mut); }
 
 /* 결석 서류 제출 확인 */
 .dt td.absc { padding: 0; position: relative; }
-.absw { position: relative; display: flex; height: 40px; }
+.absw { position: relative; display: flex; height: 39px; }
 .absw > .sl { flex: 1 1 0; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--tc) 11%, transparent); opacity: .45; pointer-events: none; }
-.absw .docchk { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); gap: 6px; padding: 3px 9px; border-radius: var(--r); background: var(--bg); font-size: 12px; white-space: nowrap; }
+.absw .docchk { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); gap: 6px; padding: 3px 9px; font-size: 12px; white-space: nowrap; }
+/* 빗금 위에서도 보이게: 글씨·체크박스에 둥근 흰 테두리 2px */
+.absw .docchk span { text-shadow: 2.0px 0.0px 0 #fff, 1.88px 0.68px 0 #fff, 1.53px 1.29px 0 #fff, 1.0px 1.73px 0 #fff, 0.35px 1.97px 0 #fff, -0.35px 1.97px 0 #fff, -1.0px 1.73px 0 #fff, -1.53px 1.29px 0 #fff, -1.88px 0.68px 0 #fff, -2.0px 0.0px 0 #fff, -1.88px -0.68px 0 #fff, -1.53px -1.29px 0 #fff, -1.0px -1.73px 0 #fff, -0.35px -1.97px 0 #fff, 0.35px -1.97px 0 #fff, 1.0px -1.73px 0 #fff, 1.53px -1.29px 0 #fff, 1.88px -0.68px 0 #fff; }
+.absw .docchk input { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; margin: 0; flex: none; border: 1.5px solid var(--mut); border-radius: 3.5px; background: var(--bg) center/10px no-repeat; box-shadow: 0 0 0 2px #fff; cursor: pointer; }
+.absw .docchk input:checked { border-color: var(--accent); background-color: var(--accent); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l5 5L19.5 7'/%3E%3C/svg%3E"); }
 .wi.wdoc { display: flex; align-items: center; gap: 6px; }
 .wi.wdoc .wtx { flex: 1; min-width: 0; }
 .wi.wdoc .docchk { flex: none; }
