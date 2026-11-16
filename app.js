@@ -2498,7 +2498,7 @@
     const entRow = () => el('div', { class: 'mk mopts' },
       el('select', { 'aria-label': meta[1], onchange: (e) => { PF.docSel[type] = e.target.value; savePf(); load(e.target.value); (edit ? drawEdit : drawView)(); } },
         docList(type).map((d) => el('option', { value: d.id, selected: d.id === id }, docName(d)))),
-      el('button', { class: 'ghost sm', type: 'button', onclick: () => openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }) }, icon('gear'), '설정'));
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }) }, icon('gear'), '편집'));
     const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
     /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정·삭제만 */
     let drawView = function () {
@@ -2584,7 +2584,7 @@
     if (edit) drawEdit(); else drawView();
   }
 
-  /* 항목 설정: 이름 바꾸기 · 삭제 · 추가 (급식의 '학교 설정'과 같은 방식) */
+  /* 항목 편집: 이름 바꾸기 · 삭제 · 추가 (급식의 '학교 편집'과 같은 방식) */
   function openDocSet(type, done) {
     const meta = DOCS.find((x) => x[0] === type);
     const layer = el('div', { class: 'askw' });
@@ -2620,7 +2620,7 @@
     };
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, hb(meta[2], meta[1] + ' 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb(meta[2], meta[1] + ' 편집'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list,
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost sm', type: 'button', onclick: add }, icon('plus'), '추가'))));
     drawList();
@@ -3068,7 +3068,7 @@
     } }, PF.schools.map((x) => el('option', { value: x.code, selected: PF.school && x.code === PF.school.code }, x.name)));
     const opts = el('div', { class: 'mk mopts' },
       schSel,
-      el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, icon('school'), '학교 설정'),
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, icon('school'), '학교 편집'),
       el('span', { class: 'grow' }),
       MEAL_KINDS.map((k) => chk(k, (PF.mk || MEAL_KINDS).includes(k), (v) => {
         const cur = new Set(PF.mk || MEAL_KINDS); if (v) cur.add(k); else cur.delete(k);
@@ -3127,7 +3127,7 @@
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, hb('school', '학교 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('school', '학교 편집'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list,
         el('div', { class: 'schq' }, fld(inp), sbtn), res));
     drawList();
