@@ -2345,9 +2345,14 @@
     function drawAll() {
       tds.clear();
       const list = names(), days = range();
-      if (!list.length) {
-        wrap.replaceChildren(el('div', { class: 'empty mut' }, subj.size ? '' : '내 시간표에 표가 없어요. 내 시간표를 표(엑셀)로 입력하면 과목이 나타나요.'));
-        drawEdit(); return;
+      const none = !list.length; // 내 시간표에 과목이 없으면 급식(학교 없음)처럼 틀은 그대로 두고 흐리게·비활성화
+      dlg.classList.toggle('nosub', none);
+      [sel0, clearBtn, sIn, eIn].forEach((x) => { x.disabled = none; });
+      if (none) {
+        const th = el('tr', {}, el('th', { class: 'pn' }, '과목'), days.map((d) => el('th', { class: 'pd' }, dl(d))));
+        wrap.replaceChildren(el('div', { class: 'pmw' }, el('table', { class: 'mt pt', style: `width:${148 + 112 * days.length}px;min-width:100%` }, el('thead', {}, th)),
+          el('div', { class: 'empty mut' }, '내 시간표에 표가 없어요. 내 시간표를 표(엑셀)로 입력하면 과목이 나타나요.')));
+        sel = null; bulk = null; drawEdit(); return;
       }
       const head = el('tr', {}, el('th', { class: 'pn' }, '과목'), days.map((d) => el('th', { class: 'pd go' + (bulk === ymd(d) ? ' sel' : ''), onclick: () => { bulk = bulk === ymd(d) ? null : ymd(d); sel = null; drawAll(); } }, dl(d))));
       const body = list.map((n, i) => {
