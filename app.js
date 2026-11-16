@@ -88,7 +88,7 @@
     repeat: '<path d="M16.5 3.5l3.2 3.2-3.2 3.2"/><path d="M4.3 12v-1.3a4 4 0 014-4h11.4"/><path d="M7.5 20.5l-3.2-3.2 3.2-3.2"/><path d="M19.7 12v1.3a4 4 0 01-4 4H4.3"/>',
     dot: '<circle cx="12" cy="12" r="4.2" class="f"/>',
     slash: '<path d="M8 19.5l8-15"/>',
-    progress: '<path d="M18 15.4V16.7A3 3 0 0 1 15 19.7H7A3 3 0 0 1 4 16.7V8.7A3 3 0 0 1 7 5.7H11.2"/><path d="M8 5.7V19.7"/><path d="M11.8 11.4l2.6 2.8L20 5.4"/>',
+    progress: '<path d="M10 6.2c-1.4-1.1-3.5-1.6-6.3-1.4v10.8c2.8-.2 4.9.3 6.3 1.4v-10.8z"/><path d="M10 6.2c1.4-1.1 3.5-1.6 6.3-1.4V7.6"/><path d="M10 16.8c.8-.6 1.4-.9 2-.8"/><path d="M13.8 12L15.9 14.1L21.2 8.2"/>',
     up: '<path d="M7 14.5l5-5 5 5"/>',
     down: '<path d="M7 9.5l5 5 5-5"/>',
     sy_none: '<circle cx="12" cy="12" r="7.5" pathLength="80" stroke-dasharray="1 9" stroke-dashoffset="-0.5" stroke-width="2.6"/>',
