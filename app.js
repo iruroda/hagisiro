@@ -3133,7 +3133,8 @@
           PF.schools = PF.schools.filter((z) => z.code !== ns.code);
           PF.schools.push(ns);
           PF.school = ns; PF.meal = true; S.meal = {};
-          savePf(); loadMeal(); changed = true; close();
+          savePf(); loadMeal(); changed = true; // 창은 닫지 않고, 추가된 학교를 목록에 보여준 뒤 검색칸을 비워요
+          res.replaceChildren(); inp.value = ''; drawList(); if (!inp.disabled) inp.focus();
         } }, el('b', {}, x.SCHUL_NM), el('small', {}, ' ' + (x.ORG_RDNMA || x.LCTN_SC_NM || '')))) : [el('div', { class: 'mut' }, '학교 없음')]));
       } catch (e) { console.error(e); res.replaceChildren(el('div', { class: 'mut' }, '학교 없음')); }
       busy = false;
