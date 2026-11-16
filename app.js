@@ -80,7 +80,6 @@
     image: '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M3.5 17.5l6-6 8 8"/><circle cx="15" cy="9.4" r="2.2" class="f"/>',
     upload: '<path d="M12 14.5v-10M7.5 8.5l4.5-4.5 4.5 4.5M5.5 19.5h13"/>',
     edit: '<g transform="translate(12 12) scale(1.22) translate(-12 -12)"><path stroke-width="2.2" d="M5.5 18.5l.9-3.6L15 6.3a2 2 0 012.8 2.8l-8.6 8.6-3.7.8z"/></g>',
-    scan: '<path d="M5 8.5V6.5a1.5 1.5 0 011.5-1.5h2M15.5 5h2A1.5 1.5 0 0119 6.5v2M19 15.5v2a1.5 1.5 0 01-1.5 1.5h-2M8.5 19h-2A1.5 1.5 0 015 17.5v-2M5 12h14"/>',
     trash: '<path d="M5 7h14M10 7V5h4v2M7 7l.9 11.5a1 1 0 001 .9h6.2a1 1 0 001-.9L17 7"/>',
     info: '<circle cx="12" cy="12" r="8.2"/><path d="M12 13v3.2M12 7.8v1.3"/>',
     clock: '<circle cx="12" cy="12" r="8.2"/><path d="M12 7.6V12l3.2 2"/>',
@@ -2250,73 +2249,6 @@
     }
     throw new Error('엑셀(.xlsx/.xls/.xlsm)이나 이미지 파일만 올릴 수 있어요.');
   }
-  /* 이미지 → 글자(OCR). 브라우저 안에서 Tesseract.js 로 읽고, 글자 위치로 행·열을 만들어요 */
-  let ocrLib = null;
-  function loadTesseract() {
-    if (window.Tesseract) return Promise.resolve(window.Tesseract);
-    if (!ocrLib) ocrLib = new Promise((res, rej) => {
-      document.head.append(el('script', { src: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
-        onload: () => res(window.Tesseract), onerror: () => { ocrLib = null; rej(new Error('글자 인식 도구를 불러오지 못했어요.')); } }));
-    });
-    return ocrLib;
-  }
-  function wordsToTsv(words) {
-    const ws = words.filter((w) => w.text.trim() && w.confidence > 25).map((w) => ({
-      t: w.text.trim(), x0: w.bbox.x0, x1: w.bbox.x1, y: (w.bbox.y0 + w.bbox.y1) / 2, h: w.bbox.y1 - w.bbox.y0 }));
-    if (!ws.length) return '';
-    const hs = ws.map((w) => w.h).sort((a, b) => a - b); const mh = hs[hs.length >> 1] || 20;
-    ws.sort((a, b) => a.y - b.y);
-    const rows = [];
-    ws.forEach((w) => {
-      const r = rows[rows.length - 1];
-      if (r && Math.abs(w.y - r.y) < mh * 0.6) { r.w.push(w); r.y = (r.y * (r.w.length - 1) + w.y) / r.w.length; } else rows.push({ y: w.y, w: [w] });
-    });
-    return rows.map((r) => {
-      r.w.sort((a, b) => a.x0 - b.x0);
-      const cells = []; let cur = null, last = 0;
-      r.w.forEach((w) => { if (cur !== null && w.x0 - last < mh * 0.9) cur += ' ' + w.t; else { if (cur !== null) cells.push(cur); cur = w.t; } last = w.x1; });
-      cells.push(cur);
-      return cells.join('\t');
-    }).join('\n');
-  }
-  function upscale(src) { // 키우기 → 흑백 → 표 선 지우기: 글자만 남겨야 훨씬 잘 읽혀요
-    return new Promise((res, rej) => {
-      const im = new Image();
-      im.onload = () => {
-        const k = Math.max(1, Math.min(3, 2600 / im.width));
-        const W = Math.round(im.width * k), H = Math.round(im.height * k);
-        const c = document.createElement('canvas'); c.width = W; c.height = H;
-        const g = c.getContext('2d', { willReadFrequently: true });
-        g.fillStyle = '#fff'; g.fillRect(0, 0, W, H); g.imageSmoothingQuality = 'high'; g.drawImage(im, 0, 0, W, H);
-        try {
-          const id = g.getImageData(0, 0, W, H), d = id.data, n = W * H, gray = new Uint8Array(n), hist = new Array(256).fill(0);
-          for (let i = 0; i < n; i++) { const v = (d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114) | 0; gray[i] = v; hist[v]++; }
-          let sum = 0; for (let t = 0; t < 256; t++) sum += t * hist[t];
-          let sb = 0, wb = 0, best = 0, th = 128;
-          for (let t = 0; t < 256; t++) { wb += hist[t]; if (!wb) continue; const wf = n - wb; if (!wf) break; sb += t * hist[t]; const mb = sb / wb, mf = (sum - sb) / wf, v = wb * wf * (mb - mf) * (mb - mf); if (v > best) { best = v; th = t; } }
-          const bin = new Uint8Array(n); for (let i = 0; i < n; i++) bin[i] = gray[i] < th ? 1 : 0; // 1 = 글자/선
-          const minRun = Math.max(70, Math.round(Math.min(W, H) * 0.12)); // 이보다 길게 이어진 가로·세로 줄은 표 선으로 보고 지움
-          const kill = new Uint8Array(n);
-          for (let y = 0; y < H; y++) { let s0 = -1; for (let x = 0; x <= W; x++) { const on = x < W && bin[y * W + x]; if (on && s0 < 0) s0 = x; else if (!on && s0 >= 0) { if (x - s0 >= minRun) for (let q = s0; q < x; q++) kill[y * W + q] = 1; s0 = -1; } } }
-          for (let x = 0; x < W; x++) { let s0 = -1; for (let y = 0; y <= H; y++) { const on = y < H && bin[y * W + x]; if (on && s0 < 0) s0 = y; else if (!on && s0 >= 0) { if (y - s0 >= minRun) for (let q = s0; q < y; q++) kill[q * W + x] = 1; s0 = -1; } } }
-          for (let i = 0; i < n; i++) { const v = bin[i] && !kill[i] ? 0 : 255; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v; d[i * 4 + 3] = 255; }
-          g.putImageData(id, 0, 0);
-        } catch (e) { /* 실패하면 그냥 키운 그림으로 */ }
-        res(c.toDataURL('image/png'));
-      };
-      im.onerror = () => rej(new Error('이미지를 열지 못했어요.'));
-      im.src = src;
-    });
-  }
-  async function ocrImage(src) {
-    const T = await loadTesseract();
-    const w = await T.createWorker('kor', 1, { langPath: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/kor/4.0.0_best_int' });
-    try {
-      await w.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' });
-      const { data } = await w.recognize(await upscale(src));
-      return wordsToTsv(data.words || []);
-    } finally { await w.terminate(); }
-  }
   function compressImage(file) {
     return new Promise((res, rej) => {
       const url = URL.createObjectURL(file); const im = new Image();
@@ -2360,8 +2292,7 @@
     document.querySelector('.fmtpop')?.remove();
     const pop = el('div', { class: 'fmtpop' },
       el('div', {}, el('span', {}, icon('excel'), '엑셀 업로드'), el('small', {}, '시트 1을 불러옵니다.')),
-      el('div', {}, el('span', {}, icon('image'), '이미지 업로드'), el('small', {}, '이미지를 그대로 보여줍니다.')),
-      el('div', {}, el('span', {}, icon('scan'), 'OCR'), el('small', {}, '이미지로부터 글자를 추출합니다.')));
+      el('div', {}, el('span', {}, icon('image'), '이미지 업로드'), el('small', {}, '이미지를 그대로 보여줍니다.')));
     document.body.append(pop);
     const r = btn.getBoundingClientRect();
     pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8)) + 'px';
@@ -2396,17 +2327,6 @@
         document.body.append(inp); inp.click();
       };
       const upload = (accept) => pick(accept, async (f) => { try { draft = await fileToDraft(f); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ } });
-      const ocr = (e) => {
-        const b = e.currentTarget, ic0 = b.firstChild;
-        pick('image/*', async (f) => {
-          const ring = el('i', { class: 'ring' }); b.disabled = true; ic0.replaceWith(ring);
-          try {
-            const t = await ocrImage(await compressImage(f));
-            if (t.trim()) { draft = { kind: 'text', text: t }; drawEdit(); return; }
-          } catch (er) { /* 못 읽으면 그대로 */ }
-          b.disabled = false; ring.replaceWith(ic0);
-        });
-      };
       const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀 또는 한글의 표를 복사하여 붙여 넣으세요.' });
       ta.value = draft.text || '';
       ta.addEventListener('input', () => { draft.text = ta.value; });
@@ -2433,8 +2353,7 @@
           el('div', { class: 'dsrc' },
             el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('excel'), '엑셀 업로드'),
             el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('image/*') }, icon('image'), '이미지 업로드'),
-            el('button', { class: 'ghost sm', type: 'button', onclick: ocr }, icon('scan'), el('span', {}, 'OCR')),
-            el('button', { class: 'ib sm', type: 'button', 'aria-label': '업로드 설명', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
+            el('button', { class: 'ib sm', type: 'button', 'aria-label': '설명', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
             draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, icon('textT'), '직접 입력') : null,
             null),
           body,
