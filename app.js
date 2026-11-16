@@ -921,7 +921,7 @@
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const list = el('div', { class: 'srl' });
     const dlg = el('div', { class: 'dlg sdlg' },
-      el('div', { class: 'shead' }, hb('dday', 'D-day'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      el('div', { class: 'shead' }, hb('dday', 'D-day 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
       list);
     m.append(el('div', { class: 'back', onclick: close }), dlg);
     const draw = () => {
