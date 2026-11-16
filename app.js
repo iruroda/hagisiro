@@ -2634,7 +2634,7 @@
     };
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
-        el('div', { class: 'shead' }, hb(meta[2], meta[1] + ' 편집'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('listedit', '편집'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list,
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost sm', type: 'button', onclick: add }, icon('plus'), '추가'))));
     drawList();
