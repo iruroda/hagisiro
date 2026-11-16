@@ -1367,4 +1367,4 @@ input[type=date].empty { color: var(--mut); }
 .progbar input[type=date] { font: inherit; font-size: 13px; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 5px 8px; }
 
 .progbar input[type=date]::-webkit-calendar-picker-indicator { background: currentColor; opacity: 1; cursor: pointer; width: 15px; height: 15px; padding: 0; margin-left: 4px; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='3'/%3E%3Cpath d='M3.5 10.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='3'/%3E%3Cpath d='M3.5 10.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / contain no-repeat; }.progdlg.nosub .progbar, .progdlg.nosub .pt { opacity: .4; }
-.progdlg.nosub .progwrap .empty { opacity: 1; }
+
