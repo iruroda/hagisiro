@@ -1385,3 +1385,6 @@ input[type=date].empty { color: var(--mut); }
 .dimgi .ol { position: absolute; inset: 0; display: flex; }
 .dimgi .ol svg { stroke: #fff; stroke-width: 6.7; }
 .dimgi > .ic { position: relative; }
+
+/* 사진 폭에 맞춰 팝업 폭이 바뀔 때 부드럽게 */
+.docdlg { transition: width .3s cubic-bezier(.3, .7, .3, 1); }

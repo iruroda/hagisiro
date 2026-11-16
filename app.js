@@ -2563,7 +2563,12 @@
         const k = Math.min(1, availW / nw, availH / nh);
         const w = Math.round(nw * k);
         img.style.width = w + 'px'; img.style.height = 'auto';
-        d.style.width = Math.max(Math.min(edit ? 580 : 440, window.innerWidth * 0.94), w + 28) + 'px'; // 윗줄(드롭박스·버튼)이 한 줄에 들어갈 만큼은 유지
+        /* 사진 폭에 맞추되, 윗줄(드롭박스·버튼)이 한 줄에 들어갈 만큼보다는 좁아지지 않게 — 줄어들고 늘어날 땐 부드럽게 */
+        const bar = d.querySelector('.docent');
+        let need = 0;
+        if (bar) { const it = [...bar.children].filter((k) => !k.classList.contains('grow')); need = it.reduce((a, k) => a + k.offsetWidth, 0) + 8 * it.length + 28 + 2; }
+        const tw = Math.min(Math.max(need, w + 28), window.innerWidth * 0.94) + 'px';
+        if (!d.dataset.fitted) { d.style.transition = 'none'; d.style.width = tw; void d.offsetWidth; d.style.transition = ''; d.dataset.fitted = '1'; } else d.style.width = tw;
       };
       if (img.complete && img.naturalWidth) run(); else img.addEventListener('load', run, { once: true });
     }
