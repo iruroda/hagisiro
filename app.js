@@ -601,13 +601,15 @@
 
   const closeAsk = (w) => { if (w.classList.contains('closing')) return; w.classList.add('closing'); setTimeout(() => w.remove(), 220); };
   /* 윈도우 기본 팝업 대신 앱 안의 확인창 */
-  /* 이름 뒤에 붙일 목적격 조사: 받침이 있으면 '을', 없으면 '를' (숫자는 읽는 소리 기준) */
-  function eul(w) {
-    const c = String(w || '').trim().slice(-1), n = c.charCodeAt(0);
-    if (n >= 0xAC00 && n <= 0xD7A3) return (n - 0xAC00) % 28 ? '을' : '를';
-    if (/[0136-8]/.test(c)) return '을'; // 영·일·삼·육·칠·팔
-    return '를';
-  }
+  /* 이름 뒤에 붙일 조사: 마지막 글자(괄호·기호는 건너뜀)의 받침으로 고름. 숫자는 읽는 소리 기준(영·일·삼·육·칠·팔) */
+  const jong = (w) => {
+    const m = String(w || '').match(/[가-힣0-9](?=[^가-힣0-9]*$)/), c = m ? m[0] : '', n = c.charCodeAt(0);
+    if (n >= 0xAC00 && n <= 0xD7A3) return (n - 0xAC00) % 28;       // 0 = 받침 없음, 8 = ㄹ
+    if (/[0-9]/.test(c)) return { 0: 21, 1: 8, 3: 16, 6: 1, 7: 8, 8: 8 }[c] || 0;
+    return 0;
+  };
+  const eul = (w) => (jong(w) ? '을' : '를');
+  const ro = (w) => (jong(w) && jong(w) !== 8 ? '으로' : '로');
   function ask(msg, ok = '삭제', danger = true) {
     return new Promise((res) => {
       const done = (v) => { closeAsk(w); document.removeEventListener('keydown', key, true); res(v); };
@@ -2183,7 +2185,7 @@
     const it0 = r.items[0], info = r.info || {};
     let note = '';
     if (!info.reason) note = '사유 미입력 시 미인정으로 등록됩니다.';
-    else if (r.dateGuessed) note = `날짜 미입력 시 ${S.sel === ymd(new Date()) ? '오늘' : md(S.sel)}로 등록됩니다.`;
+    else if (r.dateGuessed) note = `날짜 미입력 시 ${(() => { const t = S.sel === ymd(new Date()) ? '오늘' : md(S.sel); return t + ro(t); })()} 등록됩니다.`;
     else if (!info.period && it0.type !== '결석') note = `교시 미입력 시 ${P.rangeLabel(it0.from, it0.to)}로 등록됩니다.`;
     if (note) pv.append(el('span', { class: 'mut' }, note));
   }
