@@ -2528,6 +2528,10 @@
       const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀 또는 한글의 표를 복사하여 붙여 넣으세요.' });
       ta.value = draft.text || '';
       ta.addEventListener('input', () => { draft.text = ta.value; });
+      ta.addEventListener('keydown', (e) => { // Tab 키는 칸을 나누는 탭 문자로 (Shift+Tab은 그대로 다음 칸으로 이동)
+        if (e.key !== 'Tab' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+        e.preventDefault(); ta.setRangeText('\t', ta.selectionStart, ta.selectionEnd, 'end'); draft.text = ta.value;
+      });
       ta.addEventListener('paste', (e) => {
         const cd = e.clipboardData; if (!cd) return;
         const html = cd.getData('text/html');
