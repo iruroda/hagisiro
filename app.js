@@ -2607,7 +2607,7 @@
         });
         return el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, fld(inp)),
           el('button', { class: 'ghost sm danger', type: 'button', disabled: !!d.virtual, onclick: async () => {
-            if (!(await ask(`${docName(d)}을(를) 삭제할까요?\n삭제하면 되돌릴 수 없어요.`))) return;
+            if (!(await ask(`${docName(d)}를(을) 삭제할까요?\n삭제하면 되돌릴 수 없어요.`))) return;
             Data.del('docs', d.id);
             if (type === 'mytable') Data.del('docs', progId(d.id));
             if (PF.docSel[type] === d.id) delete PF.docSel[type];
@@ -3104,7 +3104,7 @@
     const drawList = () => {
       list.replaceChildren(...PF.schools.map((z) => el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, z.name),
         el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
-          if (!(await ask(`${z.name} 학교를 삭제할까요?`))) return;
+          if (!(await ask(`${z.name}를(을) 삭제할까요?`))) return;
           PF.schools = PF.schools.filter((x) => x.code !== z.code);
           if (PF.school && PF.school.code === z.code) { PF.school = PF.schools[0] || null; if (!PF.school) PF.meal = false; }
           S.meal = {}; savePf(); loadMeal(); render(); changed = true; drawList();
