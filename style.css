@@ -938,10 +938,11 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 /* 확인·취소 등 팝업 하단 버튼: 글자를 0.5px 아래로 (높이는 그대로) */
 .dlgf .pri, .dlgf .ghost { padding-top: calc(6px + .5px); padding-bottom: calc(6px - .5px); }
 
-/* 설정의 기호 줄: 색상 줄과 같은 폭·간격(칸 20px, 간격 6px)으로 맞춰 칸이 세로로 정렬되게 */
+/* 설정의 기호 줄: 색상 줄과 같은 칸(20px, 간격 6px)으로 맞추고, 아이콘만 25px로 키워 칸 밖으로 살짝 넘치게 */
 .blset { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
-.blset .blb { width: 28px; height: 28px; border-radius: var(--r); }
-.blset .blb .ic svg { width: 20px; height: 20px; }
+.blset .blb { width: 20px; height: 20px; border-radius: var(--r-sm); }
+.blset .blb .ic { display: flex; }
+.blset .blb .ic svg { width: 25px; height: 25px; flex: none; }
 
 /* 할 일 팝업: D-day·반복 아이콘이 줄 높이를 키우지 않게 / 기호 아이콘 크기 / 색 팝업 글자 세로 가운데 */
 .ed .td .ddm, .ed .td .rpt { margin-top: 0; align-self: center; display: inline-flex; line-height: 0; }
