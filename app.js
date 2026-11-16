@@ -1722,7 +1722,7 @@
   const bulletRow = (i) => el('div', { class: 'td rtarget' }, blSpan(i.bl), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
 
   async function removeRule(r) {
-    if (!(await ask('이 반복을 삭제할까요?\n달력에서 이 반복이 모두 사라져요.'))) return false;
+    if (!(await ask('이 반복을 삭제할까요?'))) return false;
     const ovr = S.todos.filter((t) => t.rid === r.id);
     Data.del('repeats', r.id); ovr.forEach((t) => Data.del('todos', t.id));
     render();

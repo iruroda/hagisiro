@@ -1388,3 +1388,4 @@ input[type=date].empty { color: var(--mut); }
 
 /* 사진 폭에 맞춰 팝업 폭이 바뀔 때 부드럽게 */
 .docdlg { transition: width .3s cubic-bezier(.3, .7, .3, 1); }
+.imgdlg .dimg img { transition: width .3s cubic-bezier(.3, .7, .3, 1); }
