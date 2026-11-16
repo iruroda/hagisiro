@@ -472,21 +472,13 @@
       const clip = el('div', { class: 'beltclip' });
       clip.style.cssText = t.classList.contains('mwrap') ? `flex:none;min-width:0;width:100%;height:${t.offsetHeight}px;position:relative;overflow:hidden` : 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
       t.replaceWith(clip); clip.append(t, node);
-      const curtain = false; // 월 넘김도 출결 날짜 넘김과 같은 연출 (새 화면은 옆에서 페이드인, 기존 화면은 반대쪽으로 페이드아웃)
-      const solid = ';background:var(--bg-s)'; // 겹쳐지는 동안 뒤가 비치지 않게 불투명 바탕을 깔아요 (위젯은 --bg가 반투명이라 --bg-s)
-      clip.style.background = 'var(--bg-s)'; // 두 화면이 동시에 옅어지는 순간에도 뒤가 비치지 않게 틀 자체에도 깔아요
-      t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0${solid}`;
-      node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;pointer-events:none' + solid;
-      /* 끝에서 끝까지 밀지 않고, 가운데 가까이에서 페이드로 들어오며 제자리로 / 이전 화면은 반대쪽으로 조금 밀리며 사라져요 */
+      /* 기존 화면은 지우지 않고 그대로 뒤에 두고, 새 화면이 옆에서 페이드인으로 들어와요 (새 화면에 불투명 바탕을 깔아서 겹치는 동안 위젯 뒤가 비치지 않아요) */
+      const solid = ';background:var(--bg-s)';
+      clip.style.background = 'var(--bg-s)';
+      t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1${solid}`;
+      node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none' + solid;
       const D = 12;
-      if (curtain) {
-        /* 새 달력은 불투명 바탕을 깔고 기존 달력 위로 페이드인. 기존 달력은 새 달력이 거의 다 덮은 뒤에야 (아래에서) 사라져 배경이 비치거나 하얘지지 않아요 */
-        an = t.animate([{ opacity: 0 }, { opacity: 1, offset: .75 }, { opacity: 1 }], { ...opt, easing: 'ease-out' });
-        an2 = node.animate([{ opacity: 1, offset: 0 }, { opacity: 1, offset: .9 }, { opacity: 0, offset: 1 }], { ...opt, fill: 'forwards' });
-      } else {
-        an = t.animate([{ transform: `translateX(${dir * D}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
-        an2 = node.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${-dir * D}%)`, opacity: 0 }], { ...opt, fill: 'forwards' });
-      }
+      an = t.animate([{ transform: `translateX(${dir * D}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
       done = () => { t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
     }
     const el0 = performance.now() - snap.t0;
@@ -494,14 +486,25 @@
     S.belt = { an, an2, done, snap };
     an.onfinish = () => { if (S.belt && S.belt.an === an) { S.belt = null; done(); } };
   }
-  function animateMain(main, snap) {
+  function animateMain(main, snap, ghost) {
     const k = viewKey(), sc = scopeNum();
     const c = main.firstElementChild;
     if (S.lastKey != null && c && !needLogin()) {
       // 출결 안에서 일·주·월을 바꾸거나 날짜를 넘길 땐 학급 버튼·입력칸은 그대로 두고 아래 표만 움직여요
       let t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
       let cls = null;
-      if (k !== S.lastKey) cls = 'vin';
+      if (k !== S.lastKey) {
+        if (ghost && !needLogin()) { // 기존 화면은 그대로 뒤에 두고 새 화면만 불투명 바탕으로 페이드인
+          ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
+          ghost.inert = true;
+          ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;background:var(--bg-s)';
+          c.style.position = 'relative'; c.style.zIndex = '1'; c.style.background = 'var(--bg-s)';
+          main.prepend(ghost);
+          const an = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' });
+          const fin = () => { ghost.remove(); c.style.position = ''; c.style.zIndex = ''; c.style.background = ''; };
+          an.onfinish = fin; an.oncancel = fin;
+        } else cls = 'vin';
+      }
       else if (snap) {
         if (S.view === 'att') { // 표만 움직이고, 표 위의 날짜 줄·통계는 제자리에서 부드럽게 바뀜
           const tb = attTable(c);
@@ -646,6 +649,7 @@
     S.startDelta = 0;
     beltEnd();
     const snap = wantBelt(main);
+    const ghost = !snap && S.lastKey != null && !needLogin() && !noAnim() && viewKey() !== S.lastKey && main.firstElementChild ? main.firstElementChild.cloneNode(true) : null; // 화면 종류가 바뀔 때도 기존 화면을 뒤에 남겨둬요
     main.replaceChildren();
     if (needLogin()) main.append(loginView());
     else if (S.ready && S.view === 'consult' && !S.cloud) { S.view = 'cal'; main.append(calView()); } // 로그인 전에는 상담 탭이 없으므로 캘린더로
@@ -656,7 +660,7 @@
       const mh = $('#main .mhead');
       if (nx) nx.after(S.topSum); else if (mh) mh.append(S.topSum); else if (main.firstElementChild) main.firstElementChild.prepend(S.topSum);
     }
-    animateMain(main, snap);
+    animateMain(main, snap, ghost);
     S.topSum = null;
     if (keep) {
       const nq = $('#q');
@@ -2564,7 +2568,19 @@
       if (img.complete && img.naturalWidth) run(); else img.addEventListener('load', run, { once: true });
     }
     const _de = drawEdit, _dv = drawView;
-    drawEdit = function () { _de(); fitImg(); }; drawView = function () { _dv(); fitImg(); };
+    /* 항목을 바꿀 땐 팝업을 닫았다 다시 열지 않고, 같은 창에서 내용만 바꿔요 (높이는 모든 팝업 공통의 부드러운 늘고 줄기가 맡아요) */
+    const morph = (redraw) => {
+      const old = m.querySelector('.docdlg');
+      if (!old || !m.querySelector('.back')) { redraw(); return; }
+      let cap = null;
+      m.replaceChildren = (...n) => { cap = n; }; // 새 창을 DOM에 넣지 않고 내용만 받아와서, 기존 창에 옮겨 담아요 (창을 다시 넣으면 열리는 애니메이션이 처음부터 다시 돌아요)
+      try { redraw(); } finally { delete m.replaceChildren; }
+      const nu = cap && cap[1]; if (!nu) { redraw(); return; }
+      old.replaceChildren(...nu.childNodes);
+      old.className = nu.className; if (!old.classList.contains('imgdlg')) old.style.width = '';
+      const ta = old.querySelector('textarea.dta'); if (ta && ta.value) ta.focus();
+    };
+    drawEdit = function () { morph(_de); fitImg(); }; drawView = function () { morph(_dv); fitImg(); };
     if (edit) drawEdit(); else drawView();
   }
 
