@@ -88,6 +88,17 @@
     repeat: '<path d="M16.5 3.5l3.2 3.2-3.2 3.2"/><path d="M4.3 12v-1.3a4 4 0 014-4h11.4"/><path d="M7.5 20.5l-3.2-3.2 3.2-3.2"/><path d="M19.7 12v1.3a4 4 0 01-4 4H4.3"/>',
     dot: '<circle cx="12" cy="12" r="4.2" class="f"/>',
     slash: '<path d="M8 19.5l8-15"/>',
+    progress: '<path stroke-width="1.8" d="M11 6.6c-1.6-1.3-4-1.9-7-1.6v11.4c3-.3 5.4.3 7 1.6 1.6-1.3 4-1.9 7-1.6V15.1M11 6.6v11.4M11 6.6c1.6-1.3 4-1.9 7-1.6V7.6"/><path stroke-width="1.8" d="M13.6 11.2L16 13.6L21 8.2"/>',
+    up: '<path stroke-width="2.2" d="M7 14.5l5-5 5 5"/>',
+    down: '<path stroke-width="2.2" d="M7 9.5l5 5 5-5"/>',
+    sy_none: '<circle cx="12" cy="12" r="7.5" pathLength="80" stroke-dasharray="1 9" stroke-dashoffset="-0.5" stroke-width="2.6"/>',
+    sy_circle: '<circle cx="12" cy="12" r="7.6" stroke-width="2.6"/>',
+    sy_tri: '<path stroke-width="2.6" d="M12 4.8l8 14H4z"/>',
+    sy_x: '<path stroke-width="2.6" d="M6 6l12 12M18 6L6 18"/>',
+    sy_check: '<path stroke-width="2.6" d="M4.8 12.6l4.8 4.8L19.4 6.6"/>',
+    sy_star: '<path fill="currentColor" stroke-width="2.6" d="M12.00 2.80 L14.41 8.68 L20.75 9.16 L15.90 13.27 L17.41 19.44 L12.00 16.10 L6.59 19.44 L8.10 13.27 L3.25 9.16 L9.59 8.68z"/>',
+    sy_flower: '<path fill="currentColor" fill-rule="evenodd" stroke-width="0.8" d="M14.42 7.80 A2.8 2.8 0 1 1 16.85 12.00 A2.8 2.8 0 1 1 14.42 16.20 A2.8 2.8 0 1 1 9.58 16.20 A2.8 2.8 0 1 1 7.15 12.00 A2.8 2.8 0 1 1 9.58 7.80 A2.8 2.8 0 1 1 14.42 7.80z M15.6 12a3.6 3.6 0 11-7.2 0 3.6 3.6 0 017.2 0z"/>',
+    sy_flag: '<path stroke-width="2.6" d="M8 3.6V19.8"/><path fill="currentColor" stroke-width="2.6" d="M8 3.6L20 9L8 14.4z"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
     share: '<path stroke-width="2.2" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/>',
     refresh: '<path d="M18.89 15.21A7.6 7.6 0 1 1 17.82 7.11"/><path d="M19.73 5.54L19.43 9.03L15.94 8.72"/>',
@@ -330,7 +341,7 @@
     S.unsubStatic.push(S.cloud.watch('settings', null, (d) => { S.settings = d; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watchDday((d) => { S.ddays = d; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watch('repeats', null, (d) => { S.repeats = d; render(); }, cloudErr));
-    S.unsubStatic.push(S.cloud.watch('docs', null, (d) => { S.docs = d; if (!$('#modal .docdlg')) render(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watch('docs', null, (d) => { S.docs = d; if (!$('#modal .docdlg, #modal .progdlg')) render(); }, cloudErr));
   }
 
   /* ================= 부팅 / 로그인 ================= */
@@ -833,6 +844,7 @@
       { k: 'dday', label: 'D-day 관리', ic: 'dday', pop: true, run: openDdays },
       { k: 'meal', label: '급식', ic: 'utensils', def: true, pop: true, run: openMealWeek },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, ic, def: true, doc: id, run: () => openDoc(id) })),
+      { k: 'prog', label: '진도 확인', ic: 'progress', pop: true, run: openProgress },
       { k: 'prefs', label: '설정', ic: 'gear', pop: true, run: openPrefs },
       gc ? { k: 'gc', label: 'Google 캘린더 다시 연결', ic: 'google', def: true, run: () => connectGcal() } : null,
       S.user ? { k: 'logout', label: '로그아웃', ic: 'logout', run: () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); } } : null,
@@ -868,6 +880,7 @@
     sep();
     m.append(item('급식', openMealWeek, 'utensils'));
     DOCS.forEach(([id, label, ic]) => m.append(item(label, () => openDoc(id), ic)));
+    m.append(item('진도 확인', openProgress, 'progress'));
     sep();
     m.append(item('설정', openPrefs, 'gear'));
     if (S.user) m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout'));
@@ -2223,6 +2236,142 @@
         el('tbody', {}, rows.slice(1).map((r) => el('tr', {}, Array.from({ length: w }, (_, i) => cell('td', r[i] || ''))))))));
     }
     return el('div', { class: 'dtxt' }, text.split('\n').map((l) => el('div', {}, linkify(l) , l ? null : el('br'))));
+  }
+  /* ---------- 진도 확인: 내 시간표의 과목 × 평일 표. 셀을 눌러 한 줄 입력 + 배경 기호 ---------- */
+  const PSYM = [['', '없음', 'sy_none'], ['circle', '동그라미', 'sy_circle'], ['tri', '세모', 'sy_tri'], ['x', '엑스', 'sy_x'], ['check', '체크', 'sy_check'], ['star', '별', 'sy_star'], ['flower', '꽃', 'sy_flower'], ['flag', '깃발', 'sy_flag']];
+  function progSubjects() { // 내 시간표(표 형태 글)에서 과목과 요일을 읽어요
+    const d = docOf('mytable');
+    const out = new Map();
+    if (!d || d.kind !== 'text' || !(d.text || '').includes('\t')) return out;
+    const rows = parseTsv(d.text).filter((r) => r.some((c) => c.trim()));
+    if (!rows.length) return out;
+    const colDay = {};
+    rows[0].forEach((c, i) => { const m = /^\s*([월화수목금])/.exec(c); if (m) colDay[i] = '월화수목금'.indexOf(m[1]) + 1; });
+    let body = rows;
+    if (Object.keys(colDay).length) body = rows.slice(1); else [1, 2, 3, 4, 5].forEach((i) => { colDay[i] = i; });
+    body.forEach((r) => Object.entries(colDay).forEach(([i, w]) => {
+      const t = (r[i] || '').replace(/\s+/g, ' ').trim();
+      if (!t || /^[-–—.]+$/.test(t)) return;
+      if (!out.has(t)) out.set(t, new Set());
+      out.get(t).add(w);
+    }));
+    return out;
+  }
+  function openProgress() {
+    const m = $('#modal');
+    m.hidden = false;
+    const t0 = new Date();
+    const mon0 = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - ((t0.getDay() + 6) % 7));
+    const prog = docOf('progress') ? JSON.parse(JSON.stringify(docOf('progress'))) : { id: 'progress', kind: 'progress', ord: [], cells: {}, start: '', end: '' };
+    let timer = null;
+    const flush = () => { if (timer) { clearTimeout(timer); timer = null; } prog.updated = Date.now(); Data.put('docs', JSON.parse(JSON.stringify(prog))); };
+    const save = () => { if (timer) clearTimeout(timer); timer = setTimeout(flush, 350); };
+    const close = () => { if (timer) flush(); m.hidden = true; m.replaceChildren(); render(); };
+    let sel = null;   // { name, ds } 셀 선택
+    let bulk = null;  // ds 날짜 선택(한꺼번에 입력)
+    const subj = progSubjects();
+    const names = () => { // 저장된 순서 먼저, 새 과목은 뒤에
+      const all = [...subj.keys()];
+      return [...prog.ord.filter((n) => subj.has(n)), ...all.filter((n) => !prog.ord.includes(n))];
+    };
+    const range = () => {
+      let a = prog.start ? parseYmd(prog.start) : mon0;
+      let b = prog.end ? parseYmd(prog.end) : new Date(mon0.getFullYear(), mon0.getMonth(), mon0.getDate() + 4);
+      if (b < a) [a, b] = [b, a];
+      const days = [];
+      for (let d = new Date(a), i = 0; d <= b && i < 200; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1), i++) if (d.getDay() !== 0 && d.getDay() !== 6) days.push(new Date(d));
+      return days;
+    };
+    const dl = (d) => `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`;
+    const cellOf = (n, ds) => prog.cells[n + '|' + ds] || {};
+    const setCell = (n, ds, patch) => {
+      const k = n + '|' + ds;
+      const v = { ...(prog.cells[k] || {}), ...patch };
+      if (!v.t && !v.s) delete prog.cells[k]; else prog.cells[k] = v;
+    };
+    const tds = new Map(); // 'name|ds' → td (입력하는 대로 바로 표에 보이게)
+    const paint = (n, ds) => {
+      const td = tds.get(n + '|' + ds); if (!td) return;
+      const c = cellOf(n, ds);
+      td.replaceChildren(...(c.s ? [el('span', { class: 'pbg' }, icon((PSYM.find((x) => x[0] === c.s) || [])[2] || 'sy_none'))] : []), el('span', { class: 'ptx' }, c.t || ''));
+      td.title = c.t || '';
+    };
+    const dlg = el('div', { class: 'dlg progdlg' });
+    const head = el('div', { class: 'shead' }, hb('progress', '진도 확인'), el('span', { class: 'grow' }), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
+    const sel0 = el('select', { 'aria-label': '시간표' }, el('option', { value: 'mytable', selected: true }, '내 시간표'));
+    const clearBtn = el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
+      if (!(await ask('진도 확인의 내용을 모두 삭제할까요?\n삭제하면 되돌릴 수 없어요.'))) return;
+      prog.cells = {}; sel = null; bulk = null; flush(); drawAll();
+    } }, icon('trash'), '내용 모두 삭제');
+    const days0 = range();
+    const sIn = el('input', { type: 'date', value: ymd(days0[0] || mon0), 'aria-label': '시작일', onchange: () => { prog.start = sIn.value; flush(); drawAll(); } });
+    const eIn = el('input', { type: 'date', value: ymd(days0[days0.length - 1] || mon0), 'aria-label': '종료일', onchange: () => { prog.end = eIn.value; flush(); drawAll(); } });
+    const bar = el('div', { class: 'mk mopts progbar' }, sel0, clearBtn, el('span', { class: 'grow' }), sIn, el('span', { class: 'mut' }, '~'), eIn);
+    const wrap = el('div', { class: 'progwrap' });
+    const edit = el('div', { class: 'progedit' });
+    dlg.append(head, bar, wrap, edit);
+
+    const symRow = (cur, pick) => el('div', { class: 'blpick psyms' }, PSYM.map(([k, name, ic]) => el('button', { type: 'button', class: 'blb' + ((cur || '') === k ? ' on' : ''), 'aria-label': name, title: name, onclick: () => pick(k) }, icon(ic))));
+    function drawEdit() {
+      edit.replaceChildren();
+      if (sel) {
+        const { name, ds } = sel;
+        const inp = el('input', { type: 'text', value: cellOf(name, ds).t || '', 'aria-label': `${dl(parseYmd(ds))} ${name} 진도`, spellcheck: 'false' });
+        inp.addEventListener('input', () => { setCell(name, ds, { t: inp.value }); paint(name, ds); save(); });
+        const syms = el('div', {});
+        const drawSym = () => syms.replaceChildren(symRow(cellOf(name, ds).s, (k) => { setCell(name, ds, { s: k }); paint(name, ds); save(); drawSym(); }));
+        drawSym();
+        edit.append(el('div', { class: 'pedh mut' }, `${dl(parseYmd(ds))} · ${name}`), el('div', { class: 'pedr' }, fld(inp), syms));
+        setTimeout(() => inp.focus(), 0);
+      } else if (bulk) {
+        const ds = bulk; let sy = null;
+        const inp = el('input', { type: 'text', 'aria-label': `${dl(parseYmd(ds))} 한꺼번에 입력`, spellcheck: 'false' });
+        const syms = el('div', {});
+        const drawSym = () => syms.replaceChildren(symRow(sy, (k) => { sy = k; drawSym(); }));
+        drawSym();
+        const apply = () => {
+          const patch = {};
+          if (inp.value.trim()) patch.t = inp.value.trim();
+          if (sy !== null) patch.s = sy;
+          if (!Object.keys(patch).length) return;
+          names().forEach((n) => { setCell(n, ds, patch); paint(n, ds); });
+          flush(); inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+        inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) apply(); });
+        edit.append(el('div', { class: 'pedh mut' }, `${dl(parseYmd(ds))} · 한꺼번에 입력`), el('div', { class: 'pedr' }, fld(inp), syms, el('button', { class: 'pri sm', type: 'button', onclick: apply }, '적용')));
+        setTimeout(() => inp.focus(), 0);
+      }
+    }
+    function drawAll() {
+      tds.clear();
+      const list = names(), days = range();
+      if (!list.length) {
+        wrap.replaceChildren(el('div', { class: 'empty mut' }, subj.size ? '' : '내 시간표에 표가 없어요. 내 시간표를 표(엑셀)로 입력하면 과목이 나타나요.'));
+        drawEdit(); return;
+      }
+      const head = el('tr', {}, el('th', { class: 'pn' }, '과목'), days.map((d) => el('th', { class: 'pd go' + (bulk === ymd(d) ? ' sel' : ''), onclick: () => { bulk = bulk === ymd(d) ? null : ymd(d); sel = null; drawAll(); } }, dl(d))));
+      const body = list.map((n, i) => {
+        const mv = (dir) => { const o = list.slice(); const j = i + dir; [o[i], o[j]] = [o[j], o[i]]; prog.ord = o; flush(); drawAll(); };
+        const tr = el('tr', {}, el('td', { class: 'pn' }, el('div', { class: 'pnr' },
+          el('span', { class: 'pmv' },
+            el('button', { type: 'button', class: 'ib', disabled: i === 0, 'aria-label': '위로', onclick: () => mv(-1) }, icon('up')),
+            el('button', { type: 'button', class: 'ib', disabled: i === list.length - 1, 'aria-label': '아래로', onclick: () => mv(1) }, icon('down'))),
+          el('span', { class: 'pnm' }, n))));
+        days.forEach((d) => {
+          const ds = ymd(d);
+          const td = el('td', { class: 'pcl go' + (subj.get(n).has(d.getDay()) ? ' on' : '') + (sel && sel.name === n && sel.ds === ds ? ' sel' : ''),
+            onclick: () => { sel = { name: n, ds }; bulk = null; wrap.querySelectorAll('td.pcl.sel').forEach((x) => x.classList.remove('sel')); td.classList.add('sel'); wrap.querySelectorAll('th.pd.sel').forEach((x) => x.classList.remove('sel')); drawEdit(); } });
+          tds.set(n + '|' + ds, td); paint(n, ds);
+          tr.append(td);
+        });
+        return tr;
+      });
+      const tbl = el('table', { class: 'mt pt', style: `width:${148 + 112 * days.length}px;min-width:100%` }, el('thead', {}, head), el('tbody', {}, body));
+      wrap.replaceChildren(el('div', { class: 'pmw' }, tbl));
+      drawEdit();
+    }
+    m.replaceChildren(el('div', { class: 'back', onclick: close }), dlg);
+    drawAll();
   }
   let sheetJs = null;
   function loadSheetJS() {

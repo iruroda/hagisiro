@@ -730,8 +730,8 @@ button:disabled, input:disabled, select:disabled, label:has(input:disabled), .pr
 .bl[data-bl="spade"] { color: #2f6df6; } .bl[data-bl="club"] { color: #2e9e5b; }
 .bl[data-bl="diamond"] { color: #d98a00; } .bl[data-bl="heart"] { color: #e5484d; }
 .bl .ic svg { overflow: visible; }
-.blpick { display: grid; grid-template-columns: repeat(4, 32px); gap: 4px; }
-.blb { width: 32px; height: 32px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; color: var(--mut); }
+.blpick { display: grid; grid-template-columns: repeat(4, 26px); gap: 4px; }
+.blb { width: 26px; height: 26px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; color: var(--mut); }
 .blb .ic svg { width: 18px; height: 18px; }
 .blb:hover { background: var(--bg2); } .blb.on { box-shadow: 0 0 0 1.5px var(--accent) inset; }
 .blb[data-bl="spade"] { color: #2f6df6; } .blb[data-bl="club"] { color: #2e9e5b; }
@@ -940,8 +940,8 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 
 /* 설정의 기호 줄: 색상 줄과 같은 폭·간격(칸 20px, 간격 6px)으로 맞춰 칸이 세로로 정렬되게 */
 .blset { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
-.blset .blb { width: 20px; height: 20px; border-radius: var(--r); }
-.blset .blb .ic svg { width: 14px; height: 14px; }
+.blset .blb { width: 28px; height: 28px; border-radius: var(--r); }
+.blset .blb .ic svg { width: 20px; height: 20px; }
 
 /* 할 일 팝업: D-day·반복 아이콘이 줄 높이를 키우지 않게 / 기호 아이콘 크기 / 색 팝업 글자 세로 가운데 */
 .ed .td .ddm, .ed .td .rpt { margin-top: 0; align-self: center; display: inline-flex; line-height: 0; }
@@ -1321,3 +1321,49 @@ input[type=date].empty { color: var(--mut); }
 /* 틀의 오른쪽 선은 스크롤을 따라다니며 뒤쪽 칸을 가려서 없애고, 표 자체의 오른쪽 끝 선만 둔다 */
 .mfr > i { border-right: 0; }
 .mt th:last-child, .mt td:last-child { border-right: 1px solid var(--line); }
+
+/* 진도 확인 */
+.progdlg { width: min(880px, 96%); height: min(560px, 92%); max-height: none; display: flex; flex-direction: column; }
+.progdlg > :not(.shead) { min-height: 0; }
+.progbar { flex: none; padding-top: 0; align-items: center; gap: 8px; }
+.progbar select { width: auto; }
+.progbar input[type=date] { width: auto; }
+.progwrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.progwrap .empty { padding: 20px 0; text-align: center; }
+.pmw { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--line); }
+.pt { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.pt th, .pt td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); height: 44px; padding: 0 6px; text-align: center; font-size: 13px; }
+.pt th { font-weight: 600; color: var(--mut); background: var(--bg2-s); height: 36px; white-space: nowrap; }
+.pt th:last-child, .pt td:last-child { border-right: 0; }
+.pt tbody tr:last-child td { border-bottom: 0; }
+.pt .pn { width: 148px; text-align: left; position: sticky; left: 0; z-index: 2; background: var(--bg-s); }
+.pt th.pn { background: var(--bg2-s); text-align: center; }
+.pt th.pd { width: 112px; cursor: pointer; }
+.pt th.pd:hover, .pt th.pd.sel { color: var(--accent); }
+.pnr { display: flex; align-items: center; gap: 4px; }
+.pmv { display: flex; flex-direction: column; flex: none; }
+.pmv .ib { width: 20px; height: 17px; padding: 0; }
+.pmv .ic svg { width: 14px; height: 14px; }
+.pnm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.pt td.pcl { position: relative; cursor: pointer; overflow: hidden; }
+.pt td.pcl.on { background: color-mix(in srgb, var(--accent) 11%, transparent); }
+.pt td.pcl:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.pt td.pcl.sel { box-shadow: 0 0 0 1.5px var(--accent) inset; }
+.pbg { position: absolute; inset: 0; display: grid; place-items: center; color: var(--accent); opacity: .4; pointer-events: none; }
+.pbg .ic svg { width: 28px; height: 28px; }
+.ptx { position: relative; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.progedit { flex: none; min-height: 0; }
+.progedit:not(:empty) { padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.pedh { font-size: 12px; }
+.pedr { display: flex; align-items: center; gap: 10px; }
+.pedr .fld { flex: 1; min-width: 0; }
+.psyms { display: flex; gap: 2px; flex: none; }
+.psyms .blb { color: var(--text); }
+.psyms .blb .ic svg { width: 20px; height: 20px; }
+.pt { height: auto; }
+.pt tbody tr { height: 44px; }
+.pt tbody td { height: 44px; }
+.psyms .blb { width: 28px; height: 28px; }
+.progbar input[type=date] { font: inherit; font-size: 13px; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 5px 8px; }
+
+.progbar input[type=date]::-webkit-calendar-picker-indicator { background: currentColor; opacity: 1; cursor: pointer; width: 15px; height: 15px; padding: 0; margin-left: 4px; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='3'/%3E%3Cpath d='M3.5 10.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='3'/%3E%3Cpath d='M3.5 10.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / contain no-repeat; }
