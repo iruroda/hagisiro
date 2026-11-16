@@ -5,7 +5,7 @@
      파랑 --sat · 빨강 --sun · 노랑 --yel · 청록 --teal · 그림자/가림막은 검정+투명도 */
   /* 글자 위계: 제목 16/700 · 본문 13 · 보조 12 · 캡션 11 (굵기: 제목 700, 강조 600, 보통 400~500) */
   --fs-1: 16px; --fs-2: 14px; --fs-3: 13px; --fs-4: 12px; --fs-5: 11px;
-  --r: 8px; --r-xs: var(--r); --r-sm: var(--r); --r-md: var(--r); --r-lg: var(--r); --r-xl: var(--r); --r-pill: 99px;
+  --r: 8px; --r-xs: 4px; --r-sm: var(--r); --r-md: var(--r); --r-lg: var(--r); --r-xl: var(--r); --r-pill: 99px;
   --bg: #ffffff; --bg2: #f5f6f8; --bg-s: #ffffff; --bg2-s: #f5f6f8; --text: #1b1d21; --mut: #8b9098; --line: #ebedf0;
   --accent: #6d4aff; --yel: #d98a00; --teal: #12c9b3; --grad: linear-gradient(135deg, #6d4aff 0%, #2f6df6 55%, #12c9b3 100%); --sel: #f4f1ff; --sun: #e5484d; --sat: #2f6df6;
   --font: "SUITE", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
@@ -96,9 +96,9 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .ab:hover { color: var(--accent); border-color: var(--accent); }
 .tl { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 .td { display: flex; gap: 5px; align-items: flex-start; font-size: var(--td-fs, 12px); line-height: var(--td-lh, 1.4); padding: var(--td-pad, 1px) 0; }
-.tt { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; color: var(--tfg, var(--tfg-d, inherit)); background: var(--tbg, var(--tbg-d, transparent)); border-radius: 4px; padding: 0 3px; margin: 0 -3px; }
+.tt { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; color: var(--tfg, var(--tfg-d, inherit)); background: var(--tbg, var(--tbg-d, transparent)); border-radius: var(--r-xs); padding: 0 3px; margin: 0 -3px; }
 .td.done .tt { text-decoration: line-through; opacity: .55; }
-.ed .td input { flex: 1; min-width: 0; border: 0; outline: 0; background: var(--tbg, var(--tbg-d, transparent)); font: inherit; color: var(--tfg, var(--tfg-d, inherit)); padding: 0 3px; border-radius: 4px; }
+.ed .td input { flex: 1; min-width: 0; border: 0; outline: 0; background: var(--tbg, var(--tbg-d, transparent)); font: inherit; color: var(--tfg, var(--tfg-d, inherit)); padding: 0 3px; border-radius: var(--r-xs); }
 .ed .td.done input { text-decoration: line-through; opacity: .55; }
 .gev { font-size: 11px; color: var(--teal); background: color-mix(in srgb, var(--teal) 11%, transparent); border-radius: var(--r-xs); padding: 0 4px; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dots { display: none; }
@@ -1253,7 +1253,7 @@ body.widget #top .tab .ic { transform: translateY(-1px); }
 .ed .td input { flex: none; max-width: 100%; }
 /* D-day 줄: 글자색·배경색 모두 셀과 같이 (배경은 할 일 글자 뒤에만) */
 .ddc { color: var(--tfg, var(--tfg-d, var(--text))); }
-.ddc .ddt { background: var(--tbg, var(--tbg-d, transparent)); border-radius: 4px; padding: 0 3px; margin: 0 -3px; }
+.ddc .ddt { background: var(--tbg, var(--tbg-d, transparent)); border-radius: var(--r-xs); padding: 0 3px; margin: 0 -3px; }
 /* 월 사이 구분: 빈 칸·달 사이 간격은 모두 선 색과 같은 회색 */
 .cell.blank { background: var(--line) !important; }
 .days.msplit { background: var(--line); }
