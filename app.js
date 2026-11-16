@@ -2530,7 +2530,7 @@
       });
       const body = draft.kind === 'image'
         ? el('div', { class: 'dbody' }, el('div', { class: 'dimg' }, el('div', { class: 'dimgw' }, el('img', { src: draft.img, alt: '' }),
-          el('button', { class: 'dimgdel', type: 'button', 'aria-label': '이미지 삭제', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, icon('trash'), '삭제'))))
+          el('button', { class: 'dimgdel', type: 'button', 'aria-label': '이미지 삭제', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, el('span', { class: 'dimgi' }, el('span', { class: 'ol' }, icon('trash')), icon('trash')), '삭제'))))
         : ta;
       const save = () => {
         if (draft.kind === 'text' && !draft.text.trim()) { if (cur) wipe(); else close(); return; }

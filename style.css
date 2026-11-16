@@ -1379,3 +1379,9 @@ input[type=date].empty { color: var(--mut); }
 .dimgdel { position: absolute; inset: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: inherit; background: rgba(255,255,255,.62); color: #e5484d; font-weight: 700; font-size: 14px; opacity: 0; transition: opacity .15s; cursor: pointer; }
 .dimgw:hover .dimgdel, .dimgdel:focus-visible { opacity: 1; }
 .dimgdel .ic svg { width: 20px; height: 20px; }
+/* 삭제 표시: 밝은 배경 위에서도 또렷하게 글씨·아이콘에 둥근 흰 테두리 2px (결석 서류 제출 확인과 같은 방식) */
+.dimgdel { text-shadow: 2.0px 0.0px 0 #fff, 1.88px 0.68px 0 #fff, 1.53px 1.29px 0 #fff, 1.0px 1.73px 0 #fff, 0.35px 1.97px 0 #fff, -0.35px 1.97px 0 #fff, -1.0px 1.73px 0 #fff, -1.53px 1.29px 0 #fff, -1.88px 0.68px 0 #fff, -2.0px 0.0px 0 #fff, -1.88px -0.68px 0 #fff, -1.53px -1.29px 0 #fff, -1.0px -1.73px 0 #fff, -0.35px -1.97px 0 #fff, 0.35px -1.97px 0 #fff, 1.0px -1.73px 0 #fff, 1.53px -1.29px 0 #fff, 1.88px -0.68px 0 #fff; }
+.dimgi { position: relative; display: inline-flex; width: 20px; height: 20px; }
+.dimgi .ol { position: absolute; inset: 0; display: flex; }
+.dimgi .ol svg { stroke: #fff; stroke-width: 6.7; }
+.dimgi > .ic { position: relative; }
