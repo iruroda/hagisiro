@@ -218,6 +218,7 @@
   const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], show: [], mwe: true, mk: ['중식'] },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
+    if (!PF.docSel || typeof PF.docSel !== 'object') PF.docSel = {};
     if (!Array.isArray(PF.schools)) PF.schools = [];
     if (PF.school && !PF.schools.some((x) => x.code === PF.school.code)) PF.schools.unshift(PF.school);
     PF.schools = PF.schools.slice(0, 5);
@@ -858,7 +859,7 @@
   const scOn = (x) => (x.def ? !(PF.hide || []).includes(x.k) : (PF.show || []).includes(x.k));
   function scNode(x) {
     const common = { title: x.label, 'aria-label': x.label, onclick: x.run };
-    if (x.doc || x.pop) return el('button', { ...common, class: 'ghost sm dbtn' + (x.doc && docOf(x.doc) ? ' has' : '') }, icon(x.ic), el('span', { class: 'lb' }, x.label));
+    if (x.doc || x.pop) return el('button', { ...common, class: 'ghost sm dbtn' + (x.doc && docList(x.doc).some(docHas) ? ' has' : '') }, icon(x.ic), el('span', { class: 'lb' }, x.label));
     return el('button', { ...common, class: 'ib', id: x.k === 'sync' ? 'syncBtn' : x.k === 'move' ? 'wmove' : null }, icon(x.ic));
   }
 
@@ -2211,6 +2212,17 @@
   /* ---------- 연락처 · 일과 시간표 · 내 시간표 (엑셀/이미지/직접 입력) ---------- */
   const DOCS = [['contacts', '연락처', 'phone'], ['schedule', '일과 진행 시간표', 'clock'], ['mytable', '내 시간표', 'table']];
   const docOf = (id) => S.docs.find((d) => d.id === id);
+  /* 종류(연락처·일과 진행 시간표·내 시간표)마다 이름을 붙여 여러 개 저장: 처음 것은 id가 종류 이름 그대로, 새로 만든 것은 type 필드로 구분 */
+  const docType = (d) => d.type || d.id;
+  function docList(type) {
+    const l = S.docs.filter((d) => d.kind !== 'progress' && docType(d) === type)
+      .sort((a, b) => (a.id === type ? -1 : b.id === type ? 1 : (a.created || 0) - (b.created || 0)));
+    return l.length ? l : [{ id: type, type, name: DOCS.find((x) => x[0] === type)[1], virtual: true }];
+  }
+  const docName = (d) => d.name || DOCS.find((x) => x[0] === docType(d))[1];
+  function docSelId(type) { const l = docList(type); return (l.find((d) => d.id === (PF.docSel || {})[type]) || l[0]).id; }
+  const docHas = (d) => !!d && !d.virtual && (d.kind === 'image' ? !!d.img : !!(d.text || '').trim());
+  const progId = (tid) => (tid === 'mytable' ? 'progress' : 'progress_' + tid);
   const PHONE = /(0\d{1,2}[-. ]?\d{3,4}[-. ]?\d{4})/g;
   function linkify(txt) {
     const out = []; let last = 0, m;
@@ -2239,8 +2251,8 @@
   }
   /* ---------- 진도 확인: 내 시간표의 과목 × 평일 표. 셀을 눌러 한 줄 입력 + 배경 기호 ---------- */
   const PSYM = [['', '없음', 'sy_none'], ['circle', '동그라미', 'sy_circle'], ['tri', '세모', 'sy_tri'], ['x', '엑스', 'sy_x'], ['check', '체크', 'sy_check'], ['star', '별', 'sy_star'], ['flower', '꽃', 'sy_flower'], ['flag', '깃발', 'sy_flag']];
-  function progSubjects() { // 내 시간표(표 형태 글)에서 과목과 요일을 읽어요
-    const d = docOf('mytable');
+  function progSubjects(tid) { // 고른 시간표(표 형태 글)에서 과목과 요일을 읽어요
+    const d = docOf(tid || 'mytable');
     const out = new Map();
     if (!d || d.kind !== 'text' || !(d.text || '').includes('\t')) return out;
     const rows = parseTsv(d.text).filter((r) => r.some((c) => c.trim()));
@@ -2262,14 +2274,17 @@
     m.hidden = false;
     const t0 = new Date();
     const mon0 = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - ((t0.getDay() + 6) % 7));
-    const prog = docOf('progress') ? JSON.parse(JSON.stringify(docOf('progress'))) : { id: 'progress', kind: 'progress', ord: [], cells: {}, start: '', end: '' };
+    const ttList = docList('mytable');
+    let tid = (ttList.find((d) => d.id === PF.progTt) || ttList[0]).id;
+    const loadProg = () => { const p = docOf(progId(tid)); return p ? JSON.parse(JSON.stringify(p)) : { id: progId(tid), kind: 'progress', ord: [], cells: {}, start: '', end: '' }; };
+    let prog = loadProg();
     let timer = null;
     const flush = () => { if (timer) { clearTimeout(timer); timer = null; } prog.updated = Date.now(); Data.put('docs', JSON.parse(JSON.stringify(prog))); };
     const save = () => { if (timer) clearTimeout(timer); timer = setTimeout(flush, 350); };
     const close = () => { if (timer) flush(); m.hidden = true; m.replaceChildren(); render(); };
     let sel = null;   // { name, ds } 셀 선택
     let bulk = null;  // ds 날짜 선택(한꺼번에 입력)
-    const subj = progSubjects();
+    let subj = progSubjects(tid);
     const names = () => { // 저장된 순서 먼저, 새 과목은 뒤에
       const all = [...subj.keys()];
       return [...prog.ord.filter((n) => subj.has(n)), ...all.filter((n) => !prog.ord.includes(n))];
@@ -2298,7 +2313,13 @@
     };
     const dlg = el('div', { class: 'dlg progdlg' });
     const head = el('div', { class: 'shead' }, hb('progress', '진도 확인'), el('span', { class: 'grow' }), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
-    const sel0 = el('select', { 'aria-label': '시간표' }, el('option', { value: 'mytable', selected: true }, '내 시간표'));
+    const sel0 = el('select', { 'aria-label': '시간표', onchange: () => {
+      if (timer) flush();
+      tid = sel0.value; PF.progTt = tid; savePf();
+      prog = loadProg(); subj = progSubjects(tid); sel = null; bulk = null;
+      const dd = range(); sIn.value = ymd(dd[0] || mon0); eIn.value = ymd(dd[dd.length - 1] || mon0);
+      drawAll();
+    } }, ttList.map((d) => el('option', { value: d.id, selected: d.id === tid }, docName(d))));
     const clearBtn = el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
       if (!(await ask('진도 확인의 내용을 모두 삭제할까요?\n삭제하면 되돌릴 수 없어요.'))) return;
       prog.cells = {}; sel = null; bulk = null; flush(); drawAll();
@@ -2455,21 +2476,30 @@
     const esc = (e) => { if (e.key === 'Escape') { e.stopPropagation(); pop.remove(); document.removeEventListener('mousedown', off, true); document.removeEventListener('keydown', esc, true); } };
     setTimeout(() => { document.addEventListener('mousedown', off, true); document.addEventListener('keydown', esc, true); }, 0);
   }
-  function openDoc(id, forceEdit) {
-    const meta = DOCS.find((x) => x[0] === id);
+  function openDoc(type, forceEdit) {
+    const meta = DOCS.find((x) => x[0] === type);
     const m = $('#modal');
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); render(); };
-    let cur = docOf(id);
-    let draft = cur ? { kind: cur.kind, text: cur.text || '', img: cur.img || '' } : { kind: 'text', text: '' };
-    let edit = !!forceEdit || !cur;
-    /* 삭제하면 팝업은 닫지 않고 처음 입력 화면으로 */
-    const wipe = () => { Data.del('docs', id); cur = null; draft = { kind: 'text', text: '' }; edit = true; render(); drawEdit(); };
+    let id, cur, draft, edit;
+    const load = (nid, fe) => { id = nid; const d = docOf(id); cur = docHas(d) ? d : null; draft = cur ? { kind: cur.kind, text: cur.text || '', img: cur.img || '' } : { kind: 'text', text: '' }; edit = !!fe || !cur; };
+    load(docSelId(type), forceEdit);
+    /* 삭제하면 팝업은 닫지 않고 처음 입력 화면으로 (이름 붙인 항목은 이름만 남겨요) */
+    const wipe = () => {
+      const e = docOf(id);
+      if (e && e.name) Data.put('docs', { id, type, name: e.name, created: e.created || 0, kind: 'text', text: '', updated: Date.now() }); else Data.del('docs', id);
+      cur = null; draft = { kind: 'text', text: '' }; edit = true; render(); drawEdit();
+    };
+    /* 위쪽: 항목 고르기(왼쪽) · 설정(옆) — 급식의 학교 드롭박스와 같은 자리 */
+    const entRow = () => el('div', { class: 'mk mopts' },
+      el('select', { 'aria-label': meta[1], onchange: (e) => { PF.docSel[type] = e.target.value; savePf(); load(e.target.value); (edit ? drawEdit : drawView)(); } },
+        docList(type).map((d) => el('option', { value: d.id, selected: d.id === id }, docName(d)))),
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }) }, icon('gear'), '설정'));
     const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
     /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정·삭제만 */
     let drawView = function () {
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
-        el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(),
+        el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(),
           el('div', { class: 'dsrc' },
             el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정'),
             el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { wipe(); } } }, icon('trash'), '삭제')),
@@ -2499,11 +2529,13 @@
       const save = () => {
         if (draft.kind === 'text' && !draft.text.trim()) { if (cur) wipe(); else close(); return; }
         if (draft.kind === 'text' && draft.text.length > 300000) draft.text = draft.text.slice(0, 300000); // 너무 길면 뒤쪽을 잘라요
-        const o = draft.kind === 'image' ? { id, kind: 'image', img: draft.img, updated: Date.now() } : { id, kind: 'text', text: draft.text, updated: Date.now() };
+        const e0 = docOf(id) || {};
+        const base = { id, type, ...(e0.name ? { name: e0.name } : {}), created: e0.created || 0 };
+        const o = draft.kind === 'image' ? { ...base, kind: 'image', img: draft.img, updated: Date.now() } : { ...base, kind: 'text', text: draft.text, updated: Date.now() };
         Data.put('docs', o); cur = docOf(id) || o; edit = false; drawView();
       };
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
-        el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(),
+        el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(),
           el('div', { class: 'dsrc' },
             el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('excel'), '엑셀 업로드'),
             el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('image/*') }, icon('image'), '이미지 업로드'),
@@ -2522,7 +2554,7 @@
       if (!img) return;
       const run = () => {
         const nw = img.naturalWidth, nh = img.naturalHeight; if (!nw) return;
-        const hasSrc = d.querySelector('.dsrc') ? 56 : 0;
+        const hasSrc = (d.querySelector('.dsrc') ? 56 : 0) + 44;
         const availW = window.innerWidth * 0.94 - 28, availH = window.innerHeight * 0.9 - 150 - hasSrc;
         const k = Math.min(1, availW / nw, availH / nh);
         const w = Math.round(nw * k);
@@ -2534,6 +2566,49 @@
     const _de = drawEdit, _dv = drawView;
     drawEdit = function () { _de(); fitImg(); }; drawView = function () { _dv(); fitImg(); };
     if (edit) drawEdit(); else drawView();
+  }
+
+  /* 항목 설정: 이름 바꾸기 · 삭제 · 추가 (급식의 '학교 설정'과 같은 방식) */
+  function openDocSet(type, done) {
+    const meta = DOCS.find((x) => x[0] === type);
+    const layer = el('div', { class: 'askw' });
+    let changed = false;
+    const close = () => { layer.remove(); if (changed && done) done(); };
+    const list = el('div', { class: 'schlist' });
+    const drawList = () => {
+      list.replaceChildren(...docList(type).map((d) => {
+        const inp = el('input', { type: 'text', value: docName(d), maxlength: 30, 'aria-label': '이름', spellcheck: 'false' });
+        inp.addEventListener('change', () => {
+          const nm = inp.value.trim() || meta[1];
+          inp.value = nm;
+          const c = docOf(d.id) || { id: d.id, type, kind: 'text', text: '', created: 0 };
+          Data.put('docs', { ...c, type, name: nm, updated: c.updated || Date.now() }); changed = true;
+        });
+        return el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, fld(inp)),
+          el('button', { class: 'ghost sm danger', type: 'button', disabled: !!d.virtual, onclick: async () => {
+            if (!(await ask(`${docName(d)}을(를) 삭제할까요?\n삭제하면 되돌릴 수 없어요.`))) return;
+            Data.del('docs', d.id);
+            if (type === 'mytable') Data.del('docs', progId(d.id));
+            if (PF.docSel[type] === d.id) delete PF.docSel[type];
+            savePf(); changed = true; drawList();
+          } }, icon('trash'), '삭제'));
+      }));
+    };
+    const add = () => {
+      const l = docList(type), now2 = Date.now();
+      if (l[0].virtual) Data.put('docs', { id: type, type, name: meta[1], kind: 'text', text: '', created: 0, updated: now2 });
+      const nid = `${type}_${now2.toString(36)}`;
+      Data.put('docs', { id: nid, type, name: `${meta[1]} ${l.length + 1}`, kind: 'text', text: '', created: now2, updated: now2 });
+      PF.docSel[type] = nid; savePf(); changed = true; drawList();
+      const ins = list.querySelectorAll('input'); const last = ins[ins.length - 1]; if (last) { last.focus(); last.select(); }
+    };
+    layer.append(el('div', { class: 'back', onclick: close }),
+      el('div', { class: 'dlg' },
+        el('div', { class: 'shead' }, hb(meta[2], meta[1] + ' 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        list,
+        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost sm', type: 'button', onclick: add }, icon('plus'), '추가'))));
+    drawList();
+    document.body.append(layer);
   }
 
   /* ---------- 화면 설정 ---------- */
