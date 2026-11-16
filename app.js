@@ -69,6 +69,7 @@
     school: '<path d="M10.5 2.8V11"/><path d="M11.1 3.4l5.6 2.5-5.6 2.5z" fill="currentColor"/><rect x="3.5" y="11" width="17" height="9.5" rx="2.2"/><path d="M10 20.5v-5.5h4v5.5"/>',
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c0-3.7 2.8-5.8 6.5-5.8s6.5 2.1 6.5 5.8M19 8v6M16 11h6"/>',
     utensils: '<path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 21V3c-2.5 1.5-3.5 4.5-3.5 8H17"/>',
+    listedit: '<path d="M4 7h9M4 12h4.5M4 17h3.5"/><g transform="translate(15 15) scale(.8) translate(-12 -12)"><path stroke-width="2.7" d="M5.5 18.5l.9-3.6L15 6.3a2 2 0 012.8 2.8l-8.6 8.6-3.7.8z"/></g>',
     sliders: '<path d="M4.5 8h7M17.5 8h2M4.5 16h2M12.5 16h7"/><circle cx="14.5" cy="8" r="2.6"/><circle cx="9.5" cy="16" r="2.6"/>',
     more: '<circle cx="5.5" cy="12" r="1.9" class="f"/><circle cx="12" cy="12" r="1.9" class="f"/><circle cx="18.5" cy="12" r="1.9" class="f"/>',
     close: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
@@ -2498,7 +2499,7 @@
     const entRow = () => el('div', { class: 'mk mopts' },
       el('select', { 'aria-label': meta[1], onchange: (e) => { PF.docSel[type] = e.target.value; savePf(); load(e.target.value); (edit ? drawEdit : drawView)(); } },
         docList(type).map((d) => el('option', { value: d.id, selected: d.id === id }, docName(d)))),
-      el('button', { class: 'ghost sm', type: 'button', onclick: () => openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }) }, icon('gear'), '편집'));
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }) }, icon('listedit'), '편집'));
     const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
     /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정·삭제만 */
     let drawView = function () {
