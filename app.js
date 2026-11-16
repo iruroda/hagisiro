@@ -610,12 +610,13 @@
   };
   const eul = (w) => (jong(w) ? '을' : '를');
   const ro = (w) => (jong(w) && jong(w) !== 8 ? '으로' : '로');
-  function ask(msg, ok = '삭제', danger = true) {
+  function ask(msg, ok = '삭제', danger = true, title = null, ic = 'trash') {
     return new Promise((res) => {
       const done = (v) => { closeAsk(w); document.removeEventListener('keydown', key, true); res(v); };
       const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); done(false); } else if (e.key === 'Enter') { e.stopPropagation(); done(true); } };
       const w = el('div', { class: 'askw' }, el('div', { class: 'back', onclick: () => done(false) }),
         el('div', { class: 'dlg askd', role: 'alertdialog' },
+          title ? el('div', { class: 'shead' }, hb(ic, title)) : null,
           el('div', { class: 'askm' }, String(msg).split('\n').map((l) => el('div', {}, l))),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: () => done(false) }, '취소'),
             el('button', { class: danger ? 'pri danger' : 'pri', type: 'button', onclick: () => done(true) }, ok))));
@@ -2335,7 +2336,7 @@
       drawAll();
     } }, ttList.map((d) => el('option', { value: d.id, selected: d.id === tid }, docName(d))));
     const clearBtn = el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
-      if (!(await ask('진도 확인의 내용을 모두 삭제할까요?'))) return;
+      { const cd = ttList.find((d) => d.id === tid); if (!(await ask(`${cd ? docName(cd) : '내 시간표'}의 진도 확인 내용을 모두 삭제할까요?`, '삭제', true, '내용 모두 삭제'))) return; }
       prog.cells = {}; sel = null; bulk = null; flush(); drawAll();
     } }, icon('trash'), '내용 모두 삭제');
     const days0 = range();
