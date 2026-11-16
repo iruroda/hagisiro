@@ -1398,3 +1398,10 @@ input[type=date].empty { color: var(--mut); }
 
 .pmv .ib:disabled { opacity: .25; pointer-events: none; }
 .progdlg.nosub { min-height: 280px; }
+
+/* 기호 칸: 글자색·배경색 칸(20px, 가로 6px · 세로 7px 간격)과 같은 크기·간격, 선택 테두리도 같은 모양 */
+.blpick { grid-template-columns: repeat(4, 20px); gap: 7px 6px; }
+.blset .blb, .blpick .blb { width: 20px; height: 20px; border-radius: var(--r-sm); }
+.blpick .blb .ic { display: flex; }
+.blpick .blb .ic svg { width: 25px; height: 25px; flex: none; }
+.blset .blb.on, .blpick .blb.on { box-shadow: none; outline: 2px solid var(--accent); outline-offset: 1px; }
