@@ -601,6 +601,13 @@
 
   const closeAsk = (w) => { if (w.classList.contains('closing')) return; w.classList.add('closing'); setTimeout(() => w.remove(), 220); };
   /* 윈도우 기본 팝업 대신 앱 안의 확인창 */
+  /* 이름 뒤에 붙일 목적격 조사: 받침이 있으면 '을', 없으면 '를' (숫자는 읽는 소리 기준) */
+  function eul(w) {
+    const c = String(w || '').trim().slice(-1), n = c.charCodeAt(0);
+    if (n >= 0xAC00 && n <= 0xD7A3) return (n - 0xAC00) % 28 ? '을' : '를';
+    if (/[0136-8]/.test(c)) return '을'; // 영·일·삼·육·칠·팔
+    return '를';
+  }
   function ask(msg, ok = '삭제', danger = true) {
     return new Promise((res) => {
       const done = (v) => { closeAsk(w); document.removeEventListener('keydown', key, true); res(v); };
@@ -2607,7 +2614,7 @@
         });
         return el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, fld(inp)),
           el('button', { class: 'ghost sm danger', type: 'button', disabled: !!d.virtual, onclick: async () => {
-            if (!(await ask(`${docName(d)}를(을) 삭제할까요?\n삭제하면 되돌릴 수 없어요.`))) return;
+            if (!(await ask(`${docName(d)}${eul(docName(d))} 삭제할까요?\n삭제하면 되돌릴 수 없어요.`))) return;
             Data.del('docs', d.id);
             if (type === 'mytable') Data.del('docs', progId(d.id));
             if (PF.docSel[type] === d.id) delete PF.docSel[type];
@@ -3104,7 +3111,7 @@
     const drawList = () => {
       list.replaceChildren(...PF.schools.map((z) => el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, z.name),
         el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
-          if (!(await ask(`${z.name}를(을) 삭제할까요?`))) return;
+          if (!(await ask(`${z.name}${eul(z.name)} 삭제할까요?`))) return;
           PF.schools = PF.schools.filter((x) => x.code !== z.code);
           if (PF.school && PF.school.code === z.code) { PF.school = PF.schools[0] || null; if (!PF.school) PF.meal = false; }
           S.meal = {}; savePf(); loadMeal(); render(); changed = true; drawList();
