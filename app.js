@@ -100,7 +100,7 @@
     sy_star: '<path fill="currentColor" stroke-width="2.6" d="M12.00 2.80 L14.41 8.68 L20.75 9.16 L15.90 13.27 L17.41 19.44 L12.00 16.10 L6.59 19.44 L8.10 13.27 L3.25 9.16 L9.59 8.68z"/>',
     sy_flower: '<path fill="currentColor" fill-rule="evenodd" stroke-width="0.8" d="M14.42 7.80 A2.8 2.8 0 1 1 16.85 12.00 A2.8 2.8 0 1 1 14.42 16.20 A2.8 2.8 0 1 1 9.58 16.20 A2.8 2.8 0 1 1 7.15 12.00 A2.8 2.8 0 1 1 9.58 7.80 A2.8 2.8 0 1 1 14.42 7.80z M15.6 12a3.6 3.6 0 11-7.2 0 3.6 3.6 0 017.2 0z"/>',
     sy_flag: '<path stroke-width="2.6" d="M8 3.6V19.8"/><path fill="currentColor" stroke-width="2.6" d="M8 3.6L20 9L8 14.4z"/>',
-    link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
+    link: '<path d="M9.5 8H8a4 4 0 000 8h1.5"/><path d="M14.5 8H16a4 4 0 010 8h-1.5"/>',
     share: '<path stroke-width="2.2" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/>',
     refresh: '<path d="M18.89 15.21A7.6 7.6 0 1 1 17.82 7.11"/><path d="M19.73 5.54L19.43 9.03L15.94 8.72"/>',
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
@@ -122,7 +122,7 @@
     b_club: '<g class="f"><circle cx="12" cy="7.8" r="3.5"/><circle cx="7.4" cy="13.6" r="3.5"/><circle cx="16.6" cy="13.6" r="3.5"/><path d="M11 13.5c0 2.6-.4 4.3-1.6 6.1h5.2c-1.2-1.8-1.6-3.5-1.6-6.1z"/></g>',
     b_diamond: '<path class="f" d="M12 3.8l6.2 8.2-6.2 8.2-6.2-8.2z"/>',
     b_heart: '<path class="f" d="M12 20l-7-7.2A4.3 4.3 0 0112 7.2a4.3 4.3 0 017 5.6z"/>',
-    tilde: '<path d="M3.5 12.5c2.2-3.4 4.3-3.4 8.5 0s6.3 3.4 8.5 0"/>',
+    tilde: '<path d="M3.5 12.5C5.7 8.3 9.6 8.3 12 12.5s6.3 4.2 8.5 0"/>',
   };
   /* 글머리 기호 8종 (정사각형~줄표는 기본색, 나머지는 글씨 팔레트에서 뽑은 색) */
   const BUL = [['sq', '정사각형'], ['ring', '빈 원'], ['dot', '불릿'], ['dash', '줄표'], ['spade', '스페이드'], ['club', '클로버'], ['diamond', '다이아몬드'], ['heart', '하트']];
