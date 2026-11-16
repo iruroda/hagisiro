@@ -2335,7 +2335,7 @@
       drawAll();
     } }, ttList.map((d) => el('option', { value: d.id, selected: d.id === tid }, docName(d))));
     const clearBtn = el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
-      if (!(await ask('진도 확인의 내용을 모두 삭제할까요?\n삭제하면 되돌릴 수 없어요.'))) return;
+      if (!(await ask('진도 확인의 내용을 모두 삭제할까요?'))) return;
       prog.cells = {}; sel = null; bulk = null; flush(); drawAll();
     } }, icon('trash'), '내용 모두 삭제');
     const days0 = range();
@@ -2616,7 +2616,7 @@
         });
         return el('div', { class: 'schcur' }, el('span', { class: 'schnm' }, fld(inp)),
           el('button', { class: 'ghost sm danger', type: 'button', disabled: !!d.virtual, onclick: async () => {
-            if (!(await ask(`${docName(d)}${eul(docName(d))} 삭제할까요?\n삭제하면 되돌릴 수 없어요.`))) return;
+            if (!(await ask(`${docName(d)}${eul(docName(d))} 삭제할까요?`))) return;
             Data.del('docs', d.id);
             if (type === 'mytable') Data.del('docs', progId(d.id));
             if (PF.docSel[type] === d.id) delete PF.docSel[type];
