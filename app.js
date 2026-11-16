@@ -2496,18 +2496,18 @@
       cur = null; draft = { kind: 'text', text: '' }; edit = true; render(); drawEdit();
     };
     /* 위쪽: 항목 고르기(왼쪽) · 설정(옆) — 급식의 학교 드롭박스와 같은 자리 */
-    const entRow = () => el('div', { class: 'mk mopts' },
+    const entRow = (...extra) => el('div', { class: 'mk mopts docent' },
       el('select', { 'aria-label': meta[1], onchange: (e) => { PF.docSel[type] = e.target.value; savePf(); load(e.target.value); (edit ? drawEdit : drawView)(); } },
         docList(type).map((d) => el('option', { value: d.id, selected: d.id === id }, docName(d)))),
-      el('button', { class: 'ghost sm', type: 'button', onclick: () => openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }) }, icon('listedit'), '편집'));
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }) }, icon('listedit'), '편집'),
+      el('span', { class: 'grow' }), ...extra);
     const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
     /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정·삭제만 */
     let drawView = function () {
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
-        el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(),
-          el('div', { class: 'dsrc' },
-            el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정'),
-            el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { wipe(); } } }, icon('trash'), '삭제')),
+        el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(
+          el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정'),
+          el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { wipe(); } } }, icon('trash'), '삭제')),
           el('div', { class: 'dbody' }, docView(cur))));
     };
     let drawEdit = function () {
@@ -2540,13 +2540,11 @@
         Data.put('docs', o); cur = docOf(id) || o; edit = false; drawView();
       };
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
-        el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(),
-          el('div', { class: 'dsrc' },
-            el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('excel'), '엑셀 업로드'),
-            el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('image/*') }, icon('image'), '이미지 업로드'),
-            el('button', { class: 'ib sm', type: 'button', 'aria-label': '설명', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
-            draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, icon('textT'), '직접 입력') : null,
-            null),
+        el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(
+          el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('excel'), '엑셀 업로드'),
+          el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('image/*') }, icon('image'), '이미지 업로드'),
+          el('button', { class: 'ib sm', type: 'button', 'aria-label': '설명', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
+          draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, icon('textT'), '직접 입력') : null),
           body,
           el('div', { class: 'dlgf' },
             el('span', { class: 'grow' }),
@@ -2559,7 +2557,7 @@
       if (!img) return;
       const run = () => {
         const nw = img.naturalWidth, nh = img.naturalHeight; if (!nw) return;
-        const hasSrc = (d.querySelector('.dsrc') ? 56 : 0) + 44;
+        const hasSrc = 44;
         const availW = window.innerWidth * 0.94 - 28, availH = window.innerHeight * 0.9 - 150 - hasSrc;
         const k = Math.min(1, availW / nw, availH / nh);
         const w = Math.round(nw * k);

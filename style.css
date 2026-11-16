@@ -1074,7 +1074,8 @@ body.widget .cell { padding-top: 5px; }
 .fmtpop span { font-weight: 600; }
 .fmtpop small { color: var(--mut); font-size: 12px; }
 .dta:focus::placeholder { opacity: 0; }
-.dsrc .ib.sm { margin-left: -2px; }
+.docent { gap: 8px; align-items: center; flex-wrap: wrap; }
+.docent .ib.sm { margin-left: -2px; }
 
 /* 손잡이는 안쪽 모서리만 둥글게 (창 가장자리에 닿는 쪽은 테두리와 이어지도록 각지게) */
 #wedit i[data-e="n"] { --rd: 0 0 5px 5px; --rw: 0 0 8px 8px; } #wedit i[data-e="s"] { --rd: 5px 5px 0 0; --rw: 8px 8px 0 0; }
