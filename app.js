@@ -3074,6 +3074,12 @@
         .then(() => { if (my === nav && document.body.contains(body)) draw(); });
     };
     const mv = (n) => { sun = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + 7 * n); load(); };
+    /* 학교 편집을 마치면 급식 팝업은 닫았다 다시 열지 않고, 같은 창에서 학교 목록·표만 새로 보여줘요 */
+    const refreshSchools = () => {
+      schSel.replaceChildren(...PF.schools.map((x) => el('option', { value: x.code, selected: PF.school && x.code === PF.school.code }, x.name)));
+      dlg.querySelectorAll('.mopts select, .mopts input, .mnav button').forEach((e) => { e.disabled = !PF.school; });
+      Object.keys(cache).forEach((k) => delete cache[k]); load();
+    };
     /* 학교(왼쪽) · 조식/중식/석식/주말 제외 체크(오른쪽): 날짜 줄 위에 한 줄로 */
     const chk = (label, on, fn) => el('label', { class: 'rchk' }, el('input', { type: 'checkbox', checked: on, disabled: !PF.school, onchange: (e) => fn(e.target.checked) }), label);
     const schSel = el('select', { 'aria-label': '학교', disabled: !PF.school, onchange: (e) => {
@@ -3082,7 +3088,7 @@
     } }, PF.schools.map((x) => el('option', { value: x.code, selected: PF.school && x.code === PF.school.code }, x.name)));
     const opts = el('div', { class: 'mk mopts' },
       schSel,
-      el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(openMealWeek) }, icon('school'), '학교 편집'),
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => openSchool(refreshSchools) }, icon('school'), '학교 편집'),
       el('span', { class: 'grow' }),
       MEAL_KINDS.map((k) => chk(k, (PF.mk || MEAL_KINDS).includes(k), (v) => {
         const cur = new Set(PF.mk || MEAL_KINDS); if (v) cur.add(k); else cur.delete(k);
