@@ -2839,10 +2839,10 @@
     m.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg rosdlg' },
         el('div', { class: 'shead' }, hb(c ? 'users' : 'userplus', c ? '학급 수정' : '학급 추가'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        el('div', { class: 'pfr' }, el('span', { class: 'pl' }, '학급 이름'), fld(name)),
+        el('div', { class: 'pfr' }, el('span', { class: 'pl' }, '학급 이름'), fld(name),
+          c ? el('button', { class: 'ghost sm danger', type: 'button', onclick: remove }, icon('trash'), '삭제') : null),
         el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 번호 · 이름'), fld(ta)),
         el('div', { class: 'dlgf' },
-          c ? el('button', { class: 'ghost sm danger', onclick: remove }, icon('trash'), '삭제') : null,
           el('span', { class: 'grow' }),
           el('button', { class: 'ghost', onclick: close }, '취소'),
           sv = el('button', { class: 'pri', onclick: save }, '저장'))));
