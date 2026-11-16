@@ -3530,6 +3530,66 @@
     new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
     scan();
   }
+  /* 드롭다운(<select>) 목록: 브라우저 기본 목록 대신 연도·월 목록과 같은 앱 전용 목록으로 보여줘요 (값·변경 이벤트는 그대로라 기존 동작은 바뀌지 않아요) */
+  function initSelects() {
+    let dd = null, cur = null, skip = null, hi = -1;
+    const items = () => [...dd.querySelectorAll('.ttdo:not(:disabled)')];
+    const mark = (i) => {
+      const it = items(); if (!it.length) return;
+      hi = (i + it.length) % it.length;
+      it.forEach((b, k) => b.classList.toggle('kb', k === hi));
+      it[hi].scrollIntoView({ block: 'nearest' });
+    };
+    const close = () => {
+      if (!dd) return;
+      dd.remove(); dd = null; cur = null; hi = -1;
+      document.removeEventListener('pointerdown', off, true); document.removeEventListener('keydown', key, true); window.removeEventListener('resize', close);
+    };
+    const off = (e) => { if (!dd || dd.contains(e.target)) return; skip = e.target.closest && e.target.closest('select') === cur ? cur : null; close(); };
+    const key = (e) => {
+      if (!dd) return;
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); const s = cur; close(); s.focus(); return; }
+      if (e.key === 'ArrowDown') { e.preventDefault(); e.stopPropagation(); mark(hi + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); e.stopPropagation(); mark(hi < 0 ? -1 : hi - 1); }
+      else if (e.key === 'Enter' || e.key === ' ') { const it = items(); if (hi >= 0 && it[hi]) { e.preventDefault(); e.stopPropagation(); it[hi].click(); } }
+      else if (e.key === 'Tab') close();
+    };
+    const open = (s) => {
+      close();
+      const opts = [...s.options];
+      dd = el('div', { class: 'ttdd sdd', role: 'listbox' }, opts.map((o, i) => (o.hidden ? null : el('button', { type: 'button', class: 'ttdo' + (o.selected ? ' on' : ''), disabled: o.disabled, onclick: () => {
+        s.selectedIndex = i;
+        s.dispatchEvent(new Event('input', { bubbles: true })); s.dispatchEvent(new Event('change', { bubbles: true }));
+        close(); s.focus();
+      } }, o.textContent))));
+      cur = s;
+      document.body.append(dd);
+      const r = s.getBoundingClientRect();
+      const below = innerHeight - r.bottom - 10, above = r.top - 10, up = dd.scrollHeight + 10 > below && above > below;
+      dd.style.maxHeight = Math.max(80, Math.min(240, up ? above : below)) + 'px';
+      dd.style.minWidth = r.width + 'px';
+      dd.style.left = Math.max(6, Math.min(r.left, innerWidth - dd.offsetWidth - 6)) + 'px';
+      dd.style.top = (up ? r.top - 4 - dd.offsetHeight : r.bottom + 4) + 'px';
+      const on = dd.querySelector('.on'); if (on) { dd.scrollTop = Math.max(0, on.offsetTop - 70); hi = items().indexOf(on); }
+      document.addEventListener('pointerdown', off, true); document.addEventListener('keydown', key, true); window.addEventListener('resize', close);
+    };
+    document.addEventListener('mousedown', (e) => {
+      const s = e.target.closest && e.target.closest('select');
+      if (!s || s.disabled || e.button !== 0) return;
+      e.preventDefault(); // 기본 목록이 뜨지 않게
+      s.focus();
+      if (skip === s) { skip = null; return; }
+      skip = null; open(s);
+    }, true);
+    document.addEventListener('keydown', (e) => {
+      if (dd) return;
+      const s = e.target;
+      if (!(s instanceof HTMLSelectElement) || s.disabled) return;
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(s); }
+    }, true);
+    window.addEventListener('scroll', (e) => { if (dd && !dd.contains(e.target)) close(); }, true);
+  }
+  initSelects();
   watchPopups();
   initWidgetEdit();
   { const tp = $('#top'); if (tp && window.ResizeObserver) new ResizeObserver(() => fitTop()).observe(tp); }
