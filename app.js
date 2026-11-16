@@ -100,7 +100,7 @@
     sy_star: '<path fill="currentColor" stroke-width="2.6" d="M12.00 2.80 L14.41 8.68 L20.75 9.16 L15.90 13.27 L17.41 19.44 L12.00 16.10 L6.59 19.44 L8.10 13.27 L3.25 9.16 L9.59 8.68z"/>',
     sy_flower: '<path fill="currentColor" fill-rule="evenodd" stroke-width="0.8" d="M14.42 7.80 A2.8 2.8 0 1 1 16.85 12.00 A2.8 2.8 0 1 1 14.42 16.20 A2.8 2.8 0 1 1 9.58 16.20 A2.8 2.8 0 1 1 7.15 12.00 A2.8 2.8 0 1 1 9.58 7.80 A2.8 2.8 0 1 1 14.42 7.80z M15.6 12a3.6 3.6 0 11-7.2 0 3.6 3.6 0 017.2 0z"/>',
     sy_flag: '<path stroke-width="2.6" d="M8 3.6V19.8"/><path fill="currentColor" stroke-width="2.6" d="M8 3.6L20 9L8 14.4z"/>',
-    link: '<path d="M10.33 14.30A4 4 0 0 0 15.7 14l3-3a4 4 0 00-5.7-5.7"/><path d="M13.67 9.70A4 4 0 0 0 8.3 10l-3 3a4 4 0 005.7 5.7"/>',
+    link: '<path d="M10.17 14.17A4 4 0 0 0 15.7 14l3-3A4.03 4.03 0 0 0 13.54 4.85"/><path d="M13.83 9.83A4 4 0 0 0 8.3 10l-3 3A4.03 4.03 0 0 0 10.46 19.15"/>',
     share: '<path stroke-width="2.2" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/>',
     refresh: '<path d="M18.89 15.21A7.6 7.6 0 1 1 17.82 7.11"/><path d="M19.73 5.54L19.43 9.03L15.94 8.72"/>',
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
