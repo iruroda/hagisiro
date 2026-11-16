@@ -1372,3 +1372,10 @@ input[type=date].empty { color: var(--mut); }
 
 .schcur .schnm { overflow: visible; }
 .schcur .schnm input { width: 100%; }
+
+/* 이미지 편집: 마우스를 올리면 이미지가 밝아지고 가운데에 삭제 버튼 */
+.dimgw { position: relative; width: fit-content; max-width: 100%; margin: 0 auto; border-radius: var(--r); overflow: hidden; }
+.dimgw img { display: block; }
+.dimgdel { position: absolute; inset: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: inherit; background: rgba(255,255,255,.62); color: #e5484d; font-weight: 700; font-size: 14px; opacity: 0; transition: opacity .15s; cursor: pointer; }
+.dimgw:hover .dimgdel, .dimgdel:focus-visible { opacity: 1; }
+.dimgdel .ic svg { width: 20px; height: 20px; }

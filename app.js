@@ -2529,7 +2529,8 @@
         draft.text = ta.value;
       });
       const body = draft.kind === 'image'
-        ? el('div', { class: 'dbody' }, el('div', { class: 'dimg' }, el('img', { src: draft.img, alt: '' })))
+        ? el('div', { class: 'dbody' }, el('div', { class: 'dimg' }, el('div', { class: 'dimgw' }, el('img', { src: draft.img, alt: '' }),
+          el('button', { class: 'dimgdel', type: 'button', 'aria-label': '이미지 삭제', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, icon('trash'), '삭제'))))
         : ta;
       const save = () => {
         if (draft.kind === 'text' && !draft.text.trim()) { if (cur) wipe(); else close(); return; }
@@ -2544,7 +2545,7 @@
           el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('excel'), '엑셀 업로드'),
           el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('image/*') }, icon('image'), '이미지 업로드'),
           el('button', { class: 'ib sm', type: 'button', 'aria-label': '설명', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
-          draft.kind === 'image' ? el('button', { class: 'ghost sm', type: 'button', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, icon('textT'), '직접 입력') : null),
+          null),
           body,
           el('div', { class: 'dlgf' },
             el('span', { class: 'grow' }),
@@ -2562,7 +2563,7 @@
         const k = Math.min(1, availW / nw, availH / nh);
         const w = Math.round(nw * k);
         img.style.width = w + 'px'; img.style.height = 'auto';
-        d.style.width = Math.max(Math.min(340, window.innerWidth * 0.94), w + 28) + 'px';
+        d.style.width = Math.max(Math.min(edit ? 580 : 440, window.innerWidth * 0.94), w + 28) + 'px'; // 윗줄(드롭박스·버튼)이 한 줄에 들어갈 만큼은 유지
       };
       if (img.complete && img.naturalWidth) run(); else img.addEventListener('load', run, { once: true });
     }
