@@ -98,7 +98,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .td { display: flex; gap: 5px; align-items: flex-start; font-size: var(--td-fs, 12px); line-height: var(--td-lh, 1.4); padding: var(--td-pad, 1px) 0; }
 .tt { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; color: var(--tfg, var(--tfg-d, inherit)); background: var(--tbg, var(--tbg-d, transparent)); border-radius: var(--r-xs); padding: 0 3px; margin: 0 -3px; }
 .td.done .tt { text-decoration: line-through; opacity: .55; }
-.ed .td input { flex: 1; min-width: 0; border: 0; outline: 0; background: var(--tbg, var(--tbg-d, transparent)); font: inherit; color: var(--tfg, var(--tfg-d, inherit)); padding: 0 3px; border-radius: var(--r-xs); }
+.ed .td input { flex: 1; min-width: 0; border: 0; outline: 0; background: var(--tbg, var(--tbg-d, transparent)); font: inherit; color: var(--tfg, var(--tfg-d, inherit)); padding: 0 3px; border-radius: var(--r-pill); }
 .ed .td.done input { text-decoration: line-through; opacity: .55; }
 .gev { font-size: 11px; color: var(--teal); background: color-mix(in srgb, var(--teal) 11%, transparent); border-radius: var(--r-xs); padding: 0 4px; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dots { display: none; }
