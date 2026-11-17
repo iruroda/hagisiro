@@ -3236,8 +3236,8 @@
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
         el('div', { class: 'shead' }, hb('school', '학교 편집'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        list,
-        el('div', { class: 'schq' }, fld(inp), sbtn), res));
+        el('div', { class: 'schq' }, fld(inp), sbtn), res,
+        list));
     drawList();
     document.body.append(layer);
     setTimeout(() => inp.focus(), 30);
