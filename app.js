@@ -2284,12 +2284,16 @@
     rows[0].forEach((c, i) => { const m = /^\s*([월화수목금])/.exec(c); if (m) colDay[i] = '월화수목금'.indexOf(m[1]) + 1; });
     let body = rows;
     if (Object.keys(colDay).length) body = rows.slice(1); else [1, 2, 3, 4, 5].forEach((i) => { colDay[i] = i; });
-    body.forEach((r) => Object.entries(colDay).forEach(([i, w]) => {
-      const t = (r[i] || '').replace(/\s+/g, ' ').trim();
-      if (!t || /^[-–—.]+$/.test(t)) return;
-      if (!out.has(t)) out.set(t, new Set());
-      out.get(t).add(w);
-    }));
+    body.forEach((r, ri) => {
+      const pno = parseInt(String(r[0] || '').replace(/\D/g, ''), 10) || ri + 1; // 첫 칸의 교시 번호 (없으면 위에서부터 몇 번째 줄인지)
+      Object.entries(colDay).forEach(([i, w]) => {
+        const t = (r[i] || '').replace(/\s+/g, ' ').trim();
+        if (!t || /^[-–—.]+$/.test(t)) return;
+        if (!out.has(t)) out.set(t, new Map());
+        const m = out.get(t); if (!m.has(w)) m.set(w, []);
+        if (!m.get(w).includes(pno)) m.get(w).push(pno);
+      });
+    });
     return out;
   }
   function openProgress() {
@@ -2331,7 +2335,10 @@
     const paint = (n, ds) => {
       const td = tds.get(n + '|' + ds); if (!td) return;
       const c = cellOf(n, ds);
-      td.replaceChildren(...(c.s ? [el('span', { class: 'pbg' }, icon((PSYM.find((x) => x[0] === c.s) || [])[2] || 'sy_none'))] : []), el('span', { class: 'ptx' }, c.t || ''));
+      const ps = (subj.get(n) && subj.get(n).get(parseYmd(ds).getDay())) || [];
+      td.replaceChildren(...(c.s ? [el('span', { class: 'pbg ps-' + c.s }, icon((PSYM.find((x) => x[0] === c.s) || [])[2] || 'sy_none'))] : []),
+        ...(ps.length ? [el('span', { class: 'ppd' }, ps.slice().sort((a, b) => a - b).join('·') + '교시')] : []),
+        el('span', { class: 'ptx' }, c.t || ''));
       td.title = c.t || '';
     };
     const dlg = el('div', { class: 'dlg progdlg' });
@@ -2350,12 +2357,12 @@
     const days0 = range();
     const sIn = el('input', { type: 'date', value: ymd(days0[0] || mon0), 'aria-label': '시작일', onchange: () => { prog.start = sIn.value; flush(); drawAll(); } });
     const eIn = el('input', { type: 'date', value: ymd(days0[days0.length - 1] || mon0), 'aria-label': '종료일', onchange: () => { prog.end = eIn.value; flush(); drawAll(); } });
-    const bar = el('div', { class: 'mk mopts progbar' }, sel0, clearBtn, el('span', { class: 'grow' }), sIn, el('span', { class: 'mut' }, '~'), eIn);
+    const bar = el('div', { class: 'mk mopts progbar' }, sel0, el('span', { class: 'grow' }), sIn, el('span', { class: 'mut' }, '~'), eIn, clearBtn);
     const wrap = el('div', { class: 'progwrap' });
     const edit = el('div', { class: 'progedit' });
     dlg.append(head, bar, wrap, edit);
 
-    const symRow = (cur, pick) => el('div', { class: 'blpick psyms' }, PSYM.map(([k, name, ic]) => el('button', { type: 'button', class: 'blb' + ((cur || '') === k ? ' on' : ''), 'aria-label': name, title: name, onclick: () => pick(k) }, icon(ic))));
+    const symRow = (cur, pick) => el('div', { class: 'blpick psyms' }, PSYM.map(([k, name, ic]) => el('button', { type: 'button', class: 'blb' + (k ? ' ps-' + k : '') + ((cur || '') === k ? ' on' : ''), 'aria-label': name, title: name, onclick: () => pick(k) }, icon(ic))));
     function drawEdit() {
       edit.replaceChildren();
       if (sel) {
@@ -2368,21 +2375,15 @@
         edit.append(el('div', { class: 'pedh mut' }, `${dl(parseYmd(ds))} · ${name}`), el('div', { class: 'pedr' }, fld(inp), syms));
         setTimeout(() => inp.focus(), 0);
       } else if (bulk) {
-        const ds = bulk; let sy = null;
+        const ds = bulk;
+        const snap = names().map((n) => ({ n, t: cellOf(n, ds).t || '' })); // 비우면 원래 내용으로 돌아가게
         const inp = el('input', { type: 'text', 'aria-label': `${dl(parseYmd(ds))} 한꺼번에 입력`, spellcheck: 'false' });
         const syms = el('div', {});
-        const drawSym = () => syms.replaceChildren(symRow(sy, (k) => { sy = k; drawSym(); }));
+        let sy = null;
+        const drawSym = () => syms.replaceChildren(symRow(sy, (k) => { sy = k; snap.forEach(({ n }) => { setCell(n, ds, { s: k }); paint(n, ds); }); save(); drawSym(); }));
         drawSym();
-        const apply = () => {
-          const patch = {};
-          if (inp.value.trim()) patch.t = inp.value.trim();
-          if (sy !== null) patch.s = sy;
-          if (!Object.keys(patch).length) return;
-          names().forEach((n) => { setCell(n, ds, patch); paint(n, ds); });
-          flush(); inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true }));
-        };
-        inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) apply(); });
-        edit.append(el('div', { class: 'pedh mut' }, `${dl(parseYmd(ds))} · 한꺼번에 입력`), el('div', { class: 'pedr' }, fld(inp), syms, el('button', { class: 'pri sm', type: 'button', onclick: apply }, '적용')));
+        inp.addEventListener('input', () => { snap.forEach(({ n, t }) => { setCell(n, ds, { t: inp.value.trim() ? inp.value : t }); paint(n, ds); }); save(); });
+        edit.append(el('div', { class: 'pedh mut' }, `${dl(parseYmd(ds))} · 한꺼번에 입력`), el('div', { class: 'pedr' }, fld(inp), syms));
         setTimeout(() => inp.focus(), 0);
       }
     }
@@ -2392,13 +2393,21 @@
       const none = !list.length; // 내 시간표에 과목이 없으면 급식(학교 없음)처럼 틀은 그대로 두고 흐리게·비활성화
       dlg.classList.toggle('nosub', none);
       [clearBtn, sIn, eIn].forEach((x) => { x.disabled = none; });
+      const weekRow = () => { // 월~금을 묶어서 N주차 (시작 날짜가 있는 주가 1주차)
+        const th = []; let k = 0;
+        days.forEach((d, i) => {
+          const mon = ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7)));
+          const prev = i ? days[i - 1] : null, pm = prev ? ymd(new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() - ((prev.getDay() + 6) % 7))) : null;
+          if (mon !== pm) { k++; th.push(el('th', { class: 'pw', colspan: 1 }, `${k}주차`)); } else th[th.length - 1].colSpan++;
+        });
+        return el('tr', { class: 'pwr' }, el('th', { class: 'pn', rowSpan: 2 }, '과목'), th);
+      };
+      const dateRow = (go) => el('tr', { class: 'pdr' }, days.map((d) => el('th', go ? { class: 'pd go' + (bulk === ymd(d) ? ' sel' : ''), onclick: () => { bulk = bulk === ymd(d) ? null : ymd(d); sel = null; drawAll(); } } : { class: 'pd' }, dl(d))));
       if (none) {
-        const th = el('tr', {}, el('th', { class: 'pn' }, '과목'), days.map((d) => el('th', { class: 'pd' }, dl(d))));
-        wrap.replaceChildren(el('div', { class: 'pmw' }, el('table', { class: 'mt pt', style: `width:${148 + 112 * days.length}px;min-width:100%` }, el('thead', {}, th)),
+        wrap.replaceChildren(el('div', { class: 'pmw' }, el('table', { class: 'mt pt', style: `width:${148 + 112 * days.length}px;min-width:100%` }, el('thead', {}, weekRow(), dateRow(false))),
 ));
         sel = null; bulk = null; drawEdit(); return;
       }
-      const head = el('tr', {}, el('th', { class: 'pn' }, '과목'), days.map((d) => el('th', { class: 'pd go' + (bulk === ymd(d) ? ' sel' : ''), onclick: () => { bulk = bulk === ymd(d) ? null : ymd(d); sel = null; drawAll(); } }, dl(d))));
       const body = list.map((n, i) => {
         const mv = (dir) => { const o = list.slice(); const j = i + dir; [o[i], o[j]] = [o[j], o[i]]; prog.ord = o; flush(); drawAll(); };
         const tr = el('tr', {}, el('td', { class: 'pn' }, el('div', { class: 'pnr' },
@@ -2415,7 +2424,7 @@
         });
         return tr;
       });
-      const tbl = el('table', { class: 'mt pt', style: `width:${148 + 112 * days.length}px;min-width:100%` }, el('thead', {}, head), el('tbody', {}, body));
+      const tbl = el('table', { class: 'mt pt', style: `width:${148 + 112 * days.length}px;min-width:100%` }, el('thead', {}, weekRow(), dateRow(true)), el('tbody', {}, body));
       wrap.replaceChildren(el('div', { class: 'pmw' }, tbl));
       drawEdit();
     }
@@ -2503,7 +2512,7 @@
     const meta = DOCS.find((x) => x[0] === type);
     const m = $('#modal');
     m.hidden = false;
-    const close = () => { m.hidden = true; m.replaceChildren(); render(); };
+    const close = () => { if (saveT) persist(); m.hidden = true; m.replaceChildren(); render(); };
     let id, cur, draft, edit;
     const load = (nid, fe) => { id = nid; const d = docOf(id); cur = docHas(d) ? d : null; draft = cur ? { kind: cur.kind, text: cur.text || '', img: cur.img || '' } : { kind: 'text', text: '' }; edit = !!fe || !cur; };
     load(docSelId(type), forceEdit);
@@ -2513,11 +2522,26 @@
       if (e && e.name) Data.put('docs', { id, type, name: e.name, created: e.created || 0, kind: 'text', text: '', updated: Date.now() }); else Data.del('docs', id);
       cur = null; draft = { kind: 'text', text: '' }; edit = true; render(); drawEdit();
     };
+    /* 수정 중에는 저장 버튼 없이, 입력이 잠깐 멈추면 저장해요 (닫거나 '완료'를 눌러도 저장) */
+    let saveT = null;
+    const persist = () => {
+      if (saveT) { clearTimeout(saveT); saveT = null; }
+      if (draft.kind === 'text' && draft.text.length > 300000) draft.text = draft.text.slice(0, 300000); // 너무 길면 뒤쪽을 잘라요
+      if (draft.kind === 'text' && !draft.text.trim()) {
+        if (cur) { const e = docOf(id); if (e && e.name) Data.put('docs', { id, type, name: e.name, created: e.created || 0, kind: 'text', text: '', updated: Date.now() }); else Data.del('docs', id); cur = null; render(); }
+        return;
+      }
+      const e0 = docOf(id) || {};
+      const base = { id, type, ...(e0.name ? { name: e0.name } : {}), created: e0.created || 0 };
+      const o = draft.kind === 'image' ? { ...base, kind: 'image', img: draft.img, updated: Date.now() } : { ...base, kind: 'text', text: draft.text, updated: Date.now() };
+      Data.put('docs', o); cur = docOf(id) || o;
+    };
+    const sched = () => { if (saveT) clearTimeout(saveT); saveT = setTimeout(persist, 500); };
     /* 위쪽: 항목 고르기(왼쪽) · 설정(옆) — 급식의 학교 드롭박스와 같은 자리 */
     const entRow = (...extra) => el('div', { class: 'mk mopts docent' },
-      el('select', { 'aria-label': meta[1], onchange: (e) => { PF.docSel[type] = e.target.value; savePf(); load(e.target.value); (edit ? drawEdit : drawView)(); } },
+      el('select', { 'aria-label': meta[1], onchange: (e) => { if (saveT) persist(); PF.docSel[type] = e.target.value; savePf(); load(e.target.value); (edit ? drawEdit : drawView)(); } },
         docList(type).map((d) => el('option', { value: d.id, selected: d.id === id }, docName(d)))),
-      el('button', { class: 'ghost sm', type: 'button', onclick: () => openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }) }, icon('listedit'), '편집'),
+      el('button', { class: 'ghost sm', type: 'button', onclick: () => { if (saveT) persist(); openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }); } }, icon('listedit'), '편집'),
       el('span', { class: 'grow' }), ...extra);
     const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
     /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정·삭제만 */
@@ -2533,13 +2557,13 @@
         const inp = el('input', { type: 'file', accept, hidden: true, onchange: async () => { const f = inp.files[0]; inp.remove(); if (f) await run(f); } });
         document.body.append(inp); inp.click();
       };
-      const upload = (accept) => pick(accept, async (f) => { try { draft = await fileToDraft(f); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ } });
+      const upload = (accept) => pick(accept, async (f) => { try { draft = await fileToDraft(f); persist(); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ } });
       const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀 또는 한글의 표를 복사하여 붙여 넣으세요.' });
       ta.value = draft.text || '';
-      ta.addEventListener('input', () => { draft.text = ta.value; });
+      ta.addEventListener('input', () => { draft.text = ta.value; sched(); });
       ta.addEventListener('keydown', (e) => { // Tab 키는 칸을 나누는 탭 문자로 (Shift+Tab은 그대로 다음 칸으로 이동)
         if (e.key !== 'Tab' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
-        e.preventDefault(); ta.setRangeText('\t', ta.selectionStart, ta.selectionEnd, 'end'); draft.text = ta.value;
+        e.preventDefault(); ta.setRangeText('\t', ta.selectionStart, ta.selectionEnd, 'end'); draft.text = ta.value; sched();
       });
       ta.addEventListener('paste', (e) => {
         const cd = e.clipboardData; if (!cd) return;
@@ -2548,31 +2572,19 @@
         const t = htmlTableToTsv(html); if (!t.trim()) return;
         e.preventDefault();
         ta.setRangeText(t, ta.selectionStart, ta.selectionEnd, 'end');
-        draft.text = ta.value;
+        draft.text = ta.value; sched();
       });
       const body = draft.kind === 'image'
         ? el('div', { class: 'dbody' }, el('div', { class: 'dimg' }, el('div', { class: 'dimgw' }, el('img', { src: draft.img, alt: '' }),
-          el('button', { class: 'dimgdel', type: 'button', 'aria-label': '이미지 삭제', onclick: () => { draft = { kind: 'text', text: '' }; drawEdit(); } }, el('span', { class: 'dimgi' }, el('span', { class: 'ol' }, icon('trash')), icon('trash')), '삭제'))))
+          el('button', { class: 'dimgdel', type: 'button', 'aria-label': '이미지 삭제', onclick: () => { draft = { kind: 'text', text: '' }; persist(); drawEdit(); } }, el('span', { class: 'dimgi' }, el('span', { class: 'ol' }, icon('trash')), icon('trash')), '삭제'))))
         : ta;
-      const save = () => {
-        if (draft.kind === 'text' && !draft.text.trim()) { if (cur) wipe(); else close(); return; }
-        if (draft.kind === 'text' && draft.text.length > 300000) draft.text = draft.text.slice(0, 300000); // 너무 길면 뒤쪽을 잘라요
-        const e0 = docOf(id) || {};
-        const base = { id, type, ...(e0.name ? { name: e0.name } : {}), created: e0.created || 0 };
-        const o = draft.kind === 'image' ? { ...base, kind: 'image', img: draft.img, updated: Date.now() } : { ...base, kind: 'text', text: draft.text, updated: Date.now() };
-        Data.put('docs', o); cur = docOf(id) || o; edit = false; drawView();
-      };
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (draft.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(
           el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('.xlsx,.xls,.xlsm') }, icon('excel'), '엑셀 업로드'),
           el('button', { class: 'ghost sm', type: 'button', onclick: () => upload('image/*') }, icon('image'), '이미지 업로드'),
           el('button', { class: 'ib sm', type: 'button', 'aria-label': '설명', onclick: (e) => { e.stopPropagation(); fmtPop(e.currentTarget); } }, icon('info')),
-          null),
-          body,
-          el('div', { class: 'dlgf' },
-            el('span', { class: 'grow' }),
-            el('button', { class: 'ghost', onclick: () => { if (cur) { edit = false; drawView(); } else close(); } }, '취소'),
-            el('button', { class: 'pri', onclick: save }, '저장'))));
+          el('button', { class: 'ghost sm', type: 'button', onclick: () => { persist(); if (docHas(cur)) { edit = false; drawView(); } else close(); } }, icon('check'), '완료')),
+          body));
       if (draft.kind === 'text' && draft.text) ta.focus();
     };
     function fitImg() { // 사진 크기에 맞춰 팝업 폭을 줄이고, 화면(세로)에 들어가도록 줄여요
@@ -2648,8 +2660,8 @@
     layer.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg' },
         el('div', { class: 'shead' }, hb('listedit', '편집'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        list,
-        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost sm', type: 'button', onclick: add }, icon('plus'), '추가'))));
+        el('div', { class: 'abar' }, el('button', { class: 'ghost sm', type: 'button', onclick: add }, icon('plus'), '추가')),
+        list));
     drawList();
     document.body.append(layer);
   }
@@ -2756,8 +2768,7 @@
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg pfdlg' },
         el('div', { class: 'shead' }, hb('gear', '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        el('div', { class: 'pmain' }, tabBar, body),
-        el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'pri', onclick: close }, '닫기'))));
+        el('div', { class: 'pmain' }, tabBar, body)));
     draw();
     if (W && W.getZ) W.getZ().then((v) => { S.zmode = v; if (!m.hidden) draw(); });
     if (W && W.getAutoStart) W.getAutoStart().then((v) => { S.autoStart = v; if (!m.hidden) draw(); });

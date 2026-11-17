@@ -1340,13 +1340,17 @@ input[type=date].empty { color: var(--mut); }
 .progwrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .progwrap .empty { padding: 20px 0; text-align: center; }
 .pmw { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--line); }
-.pt { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.pt { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .pt th, .pt td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); height: 44px; padding: 0 6px; text-align: center; font-size: 13px; }
 .pt th { font-weight: 600; color: var(--mut); background: var(--bg2-s); height: 36px; white-space: nowrap; }
 .pt th:last-child, .pt td:last-child { border-right: 0; }
 .pt tbody tr:last-child td { border-bottom: 0; }
 .pt .pn { width: 148px; text-align: left; position: sticky; left: 0; z-index: 2; background: var(--bg-s); }
 .pt th.pn { background: var(--bg2-s); text-align: center; }
+.pt thead th.pn { z-index: 6; top: 0; }
+.pt thead tr.pwr th { height: 28px; top: 0; }
+.pt thead tr.pdr th { top: 28px; }
+.pt thead th.pw { font-size: 12px; }
 .pt th.pd { width: 112px; cursor: pointer; }
 .pt th.pd:hover, .pt th.pd.sel { color: var(--accent); }
 .pnr { display: flex; align-items: center; gap: 4px; }
@@ -1415,3 +1419,17 @@ input[type=date].empty { color: var(--mut); }
 
 /* 비활성 버튼은 올려도 색이 변하지 않게 (위젯 전체) */
 button:disabled { pointer-events: none; }
+
+/* 진도 확인: 시간표가 없을 때도 시간표 드롭다운은 흐리게 하지 않아요 */
+.progdlg.nosub .progbar { opacity: 1; }
+.progdlg.nosub .progbar > :not(select) { opacity: .4; }
+/* 진도 확인: 수업이 있는 칸 배경에 회색 N교시 · 기호 색 */
+.ppd { position: absolute; right: 5px; bottom: 2px; font-size: 9.5px; line-height: 1.2; color: var(--mut); opacity: .75; pointer-events: none; white-space: nowrap; }
+.pbg.ps-circle, .psyms .blb.ps-circle { color: #3b82f6; }
+.pbg.ps-tri, .psyms .blb.ps-tri { color: #22a559; }
+.pbg.ps-x, .psyms .blb.ps-x { color: #f97316; }
+.pbg.ps-check, .psyms .blb.ps-check { color: #14b8a6; }
+.pbg.ps-star, .psyms .blb.ps-star { color: #eab308; }
+.pbg.ps-flower, .psyms .blb.ps-flower { color: #ec4899; }
+.pbg.ps-flag, .psyms .blb.ps-flag { color: #8b5cf6; }
+.pbg[class*="ps-"] { opacity: .55; }
