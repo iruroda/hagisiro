@@ -24,7 +24,8 @@ input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px col
 .banner { position: sticky; top: 8px; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin-top: 10px; background: var(--accent); color: #fff; border-radius: 8px; }
 .banner button { margin-left: auto; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,.22); color: #fff; }
 .pri { background: var(--accent); color: #fff; padding: 9px 16px; border-radius: 8px; font-weight: 600; }
-.ghost { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); }
+.ghost { padding: 9px 16px; border-radius: 8px; border: 0; background: none; }
+.ghost:hover { background: var(--bg2); }
 .danger { color: var(--sun); }
 #bm { position: fixed; inset: 0; display: grid; place-items: center; z-index: 10; }
 #bm[hidden] { display: none; }
