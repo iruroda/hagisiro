@@ -364,7 +364,7 @@
     const n = COLS.reduce((a, c) => a + (d[c] || []).length, 0);
     ls.set(key, '1');
     if (!n) return;
-    ask(`이 기기에 저장돼 있던 데이터(${n}건)를 내 계정으로 옮길까요?`, '옮기기', false).then((yes) => {
+    ask(`이 기기에 저장돼 있던 데이터(${n}건)를 내 계정으로 이동할까요?`, '이동', false).then((yes) => {
       if (!yes) return;
       COLS.forEach((c) => (d[c] || []).forEach((x) => S.cloud.save(c, x).catch(cloudErr)));
     });
@@ -2517,7 +2517,7 @@
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(
           el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정'),
-          el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await ask(meta[1] + ' 내용을 삭제할까요?')) { wipe(); } } }, icon('trash'), '삭제')),
+          el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { { const nm = docName(docOf(id) || { id, type }); if (await ask(`${nm}${eul(nm)} 삭제할까요?`)) { wipe(); } } } }, icon('trash'), '삭제')),
           el('div', { class: 'dbody' }, docView(cur))));
     };
     let drawEdit = function () {
@@ -2837,7 +2837,7 @@
       close(); render();
     }
     async function remove() {
-      if (!(await ask('학급과 출결 기록을 삭제할까요?'))) return;
+      if (!(await ask('이 학급과 출결 기록을 삭제할까요?'))) return;
       S.att.filter((a) => a.classId === c.id).forEach((a) => Data.del('att', a.id));
       Data.del('classes', c.id); S.clsId = null; close(); render();
     }
@@ -3221,8 +3221,8 @@
         el('button', { class: 'pri cnew', type: 'button', onclick: () => { dir = 'next'; quick(); } }, icon('plus'), '새 테이블 만들기')));
     }
     async function del(c) {
-      if (!(await ask(`“${c.title || '상담'}” 테이블을 삭제할까요?`))) return;
-      try { await S.cloud.consultDelete(c.id); list(); } catch (e) { console.error(e); await notice('삭제에 실패했습니다.'); }
+      if (!(await ask(`${c.title || '상담'}${eul(c.title || '상담')} 삭제할까요?`))) return;
+      try { await S.cloud.consultDelete(c.id); list(); } catch (e) { console.error(e); }
     }
 
     /* ---- 1단계: 빠른 만들기 (기간·시각·간격) ---- */
@@ -3382,7 +3382,7 @@
         } catch (e) {
           console.error(e);
           ok.disabled = false;
-          await notice(e.code === 'pin-mismatch' ? '비밀번호가 일치하지 않습니다.' : e.code === 'dup' ? '이미 신청한 상담이 있습니다.' : '저장에 실패했습니다.');
+          if (e.code === 'pin-mismatch') await notice('비밀번호가 일치하지 않습니다.'); else if (e.code === 'dup') await notice('이미 신청한 상담이 있습니다.');
           fp.focus(); fp.select();
         }
       };
@@ -3415,7 +3415,7 @@
               const b = by[sid];
               return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'), title: b ? `${b.name}${b.info ? ' (' + b.info + ')' : ''}` : null,
                 onclick: b ? async () => {
-                  if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''}의 신청을 지울까요?`, '삭제'))) return;
+                  if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''}의 신청을 삭제할까요?`, '삭제'))) return;
                   try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
                 } : () => proxyBook(c, sid) }, hm(sid), b ? el('small', {}, b.name) : null);
             }));
