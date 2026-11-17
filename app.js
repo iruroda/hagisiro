@@ -2004,6 +2004,7 @@
     const w = el('div', { class: 'mwrap' }, el('div', { class: 'mfr' }, el('i')), box);
     const fit = () => { const pb = parseFloat(getComputedStyle(w).paddingBottom) || 0; w.style.setProperty('--mh', Math.max(0, w.clientHeight - pb) + 'px'); };
     if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ro.observe(w); ro.observe(box); }
+    requestAnimationFrame(() => { fit(); requestAnimationFrame(fit); }); setTimeout(fit, 350); // 크기 변화가 없어 관찰자가 안 울리는 경우(주말 등)에도 틀 높이를 확정
     return w;
   }
   /* 불러오는 중: 글자 대신 보라~파랑 도넛 링이 빙글빙글 */
