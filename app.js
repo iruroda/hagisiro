@@ -1018,7 +1018,7 @@
         const cur = list.style.height; list.style.transition = 'none'; list.style.height = 'auto';
         const h = list.children.length ? Math.min(300, list.scrollHeight) : 0;
         list.style.height = cur || '0px'; void list.offsetHeight; list.style.transition = '';
-        list.style.height = h + 'px'; list.style.marginTop = h ? '' : '-10px';
+        list.style.height = h + 'px'; list.style.marginTop = h ? '0px' : '-10px';
       };
       if (!k) { fit(); return; }
       const hit = all.filter((t) => !t.skip && t.text && t.text.toLowerCase().includes(k))
