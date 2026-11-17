@@ -1446,3 +1446,4 @@ button:disabled { pointer-events: none; }
 .cbulk { gap: 6px; }
 .cbulk .cchip { padding: 5px 10px; border-radius: var(--r); font-size: var(--fs-3, 13px); font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; }
 .cbulk .cchip.off { font-weight: 500; }
+.dttl.sun { color: var(--sun); } .dttl.sat { color: var(--sat); }
