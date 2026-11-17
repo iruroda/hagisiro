@@ -2002,7 +2002,7 @@
     const head = el('tr', {}, el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '이름'),
       cols.map((i) => {
         const d = days[i];
-        return el('th', { class: 'wcol go' + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i], },
+        return el('th', { class: 'wcol go' + (d.getDay() === 0 || holName(keys[i], d) ? ' sun' : d.getDay() === 6 ? ' sat' : '') + (keys[i] === todayS ? ' tdy' : '') + (i >= 5 ? ' we' : ''), 'data-d': keys[i], },
           `${d.getMonth() + 1}.${d.getDate()}.`, el('span', { class: 'dw' }, ` (${DOW[d.getDay()]})`));
       }),
       null);
