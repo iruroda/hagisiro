@@ -939,7 +939,7 @@
             el('span', { class: 'sd' }, n === 0 ? 'D-day' : n > 0 ? `D-${n}` : `D+${-n}`),
             el('span', { class: 'st td', 'data-sz': t.sz || null, style: colorVars(t) || null }, blSpan(t.bl), el('span', { class: 'tt' }, t.text)),
             el('span', { class: 'mut small' }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)),
-          el('button', { type: 'button', class: 'ib', 'aria-label': 'D-day 삭제', title: 'D-day 삭제', onclick: () => { Data.put('todos', clean({ ...t, dday: '' })); setTimeout(draw, 60); } }, icon('trash'))));
+          el('button', { type: 'button', class: 'ib danger', 'aria-label': 'D-day 삭제', title: 'D-day 삭제', onclick: () => { Data.put('todos', clean({ ...t, dday: '' })); setTimeout(draw, 60); } }, icon('trash'))));
       });
     };
     draw();
@@ -1809,7 +1809,7 @@
         body.append(el('div', { class: 'rrow' },
           el('div', { class: 'rinfo' }, bulletRow(r), el('div', { class: 'mut small' }, `${ruleSummary(r)} · ${per}`)),
           el('button', { class: 'ib', type: 'button', 'aria-label': '수정', onclick: () => { editing = r; showForm(); } }, icon('edit')),
-          el('button', { class: 'ib', type: 'button', 'aria-label': '삭제', onclick: () => delRule(r) }, icon('trash'))));
+          el('button', { class: 'ib danger', type: 'button', 'aria-label': '삭제', onclick: () => delRule(r) }, icon('trash'))));
       });
     }
     function showForm() { openRuleDialog({ rule: editing, ds: S.sel, onClose: () => { editing = null; show(); } }); }
@@ -3217,7 +3217,7 @@
           el('button', { class: 'ctitle', type: 'button', onclick: () => { dir = 'next'; detail(c); } }, el('b', {}, c.title || '상담'), el('small', {}, ` ${cRange(c)}`)),
           el('button', { class: 'ib', type: 'button', title: '링크 복사', 'aria-label': '링크 복사', onclick: () => copyText(c) }, icon('share')),
           el('button', { class: 'ib', type: 'button', title: '수정', 'aria-label': '수정', onclick: () => { dir = 'next'; fine(draftOf(c), c, 'list'); } }, icon('edit')),
-          el('button', { class: 'ib', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))),
+          el('button', { class: 'ib danger', type: 'button', title: '삭제', 'aria-label': '삭제', onclick: () => del(c) }, icon('trash')))),
         el('button', { class: 'pri cnew', type: 'button', onclick: () => { dir = 'next'; quick(); } }, icon('plus'), '새 테이블 만들기')));
     }
     async function del(c) {
@@ -3318,7 +3318,7 @@
           tm.addEventListener('change', tChk); tm.addEventListener('input', tChk); tChk();
           return el('div', { class: 'cdc' },
             el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`), el('span', { class: 'grow' }),
-              el('button', { class: 'ib sm', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
+              el('button', { class: 'ib sm danger', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
             ts.map((t) => {
               const b = booked[k + '_' + t];
               return el('button', { type: 'button', class: 'cchip' + (o[t] ? '' : ' off') + (b ? ' bk' : ''),

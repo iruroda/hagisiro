@@ -32,6 +32,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* 공통 컨트롤 */
 .ib { width: 28px; height: 28px; border-radius: var(--r-md); display: inline-grid; place-items: center; color: var(--mut); flex: none; }
 .ib:hover { background: var(--bg2); color: var(--text); }
+.ib.danger, .ib.danger:hover { color: var(--sun); }
 .ib.sm { width: 24px; height: 24px; }
 .ghost { padding: 4px 10px; border-radius: var(--r-md); border: 0; display: inline-flex; gap: 5px; align-items: center; background: none; }
 .ghost:hover { background: var(--bg2); }
