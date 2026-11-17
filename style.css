@@ -1238,7 +1238,10 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 /* 화면 전체를 불러오는 중이면 도넛을 창(본문) 정가운데에 */
 .ldg.page { position: absolute; inset: 0; width: auto; padding: 0; z-index: 1; }
 /* 링크 복사 안내 팝업 */
-.lkmsg { margin: 0 0 8px; }
+.lkgrp { display: flex; flex-direction: column; gap: 4px; }
+.lkmsg { display: flex; align-items: center; margin: 0; min-height: 28px; }
+.lkqr { align-self: center; width: 188px; line-height: 0; border-radius: var(--r-lg); overflow: hidden; }
+.lkqr svg { width: 100%; height: auto; display: block; }
 .lkbox { background: var(--bg2); border-radius: var(--r-lg); padding: 10px 12px; font-size: 12px; line-height: 1.5; word-break: break-all; user-select: text; }
 /* 팝업 안쪽 여백: 좌·우가 같게 (스크롤바는 오른쪽 여백 안쪽으로 겹쳐 들어가고, 틀 자체는 빈 공간을 따로 잡지 않음) */
 .dlg.pfdlg { scrollbar-gutter: auto; }

@@ -101,6 +101,7 @@
     sy_flower: '<path fill="currentColor" fill-rule="evenodd" stroke-width="0.8" d="M14.42 7.80 A2.8 2.8 0 1 1 16.85 12.00 A2.8 2.8 0 1 1 14.42 16.20 A2.8 2.8 0 1 1 9.58 16.20 A2.8 2.8 0 1 1 7.15 12.00 A2.8 2.8 0 1 1 9.58 7.80 A2.8 2.8 0 1 1 14.42 7.80z M15.6 12a3.6 3.6 0 11-7.2 0 3.6 3.6 0 017.2 0z"/>',
     sy_flag: '<path stroke-width="2.6" d="M8 3.6V19.8"/><path fill="currentColor" stroke-width="2.6" d="M8 3.6L20 9L8 14.4z"/>',
     link: '<path d="M10.17 14.17A4 4 0 0 0 15.7 14l3-3A4.03 4.03 0 0 0 13.54 4.85"/><path d="M13.83 9.83A4 4 0 0 0 8.3 10l-3 3A4.03 4.03 0 0 0 10.46 19.15"/>',
+    qr: '<rect x="3.5" y="3.5" width="6" height="6" rx="1.2"/><rect x="14.5" y="3.5" width="6" height="6" rx="1.2"/><rect x="3.5" y="14.5" width="6" height="6" rx="1.2"/><path d="M14.5 14.5h2.2v2.2M20.5 14.5v.01M14.5 20.5v.01M17.6 20.5h2.9v-2.6"/>',
     share: '<path stroke-width="2.2" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/>',
     refresh: '<path d="M18.89 15.21A7.6 7.6 0 1 1 17.82 7.11"/><path d="M19.73 5.54L19.43 9.03L15.94 8.72"/>',
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
@@ -3180,8 +3181,19 @@
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('share', '링크 복사'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      el('div', { class: 'lkmsg' }, '아래 링크를 복사했어요.'),
-      el('div', { class: 'lkbox' }, url));
+      el('div', { class: 'lkgrp' },
+        el('div', { class: 'lkmsg' }, '아래 링크를 복사했어요.', el('span', { class: 'grow' }),
+          el('button', { class: 'ghost sm', type: 'button', onclick: () => {
+            if (qrBox.parentNode) { qrBox.remove(); return; }
+            const q = window.makeQR && window.makeQR(url);
+            if (!q) return;
+            const n = q.length; let d = '';
+            q.forEach((row, y) => row.forEach((on, x) => { if (on) d += `M${x + 2} ${y + 2}h1v1h-1z`; }));
+            qrBox.innerHTML = `<svg viewBox="0 0 ${n + 4} ${n + 4}" shape-rendering="crispEdges" aria-label="QR코드"><rect width="${n + 4}" height="${n + 4}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+            dlg.append(qrBox);
+          } }, icon('qr'), 'QR코드')),
+        el('div', { class: 'lkbox' }, url)));
+    const qrBox = el('div', { class: 'lkqr' });
     m.append(el('div', { class: 'back', onclick: close }), dlg);
   };
   const sidLabel = (sid) => { const d = new Date(+sid.slice(0, 4), +sid.slice(4, 6) - 1, +sid.slice(6, 8)); return `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]}) ${sid.slice(9, 11)}:${sid.slice(11, 13)}`; };
