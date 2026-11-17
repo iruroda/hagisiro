@@ -108,6 +108,9 @@ export async function consultDelete(id) {
   }
   await deleteDoc(doc(db, 'consults', id));
 }
+export function consultWatchList(cb, err) { // 달력의 '상담' 버튼용: 내 상담표 목록을 실시간으로
+  return onSnapshot(query(collection(db, 'consults'), where('owner', '==', user.uid)), (s) => cb(s.docs.map((d) => ({ ...d.data(), id: d.id }))), err);
+}
 export function consultWatchBooks(id, cb, err) {
   return onSnapshot(collection(db, 'consults', id, 'books'), (s) => cb(s.docs.map((d) => ({ ...d.data(), id: d.id }))), err);
 }

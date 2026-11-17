@@ -338,6 +338,31 @@
     }
     loadGcal(); loadGhol(); loadMeal();
   }
+  /* 캘린더 '상담' 버튼: 날짜별 상담 신청 수 (상담표마다 신청 목록을 실시간으로 지켜봐요) */
+  function watchConsults() {
+    const bw = new Map(); // 상담표 id → { c, books, un }
+    const calc = () => {
+      const m = {};
+      bw.forEach(({ c, books }) => (books || []).filter((b) => !b.cancelled).forEach((b) => {
+        const k = String(b.id).slice(0, 8), ds = `${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`;
+        const e = m[ds] || (m[ds] = { n: 0, c }); e.n++;
+      }));
+      S.cbk = m; if (S.view === 'cal') render();
+    };
+    const un = S.cloud.consultWatchList((rows) => {
+      const ids = new Set(rows.map((r) => r.id));
+      bw.forEach((v, id) => { if (!ids.has(id)) { v.un(); bw.delete(id); } });
+      rows.forEach((r) => {
+        const v = bw.get(r.id);
+        if (v) { v.c = r; return; }
+        const x = { c: r, books: [], un: null };
+        x.un = S.cloud.consultWatchBooks(r.id, (books) => { x.books = books; calc(); }, () => {});
+        bw.set(r.id, x);
+      });
+      calc();
+    }, () => {});
+    S.unsubStatic.push(() => { un(); bw.forEach((v) => v.un()); bw.clear(); S.cbk = {}; });
+  }
   function watchStatic() {
     S.unsubStatic.forEach((f) => f()); S.unsubStatic = [];
     S.clsLoaded = false;
@@ -345,6 +370,7 @@
     S.unsubStatic.push(S.cloud.watch('settings', null, (d) => { S.settings = d; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watchDday((d) => { S.ddays = d; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watch('repeats', null, (d) => { S.repeats = d; render(); }, cloudErr));
+    watchConsults();
     S.unsubStatic.push(S.cloud.watch('docs', null, (d) => { S.docs = d; if (!$('#modal .docdlg, #modal .progdlg')) render(); }, cloudErr));
   }
 
@@ -1092,9 +1118,10 @@
             hn ? el('i', { class: 'hn' }, hn) : null, tm ? el('i', { class: 'tm' }, tm) : null, lu ? el('i', { class: 'lu' }, lu) : null) : null,
           ),
         el('div', { class: 'tl' }, gl.map(gev), list.map(todoRow)),
-        (PF.ab && attBy[ds]) || (PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length) ? el('div', { class: 'cbt' },
+        (PF.ab && attBy[ds]) || (PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length) || (S.cloud && S.cbk && S.cbk[ds]) ? el('div', { class: 'cbt' },
           PF.ab && attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att' }, `출결 ${attBy[ds]}`) : null,
-          PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal' }, '급식') : null) : null,
+          PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal' }, '급식') : null,
+          S.cloud && S.cbk && S.cbk[ds] ? el('button', { class: 'ab mb', 'data-act': 'cons' }, `상담 ${S.cbk[ds].n}`) : null) : null,
         el('div', { class: 'dots' }, list.slice(0, 5).map((t) => el('i', { class: t.done ? 'on' : '' })), gl.length ? el('i', { class: 'g' }) : null)));
       }
     }
@@ -1105,6 +1132,8 @@
       if (mb) { openMeal(mb.closest('.cell').dataset.date); return; }
       const ab = e.target.closest('[data-act="att"]');
       if (ab) { setSel(ab.closest('.cell').dataset.date); S.sub = 'day'; ls.set('hagisiro:sub', 'day'); setView('att'); return; }
+      const cb = e.target.closest('[data-act="cons"]');
+      if (cb) { const k = S.cbk && S.cbk[cb.closest('.cell').dataset.date]; if (k) { S.cs = { c: k.c }; setView('consult'); } return; }
       const cell = e.target.closest('.cell');
       if (!cell || S.editing) return;
       selectDate(cell.dataset.date);

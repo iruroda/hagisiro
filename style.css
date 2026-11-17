@@ -1434,3 +1434,4 @@ button:disabled { pointer-events: none; }
 .pbg.ps-flower, .psyms .blb.ps-flower { color: #ec4899; }
 .pbg.ps-flag, .psyms .blb.ps-flag { color: #8b5cf6; }
 .pbg[class*="ps-"] { opacity: .55; }
+.cbt .ab:first-child { margin-left: 0; }
