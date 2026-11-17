@@ -299,12 +299,24 @@
 
   /* ---------- 교시 설정: 요일별 기본값 + 날짜별 예외 ---------- */
   const DEFAULT_PERIODS = [0, 7, 7, 7, 7, 7, 0]; // 일~토
-  const cfgPeriods = () => { const c = S.settings.find((x) => x.id === 'main'); return (c && c.periods) || DEFAULT_PERIODS; };
-  const dayDefault = (ds) => cfgPeriods()[parseYmd(ds).getDay()];
-  const lastOf = (ds) => { const o = S.days.find((x) => x.id === ds); return o ? o.periods : dayDefault(ds); };
-  function setDayPeriods(ds, n) {
-    if (n === dayDefault(ds)) { if (S.days.some((x) => x.id === ds)) Data.del('days', ds); }
-    else Data.put('days', { id: ds, date: ds, periods: n });
+  /* 교시 수는 학급마다 따로: 학급 문서의 periods(요일별), 날짜별 예외는 days 문서(classId 포함).
+     예전 데이터(학급 구분 없는 공통 설정·예외)는 그대로 모든 학급의 기본값/예외로 읽어요 */
+  const cfgPeriods = (cid) => { const c = S.classes.find((x) => x.id === cid); if (c && Array.isArray(c.periods) && c.periods.length === 7) return c.periods; const g = S.settings.find((x) => x.id === 'main'); return (g && g.periods) || DEFAULT_PERIODS; };
+  const curCid = () => { const c = curClass(); return c ? c.id : ''; };
+  const dayDefault = (ds, cid = curCid()) => cfgPeriods(cid)[parseYmd(ds).getDay()];
+  const legacyOvr = (ds) => S.days.find((x) => !x.classId && x.id === ds);
+  const ovrOf = (ds, cid = curCid()) => S.days.find((x) => x.classId === cid && x.date === ds) || legacyOvr(ds);
+  const lastOf = (ds, cid = curCid()) => { const o = ovrOf(ds, cid); return o ? o.periods : dayDefault(ds, cid); };
+  /* 학급 구분 없던 예외를 학급별 예외로 쪼개요 (선택한 학급만 빼고 나머지 학급에 같은 값으로 복사한 뒤 원본 삭제) */
+  function splitLegacy(o, exceptCid) {
+    S.classes.forEach((c) => { if (c.id !== exceptCid) Data.put('days', { id: `${c.id}_${o.date || o.id}`, date: o.date || o.id, classId: c.id, periods: o.periods }); });
+    Data.del('days', o.id);
+  }
+  function setDayPeriods(ds, n, cid = curCid()) {
+    const lg = legacyOvr(ds); if (lg) splitLegacy(lg, cid);
+    const mine = S.days.find((x) => x.classId === cid && x.date === ds);
+    if (n === dayDefault(ds, cid)) { if (mine) Data.del('days', mine.id); }
+    else Data.put('days', { id: `${cid}_${ds}`, date: ds, classId: cid, periods: n });
   }
 
   function wkRange() {
@@ -1871,7 +1883,7 @@
   }
   function runParse(text) {
     const cur = curClass();
-    return P.parse(text, { students: studentPool(), classId: cur && cur.id, today: new Date(), base: parseYmd(S.sel), lastOf });
+    return P.parse(text, { students: studentPool(), classId: cur && cur.id, today: new Date(), base: parseYmd(S.sel), lastOf: (ds) => lastOf(ds, cur && cur.id) });
   }
   const monthRecs = (cls) => S.att.filter((a) => a.classId === cls.id && a.date.startsWith(`${S.y}-${pad(S.m + 1)}-`));
 
@@ -2066,20 +2078,20 @@
   function dayView(cls) {
     const ds = S.sel;
     const d = parseYmd(ds);
-    const last = lastOf(ds);
-    const def = dayDefault(ds);
-    const ovr = S.days.some((x) => x.id === ds);
+    const last = lastOf(ds, cls.id);
+    const def = dayDefault(ds, cls.id);
+    const ovr = !!ovrOf(ds, cls.id);
     const wrap = el('div', { class: 'dv' });
 
     const shift = (n) => { setSel(ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n))); render(); };
-    const cntSel = el('select', { class: 'cnt' + (ovr ? ' ovr' : ''), 'aria-label': '이 날 교시 수', onchange: (e) => { setDayPeriods(ds, +e.target.value); render(); } },
+    const cntSel = el('select', { class: 'cnt' + (ovr ? ' ovr' : ''), 'aria-label': '이 날 교시 수', onchange: (e) => { setDayPeriods(ds, +e.target.value, cls.id); render(); } },
       Array.from({ length: 11 }, (_, n) => el('option', { value: n, selected: n === last }, n ? `${n}교시` : '수업 없음')));
     wrap.append(el('div', { class: 'dhead' },
       el('button', { class: 'ib', 'aria-label': '이전 날', onclick: () => shift(-1) }, icon('left')),
       el('b', { class: 'dttl jump', onclick: (e) => editTtl(e.currentTarget, true) }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
-      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('backspace'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
+      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def, cls.id); render(); } }, icon('backspace'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
       cntSel));
 
     const recs = S.att.filter((a) => a.classId === cls.id && a.date === ds);
@@ -2140,10 +2152,10 @@
     }
     if (rec) {
       const r = { ...rec, cat: k.cat, type: k.type };
-      if (k.type !== rec.type) { const [f, t] = P.defaultRange(k.type, null, null, lastOf(ds)); r.from = f; r.to = t; delete r.slots; }
+      if (k.type !== rec.type) { const [f, t] = P.defaultRange(k.type, null, null, lastOf(ds, cls.id)); r.from = f; r.to = t; delete r.slots; }
       Data.put('att', r);
     } else {
-      const [f, t] = P.defaultRange(k.type, null, null, lastOf(ds));
+      const [f, t] = P.defaultRange(k.type, null, null, lastOf(ds, cls.id));
       Data.put('att', { id: uid(), classId: cls.id, studentId: s.id, name: s.name, no: s.no, date: ds, type: k.type, cat: k.cat, from: f, to: t, reason: '', created: Date.now() });
     }
     render();
@@ -2157,7 +2169,7 @@
     return o;
   }
   function toggleSlot(s, rec, i, ds, cls) {
-    const last = lastOf(ds);
+    const last = lastOf(ds, cls.id);
     if (!rec) {
       const k = KINDS.find((x) => x.cat === '미인정' && x.type === '결과');
       const v = colVal(i, last);
@@ -2814,10 +2826,11 @@
 
   /* ---------- 설정: 요일별 기본 교시 수 ---------- */
   function openSettings() {
+    const cls = curClass(); if (!cls) return;
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
-    const cur = cfgPeriods();
+    const cur = cfgPeriods(cls.id);
     const order = [1, 2, 3, 4, 5, 6, 0]; // 월~일
     const sels = {};
     const grid = el('div', { class: 'pgrid' }, order.map((w) => {
@@ -2829,15 +2842,13 @@
     const keep = el('input', { type: 'checkbox', id: 'keepOvr' });
     const save = async () => {
       const periods = [0, 1, 2, 3, 4, 5, 6].map((w) => +sels[w].value);
-      Data.put('settings', { id: 'main', periods });
+      Data.put('classes', { ...cls, periods });
       close();
-      if (!keep.checked) { // 날짜별로 따로 정한 교시 수를 모두 지우고 요일별 기본값으로 통일
-        let removed = [];
+      if (!keep.checked) { // 이 학급의 날짜별 교시 수를 모두 지우고 요일별 기본값으로 통일
         try {
-          if (S.cloud) { removed = await S.cloud.clearAll('days'); S.days = []; }
-          else { removed = S.days.slice(); S.days = []; Data.saveLocal(); }
+          const all = S.cloud ? await S.cloud.getAll('days') : S.days.slice();
+          all.forEach((o) => { if (o.classId === cls.id) Data.del('days', o.id); else if (!o.classId) splitLegacy(o, cls.id); });
         } catch (e) { cloudErr(e); }
-        if (removed.length) render();
       }
       render();
     };
@@ -2889,7 +2900,7 @@
       list.forEach((s) => { if (!s.id) { const o = old.find((x) => !used.has(x.id) && +x.no === s.no); if (o) { s.id = o.id; used.add(o.id); } } });
       list.forEach((s) => { if (!s.id) s.id = uid(); });
       const id = c ? c.id : uid();
-      Data.put('classes', { id, name: name.value.trim() || autoName('학급', S.classes.filter((x) => !c || x.id !== c.id).map((x) => x.name)), students: list, ord: c ? c.ord : Date.now(), created: c ? c.created : Date.now() });
+      Data.put('classes', { id, name: name.value.trim() || autoName('학급', S.classes.filter((x) => !c || x.id !== c.id).map((x) => x.name)), students: list, ord: c ? c.ord : Date.now(), created: c ? c.created : Date.now(), ...(c && c.periods ? { periods: c.periods } : {}) });
       S.clsId = id; ls.set('hagisiro:cls', id);
       close(); render();
     }
