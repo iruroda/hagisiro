@@ -140,6 +140,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .mt .c1 { left: 0; min-width: 36px; color: var(--mut); }
 .mt .c2 { left: 36px; text-align: left; padding: 0 10px 0 6px; white-space: nowrap; }
 .mt .we { background: var(--bg2); }
+.mt th.sun { color: var(--sun); } .mt th.sat { color: var(--sat); } /* 캘린더와 같게: 일요일·공휴일 빨강, 토요일 파랑 */
 .mt th.tdy { color: var(--accent); font-weight: 700; }
 .mt td.tdy { background: var(--sel); }
 .mt td.d { cursor: pointer; }

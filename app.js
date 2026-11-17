@@ -1933,7 +1933,7 @@
     const head = el('tr', {}, el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '이름'));
     for (let d = 1; d <= dim; d++) {
       const ds = dsOf(d); const w = new Date(S.y, S.m, d).getDay();
-      head.append(el('th', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (ds === todayS ? ' tdy' : ''), 'data-d': ds }, el('div', {}, d), el('div', { class: 'dw' }, DOW[w])));
+      head.append(el('th', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (w === 0 || holName(ds, new Date(S.y, S.m, d)) ? ' sun' : w === 6 ? ' sat' : '') + (ds === todayS ? ' tdy' : ''), 'data-d': ds }, el('div', {}, d), el('div', { class: 'dw' }, DOW[w])));
     }
     TYPES.forEach((t) => head.append(el('th', { class: 'sum t-' + t, title: t }, SHORT[t])));
     const tbody = el('tbody');
