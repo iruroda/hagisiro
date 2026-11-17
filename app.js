@@ -2566,12 +2566,6 @@
     let id, cur, draft, edit;
     const load = (nid, fe) => { id = nid; const d = docOf(id); cur = docHas(d) ? d : null; draft = cur ? { kind: cur.kind, text: cur.text || '', img: cur.img || '' } : { kind: 'text', text: '' }; edit = !!fe || !cur; };
     load(docSelId(type), forceEdit);
-    /* 삭제하면 팝업은 닫지 않고 처음 입력 화면으로 (이름 붙인 항목은 이름만 남겨요) */
-    const wipe = () => {
-      const e = docOf(id);
-      if (e && e.name) Data.put('docs', { id, type, name: e.name, created: e.created || 0, kind: 'text', text: '', updated: Date.now() }); else Data.del('docs', id);
-      cur = null; draft = { kind: 'text', text: '' }; edit = true; render(); drawEdit();
-    };
     /* 수정 중에는 저장 버튼 없이, 입력이 잠깐 멈추면 저장해요 (닫거나 '완료'를 눌러도 저장) */
     let saveT = null;
     const persist = () => {
@@ -2594,12 +2588,11 @@
       el('button', { class: 'ghost sm', type: 'button', onclick: () => { if (saveT) persist(); openDocSet(type, () => { load(docSelId(type)); (edit ? drawEdit : drawView)(); }); } }, icon('listedit'), '편집'),
       el('span', { class: 'grow' }), ...extra);
     const head = (...extra) => el('div', { class: 'shead' }, hb(meta[2], meta[1]), el('span', { class: 'grow' }), ...extra, el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close')));
-    /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정·삭제만 */
+    /* 보기: 내용이 있으면 아래 버튼 없이, 위쪽(파일 업로드가 있던 자리)에 수정만 (삭제는 '편집'에서) */
     let drawView = function () {
       m.replaceChildren(el('div', { class: 'back', onclick: close }),
         el('div', { class: 'dlg docdlg' + (cur.kind === 'image' ? ' imgdlg' : '') }, head(), entRow(
-          el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정'),
-          el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { { const nm = docName(docOf(id) || { id, type }); if (await ask(`${nm}${eul(nm)} 삭제할까요?`)) { wipe(); } } } }, icon('trash'), '삭제')),
+          el('button', { class: 'ghost sm', type: 'button', onclick: () => { edit = true; draft = { kind: cur.kind, text: cur.text || '', img: cur.img || '' }; drawEdit(); } }, icon('edit'), '수정')),
           el('div', { class: 'dbody' }, docView(cur))));
     };
     let drawEdit = function () {
