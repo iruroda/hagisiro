@@ -3290,6 +3290,7 @@
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
     const dayLabel = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`; };
     const kOf = (d) => ymd(d).replace(/-/g, '');
+    const dcol = (d) => (d.getDay() === 0 || holName(ymd(d), d) ? 'dsun' : d.getDay() === 6 ? 'dsat' : ''); // 캘린더와 같은 요일·공휴일 색
     const mins = (s) => { const [h, m] = (s || '0:0').split(':').map(Number); return h * 60 + m; };
     const tkey = (t) => pad(Math.floor(t / 60)) + pad(t % 60);
     const r = (l, ...c) => el('div', { class: 'pfr' }, el('span', { class: 'pl' }, l), el('div', { class: 'pc2' }, c));
@@ -3411,7 +3412,7 @@
           const tChk = () => { tPlus.disabled = tm.value.replace(':', '') in o; }; /* 이미 있는 시각이면 추가 불가 */
           tm.addEventListener('change', tChk); tm.addEventListener('input', tChk); tChk();
           return el('div', { class: 'cdc' },
-            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`), el('span', { class: 'grow' }),
+            el('div', { class: 'cdh ' + dcol(d) }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`), el('span', { class: 'grow' }),
               el('button', { class: 'ib sm danger', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
             ts.map((t) => {
               const b = booked[k + '_' + t];
@@ -3508,7 +3509,7 @@
         const card = (k) => {
           const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8));
           return el('div', { class: 'cdc' },
-            el('div', { class: 'cdh' }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`)),
+            el('div', { class: 'cdh ' + dcol(d) }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`)),
             days[k].map((sid) => {
               const b = by[sid];
               return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'), title: b ? `${b.name}${b.info ? ' (' + b.info + ')' : ''}` : null,
