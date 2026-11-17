@@ -1435,3 +1435,10 @@ button:disabled { pointer-events: none; }
 .pbg.ps-flag, .psyms .blb.ps-flag { color: #8b5cf6; }
 .pbg[class*="ps-"] { opacity: .55; }
 .cbt .ab:first-child { margin-left: 0; }
+.dlg.consday { width: fit-content; min-width: 240px; max-width: min(430px, 92vw); }
+.cdlist { display: flex; flex-direction: column; gap: 14px; max-height: 60vh; overflow-y: auto; }
+.cdt { display: block; padding: 0; margin-bottom: 4px; font-size: 13px; font-weight: 700; color: var(--mut); text-align: left; }
+.cdt:hover { color: var(--accent); }
+.cdr { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; font-size: 14px; }
+.cdr b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cdr small { font-size: 12px; }

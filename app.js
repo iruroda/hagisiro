@@ -345,7 +345,9 @@
       const m = {};
       bw.forEach(({ c, books }) => (books || []).filter((b) => !b.cancelled).forEach((b) => {
         const k = String(b.id).slice(0, 8), ds = `${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`;
-        const e = m[ds] || (m[ds] = { n: 0, c }); e.n++;
+        const e = m[ds] || (m[ds] = { n: 0, it: [] }); e.n++;
+        let g = e.it.find((x) => x.c.id === c.id); if (!g) e.it.push(g = { c, bs: [] });
+        g.bs.push(b);
       }));
       S.cbk = m; if (S.view === 'cal') render();
     };
@@ -1133,7 +1135,7 @@
       const ab = e.target.closest('[data-act="att"]');
       if (ab) { setSel(ab.closest('.cell').dataset.date); S.sub = 'day'; ls.set('hagisiro:sub', 'day'); setView('att'); return; }
       const cb = e.target.closest('[data-act="cons"]');
-      if (cb) { const k = S.cbk && S.cbk[cb.closest('.cell').dataset.date]; if (k) { S.cs = { c: k.c }; setView('consult'); } return; }
+      if (cb) { openConsDay(cb.closest('.cell').dataset.date); return; }
       const cell = e.target.closest('.cell');
       if (!cell || S.editing) return;
       selectDate(cell.dataset.date);
@@ -3059,6 +3061,20 @@
   const MEAL_KINDS = ['조식', '중식', '석식'];
   const mealRow = (x) => el('div', { class: 'meal' }, el('b', {}, x.kind, x.cal ? el('small', {}, ' ' + x.cal) : null), el('ul', {}, x.menu.map((t) => el('li', {}, allergyStrip(t)))));
   const mealShown = (list) => list.filter((x) => !MEAL_KINDS.includes(x.kind) || (PF.mk || MEAL_KINDS).includes(x.kind));
+  /* 날짜 칸의 '상담 N': 그 날의 상담 신청만 모아서 (상담표가 여러 개면 상담표별로) */
+  function openConsDay(ds) {
+    const m = $('#modal');
+    m.hidden = false;
+    const close = () => { m.hidden = true; m.replaceChildren(); };
+    const e = (S.cbk && S.cbk[ds]) || { it: [] };
+    m.replaceChildren(el('div', { class: 'back', onclick: close }),
+      el('div', { class: 'dlg consday' },
+        el('div', { class: 'shead' }, hb('chat', `${md(ds)} 상담`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'cdlist' }, e.it.map(({ c, bs }) => el('div', { class: 'cdg' },
+          el('button', { type: 'button', class: 'cdt', onclick: () => { close(); S.cs = { c }; setView('consult'); } }, c.title || '상담'),
+          bs.slice().sort((x, y) => String(x.id).localeCompare(String(y.id))).map((b) => el('div', { class: 'cdr' },
+            el('b', {}, `${String(b.id).slice(9, 11)}:${String(b.id).slice(11, 13)}`), el('span', {}, b.name), b.info ? el('small', { class: 'mut' }, b.info) : null)))))));
+  }
   function openMeal(ds) {
     const m = $('#modal');
     m.hidden = false;
