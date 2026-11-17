@@ -223,7 +223,7 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
 
 .dt th, .dt td { white-space: nowrap; }
 .dt .c2 { min-width: 76px; }
-.dt .kc { min-width: 108px; padding: 0 4px; text-align: left; }
+.dt .kc { min-width: 0; width: 1%; padding: 0 4px; text-align: left; } /* 종류 칸은 드롭다운 폭에 딱 맞게 */
 .dt .rc { min-width: 160px; padding: 0 4px; }
 .dt select { font-size: 12px; padding: 2px 4px; border-radius: var(--r); max-width: 100%; }
 .dt .rsel { width: 66px; }
