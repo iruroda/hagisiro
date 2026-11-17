@@ -1408,3 +1408,6 @@ input[type=date].empty { color: var(--mut); }
 .blpick .blb .ic { display: flex; }
 .blpick .blb .ic svg { width: 25px; height: 25px; flex: none; }
 .blset .blb.on, .blpick .blb.on { box-shadow: none; outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* 비활성 버튼은 올려도 색이 변하지 않게 (위젯 전체) */
+button:disabled { pointer-events: none; }
