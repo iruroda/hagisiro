@@ -1888,10 +1888,10 @@
       S.classes.map((c) => el('option', { value: c.id, selected: c.id === cls.id }, c.name)));
     const seg = (v, label) => el('button', { class: 'sg-b' + (S.sub === v ? ' on' : ''), onclick: () => setSub(v) }, label);
     root.append(el('div', { class: 'abar' }, sel,
-      el('div', { class: 'seg' }, seg('day', '일별'), seg('week', '주별'), seg('month', '월별')),
-      el('span', { class: 'grow' }),
       el('button', { class: 'ghost sm', disabled: none, onclick: () => openRoster(cls.id) }, icon('users'), '학급 수정'),
       el('button', { class: 'ghost sm', onclick: () => openRoster(null) }, icon('userplus'), '학급 추가'),
+      el('div', { class: 'seg' }, seg('day', '일별'), seg('week', '주별'), seg('month', '월별')),
+      el('span', { class: 'grow' }),
       el('button', { class: 'ghost sm', disabled: none, onclick: openSettings }, icon('bell'), '교시 설정'),
       el('button', { class: 'ghost sm', disabled: none, onclick: () => exportCsv(cls) }, icon('download'), '파일로 저장')));
 
