@@ -112,6 +112,7 @@
     chat: '<path d="M10.44 17.70L5.6 20.2L5.11 15.37A9 6.8 0 1 1 10.44 17.70z"/>',
     excel: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M14.8 4v16M14.8 9.3h5.7M14.8 14.7h5.7"/><path class="f" d="M6.4 8h1.9L11.9 16h-1.9zM10 8h1.9L8.3 16H6.4z"/>',
     today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.5" r="2.65" class="f"/>',
+    backspace: '<path d="M9.2 5.5H19a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H9.2L3.5 12z"/><path d="M12.6 9.4l4.2 5.2M16.8 9.4l-4.2 5.2"/>',
     undo: '<path d="M4.7 13.97A7.6 7.6 0 1 0 6.63 6.63"/><path d="M9.95 8.40L4.23 9.03L4.86 3.30"/>',
     textT: '<path d="M6 6.5h12M12 6.5V18.5"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
@@ -2046,7 +2047,7 @@
       el('b', { class: 'dttl jump', onclick: (e) => editTtl(e.currentTarget, true) }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
-      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
+      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('backspace'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
       cntSel));
 
     const recs = S.att.filter((a) => a.classId === cls.id && a.date === ds);
