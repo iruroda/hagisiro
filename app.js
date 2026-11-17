@@ -2383,7 +2383,7 @@
       const list = names(), days = range();
       const none = !list.length; // 내 시간표에 과목이 없으면 급식(학교 없음)처럼 틀은 그대로 두고 흐리게·비활성화
       dlg.classList.toggle('nosub', none);
-      [sel0, clearBtn, sIn, eIn].forEach((x) => { x.disabled = none; });
+      [clearBtn, sIn, eIn].forEach((x) => { x.disabled = none; });
       if (none) {
         const th = el('tr', {}, el('th', { class: 'pn' }, '과목'), days.map((d) => el('th', { class: 'pd' }, dl(d))));
         wrap.replaceChildren(el('div', { class: 'pmw' }, el('table', { class: 'mt pt', style: `width:${148 + 112 * days.length}px;min-width:100%` }, el('thead', {}, th)),
