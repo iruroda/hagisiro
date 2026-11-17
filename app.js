@@ -934,10 +934,10 @@
       if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, 'D-day 없음')); return; }
       all.forEach(({ t, n }) => {
         const d = parseYmd(t.date);
-        list.append(el('div', { class: 'srow' + (n < 0 ? ' done' : '') },
+        list.append(el('div', { class: 'srow' + (n < 0 ? ' past' : '') },
           el('button', { type: 'button', class: 'sgo', onclick: () => { close(); gotoDate(t.date); } },
             el('span', { class: 'sd' }, n === 0 ? 'D-day' : n > 0 ? `D-${n}` : `D+${-n}`),
-            el('span', { class: 'st' }, t.text),
+            el('span', { class: 'st td', 'data-sz': t.sz || null, style: colorVars(t) || null }, blSpan(t.bl), el('span', { class: 'tt' }, t.text)),
             el('span', { class: 'mut small' }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)),
           el('button', { type: 'button', class: 'ib', 'aria-label': 'D-day 삭제', title: 'D-day 삭제', onclick: () => { Data.put('todos', clean({ ...t, dday: '' })); setTimeout(draw, 60); } }, icon('trash'))));
       });
@@ -1720,7 +1720,7 @@
     return { node: root, read, focus: () => { if (textIn) textIn.focus(); } };
   }
 
-  const bulletRow = (i) => el('div', { class: 'td rtarget' }, blSpan(i.bl), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
+  const bulletRow = (i) => el('div', { class: 'td rtarget', 'data-sz': i.sz || null }, blSpan(i.bl), el('span', { class: 'rchip', style: colorVars(i) || null }, i.text));
 
   async function removeRule(r) {
     if (!(await ask('이 반복을 삭제할까요?'))) return false;
