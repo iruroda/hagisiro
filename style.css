@@ -1442,3 +1442,6 @@ button:disabled { pointer-events: none; }
 .cdr { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; font-size: 14px; }
 .cdr b { font-weight: 600; font-variant-numeric: tabular-nums; }
 .cdr small { font-size: 12px; }
+.cbulk { gap: 6px; }
+.cbulk .cchip { padding: 5px 10px; border-radius: var(--r); font-size: var(--fs-3, 13px); font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; }
+.cbulk .cchip.off { font-weight: 500; }

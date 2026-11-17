@@ -3371,6 +3371,7 @@
         const sv = (q) => { const n = host.querySelector(q); return n ? [n.scrollTop, n.scrollLeft] : null; };
         const keepPos = [['.cform', sv('.cform')], ['.cgrid', sv('.cgrid')]];
         const keys = Object.keys(dr.days).sort();
+        const allT = [...new Set(keys.flatMap((k) => Object.keys(dr.days[k])))].sort(); // 모든 날의 시각을 합친 목록
         const tIn = el('input', { type: 'text', value: dr.title, maxlength: 40, oninput: (e) => { dr.title = e.target.value; } });
         const nIn = el('textarea', { rows: 3, maxlength: 500, spellcheck: 'false', oninput: (e) => { dr.note = e.target.value; } }, dr.note);
         const c0 = dr.closeAt ? new Date(dr.closeAt) : null;
@@ -3411,6 +3412,10 @@
         shell(c ? '테이블 수정' : '새 테이블 만들기 (2/2)', el('div', { class: 'cform' },
           ...(c ? [r('제목', fld(tIn)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(nIn)), r('신청 마감(선택)', cIn), el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!dr.noDup, onchange: (e) => { dr.noDup = e.target.checked; } }), el('span', {}, '중복 신청 불가'))] : []),
           r('날짜 추가', addDate, dPlus),
+          allT.length ? r('한꺼번에 삭제', el('div', { class: 'cchips cbulk' }, allT.map((t) => {
+            const on = keys.some((k) => dr.days[k][t]); /* 어느 날에든 켜져 있으면 보통, 모든 날에서 꺼져 있으면 가운데 줄 */
+            return el('button', { type: 'button', class: 'cchip' + (on ? '' : ' off'), onclick: () => { keys.forEach((k) => { if (t in dr.days[k]) dr.days[k][t] = !on; }); draw(); } }, `${t.slice(0, 2)}:${t.slice(2)}`);
+          }))) : null,
           el('div', { class: 'cgrid' }, keys.length ? keys.map(dayCard) : el('div', { class: 'mut' }, '날짜 없음')),
           el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), c ? null : el('button', { class: 'ghost', type: 'button', onclick: () => { dir = 'prev'; quick(); } }, '이전'), el('button', { class: 'pri', type: 'button', disabled: !total() || total() > 400, onclick: async (e) => {
             const btn = e.currentTarget, fb = btn.parentElement;
