@@ -1142,7 +1142,7 @@
   }
 
   /* ================= 반복 규칙 =================
-   * 반복은 규칙(repeats)만 저장하고, 달력에는 날짜마다 계산해서 보여줘요.
+   * 반복은 규칙(repeats)만 저장하고, 캘린더에는 날짜마다 계산해서 보여줘요.
    * 그날 완료·수정·삭제한 흔적만 todos 에 따로 남겨요 (id: r:규칙:날짜, skip=true 면 그날만 삭제) */
   const ruleOf = (id) => S.repeats.find((r) => r.id === id);
   const isLeapY = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
@@ -1194,7 +1194,7 @@
     if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday, ord: 0, created: Date.now(), ...patch }));
     else Data.put('todos', clean({ ...it, ...patch }));
   }
-  /* 달력에서 고른 할 일 하나를 지움 (반복 항목은 그날만 지움) */
+  /* 캘린더에서 고른 할 일 하나를 지움 (반복 항목은 그날만 지움) */
   function deleteItem(id) {
     const it = getItem(id); if (!it) return;
     if (it.rid) Data.put('todos', { id: oid(it.rid, it.date), rid: it.rid, date: it.date, skip: true, created: Date.now() });
@@ -1211,7 +1211,7 @@
     }
   }
 
-  /* ---------- 달력 칸의 할 일 한 줄: 불릿 + 글자 ---------- */
+  /* ---------- 캘린더 칸의 할 일 한 줄: 불릿 + 글자 ---------- */
   const colorVars = (t) => (t.fg ? `--tfg:${t.fg};` : '') + (t.bg ? `--tbg:${t.bg};` : '');
   const blSpan = (k) => { const b = el('span', { class: 'bl' }); setBullet(b, k); return b; };
   function todoRow(t) {
@@ -3242,7 +3242,7 @@
       const nd = el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: q.noDup }), el('span', {}, '중복 신청 불가'));
       const save = () => { Object.keys(f).forEach((k) => { q[k] = k === 'step' ? +f[k].value : f[k].value; }); q.skipWE = wk.querySelector('input').checked; q.noDup = nd.querySelector('input').checked; };
       const tl = (...c) => el('span', { class: 'rng' }, c[0], el('span', { class: 'tld' }, '~'), c[1]);
-      /* 시작이 종료보다 뒤로 가지 못하게: 달력·시각 목록에서 막고, 직접 입력해도 같은 값으로 맞춰요 */
+      /* 시작이 종료보다 뒤로 가지 못하게: 캘린더·시각 목록에서 막고, 직접 입력해도 같은 값으로 맞춰요 */
       const limits = () => { f.from.max = f.to.value || ''; f.to.min = f.from.value || ''; f.t1.limit('', f.t2.value); f.t2.limit(f.t1.value, ''); };
       f.from.addEventListener('change', () => { if (f.from.value && f.to.value && f.from.value > f.to.value) f.from.value = f.to.value; limits(); });
       f.to.addEventListener('change', () => { if (f.from.value && f.to.value && f.to.value < f.from.value) f.to.value = f.from.value; limits(); });

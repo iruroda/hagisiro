@@ -640,7 +640,7 @@ html, .tl, .att, .cv, .pfdlg, .pbody, .rbody, .dbody, .dtw, .dtxt, .dimg, .meals
 .td[data-sz="xl"], .ed .td[data-sz="xl"] input { font-size: 19px; }
 .szseg { flex: none; } .szseg { gap: 0; } .szseg button { padding: 2px 5px; font-size: 10.5px; white-space: nowrap; }
 .ddm { flex: none; color: var(--accent); margin-top: 3px; } .ddm .ic svg { width: 11px; height: 11px; }
-/* 달력 맨 아래 D-day 줄 */
+/* 캘린더 맨 아래 D-day 줄 */
 .ddbar { flex: none; display: flex; align-items: center; gap: 12px; height: 28px; padding: 0 12px; overflow: hidden; white-space: nowrap; font-size: 12px; border-top: 1px solid var(--line); background: var(--bg); }
 .ddc { color: var(--tfg, var(--text)); flex: none; font-size: inherit; cursor: pointer; } .ddc:hover { text-decoration: underline; } .ddc b { color: var(--accent); font-weight: 800; }
 body.widget .ddbar { border: 0; border-top: 1px solid var(--line); background: var(--wbg); border-radius: 0 0 var(--r) var(--r); }
@@ -1220,7 +1220,7 @@ body.widget .ddbar:not(.top) { border-top: 0; }
 /* 메뉴 구분선: 항목 높이를 정수 px로 고정해 선이 어디서나 같은 굵기로 그려지게 */
 .menu .mh { line-height: 20px; } .menu .mi { line-height: 20px; }
 .menu .msep { height: 0; background: none; border-top: 1px solid var(--line); margin: 4px 6px; flex: none; }
-/* 월 달력의 비어 있는 칸(달 경계) — 투명이 아니라 회색으로 */
+/* 월 캘린더의 비어 있는 칸(달 경계) — 투명이 아니라 회색으로 */
 .cell.blank { background: var(--bg2) !important; }
 /* 팝업 닫힘: 배경 어둠이 천천히 걷히도록 (끝이 급해 보이지 않게 ease-out, 위젯에서도 닫을 때는 페이드) */
 @keyframes fadeout { to { opacity: 0; } }

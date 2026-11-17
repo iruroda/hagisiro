@@ -33,7 +33,7 @@
     return (jde - 2440587.5) * 86400000 - 69000; // TT→UT(ΔT≈69s)
   }
   const edgeCache = new Map();
-  /** year년 안에서 "중국 달력으론 D일, 한국 달력으론 D+1일"인 삭의 중국 기준 날짜 집합 */
+  /** year년 안에서 "중국 캘린더으론 D일, 한국 캘린더으론 D+1일"인 삭의 중국 기준 날짜 집합 */
   function edgeDays(year) {
     if (edgeCache.has(year)) return edgeCache.get(year);
     const set = new Set();
