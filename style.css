@@ -156,7 +156,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .rn { width: 86px; font-weight: 600; flex: none; }
 .rs { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cat { font-size: 11px; line-height: 15px; color: var(--cc, var(--mut)); border: 1px solid color-mix(in srgb, var(--cc, var(--mut)) 40%, var(--line)); border-radius: var(--r-pill); padding: 0 7px; flex: none; }
-.empty { text-align: center; margin: 14vh auto; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.empty:not(input) { text-align: center; margin: 14vh auto; display: flex; flex-direction: column; gap: 6px; align-items: center; }
 .empty p { margin: 0; }
 
 /* 로그인 / 토스트 */
