@@ -2715,7 +2715,7 @@
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const W = window.hagisiroWidget;
-    const TABS = [['cal', '캘린더'], ['td', '할 일'], ['view', '화면']];
+    const TABS = [['cal', '캘린더'], ['look', '보기'], ['td', '할 일'], ['view', '화면']];
     if (!TABS.some((t) => t[0] === S.pfTab)) S.pfTab = 'cal';
     const seg = (key, opts, after) => el('div', { class: 'seg' }, opts.map(([v, label]) =>
       el('button', { type: 'button', class: PF[key] === v ? 'on' : '', onclick: () => { PF[key] = v; commit(after); } }, label)));
@@ -2736,14 +2736,7 @@
       render(); draw();
     }
     const pages = {
-      cal: () => {
-        const mon = PF.cal === 'month'; // 월별에선 이번 주 보기용 설정을 잠가요
-        return [
-          el('div', { class: 'pfs' }, '보기'),
-          row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
-          dim(row('전체 주 수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')), mon),
-          dim(row('지나간 주 수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
-          tog('mgap', '월 사이 구분하기', '', 'render', false, mon),
+      cal: () => [
           el('div', { class: 'pfs' }, '날짜에 함께 표시'),
           tog('lunar', '음력 날짜'),
           tog('terms', '24절기'),
@@ -2759,19 +2752,18 @@
               if (cb.checked) connectGcal().finally(() => { cb.checked = gcalWanted(); });
               else { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); }
             } }), el('span', {}, 'Google 캘린더 연동')) : null,
-        ];
-      },
+        ],
       view: () => [
         el('div', { class: 'pfs' }, '모양'),
         row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
         tog('anim', '애니메이션'),
         el('div', { class: 'pfs' }, '바로가기'),
-        ...shortcutDefs().map((x) =>
+        el('div', { class: 'scgrid' }, shortcutDefs().map((x) =>
           el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: scOn(x), onchange: (e) => {
             const key = x.def ? 'hide' : 'show', h = new Set(PF[key] || []);
             if (e.target.checked === !!x.def) h.delete(x.k); else h.add(x.k);
             PF[key] = [...h]; commit('render');
-          } }), el('span', {}, x.label))),
+          } }), el('span', {}, x.label)))),
         ...(W ? [el('div', { class: 'pfs' }, '창'),
         S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
           el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await W.setZ(v); draw(); } }, l)))) : null,
@@ -2782,10 +2774,16 @@
         S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await W.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작 시 실행')),
 ] : []),
       ],
-      td: () => {
+      look: () => {
+        const mon = PF.cal === 'month'; // 월별에선 이번 주 보기용 설정을 잠가요
         const dots = (key, list) => el('div', { class: 'pc2 pdots' }, list.map(([val, name]) => el('button', { type: 'button', class: 'swb' + (key === 'tbg' ? ' sq' : '') + (val ? '' : ' none') + ((PF[key] || '') === val ? ' on' : ''), 'aria-label': name, style: val ? `background:${val}` : null,
           onclick: () => { PF[key] = val; commit('render'); } })));
         return [
+          el('div', { class: 'pfs' }, '캘린더 보기'),
+          row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
+          dim(row('전체 주 수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')), mon),
+          dim(row('지나간 주 수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
+          tog('mgap', '월 사이 구분하기', '', 'render', false, mon),
           el('div', { class: 'pfs' }, '기본 모양'),
           row('글자 크기', el('div', { class: 'seg szseg' }, SIZES.map(([v, l]) => el('button', { type: 'button', class: (PF.tsz || 's') === v ? 'on' : '', onclick: () => { PF.tsz = v === 's' ? '' : v; commit('render'); } }, l)))),
           row('줄 간격', el('div', { class: 'seg szseg' }, [[0, '아주 좁게'], [1, '좁게'], [2, '보통'], [3, '넓게'], [4, '아주 넓게']].map(([v, l]) => el('button', { type: 'button', class: PF.tlh === v ? 'on' : '', onclick: () => { PF.tlh = v; commit('render'); } }, l)))),
@@ -2793,11 +2791,13 @@
             onclick: () => { PF.tbl = k === 'dot' ? '' : k; commit('render'); } }, bulIcon(k))))),
           row('글자색', dots('tfg', FG)),
           row('배경색', dots('tbg', BGC)),
-          el('div', { class: 'pfs' }, '동작'),
-          tog('autoDel', '완료 시 자동 삭제', '반복 항목은 그날만', 'render', false, false, 'sortDone'),
-          tog('sortDone', '완료 시 맨 아래로', '', 'render', false, false, 'autoDel'),
         ];
       },
+      td: () => [
+          el('div', { class: 'pfs' }, '완료 설정'),
+          tog('autoDel', '완료 시 자동 삭제', '반복 항목은 그날만', 'render', false, false, 'sortDone'),
+          tog('sortDone', '완료 시 맨 아래로', '', 'render', false, false, 'autoDel'),
+        ],
     };
     const tabBar = el('div', { class: 'pnav' });
     const body = el('div', { class: 'pbody' });
