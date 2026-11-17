@@ -1342,15 +1342,14 @@ input[type=date].empty { color: var(--mut); }
 .pmw { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--line); }
 .pt { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 .pt th, .pt td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); height: 44px; padding: 0 6px; text-align: center; font-size: 13px; }
-.pt th { font-weight: 600; color: var(--mut); background: var(--bg2-s); height: 36px; white-space: nowrap; }
+.pt th { font-weight: 600; color: var(--mut); background: var(--bg2-s); height: 27px; padding-top: 3px; padding-bottom: 3px; font-size: 12px; white-space: nowrap; }
 .pt th:last-child, .pt td:last-child { border-right: 0; }
 .pt tbody tr:last-child td { border-bottom: 0; }
 .pt .pn { width: 148px; text-align: left; position: sticky; left: 0; z-index: 2; background: var(--bg-s); }
 .pt th.pn { background: var(--bg2-s); text-align: center; }
 .pt thead th.pn { z-index: 6; top: 0; }
-.pt thead tr.pwr th { height: 28px; top: 0; }
-.pt thead tr.pdr th { top: 28px; }
-.pt thead th.pw { font-size: 12px; }
+.pt thead tr.pwr th { top: 0; }
+.pt thead tr.pdr th { top: 27px; }
 .pt th.pd { width: 112px; cursor: pointer; }
 .pt th.pd:hover, .pt th.pd.sel { color: var(--accent); }
 .pnr { display: flex; align-items: center; gap: 4px; }
