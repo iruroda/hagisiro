@@ -278,7 +278,7 @@ button, input, select, textarea { font-family: inherit; }
 
 /* 주별: 학생 × 요일 */
 .wv { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
-.wttl { width: 163px; }
+.wttl { width: 188px; }
 .wt { table-layout: fixed; }
 .wt th.c1 { width: 36px; } .wt th.c2 { width: 76px; } .wt th.sum { width: 44px; }
 .wt td.wc { overflow-wrap: anywhere; }
@@ -1206,7 +1206,7 @@ body.widget :is(.vnext, .vprev, .vin) :is(.dhead, .dhead *) { animation: none; }
 
 /* 일별·주별 머리줄: 제목 길이가 바뀌어도 ‹ › 버튼 위치는 그대로 */
 .dv .dttl { display: inline-block; box-sizing: border-box; width: 150px; white-space: nowrap; text-align: center; }
-.wv .dttl { display: inline-block; box-sizing: border-box; width: 163px; white-space: nowrap; text-align: center; }
+.wv .dttl { display: inline-block; box-sizing: border-box; width: 188px; white-space: nowrap; text-align: center; }
 
 /* 주별 토글: 선택에 따라 글자 굵기가 바뀌어도 폭이 변하지 않게 */
 .wv .seg > button { text-align: center; }
