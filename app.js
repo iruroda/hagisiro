@@ -1890,7 +1890,7 @@
     const head = el('tr', {}, el('th', { class: 'c1' }, '번호'), el('th', { class: 'c2' }, '이름'));
     for (let d = 1; d <= dim; d++) {
       const ds = dsOf(d); const w = new Date(S.y, S.m, d).getDay();
-      head.append(el('th', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (ds === todayS ? ' tdy' : '') + (ds === S.sel ? ' cur' : ''), 'data-d': ds }, el('div', {}, d), el('div', { class: 'dw' }, DOW[w])));
+      head.append(el('th', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (ds === todayS ? ' tdy' : ''), 'data-d': ds }, el('div', {}, d), el('div', { class: 'dw' }, DOW[w])));
     }
     TYPES.forEach((t) => head.append(el('th', { class: 'sum t-' + t, title: t }, SHORT[t])));
     const tbody = el('tbody');
@@ -2363,6 +2363,11 @@
     const wrap = el('div', { class: 'progwrap' });
     const edit = el('div', { class: 'progedit' });
     dlg.append(head, bar, wrap, edit);
+    dlg.addEventListener('click', (e) => { // 누를 수 있는 칸·입력 영역 말고 다른 곳을 누르면 선택 해제
+      if (!sel && !bulk) return;
+      if (e.target.closest('td.pcl, th.pd.go, .progedit, button, input, select, label')) return;
+      sel = null; bulk = null; wrap.querySelectorAll('.sel').forEach((x) => x.classList.remove('sel')); drawEdit();
+    });
 
     const symRow = (cur, pick) => el('div', { class: 'blpick psyms' }, PSYM.map(([k, name, ic]) => el('button', { type: 'button', class: 'blb' + (k ? ' ps-' + k : '') + ((cur || '') === k ? ' on' : ''), 'aria-label': name, title: name, onclick: () => pick(k) }, icon(ic))));
     function drawEdit() {
