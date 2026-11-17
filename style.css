@@ -925,6 +925,7 @@ body.widget #main > .beltclip { background: none; border-radius: 0; }
 
 /* 하루 급식: 2개 이상이면 가로로 나란히 */
 .dlg.mealday { width: min(760px, 96%); }
+.dlg.mealone { width: fit-content; min-width: 240px; max-width: min(430px, 92vw); } /* 한 끼만 있을 땐 내용 폭에 맞춰 좁게 */
 .meals.hz { flex-direction: row; align-items: flex-start; gap: 14px; }
 .meals.hz > * { flex: 1 1 0; min-width: 0; }
 

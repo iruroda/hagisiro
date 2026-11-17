@@ -3031,7 +3031,7 @@
     const d = parseYmd(ds);
     const list = mealShown(S.meal[ds] || []);
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
-      el('div', { class: 'dlg' + (list.length > 1 ? ' mealday' : '') },
+      el('div', { class: 'dlg' + (list.length > 1 ? ' mealday' : list.length === 1 ? ' mealone' : '') },
         el('div', { class: 'shead' }, hb('utensils', `${md(ymd(d))} 급식`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         list.length ? el('div', { class: 'meals' + (list.length > 1 ? ' hz' : '') }, list.map(mealRow)) : el('div', { class: 'mut' }, '급식 없음')));
   }
