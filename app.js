@@ -2336,7 +2336,7 @@
       drawAll();
     } }, ttList.map((d) => el('option', { value: d.id, selected: d.id === tid }, docName(d))));
     const clearBtn = el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
-      { const cd = ttList.find((d) => d.id === tid); if (!(await ask(`${cd ? docName(cd) : '내 시간표'}의 진도 확인 내용을 모두 삭제할까요?`, '삭제', true, '내용 모두 삭제'))) return; }
+      { const cd = ttList.find((d) => d.id === tid); if (!(await ask(`${cd ? docName(cd) : '내 시간표'}의 진도 확인 내용을 모두 삭제할까요?`))) return; }
       prog.cells = {}; sel = null; bulk = null; flush(); drawAll();
     } }, icon('trash'), '내용 모두 삭제');
     const days0 = range();

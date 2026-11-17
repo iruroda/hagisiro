@@ -158,7 +158,7 @@ async function book(sid, v) {
 }
 
 function onTaken(sid, rec) {
-  const close = modal(el('b', {}, '상담 신청 삭제'), el('div', {}, label(sid)),
+  const close = modal(el('div', {}, `${label(sid)} 신청을 삭제할까요?`),
     el('div', { class: 'row' }, el('button', { class: 'ghost', onclick: () => close() }, '취소'),
       el('button', { class: 'pri danger', onclick: async (e) => {
         e.target.disabled = true;
