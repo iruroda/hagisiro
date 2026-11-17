@@ -788,14 +788,19 @@
     S.y = y; S.m = m; S.sel = ymd(d); S.anchor = ymd(d); S.extra = {};
     watchRange(); render();
   }
-  function editTtl(span) {
+  function jumpToDate(ds) {
+    S.sel = ds; S.anchor = ds; const d = parseYmd(ds); S.y = d.getFullYear(); S.m = d.getMonth(); S.extra = {};
+    watchRange(); render();
+  }
+  function editTtl(span, withDay) { // withDay: 출결 일별·주별 제목에서는 일까지 골라요
     if (document.querySelector('.ttpop')) return;
-    const ref = weekMode() ? parseYmd(S.anchor) : new Date(S.y, S.m, 1);
+    const ref = withDay ? parseYmd(S.sel) : weekMode() ? parseYmd(S.anchor) : new Date(S.y, S.m, 1);
     const yi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 4, class: 'ttin y', value: ref.getFullYear(), 'aria-label': '연도' });
     const mi = el('input', { type: 'text', inputmode: 'numeric', maxlength: 2, class: 'ttin m', value: ref.getMonth() + 1, 'aria-label': '월' });
+    const di = withDay ? el('input', { type: 'text', inputmode: 'numeric', maxlength: 2, class: 'ttin d', value: ref.getDate(), 'aria-label': '일' }) : null;
     const go = el('button', { type: 'button', class: 'pri sm', 'aria-label': '이동' }, icon('enter'));
     const fy = el('div', { class: 'ttf' }, yi), fm = el('div', { class: 'ttf' }, mi);
-    const pop = el('div', { class: 'ttpop' }, fy, el('span', {}, '년'), fm, el('span', {}, '월'), go);
+    const pop = el('div', { class: 'ttpop' }, fy, el('span', {}, '년'), fm, el('span', {}, '월'), ...(di ? [el('div', { class: 'ttf' }, di), el('span', {}, '일')] : []), go);
     let done = false, dd = null;
     const closeDD = () => { if (dd) { dd.remove(); dd = null; } };
     const openDD = (inp, vals, onPick) => { // 직접 입력도 되고, 목록에서 골라도 돼요
@@ -807,17 +812,19 @@
     const cy = new Date().getFullYear();
     const years = Array.from({ length: 21 }, (_, i) => cy - 10 + i); // 지난 10년 ~ 앞으로 10년
     const showY = () => openDD(yi, years, (v) => { yi.value = v; mi.focus(); mi.select(); });
-    const showM = () => openDD(mi, Array.from({ length: 12 }, (_, i) => i + 1), (v) => { mi.value = v; finish(true); });
+    const showM = () => openDD(mi, Array.from({ length: 12 }, (_, i) => i + 1), (v) => { mi.value = v; if (di) { di.focus(); di.select(); } else finish(true); });
+    const showD = () => { const y = parseInt(yi.value, 10) || ref.getFullYear(), m = parseInt(mi.value, 10) || 1; openDD(di, Array.from({ length: new Date(y, Math.min(12, Math.max(1, m)), 0).getDate() }, (_, i) => i + 1), (v) => { di.value = v; finish(true); }); };
     const close = () => { if (done) return; done = true; document.removeEventListener('pointerdown', off, true); pop.remove(); };
     const finish = (ok) => {
       const y = parseInt(yi.value, 10), m = parseInt(mi.value, 10);
       if (ok && !(y >= 1900 && y <= 2200 && m >= 1 && m <= 12)) return;
       close();
-      if (ok) jumpTo(y, m - 1);
+      if (!ok) return;
+      if (di) { const dim = new Date(y, m, 0).getDate(); jumpToDate(ymd(new Date(y, m - 1, Math.min(Math.max(parseInt(di.value, 10) || 1, 1), dim)))); } else jumpTo(y, m - 1);
     };
     const off = (e) => { if (!pop.contains(e.target)) close(); else if (dd && !dd.contains(e.target) && !e.target.closest('.ttin')) closeDD(); };
-    [yi, mi].forEach((i) => {
-      const show = i === yi ? showY : showM;
+    [yi, mi, di].filter(Boolean).forEach((i) => {
+      const show = i === yi ? showY : i === mi ? showM : showD;
       i.addEventListener('input', () => { closeDD(); i.value = i.value.replace(/\D/g, ''); if (i === yi && i.value.length === 4) { mi.focus(); mi.select(); } });
       i.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(true); else if (e.key === 'Escape') { if (dd) closeDD(); else close(); } else if (e.key === 'ArrowDown' && !dd) show(); e.stopPropagation(); });
       i.addEventListener('focus', () => { i.select(); });
@@ -1933,7 +1940,7 @@
     const fri = days[4];
     wrap.append(el('div', { class: 'dhead' },
       el('button', { class: 'ib', 'aria-label': '이전 주', onclick: () => shiftW(-1) }, icon('left')),
-      el('b', { class: 'dttl wttl' }, `${md(ymd(mon))} ~ ${md(ymd(fri))}`),
+      el('b', { class: 'dttl wttl jump', onclick: (e) => editTtl(e.currentTarget, true) }, `${md(ymd(mon))} ~ ${md(ymd(fri))}`),
       el('button', { class: 'ib', 'aria-label': '다음 주', onclick: () => shiftW(1) }, icon('right')),
       el('span', { class: 'grow' }),
       (() => {
@@ -2035,7 +2042,7 @@
       Array.from({ length: 11 }, (_, n) => el('option', { value: n, selected: n === last }, n ? `${n}교시` : '수업 없음')));
     wrap.append(el('div', { class: 'dhead' },
       el('button', { class: 'ib', 'aria-label': '이전 날', onclick: () => shift(-1) }, icon('left')),
-      el('b', { class: 'dttl' }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
+      el('b', { class: 'dttl jump', onclick: (e) => editTtl(e.currentTarget, true) }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
       ovr ? el('button', { class: 'ghost sm', title: '기본 교시 수로 되돌리기', onclick: () => { setDayPeriods(ds, def); render(); } }, icon('undo'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
