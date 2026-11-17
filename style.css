@@ -657,7 +657,6 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 .srow { display: flex; align-items: center; gap: 8px; text-align: left; padding: 7px 8px; border-radius: var(--r); font-size: 13px; flex: none; }
 .srow:hover { background: var(--bg2); }
 .srow.done .st { text-decoration: line-through; opacity: .55; }
-.srow.past .st { opacity: .55; }
 .srow .st.td:not([data-sz]) { font-size: 13px; }
 .rtarget[data-sz] .rchip { font-size: inherit; }
 .srow .sd { flex: none; width: 82px; color: var(--mut); font-size: 12px; font-variant-numeric: tabular-nums; }

@@ -934,7 +934,7 @@
       if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, 'D-day 없음')); return; }
       all.forEach(({ t, n }) => {
         const d = parseYmd(t.date);
-        list.append(el('div', { class: 'srow' + (n < 0 ? ' past' : '') },
+        list.append(el('div', { class: 'srow' },
           el('button', { type: 'button', class: 'sgo', onclick: () => { close(); gotoDate(t.date); } },
             el('span', { class: 'sd' }, n === 0 ? 'D-day' : n > 0 ? `D-${n}` : `D+${-n}`),
             el('span', { class: 'st td', 'data-sz': t.sz || null, style: colorVars(t) || null }, blSpan(t.bl), el('span', { class: 'tt' }, t.text)),
