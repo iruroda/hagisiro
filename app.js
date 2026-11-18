@@ -2776,14 +2776,18 @@
       ],
       look: () => {
         const mon = PF.cal === 'month'; // 월별에선 이번 주 보기용 설정을 잠가요
-        const dots = (key, list) => el('div', { class: 'pc2 pdots' }, list.map(([val, name]) => el('button', { type: 'button', class: 'swb' + (key === 'tbg' ? ' sq' : '') + (val ? '' : ' none') + ((PF[key] || '') === val ? ' on' : ''), 'aria-label': name, style: val ? `background:${val}` : null,
-          onclick: () => { PF[key] = val; commit('render'); } })));
         return [
           el('div', { class: 'pfs' }, '캘린더 보기'),
           row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
           dim(row('전체 주 수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')), mon),
           dim(row('지나간 주 수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
           tog('mgap', '월 사이 구분하기', '', 'render', false, mon),
+        ];
+      },
+      td: () => {
+        const dots = (key, list) => el('div', { class: 'pc2 pdots' }, list.map(([val, name]) => el('button', { type: 'button', class: 'swb' + (key === 'tbg' ? ' sq' : '') + (val ? '' : ' none') + ((PF[key] || '') === val ? ' on' : ''), 'aria-label': name, style: val ? `background:${val}` : null,
+          onclick: () => { PF[key] = val; commit('render'); } })));
+        return [
           el('div', { class: 'pfs' }, '기본 모양'),
           row('글자 크기', el('div', { class: 'seg szseg' }, SIZES.map(([v, l]) => el('button', { type: 'button', class: (PF.tsz || 's') === v ? 'on' : '', onclick: () => { PF.tsz = v === 's' ? '' : v; commit('render'); } }, l)))),
           row('줄 간격', el('div', { class: 'seg szseg' }, [[0, '아주 좁게'], [1, '좁게'], [2, '보통'], [3, '넓게'], [4, '아주 넓게']].map(([v, l]) => el('button', { type: 'button', class: PF.tlh === v ? 'on' : '', onclick: () => { PF.tlh = v; commit('render'); } }, l)))),
@@ -2791,13 +2795,11 @@
             onclick: () => { PF.tbl = k === 'dot' ? '' : k; commit('render'); } }, bulIcon(k))))),
           row('글자색', dots('tfg', FG)),
           row('배경색', dots('tbg', BGC)),
-        ];
-      },
-      td: () => [
           el('div', { class: 'pfs' }, '완료 설정'),
           tog('autoDel', '완료 시 자동 삭제', '반복 항목은 그날만', 'render', false, false, 'sortDone'),
           tog('sortDone', '완료 시 맨 아래로', '', 'render', false, false, 'autoDel'),
-        ],
+        ];
+      },
     };
     const tabBar = el('div', { class: 'pnav' });
     const body = el('div', { class: 'pbody' });
