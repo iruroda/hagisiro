@@ -516,12 +516,14 @@
       clip.style.cssText = t.classList.contains('mwrap') ? `flex:none;min-width:0;width:100%;height:${t.offsetHeight}px;position:relative;overflow:hidden` : 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
       t.replaceWith(clip); clip.append(t, node);
       /* 기존 화면은 지우지 않고 그대로 뒤에 두고, 새 화면이 옆에서 페이드인으로 들어와요 (새 화면에 불투명 바탕을 깔아서 겹치는 동안 위젯 뒤가 비치지 않아요) */
-      const solid = ';background:var(--bg-s)';
-      clip.style.background = 'var(--bg-s)';
+      const tr = widgetSeeThru(); // 위젯 투명도를 낮춘 경우엔 불투명 바탕 대신, 옛 화면을 같이 서서히 지워서 투명도가 그대로 유지되게 해요
+      const solid = tr ? '' : ';background:var(--bg-s)';
+      if (!tr) clip.style.background = 'var(--bg-s)';
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1${solid}`;
       node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none' + solid;
       const D = 12;
       an = t.animate([{ transform: `translateX(${dir * D}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
+      if (tr) an2 = node.animate([{ opacity: 1 }, { opacity: 0 }], opt);
       done = () => { t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
     }
     const el0 = performance.now() - snap.t0;
@@ -529,6 +531,7 @@
     S.belt = { an, an2, done, snap };
     an.onfinish = () => { if (S.belt && S.belt.an === an) { S.belt = null; done(); } };
   }
+  const widgetSeeThru = () => document.body.classList.contains('widget') && PF.opacity < 100;
   function animateMain(main, snap, ghost) {
     const k = viewKey(), sc = scopeNum();
     const c = main.firstElementChild;
@@ -540,10 +543,12 @@
         if (ghost && !needLogin()) { // 기존 화면은 그대로 뒤에 두고 새 화면만 불투명 바탕으로 페이드인
           ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
           ghost.inert = true;
-          ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;background:var(--bg-s)';
-          c.style.position = 'relative'; c.style.zIndex = '1'; c.style.background = 'var(--bg-s)';
+          const tr = widgetSeeThru(); // 투명도를 낮춘 위젯: 불투명 바탕 없이 옛 화면을 같이 지우며 바꿔요
+          ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none' + (tr ? '' : ';background:var(--bg-s)');
+          c.style.position = 'relative'; c.style.zIndex = '1'; if (!tr) c.style.background = 'var(--bg-s)';
           main.prepend(ghost);
           const an = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' });
+          if (tr) ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: 'ease-out', fill: 'forwards' });
           const fin = () => { ghost.remove(); c.style.position = ''; c.style.zIndex = ''; c.style.background = ''; };
           an.onfinish = fin; an.oncancel = fin;
         } else cls = 'vin';
