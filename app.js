@@ -218,7 +218,8 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] },
+  const PF_DEF = { cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 100, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] };
+  const PF = Object.assign(JSON.parse(JSON.stringify(PF_DEF)),
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     if (!PF.docSel || typeof PF.docSel !== 'object') PF.docSel = {};
@@ -228,7 +229,7 @@
     if (!PF.school && PF.schools.length) PF.school = PF.schools[0];
     PF.weeks = Math.min(6, Math.max(1, Math.round(+PF.weeks) || 4));
     PF.past = Math.min(5, PF.weeks - 1, Math.max(0, Math.round(+PF.past) || 0));
-    PF.opacity = Math.min(100, Math.max(30, Math.round(+PF.opacity) || 90));
+    PF.opacity = Math.min(100, Math.max(30, Math.round(+PF.opacity) || 100));
     if (!['month', 'week'].includes(PF.cal)) PF.cal = 'month';
     if (!['auto', 'light', 'dark'].includes(PF.theme)) PF.theme = 'auto';
   }
@@ -2851,7 +2852,7 @@
         row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
         tog('anim', '애니메이션 효과'),
         ...(W ? [el('div', { class: 'pfs' }, '창'),
-        S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
+        S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['normal', '일반'], ['top', '맨 앞'], ['bottom', '맨 뒤']].map(([v, l]) =>
           el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await W.setZ(v); draw(); } }, l)))) : null,
         row('투명도', el('input', {
           type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '투명도',
@@ -2911,7 +2912,14 @@
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg pfdlg' },
         el('div', { class: 'shead' }, hb('gear', '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-        el('div', { class: 'pmain' }, tabBar, body)));
+        el('div', { class: 'pmain' }, tabBar, body),
+        el('div', { class: 'dlgf' }, el('button', { class: 'ghost sm', type: 'button', onclick: async () => {
+          if (!(await ask('모든 설정을 기본으로 되돌릴까요?', '되돌리기', false))) return;
+          ['cal', 'weeks', 'past', 'mgap', 'lunar', 'terms', 'hol', 'ghol', 'ab', 'cons', 'meal', 'pastdd', 'ddtop', 'tsz', 'tfg', 'tbg', 'tlh', 'tbl', 'autoDel', 'sortDone', 'theme', 'anim', 'hide', 'show', 'opacity']
+            .forEach((k) => { if (k in PF_DEF) PF[k] = JSON.parse(JSON.stringify(PF_DEF[k])); else delete PF[k]; });
+          if (W && W.setZ) { try { S.zmode = await W.setZ('normal'); } catch (e) { /* 창 순서는 그대로 */ } }
+          commit('range'); S.pfTab = 'view'; draw();
+        } }, icon('undo'), '기본으로 되돌리기'))));
     draw();
     if (W && W.getZ) W.getZ().then((v) => { S.zmode = v; if (!m.hidden) draw(); });
     if (W && W.getAutoStart) W.getAutoStart().then((v) => { S.autoStart = v; if (!m.hidden) draw(); });
