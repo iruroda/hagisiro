@@ -682,7 +682,7 @@ body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; 
 /* 위젯 로그인 화면: 작은 팝업 모양 (불투명, 끌어서 이동, 크기 변경 없음) */
 body.widget.loginmode #wmove, body.widget.loginmode #wedit { display: none; }
 body.widget.loginmode #app { padding: 0; }
-body.widget.loginmode #main > .login { margin: 14px; height: calc(100% - 28px); background: var(--bg); border-radius: var(--r-xl); -webkit-app-region: drag; user-select: none; }
+body.widget.loginmode #main > .login { margin: 14px; height: calc(100% - 28px); background: var(--bg-s); /* 투명도 설정과 상관없이 또렷하게 */ border-radius: var(--r-xl); -webkit-app-region: drag; user-select: none; }
 body.widget.loginmode #main > .login button { -webkit-app-region: no-drag; }
 
 /* 반복 설정 */
