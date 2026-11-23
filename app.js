@@ -544,7 +544,7 @@
       let t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
       let cls = null;
       if (k !== S.lastKey) {
-        if (ghost && !needLogin()) { // 기존 화면은 그대로 뒤에 두고 새 화면만 불투명 바탕으로 페이드인
+        if (ghost && !needLogin()) { // 기존 화면은 뒤에 남아 옅어지고, 새 화면이 페이드인
           ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
           ghost.inert = true;
           ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none';
@@ -552,8 +552,10 @@
           main.style.background = 'var(--wbg, var(--bg-s))'; main.style.borderRadius = '0 0 var(--r) var(--r)';
           c.style.position = 'relative'; c.style.zIndex = '1';
           main.prepend(ghost);
-          const an = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'cubic-bezier(.4,0,.6,1)' }); // 짧게, 끝에서 꼬리가 길어지지 않게
-          const fin = () => { ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; };
+          const op = { duration: 150, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'both' }; // 짧게, 끝에서 꼬리가 길어지지 않게
+          const an = c.animate([{ opacity: 0 }, { opacity: 1 }], op);
+          ghost.animate([{ opacity: 1 }, { opacity: 0 }], op); // 옛 화면은 새 화면이 나타나는 만큼 옅어져서, 끝날 때 툭 사라지지 않아요
+          const fin = () => { an.oncancel = null; an.cancel(); ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; };
           an.onfinish = fin; an.oncancel = fin;
         } else cls = 'vin';
       }
@@ -2571,7 +2573,7 @@
     function drawAll() {
       tds.clear();
       const list = names(), days = range();
-      const none = !list.length; // 내 시간표에 과목이 없으면 급식(학교 없음)처럼 틀은 그대로 두고 흐리게·비활성화
+      const none = !list.length; // 쓸 수 있는 시간표가 없으면 표 대신 안내 문구, 날짜·삭제는 비활성화
       dlg.classList.toggle('nosub', none);
       [clearBtn, sIn, eIn].forEach((x) => { x.disabled = none; });
       const weekRow = () => { // 월~금을 묶어서 N주차 (시작 날짜가 있는 주가 1주차)
@@ -2585,11 +2587,7 @@
       };
       const dateRow = (go) => el('tr', { class: 'pdr' }, days.map((d) => el('th', go ? { class: 'pd go' + (bulk === ymd(d) ? ' sel' : ''), onclick: () => { bulk = bulk === ymd(d) ? null : ymd(d); sel = null; drawAll(); } } : { class: 'pd' }, dl(d))));
       if (none) {
-        const cd = docOf(tid);
-        const [m1, m2] = !docHas(cd) ? ['먼저 내 시간표를 만들어 주세요.', '']
-          : cd.kind === 'image' ? ['이미지로 올린 시간표는 진도 확인에 쓸 수 없어요.', '표로 입력하거나 엑셀 파일로 업로드해 주세요.']
-          : ['시간표에서 과목을 찾지 못했어요.', '요일(월~금) 칸이 있는 표로 입력해 주세요.'];
-        wrap.replaceChildren(el('div', { class: 'empty mut' }, el('p', {}, m1), m2 ? el('p', {}, m2) : null));
+        wrap.replaceChildren(el('div', { class: 'empty mut' }, '먼저 내 시간표를 표로 만들어 주세요.'));
         sel = null; bulk = null; drawEdit(); return;
       }
       const body = list.map((n, i) => {
