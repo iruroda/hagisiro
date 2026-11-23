@@ -2849,7 +2849,7 @@
       view: () => [
         el('div', { class: 'pfs' }, '모양'),
         row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
-        tog('anim', '애니메이션'),
+        tog('anim', '애니메이션 효과'),
         ...(W ? [el('div', { class: 'pfs' }, '창'),
         S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
           el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await W.setZ(v); draw(); } }, l)))) : null,
