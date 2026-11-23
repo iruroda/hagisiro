@@ -2146,7 +2146,45 @@
     return w;
   }
   /* 불러오는 중: 글자 대신 보라~파랑 도넛 링이 빙글빙글 */
-  const loading = (page) => el('div', { class: 'ldg' + (page ? ' page' : ''), role: 'status', 'aria-label': '불러오는 중' }, el('i', { class: 'ring' }));
+  /* 불러오는 중: 네모 하나가 시계 방향으로 돌며 칸을 채우고(1바퀴) 먹어치우는(2바퀴) 슬라임. 로딩이 끝나 화면에서 사라지면 그 자리에서 바로 멈춰요 */
+  const SLIME = (() => {
+    const POS = [[0, 0], [34, 0], [34, 34], [0, 34]], SZ = 30, RX = 9, STEP = 450;
+    const STEPS = []; for (let lap = 0; lap < 2; lap++) for (let k = 0; k < 4; k++) STEPS.push({ from: k, to: (k + 1) % 4, erase: !!lap });
+    const TOTAL = STEPS.length * STEP;
+    const bez = (x1, y1, x2, y2) => (t) => { let lo = 0, hi = 1, u = t; for (let i = 0; i < 24; i++) { u = (lo + hi) / 2; const x = 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u; if (x < t) lo = u; else hi = u; } return 3 * (1 - u) * (1 - u) * u * y1 + 3 * (1 - u) * u * u * y2 + u * u * u; };
+    const ease = bez(0.5, -0.12, 0.3, 1.1); // 살짝 당겼다가 튀어 나가고 조금 넘쳤다 돌아오는 쫀득한 곡선
+    function frame(t) {
+      const idx = Math.min(STEPS.length - 1, Math.floor(t / STEP));
+      const cells = new Set([0]);
+      for (let i = 0; i < idx; i++) { const x = STEPS[i]; if (x.erase) cells.delete(x.from); cells.add(x.to); }
+      const x = STEPS[idx], u = (t - idx * STEP) / STEP;
+      if (x.erase) cells.delete(x.from);
+      const e = ease(u), d = 1e-3, v = (ease(Math.min(1, u + d)) - ease(Math.max(0, u - d))) / (2 * d);
+      const dx = POS[x.to][0] - POS[x.from][0], dy = POS[x.to][1] - POS[x.from][1];
+      const st = 1 + Math.min(0.5, Math.abs(v) * 0.16);
+      const w = dx ? SZ * st : SZ / Math.sqrt(st), h = dx ? SZ / Math.sqrt(st) : SZ * st;
+      const cx = POS[x.from][0] + dx * e + SZ / 2, cy = POS[x.from][1] + dy * e + SZ / 2;
+      let o = '<g filter="url(#slGoo)" fill="url(#slG)">';
+      cells.forEach((i) => { o += `<rect x="${POS[i][0]}" y="${POS[i][1]}" width="${SZ}" height="${SZ}" rx="${RX}"/>`; });
+      return o + `<rect x="${cx - w / 2}" y="${cy - h / 2}" width="${w}" height="${h}" rx="${RX}"/></g>`;
+    }
+    const live = new Set(); let run = false;
+    function loop(now) {
+      live.forEach((n) => { if (!n.isConnected) { if (now - n._t0 > 400) live.delete(n); return; } n.innerHTML = frame((now - n._t0) % TOTAL); });
+      if (live.size) requestAnimationFrame(loop); else run = false;
+    }
+    return (size) => {
+      if (!document.getElementById('slDefs')) {
+        document.body.insertAdjacentHTML('beforeend', '<svg id="slDefs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="slG" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#6d4aff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient><filter id="slGoo" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="1.7" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter></defs></svg>');
+      }
+      const n = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      n.setAttribute('viewBox', '-6 -6 76 76'); n.setAttribute('width', size); n.setAttribute('height', size); n.style.overflow = 'visible';
+      n.innerHTML = frame(0);
+      if (!noAnim()) { n._t0 = performance.now(); live.add(n); if (!run) { run = true; requestAnimationFrame(loop); } }
+      return n;
+    };
+  })();
+  const loading = (page) => el('div', { class: 'ldg' + (page ? ' page' : ''), role: 'status', 'aria-label': '불러오는 중' }, SLIME(40));
   const hb = (ic, t) => el('b', { class: 'hb' }, icon(ic), t);
   /* 팝업 제목줄을 잡아 끌면 팝업이 이동 (뒤에 있는 내용을 볼 수 있게) */
   document.addEventListener('mousedown', (e) => {
