@@ -1064,7 +1064,7 @@
     ls.set(AL_KEY, JSON.stringify(done.slice(-300)));
     fire.forEach((a) => {
       let shown = false;
-      if (window.Notification && Notification.permission === 'granted') { try { new Notification(a.text, { body: `${md(a.date)} ${a.al}`, tag: 'hagisiro-' + a.id }); shown = true; } catch (e) { /* 앱 안 팝업으로 대신 */ } }
+      if (window.Notification && Notification.permission === 'granted') { try { new Notification(a.text, { body: `${md(a.date)} ${a.al}`, tag: 'hagisiro-' + a.id, icon: new URL('icons/icon-192.png', location.href).href }); shown = true; } catch (e) { /* 앱 안 팝업으로 대신 */ } }
       if (!shown) notice(`${a.text}\n${md(a.date)} ${a.al}`);
     });
   }
