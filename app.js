@@ -218,7 +218,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, hide: [], show: [], mwe: true, mk: ['중식'] },
+  const PF = Object.assign({ cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 90, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] },
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
     if (!PF.docSel || typeof PF.docSel !== 'object') PF.docSel = {};
@@ -1214,10 +1214,10 @@
             hn ? el('i', { class: 'hn' }, hn) : null, tm ? el('i', { class: 'tm' }, tm) : null, lu ? el('i', { class: 'lu' }, lu) : null) : null,
           ),
         el('div', { class: 'tl' }, gl.map(gev), list.map(todoRow)),
-        (PF.ab && attBy[ds]) || (PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length) || (S.cloud && S.cbk && S.cbk[ds]) ? el('div', { class: 'cbt' },
+        (PF.ab && attBy[ds]) || (PF.cons && S.cloud && S.cbk && S.cbk[ds]) || (PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length) ? el('div', { class: 'cbt' },
           PF.ab && attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att' }, `출결 ${attBy[ds]}`) : null,
-          PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal' }, '급식') : null,
-          S.cloud && S.cbk && S.cbk[ds] ? el('button', { class: 'ab mb', 'data-act': 'cons' }, `상담 ${S.cbk[ds].n}`) : null) : null,
+          PF.cons && S.cloud && S.cbk && S.cbk[ds] ? el('button', { class: 'ab mb', 'data-act': 'cons' }, `상담 ${S.cbk[ds].n}`) : null,
+          PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal' }, '급식') : null) : null,
         el('div', { class: 'dots' }, list.slice(0, 5).map((t) => el('i', { class: t.done ? 'on' : '' })), gl.length ? el('i', { class: 'g' }) : null)));
       }
     }
@@ -2832,19 +2832,22 @@
     const pages = {
       cal: () => [
           el('div', { class: 'pfs' }, '날짜에 함께 표시'),
+          tog('hol', '공휴일', '', 'ghol'),
           tog('lunar', '음력 날짜'),
           tog('terms', '24절기'),
-          tog('hol', '공휴일', '', 'ghol'),
-          tog('ab', '출결 버튼', '', 'render'),
-          tog('pastdd', '지난 D-day 표시하기', '', 'render'),
-          tog('ddtop', 'D-day 줄을 요일 위에 표시', '', 'render'),
-          tog('meal', '급식 버튼', '', 'render', !PF.school),
           S.cloud ? el('label', { class: 'pfr tg' },
             el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
               const cb = e.target;
               if (cb.checked) connectGcal().finally(() => { cb.checked = gcalWanted(); });
               else { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); }
             } }), el('span', {}, 'Google 캘린더 연동')) : null,
+          el('div', { class: 'pfs' }, '미니 버튼'),
+          tog('ab', '출결', '', 'render'),
+          tog('cons', '상담', '', 'render', !S.cloud),
+          tog('meal', '급식', '', 'render', !PF.school),
+          el('div', { class: 'pfs' }, 'D-day'),
+          tog('ddtop', 'D-day 알림을 요일 위에 표시', '', 'render'),
+          tog('pastdd', '지난 D-day 표시하기', '', 'render'),
         ],
       view: () => [
         el('div', { class: 'pfs' }, '모양'),

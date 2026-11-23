@@ -1462,3 +1462,5 @@ button:disabled { pointer-events: none; }
 .tflat { --bg: transparent; --wbg: transparent; }
 .rdel { display: flex; align-items: center; gap: 8px; }
 .rdel > .fld { flex: 1; min-width: 0; }
+.cbt { flex-wrap: wrap; row-gap: 2px; }
+.cbt .ab { white-space: nowrap; }
