@@ -2845,9 +2845,6 @@
           tog('ab', '출결', '', 'render'),
           tog('cons', '상담', '', 'render', !S.cloud),
           tog('meal', '급식', '', 'render', !PF.school),
-          el('div', { class: 'pfs' }, 'D-day'),
-          tog('ddtop', 'D-day 알림을 요일 위에 표시', '', 'render'),
-          tog('pastdd', '지난 D-day 표시하기', '', 'render'),
         ],
       view: () => [
         el('div', { class: 'pfs' }, '모양'),
@@ -2878,6 +2875,9 @@
           dim(row('전체 주 수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')), mon),
           dim(row('지나간 주 수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
           tog('mgap', '월 사이 구분하기', '', 'render', false, mon),
+          el('div', { class: 'pfs' }, 'D-day'),
+          tog('ddtop', 'D-day 알림을 요일 위에 표시', '', 'render'),
+          tog('pastdd', '지난 D-day 표시하기', '', 'render'),
         ];
       },
       td: () => {
