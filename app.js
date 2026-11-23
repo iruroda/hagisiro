@@ -909,7 +909,8 @@
     const api = window.hagisiroWidget || {};
     const gc = gcalWanted() && !gtoken();
     return [
-      { k: 'sync', label: '새로고침', ic: 'refresh', def: true, run: forceSync },
+      S.user ? { k: 'logout', label: '로그아웃', ic: 'logout', run: () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); } } : null,
+      !S.user && S.cloudAvail ? { k: 'login', label: 'Google 로그인', ic: 'google', run: () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); } } : null,
       { k: 'search', label: '할 일 검색', ic: 'search', pop: true, run: openSearch },
       { k: 'repeat', label: '반복 관리', ic: 'repeat', pop: true, run: () => openRepeatManage() },
       { k: 'dday', label: 'D-day 관리', ic: 'dday', pop: true, run: openDdays },
@@ -917,10 +918,9 @@
       { k: 'meal', label: '급식', ic: 'utensils', def: true, pop: true, run: openMealWeek },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, ic, def: true, doc: id, run: () => openDoc(id) })),
       { k: 'prog', label: '진도 확인', ic: 'progress', pop: true, run: openProgress },
+      { k: 'sync', label: '새로고침', ic: 'refresh', def: true, run: forceSync },
       { k: 'prefs', label: '설정', ic: 'gear', pop: true, run: openPrefs },
       gc ? { k: 'gc', label: 'Google 캘린더 다시 연결', ic: 'google', def: true, run: () => connectGcal() } : null,
-      S.user ? { k: 'logout', label: '로그아웃', ic: 'logout', run: () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); } } : null,
-      !S.user && S.cloudAvail ? { k: 'login', label: 'Google 로그인', ic: 'google', run: () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); } } : null,
       !S.cloud ? { k: 'backup', label: '백업 저장', ic: 'download', run: exportJson } : null,
       IS_WIDGET ? { k: 'move', label: '이동·크기 변경', ic: 'move', def: true, run: () => S.winEdit && S.winEdit() } : null,
       api.hide ? { k: 'hide', label: '숨기기', ic: 'minimize', run: () => api.hide() } : null,
@@ -942,11 +942,10 @@
     const item = (label, fn, ic) => el('button', { class: 'mi mic', onclick: () => { closeMenu(); fn(); } }, ic ? icon(ic) : null, el('span', {}, label));
     const m = el('div', { class: 'menu', id: 'menu' });
     const sep = () => m.append(el('div', { class: 'msep' }));
-    if (S.user) { m.append(el('div', { class: 'mh' }, S.user.email || '')); sep(); }
+    if (S.user) { m.append(el('div', { class: 'mh' }, S.user.email || '')); m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout')); sep(); }
     else if (S.cloudAvail) { m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }, 'google')); sep(); }
     else { m.append(el('div', { class: 'mh' }, '이 기기에만 저장')); sep(); }
     m.append(item('할 일 검색', openSearch, 'search'));
-    m.append(item('새로고침', forceSync, 'refresh'));
     m.append(item('반복 관리', () => openRepeatManage(), 'repeat'));
     m.append(item('D-day 관리', openDdays, 'dday'));
     m.append(item('알림 관리', openAlarms, 'bell'));
@@ -955,13 +954,14 @@
     DOCS.forEach(([id, label, ic]) => m.append(item(label, () => openDoc(id), ic)));
     m.append(item('진도 확인', openProgress, 'progress'));
     sep();
+    m.append(item('새로고침', forceSync, 'refresh'));
     m.append(item('설정', openPrefs, 'gear'));
-    if (S.user) m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout'));
     if (!S.cloud) m.append(item('백업 저장', exportJson, 'download'));
-    if ((S.user || !S.cloud) && (IS_WIDGET || (window.hagisiroWidget && (window.hagisiroWidget.hide || window.hagisiroWidget.quit)))) sep();
+    const wapi = window.hagisiroWidget;
+    if (IS_WIDGET || (wapi && (wapi.hide || wapi.quit))) sep();
     if (IS_WIDGET) m.append(item('이동·크기 변경', () => S.winEdit && S.winEdit(), 'move'));
-    if (window.hagisiroWidget && window.hagisiroWidget.hide) m.append(item('숨기기', () => window.hagisiroWidget.hide(), 'minimize'));
-    if (window.hagisiroWidget && window.hagisiroWidget.quit) m.append(item('종료', () => window.hagisiroWidget.quit(), 'power'));
+    if (wapi && wapi.hide) m.append(item('숨기기', () => wapi.hide(), 'minimize'));
+    if (wapi && wapi.quit) m.append(item('종료', () => wapi.quit(), 'power'));
     $('#app').append(m);
     setTimeout(() => document.addEventListener('click', onDocClick), 0);
   }
