@@ -3079,7 +3079,7 @@
         el('div', { class: 'cdlist' }, e.it.map(({ c, bs }) => el('div', { class: 'cdg' },
           el('button', { type: 'button', class: 'cdt', onclick: () => { close(); S.cs = { c }; setView('consult'); } }, c.title || '상담'),
           bs.slice().sort((x, y) => String(x.id).localeCompare(String(y.id))).map((b) => el('div', { class: 'cdr' },
-            el('b', {}, `${String(b.id).slice(9, 11)}:${String(b.id).slice(11, 13)}`), el('span', {}, b.name), b.info ? el('small', { class: 'mut' }, b.info) : null)))))));
+            el('b', {}, `${String(b.id).slice(9, 11)}:${String(b.id).slice(11, 13)}`), el('span', {}, `${b.name}${b.info ? ' (' + b.info + ')' : ''}`))))))));
   }
   function openMeal(ds) {
     const m = $('#modal');
