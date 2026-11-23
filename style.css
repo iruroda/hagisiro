@@ -1450,3 +1450,4 @@ button:disabled { pointer-events: none; }
 .cdh.dsun > .cday, .cdh.dsun > .mut { color: var(--sun); } .cdh.dsat > .cday, .cdh.dsat > .mut { color: var(--sat); }
 .scgrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; } /* 바로가기: 2열 */
 .cform > .cdiv { height: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; max-width: 480px; } /* 안내 사항 입력칸과 같은 폭까지만 */
+.cdc .cchip small { line-height: 1; align-self: center; position: relative; top: 1.25px; }
