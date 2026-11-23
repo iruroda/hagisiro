@@ -2809,8 +2809,8 @@
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const W = window.hagisiroWidget;
-    const TABS = [['look', '보기'], ['cal', '캘린더'], ['td', '할 일'], ['view', '화면']];
-    if (!TABS.some((t) => t[0] === S.pfTab)) S.pfTab = 'look';
+    const TABS = [['view', '화면'], ['look', '보기'], ['cal', '캘린더'], ['td', '할 일']];
+    if (!TABS.some((t) => t[0] === S.pfTab)) S.pfTab = 'view';
     const seg = (key, opts, after) => el('div', { class: 'seg' }, opts.map(([v, label]) =>
       el('button', { type: 'button', class: PF[key] === v ? 'on' : '', onclick: () => { PF[key] = v; commit(after); } }, label)));
     const sel = (key, vals, fmt, after) => el('select', { onchange: (e) => { PF[key] = +e.target.value; commit(after); } },
