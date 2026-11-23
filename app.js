@@ -3134,7 +3134,7 @@
       if (!data) { body.append(loading()); return; }
       const kinds = MEAL_KINDS.filter((k) => (PF.mk || MEAL_KINDS).includes(k));
       const tbl = el('table', { class: 'mtbl' },
-        el('thead', {}, el('tr', {}, el('th', {}), days.map((d) => el('th', { class: (ymd(d) === ymd(t0) ? 'today ' : '') + (d.getDay() === 0 ? 'sun' : d.getDay() === 6 ? 'sat' : '') }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)))),
+        el('thead', {}, el('tr', {}, el('th', { class: 'rk' }), days.map((d) => el('th', { class: (ymd(d) === ymd(t0) ? 'today ' : '') + (d.getDay() === 0 ? 'sun' : d.getDay() === 6 ? 'sat' : '') }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)))),
         el('tbody', {}, kinds.map((k) => el('tr', {}, el('th', { class: 'rk' }, k), days.map((d) => {
           const it = data && (data[ymd(d)] || []).find((x) => x.kind === k);
           return el('td', { class: ymd(d) === ymd(t0) ? 'today' : '' }, it ? it.menu.map((t) => el('div', {}, allergyStrip(t))) : null);
