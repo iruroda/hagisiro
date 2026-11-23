@@ -1145,7 +1145,7 @@
       const mb = e.target.closest('[data-act="meal"]');
       if (mb) { openMeal(mb.closest('.cell').dataset.date); return; }
       const ab = e.target.closest('[data-act="att"]');
-      if (ab) { setSel(ab.closest('.cell').dataset.date); S.sub = 'day'; ls.set('hagisiro:sub', 'day'); setView('att'); return; }
+      if (ab) { openAttDay(ab.closest('.cell').dataset.date); return; }
       const cb = e.target.closest('[data-act="cons"]');
       if (cb) { openConsDay(cb.closest('.cell').dataset.date); return; }
       const cell = e.target.closest('.cell');
@@ -3080,6 +3080,22 @@
           el('button', { type: 'button', class: 'cdt', onclick: () => { close(); S.cs = { c }; setView('consult'); } }, c.title || '상담'),
           bs.slice().sort((x, y) => String(x.id).localeCompare(String(y.id))).map((b) => el('div', { class: 'cdr' },
             el('b', {}, `${String(b.id).slice(9, 11)}:${String(b.id).slice(11, 13)}`), el('span', {}, `${b.name}${b.info ? ' (' + b.info + ')' : ''}`))))))));
+  }
+  function openAttDay(ds) {
+    const m = $('#modal');
+    m.hidden = false;
+    const close = () => { m.hidden = true; m.replaceChildren(); };
+    const groups = S.classes.map((c) => ({ c, rs: S.att.filter((a) => a.classId === c.id && a.date === ds) })).filter((g) => g.rs.length);
+    const stOf = (c, a) => c.students.find((x) => x.id === a.studentId) || {};
+    const noOf = (c, a) => stOf(c, a).no || 0;
+    m.replaceChildren(el('div', { class: 'back', onclick: close }),
+      el('div', { class: 'dlg consday' },
+        el('div', { class: 'shead' }, hb('attend', `${md(ds)} 출결`), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'cdlist' }, groups.map(({ c, rs }) => el('div', { class: 'cdg' },
+          el('button', { type: 'button', class: 'cdt', onclick: () => { close(); S.clsId = c.id; ls.set('hagisiro:cls', c.id); setSel(ds); S.sub = 'day'; ls.set('hagisiro:sub', 'day'); setView('att'); } }, c.name),
+          rs.slice().sort((x, y) => noOf(c, x) - noOf(c, y)).map((a) => el('div', { class: 'cdr' },
+            el('b', {}, `${stOf(c, a).no || ''} ${stOf(c, a).name || ''}`.trim()),
+            el('span', {}, `${kindLabel(a)} ${recLabel(a)}${a.reason ? ' · ' + a.reason : ''}`))))))));
   }
   function openMeal(ds) {
     const m = $('#modal');
