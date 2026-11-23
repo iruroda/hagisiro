@@ -142,7 +142,7 @@ function menu() {
 }
 
 app.whenReady().then(() => {
-  app.setAppUserModelId('com.iruroda.hagisiro'); // 윈도우 알림(토스트)이 포터블 실행에서도 뜨도록
+  app.setAppUserModelId('HAGISIRO'); // 윈도우 알림 제목에 앱 이름으로 보이는 값 (바로가기가 없는 포터블은 이 문자열이 그대로 표시)
   session.defaultSession.setPermissionRequestHandler((wc, perm, cb) => cb(true));
   create();
   const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 16, height: 16 });
