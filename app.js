@@ -552,7 +552,7 @@
           main.style.background = 'var(--wbg, var(--bg-s))'; main.style.borderRadius = '0 0 var(--r) var(--r)';
           c.style.position = 'relative'; c.style.zIndex = '1';
           main.prepend(ghost);
-          const an = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' });
+          const an = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'cubic-bezier(.4,0,.6,1)' }); // 짧게, 끝에서 꼬리가 길어지지 않게
           const fin = () => { ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; };
           an.onfinish = fin; an.oncancel = fin;
         } else cls = 'vin';
