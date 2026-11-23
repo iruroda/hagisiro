@@ -2857,7 +2857,7 @@
           type: 'range', min: 30, max: 100, step: 5, value: PF.opacity, 'aria-label': '투명도',
           oninput: (e) => { PF.opacity = +e.target.value; savePf(); const o = m.querySelector('.opv'); if (o) o.textContent = PF.opacity + '%'; },
         }), el('b', { class: 'opv' }, PF.opacity + '%')),
-        S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await W.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작 시 실행')),
+        ...(S.autoStart == null ? [] : [el('div', { class: 'pfs' }, '시작'), el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await W.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작 시 실행'))]),
 ] : []),
       ],
       sc: () => [
