@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, nativeImage, screen, shell, ipcMain } = require('electron');
+const { app, BrowserWindow, Tray, Menu, nativeImage, screen, shell, ipcMain, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -142,6 +142,8 @@ function menu() {
 }
 
 app.whenReady().then(() => {
+  app.setAppUserModelId('com.iruroda.hagisiro'); // 윈도우 알림(토스트)이 포터블 실행에서도 뜨도록
+  session.defaultSession.setPermissionRequestHandler((wc, perm, cb) => cb(true));
   create();
   const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 16, height: 16 });
   tray = new Tray(icon);
