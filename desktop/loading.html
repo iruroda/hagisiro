@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>HAGISIRO</title>
+<style>
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+body{display:grid;place-items:center}
+.ring{position:relative;width:34px;height:34px;border-radius:50%;
+ background:conic-gradient(from 0deg,transparent 0%,#6d4aff 35%,#2f6df6 90%);
+ -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px));
+ animation:s .8s linear infinite}
+.ring::after{content:'';position:absolute;left:calc(50% - 2px);top:0;width:4px;height:4px;border-radius:50%;background:#2f6df6}
+@keyframes s{to{transform:rotate(360deg)}}
+</style></head>
+<body><i class="ring"></i>
+<script>
+// 도너츠를 먼저 그린 뒤 실제 화면으로 이동 (새 화면이 그려질 때까지 도너츠가 남아 있음)
+requestAnimationFrame(() => setTimeout(() => { location.replace(decodeURIComponent(location.hash.slice(1))); }, 60));
+</script></body></html>

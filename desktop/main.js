@@ -119,7 +119,7 @@ function create() {
     webPreferences: { contextIsolation: true, nodeIntegration: false, preload: path.join(__dirname, 'preload.js') },
   });
   win.webContents.setUserAgent(UA); // 구글 로그인이 내장 브라우저로 오인해 막는 것을 피함
-  win.loadURL(URL);
+  win.loadFile(path.join(__dirname, 'loading.html'), { hash: encodeURIComponent(URL) }); // 불러오는 동안 도너츠
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/accounts\.google\.com|firebaseapp\.com|google\.com\/o\/oauth/.test(url)) {
       return { action: 'allow', overrideBrowserWindowOptions: { width: 480, height: 640, frame: true, transparent: false, backgroundColor: '#ffffff', title: 'HAGISIRO', hasShadow: true, roundedCorners: true, thickFrame: true, resizable: true, skipTaskbar: false, alwaysOnTop: false, autoHideMenuBar: true, parent: win, modal: false } };
