@@ -2809,7 +2809,7 @@
     m.hidden = false;
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const W = window.hagisiroWidget;
-    const TABS = [['view', '화면'], ['look', '보기'], ['cal', '캘린더'], ['td', '할 일']];
+    const TABS = [['view', '화면'], ['look', '보기'], ['cal', '캘린더'], ['td', '할 일'], ['sc', '바로가기']];
     if (!TABS.some((t) => t[0] === S.pfTab)) S.pfTab = 'view';
     const seg = (key, opts, after) => el('div', { class: 'seg' }, opts.map(([v, label]) =>
       el('button', { type: 'button', class: PF[key] === v ? 'on' : '', onclick: () => { PF[key] = v; commit(after); } }, label)));
@@ -2850,13 +2850,6 @@
         el('div', { class: 'pfs' }, '모양'),
         row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
         tog('anim', '애니메이션'),
-        el('div', { class: 'pfs' }, '바로가기'),
-        el('div', { class: 'scgrid' }, shortcutDefs().map((x) =>
-          el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: scOn(x), onchange: (e) => {
-            const key = x.def ? 'hide' : 'show', h = new Set(PF[key] || []);
-            if (e.target.checked === !!x.def) h.delete(x.k); else h.add(x.k);
-            PF[key] = [...h]; commit('render');
-          } }), el('span', {}, x.label)))),
         ...(W ? [el('div', { class: 'pfs' }, '창'),
         S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['top', '맨 앞'], ['normal', '일반'], ['bottom', '맨 뒤']].map(([v, l]) =>
           el('button', { type: 'button', class: S.zmode === v ? 'on' : '', onclick: async () => { S.zmode = await W.setZ(v); draw(); } }, l)))) : null,
@@ -2866,6 +2859,15 @@
         }), el('b', { class: 'opv' }, PF.opacity + '%')),
         S.autoStart == null ? null : el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!S.autoStart, onchange: async (e) => { S.autoStart = await W.setAutoStart(e.target.checked); draw(); } }), el('span', {}, '윈도우 시작 시 실행')),
 ] : []),
+      ],
+      sc: () => [
+        el('div', { class: 'pfs' }, '바로가기'),
+        el('div', { class: 'scgrid' }, shortcutDefs().map((x) =>
+          el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: scOn(x), onchange: (e) => {
+            const key = x.def ? 'hide' : 'show', h = new Set(PF[key] || []);
+            if (e.target.checked === !!x.def) h.delete(x.k); else h.add(x.k);
+            PF[key] = [...h]; commit('render');
+          } }), el('span', {}, x.label)))),
       ],
       look: () => {
         const mon = PF.cal === 'month'; // 월별에선 이번 주 보기용 설정을 잠가요
