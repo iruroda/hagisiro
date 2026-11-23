@@ -2891,7 +2891,7 @@
             onclick: () => { PF.tbl = k === 'dot' ? '' : k; commit('render'); } }, bulIcon(k))))),
           row('글자색', dots('tfg', FG)),
           row('배경색', dots('tbg', BGC)),
-          el('div', { class: 'pfs' }, '완료 설정'),
+          el('div', { class: 'pfs' }, '완료 시 동작'),
           tog('sortDone', '완료 시 맨 아래로', '', 'render', false, false, 'autoDel'),
           tog('autoDel', '완료 시 자동 삭제', '', 'render', false, false, 'sortDone'),
         ];
