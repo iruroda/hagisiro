@@ -2915,7 +2915,7 @@
           dim(row('지나간 주 수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
           tog('mgap', '월 사이 구분', '', 'render', false, mon),
           el('div', { class: 'pfs' }, 'D-day'),
-          tog('ddtop', 'D-day 알림을 요일 위에 표시', '', 'render'),
+          tog('ddtop', 'D-day 줄을 요일 위에 표시', '', 'render'),
           tog('pastdd', '지나간 D-day 표시', '', 'render'),
         ];
       },
@@ -2931,8 +2931,8 @@
           row('글자색', dots('tfg', FG)),
           row('배경색', dots('tbg', BGC)),
           el('div', { class: 'pfs' }, '완료 시 동작'),
-          tog('sortDone', '맨 아래로 이동', '', 'render', false, false, 'autoDel'),
-          tog('autoDel', '자동 삭제', '', 'render', false, false, 'sortDone'),
+          tog('sortDone', '완료 시 맨 아래로 이동', '', 'render', false, false, 'autoDel'),
+          tog('autoDel', '완료 시 자동 삭제', '', 'render', false, false, 'sortDone'),
         ];
       },
     };
