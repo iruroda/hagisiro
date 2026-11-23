@@ -14,12 +14,13 @@ const save = () => { try { fs.writeFileSync(file(), JSON.stringify(st)); } catch
 if (!app.requestSingleInstanceLock()) app.quit();
 /* 이미 떠 있는 위젯(시작 프로그램·트레이)이 있을 때 exe를 또 열면: 맨 뒤로 보내지 않고 맨 앞으로 꺼내 보여줌. 다른 곳을 누르면 원래 위치로 */
 let raised = false;
-app.on('second-instance', () => {
+function reveal() { // 숨겨져 있든, 다른 창 뒤에 가려져 있든 맨 앞으로 꺼냄
   if (!win) return;
   if (win.isMinimized()) win.restore();
-  raised = true;
-  win.show(); win.setAlwaysOnTop(true); win.focus();
-});
+  raised = true; clearTimeout(zTimer); // 이미 예약된 '맨 뒤로 보내기'도 취소
+  win.show(); win.setAlwaysOnTop(true); win.moveTop(); win.focus();
+}
+app.on('second-instance', reveal);
 
 function bounds() {
   const wa = screen.getPrimaryDisplay().workArea;
@@ -61,6 +62,7 @@ function sendBottom() {
   if (raised || !win || process.platform !== 'win32' || zmode() !== 'bottom') return;
   clearTimeout(zTimer);
   zTimer = setTimeout(() => {
+    if (raised || !win) return; // 그 사이에 꺼내졌다면 보내지 않음
     try {
       const h = win.getNativeWindowHandle().readBigUInt64LE(0).toString();
       const ps = `Add-Type 'using System;using System.Runtime.InteropServices;public class Z{[DllImport("user32.dll")]public static extern bool SetWindowPos(IntPtr h,IntPtr a,int x,int y,int w,int c,uint f);}';[Z]::SetWindowPos([IntPtr]::new(${h}),[IntPtr]1,0,0,0,0,0x13)|Out-Null`;
@@ -134,9 +136,11 @@ function create() {
   win.on('closed', () => { win = null; });
 }
 
+/* 보이는 것만으로는 앞에 있다고 할 수 없음(맨 뒤 모드에선 다른 창에 가려짐): 포커스가 있을 때만 '앞'으로 봄 */
+const front = () => !!win && win.isVisible() && win.isFocused();
 function menu() {
   return Menu.buildFromTemplate([
-    { label: win && win.isVisible() ? '숨기기' : '열기', click: () => (win.isVisible() ? win.hide() : (win.show(), win.focus())) },
+    { label: front() ? '숨기기' : '열기', click: () => (front() ? win.hide() : reveal()) },
     { label: '종료', click: () => app.quit() },
   ]);
 }
@@ -149,6 +153,6 @@ app.whenReady().then(() => {
   tray = new Tray(icon);
   tray.setToolTip('HAGISIRO');
   tray.on('right-click', () => tray.popUpContextMenu(menu()));
-  tray.on('click', () => (win.isVisible() ? win.hide() : (win.show(), win.focus())));
+  tray.on('click', () => (front() ? win.hide() : reveal()));
 });
 app.on('window-all-closed', () => app.quit());
