@@ -1002,10 +1002,8 @@
     const layer = el('div', { class: 'askw' });
     const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); shut(); } };
     const shut = () => { document.removeEventListener('keydown', key, true); layer.remove(); };
-    const tIn = el('input', { type: 'time', value: cur || '09:00', 'aria-label': '알림 시각' });
+    const tIn = timeSel(cur || '09:00');
     const ok = el('button', { class: 'pri', type: 'button' }, '저장');
-    ok.disabled = !tIn.value;
-    tIn.addEventListener('input', () => { ok.disabled = !tIn.value; });
     ok.addEventListener('click', () => {
       if (!tIn.value) return;
       shut(); onSave(tIn.value);
@@ -1021,7 +1019,7 @@
             el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
     document.addEventListener('keydown', key, true);
     document.body.append(layer);
-    setTimeout(() => tIn.focus(), 0);
+    setTimeout(() => ok.focus(), 0);
   }
   const alList = () => (S.cloud ? S.alms : S.todos).filter((t) => t.al && !t.skip && t.text && t.date);
   function openAlarms() {
