@@ -1458,3 +1458,5 @@ button:disabled { pointer-events: none; }
 .meals.hz { gap: 8px; }
 
 .aldlg { width: min(300px, 94vw); }
+
+.tflat { --bg: transparent; --wbg: transparent; }

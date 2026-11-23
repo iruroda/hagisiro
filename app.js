@@ -517,13 +517,15 @@
       clip.style.cssText = t.classList.contains('mwrap') ? `flex:none;min-width:0;width:100%;height:${t.offsetHeight}px;position:relative;overflow:hidden` : 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
       t.replaceWith(clip); clip.append(t, node);
       /* 기존 화면은 지우지 않고 그대로 뒤에 두고, 새 화면이 옆에서 페이드인으로 들어와요 (새 화면에 불투명 바탕을 깔아서 겹치는 동안 위젯 뒤가 비치지 않아요) */
-      const solid = ';background:var(--bg-s)';
-      clip.style.background = 'var(--bg-s)';
-      t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1${solid}`;
-      node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none' + solid;
+      /* 바탕은 틀(clip)에 한 겹만 깔고(설정한 투명도 그대로), 옛·새 화면의 바탕은 움직이는 동안 걷어서 겹쳐도 투명도가 변하지 않아요 */
+      clip.style.background = 'var(--wbg, var(--bg-s))';
+      if (S.view === 'cal') clip.style.borderRadius = '0 0 var(--r) var(--r)';
+      t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1`;
+      node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none';
+      t.classList.add('tflat'); node.classList.add('tflat');
       const D = 12;
       an = t.animate([{ transform: `translateX(${dir * D}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
-      done = () => { t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
+      done = () => { t.classList.remove('tflat'); t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
     }
     const el0 = performance.now() - snap.t0;
     if (el0 > 0) { an.currentTime = el0; if (an2) an2.currentTime = el0; }
@@ -541,11 +543,13 @@
         if (ghost && !needLogin()) { // 기존 화면은 그대로 뒤에 두고 새 화면만 불투명 바탕으로 페이드인
           ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
           ghost.inert = true;
-          ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;background:var(--bg-s)';
-          c.style.position = 'relative'; c.style.zIndex = '1'; c.style.background = 'var(--bg-s)';
+          ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none';
+          ghost.classList.add('tflat'); c.classList.add('tflat'); // 바탕은 main에 한 겹만 (설정한 투명도 유지)
+          main.style.background = 'var(--wbg, var(--bg-s))'; main.style.borderRadius = '0 0 var(--r) var(--r)';
+          c.style.position = 'relative'; c.style.zIndex = '1';
           main.prepend(ghost);
           const an = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' });
-          const fin = () => { ghost.remove(); c.style.position = ''; c.style.zIndex = ''; c.style.background = ''; };
+          const fin = () => { ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; };
           an.onfinish = fin; an.oncancel = fin;
         } else cls = 'vin';
       }
