@@ -205,7 +205,7 @@
     view: ls.get('hagisiro:view') === 'att' ? 'att' : 'cal',
     sub: ['month', 'week'].includes(ls.get('hagisiro:sub')) ? ls.get('hagisiro:sub') : 'day',
     y: now.getFullYear(), m: now.getMonth(), sel: ymd(now),
-    ddays: [], todos: [], classes: [], att: [], settings: [], days: [], repeats: [], docs: [], gcal: {},
+    ddays: [], alms: [], todos: [], classes: [], att: [], settings: [], days: [], repeats: [], docs: [], gcal: {},
     extra: {},
     weekAll: ls.get('hagisiro:weekall') === '1',
     user: null, cloud: null, cloudMod: null, cloudAvail: false,
@@ -383,6 +383,7 @@
     S.unsubStatic.push(S.cloud.watch('classes', null, (d) => { S.classes = d.sort(byOrd); S.clsLoaded = true; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watch('settings', null, (d) => { S.settings = d; render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watchDday((d) => { S.ddays = d; render(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watchAlarm((d) => { S.alms = d; if (!$('#modal .sdlg')) render(); }, cloudErr));
     S.unsubStatic.push(S.cloud.watch('repeats', null, (d) => { S.repeats = d; render(); }, cloudErr));
     watchConsults();
     S.unsubStatic.push(S.cloud.watch('docs', null, (d) => { S.docs = d; if (!$('#modal .docdlg, #modal .progdlg')) render(); }, cloudErr));
@@ -907,6 +908,7 @@
       { k: 'search', label: '할 일 검색', ic: 'search', pop: true, run: openSearch },
       { k: 'repeat', label: '반복 관리', ic: 'repeat', pop: true, run: () => openRepeatManage() },
       { k: 'dday', label: 'D-day 관리', ic: 'dday', pop: true, run: openDdays },
+      { k: 'alarm', label: '알림 관리', ic: 'bell', pop: true, run: openAlarms },
       { k: 'meal', label: '급식', ic: 'utensils', def: true, pop: true, run: openMealWeek },
       ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, ic, def: true, doc: id, run: () => openDoc(id) })),
       { k: 'prog', label: '진도 확인', ic: 'progress', pop: true, run: openProgress },
@@ -942,6 +944,7 @@
     m.append(item('새로고침', forceSync, 'refresh'));
     m.append(item('반복 관리', () => openRepeatManage(), 'repeat'));
     m.append(item('D-day 관리', openDdays, 'dday'));
+    m.append(item('알림 관리', openAlarms, 'bell'));
     sep();
     m.append(item('급식', openMealWeek, 'utensils'));
     DOCS.forEach(([id, label, ic]) => m.append(item(label, () => openDoc(id), ic)));
@@ -993,6 +996,81 @@
     };
     draw();
   }
+
+  /* ---------- 알림: 할 일에 시각을 붙이면 그날 그 시각에 알려줘요 ---------- */
+  function openAlarmTime(cur, onSave) {
+    const layer = el('div', { class: 'askw' });
+    const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); shut(); } };
+    const shut = () => { document.removeEventListener('keydown', key, true); layer.remove(); };
+    const tIn = el('input', { type: 'time', value: cur || '09:00', 'aria-label': '알림 시각' });
+    const ok = el('button', { class: 'pri', type: 'button' }, '저장');
+    ok.disabled = !tIn.value;
+    tIn.addEventListener('input', () => { ok.disabled = !tIn.value; });
+    ok.addEventListener('click', () => {
+      if (!tIn.value) return;
+      shut(); onSave(tIn.value);
+      if (window.Notification && Notification.permission === 'default') { try { Notification.requestPermission(); } catch (e) { /* 권한 요청 불가 */ } }
+    });
+    layer.append(el('div', { class: 'back', onclick: shut }),
+      el('div', { class: 'dlg rdlg aldlg' },
+        el('div', { class: 'shead' }, hb('bell', '알림'), el('button', { class: 'ib', type: 'button', onclick: shut, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'rbody' },
+          el('div', { class: 'rform' }, tIn),
+          el('div', { class: 'dlgf' },
+            cur ? el('button', { class: 'ghost sm danger', type: 'button', onclick: () => { shut(); onSave(''); } }, icon('trash'), '삭제') : null,
+            el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
+    document.addEventListener('keydown', key, true);
+    document.body.append(layer);
+    setTimeout(() => tIn.focus(), 0);
+  }
+  const alList = () => (S.cloud ? S.alms : S.todos).filter((t) => t.al && !t.skip && t.text && t.date);
+  function openAlarms() {
+    const m = $('#modal');
+    m.hidden = false; m.replaceChildren();
+    const close = () => { m.hidden = true; m.replaceChildren(); };
+    const list = el('div', { class: 'srl' });
+    m.append(el('div', { class: 'back', onclick: close }), el('div', { class: 'dlg sdlg' },
+      el('div', { class: 'shead' }, hb('bell', '알림 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))), list));
+    const draw = () => {
+      const nowS = ymd(new Date()) + ' ' + String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0');
+      const k = (t) => t.date + ' ' + t.al;
+      const all = alList().sort((a, b) => (k(a) >= nowS) !== (k(b) >= nowS) ? (k(a) >= nowS ? -1 : 1) : (k(a) >= nowS ? k(a).localeCompare(k(b)) : k(b).localeCompare(k(a))));
+      list.replaceChildren();
+      if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, '알림 없음')); return; }
+      all.forEach((t) => {
+        const d = parseYmd(t.date);
+        list.append(el('div', { class: 'srow' },
+          el('button', { type: 'button', class: 'sgo', onclick: () => { close(); gotoDate(t.date); } },
+            el('span', { class: 'sd' }, t.al),
+            el('span', { class: 'st td', 'data-sz': t.sz || null, style: colorVars(t) || null }, blSpan(t.bl), el('span', { class: 'tt' }, t.text)),
+            el('span', { class: 'mut small' }, `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`)),
+          el('button', { type: 'button', class: 'ib danger', 'aria-label': '알림 삭제', title: '알림 삭제', onclick: () => { Data.put('todos', clean({ ...t, al: '' })); setTimeout(draw, 60); } }, icon('trash'))));
+      });
+    };
+    draw();
+  }
+  /* 15초마다 확인: 시각이 지난(24시간 안) 알림을 한 번만 울려요 */
+  const AL_KEY = 'hagisiro:alfired';
+  function alarmTick() {
+    let done = []; try { done = JSON.parse(ls.get(AL_KEY) || '[]'); } catch (e) { done = []; }
+    const t = Date.now(), fire = [], src = alList();
+    src.forEach((a) => {
+      const sig = a.id + '|' + a.date + ' ' + a.al;
+      if (done.includes(sig) || a.done) return;
+      const at = new Date(`${a.date}T${a.al}:00`).getTime();
+      if (!(at <= t)) return;
+      done.push(sig);
+      if (t - at < 864e5) fire.push(a);
+    });
+    if (!fire.length) return;
+    ls.set(AL_KEY, JSON.stringify(done.slice(-300)));
+    fire.forEach((a) => {
+      let shown = false;
+      if (window.Notification && Notification.permission === 'granted') { try { new Notification(a.text, { body: `${md(a.date)} ${a.al}`, tag: 'hagisiro-' + a.id }); shown = true; } catch (e) { /* 앱 안 팝업으로 대신 */ } }
+      if (!shown) notice(`${a.text}\n${md(a.date)} ${a.al}`);
+    });
+  }
+  setInterval(() => { if (S.ready) alarmTick(); }, 15000);
   let searchAll = null;
   async function openSearch() {
     const m = $('#modal');
@@ -1243,7 +1321,7 @@
   }
   function patchItem(id, patch) {
     const it = getItem(id); if (!it) return;
-    if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday, ord: 0, created: Date.now(), ...patch }));
+    if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday, al: it.al, ord: 0, created: Date.now(), ...patch }));
     else Data.put('todos', clean({ ...it, ...patch }));
   }
   /* 캘린더에서 고른 할 일 하나를 지움 (반복 항목은 그날만 지움) */
@@ -1270,6 +1348,7 @@
     return el('div', { class: 'td' + (t.done ? ' done' : '') + (t.rid ? ' rep' : ''), 'data-id': t.id, 'data-sz': t.sz || null, style: colorVars(t) || null },
       blSpan(t.bl), el('span', { class: 'tt', title: t.text }, t.text),
       t.dday ? el('span', { class: 'ddm', title: 'D-day' }, icon('dday')) : null,
+      t.al ? el('span', { class: 'ddm', title: '알림 ' + t.al }, icon('bell')) : null,
       t.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null);
   }
 
@@ -1354,6 +1433,11 @@
         const to = !ts.every((t) => t.get().dday);
         ts.forEach((t) => t.set({ dday: to ? true : '' }));
         if (ctx.after) ctx.after(false);
+      }),
+      btn('bell', '알림', () => {
+        const ts = ctx.targets();
+        if (!ts.length) return;
+        openAlarmTime(ts[0].get().al || '', (v) => { ts.forEach((t) => t.set({ al: v })); if (ctx.after) ctx.after(false); });
       }));
     return bar;
   }
@@ -1448,16 +1532,16 @@
       if (it.virtual) { // 계산으로 생긴 반복 항목: 고친 게 있을 때만 그날 기록으로 저장
         const r = ruleOf(it.rid); if (!r) return;
         seen.add(it.rid);
-        const changed = text !== r.text || it.done || !!it.dday || (it.fg || '') !== (r.fg || '') || (it.bg || '') !== (r.bg || '') || (it.sz || '') !== (r.sz || '') || (it.bl || '') !== (r.bl || '');
-        if (changed) Data.put('todos', clean({ id: oid(it.rid, ds), rid: it.rid, date: ds, text, done: !!it.done, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday || '', ord: idx, created: Date.now() }));
+        const changed = text !== r.text || it.done || !!it.dday || !!it.al || (it.fg || '') !== (r.fg || '') || (it.bg || '') !== (r.bg || '') || (it.sz || '') !== (r.sz || '') || (it.bl || '') !== (r.bl || '');
+        if (changed) Data.put('todos', clean({ id: oid(it.rid, ds), rid: it.rid, date: ds, text, done: !!it.done, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday || '', al: it.al || '', ord: idx, created: Date.now() }));
         return;
       }
       if (!it.id) it.id = uid();
       keep.add(it.id);
       if (it.rid) seen.add(it.rid);
       const o = old.find((x) => x.id === it.id);
-      const rec = clean({ ...(o || {}), id: it.id, date: ds, text, done: !!it.done, fg: it.fg || '', bg: it.bg || '', sz: it.sz || '', bl: it.bl || '', dday: it.dday ? true : '', ord: idx, created: (o && o.created) || Date.now() });
-      if (!o || o.text !== rec.text || !!o.done !== rec.done || (o.fg || '') !== (rec.fg || '') || (o.bg || '') !== (rec.bg || '') || (o.sz || '') !== (rec.sz || '') || (o.bl || '') !== (rec.bl || '') || !!o.dday !== !!rec.dday || o.ord !== rec.ord) Data.put('todos', rec);
+      const rec = clean({ ...(o || {}), id: it.id, date: ds, text, done: !!it.done, fg: it.fg || '', bg: it.bg || '', sz: it.sz || '', bl: it.bl || '', dday: it.dday ? true : '', al: it.al || '', ord: idx, created: (o && o.created) || Date.now() });
+      if (!o || o.text !== rec.text || !!o.done !== rec.done || (o.fg || '') !== (rec.fg || '') || (o.bg || '') !== (rec.bg || '') || (o.sz || '') !== (rec.sz || '') || (o.bl || '') !== (rec.bl || '') || !!o.dday !== !!rec.dday || (o.al || '') !== (rec.al || '') || o.ord !== rec.ord) Data.put('todos', rec);
     });
     old.forEach((o) => {
       if (keep.has(o.id) || o.skip) return;
@@ -1471,7 +1555,7 @@
 
   function openEditor(host, ds, onDone, opt = {}) {
     const box = el('div', { class: 'ed' });
-    const items = itemsOn(ds).map((t) => ({ id: t.id, virtual: !!t.virtual, rid: t.rid, text: t.text, done: !!t.done, fg: t.fg, bg: t.bg, sz: t.sz, bl: t.bl, dday: t.dday }));
+    const items = itemsOn(ds).map((t) => ({ id: t.id, virtual: !!t.virtual, rid: t.rid, text: t.text, done: !!t.done, fg: t.fg, bg: t.bg, sz: t.sz, bl: t.bl, dday: t.dday, al: t.al }));
     const origVirtual = items.filter((i) => i.virtual).map((i) => i.rid);
     items.push({ text: '', done: false });
     host.replaceChildren(box);
@@ -1486,6 +1570,7 @@
       if (it.sz) row.dataset.sz = it.sz; else delete row.dataset.sz;
       row.classList.toggle('dd', !!it.dday);
       if (row._dd) row._dd.hidden = !it.dday;
+      if (row._al) { row._al.hidden = !it.al; row._al.title = '알림 ' + (it.al || ''); }
       if (row._bl && (row._bl.dataset.raw !== (it.bl || '') || !row._bl.firstChild)) setBullet(row._bl, it.bl);
       ['fg', 'bg'].forEach((k) => { if (it[k]) row.style.setProperty('--t' + k, it[k]); else row.style.removeProperty('--t' + k); });
     };
@@ -1539,8 +1624,9 @@
       const inp = el('input', { type: 'text', value: it.text, spellcheck: 'false', autocomplete: 'off', enterkeyhint: 'next', 'aria-label': '할 일' });
       const bl = el('span', { class: 'bl' });
       const ddm = el('span', { class: 'ddm', title: 'D-day' }, icon('dday'));
-      const row = el('div', { class: 'td' }, bl, inp, it.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null, ddm);
-      row._it = it; row._bl = bl; row._dd = ddm;
+      const alm = el('span', { class: 'ddm', title: '알림' }, icon('bell'));
+      const row = el('div', { class: 'td' }, bl, inp, it.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null, ddm, alm);
+      row._it = it; row._bl = bl; row._dd = ddm; row._al = alm;
       paint(row);
       bl.addEventListener('mousedown', (e) => e.preventDefault()); // 입력창 포커스 유지
       bl.addEventListener('pointerdown', (e) => {
@@ -1904,7 +1990,7 @@
       el('button', { class: 'ghost sm', onclick: () => openRoster(null) }, icon('userplus'), '학급 추가'),
       el('div', { class: 'seg' }, seg('day', '일별'), seg('week', '주별'), seg('month', '월별')),
       el('span', { class: 'grow' }),
-      el('button', { class: 'ghost sm', disabled: none, onclick: openSettings }, icon('bell'), '교시 설정'),
+      el('button', { class: 'ghost sm', disabled: none, onclick: openSettings }, icon('sliders'), '교시 설정'),
       el('button', { class: 'ghost sm', disabled: none, onclick: () => exportCsv(cls) }, icon('download'), '파일로 저장')));
 
     const q = el('input', { id: 'q', type: 'text', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'done', 'aria-label': '출결 입력', disabled: none });
@@ -2849,7 +2935,7 @@
     };
     m.append(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg perdlg' },
-        el('div', { class: 'shead' }, hb('bell', '교시 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+        el('div', { class: 'shead' }, hb('sliders', '교시 설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
         grid,
         el('label', { class: 'keepbox' }, keep, el('span', {}, '개별 설정한 날은 제외하고 덮어쓰기')),
         el('div', { class: 'dlgf' }, el('span', { class: 'grow' }), el('button', { class: 'ghost', onclick: close }, '취소'), el('button', { class: 'pri', onclick: save }, '저장'))));

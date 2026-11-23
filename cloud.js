@@ -55,6 +55,9 @@ export function watch(name, range, onData, onError) {
 }
 
 // D-day로 표시한 할 일만 (날짜 범위와 상관없이)
+export function watchAlarm(onData, onError) {
+  return onSnapshot(query(colRef('todos'), where('al', '>', '')), (snap) => onData(snap.docs.map((d) => ({ ...d.data(), id: d.id }))), onError);
+}
 export function watchDday(onData, onError) {
   return onSnapshot(query(colRef('todos'), where('dday', '==', true)), (snap) => onData(snap.docs.map((d) => ({ ...d.data(), id: d.id }))), onError);
 }
