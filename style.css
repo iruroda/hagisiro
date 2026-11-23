@@ -1460,3 +1460,5 @@ button:disabled { pointer-events: none; }
 .aldlg { width: min(300px, 94vw); }
 
 .tflat { --bg: transparent; --wbg: transparent; }
+.rdel { display: flex; align-items: center; gap: 8px; }
+.rdel > .fld { flex: 1; min-width: 0; }

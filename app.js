@@ -1017,9 +1017,8 @@
       el('div', { class: 'dlg rdlg aldlg' },
         el('div', { class: 'shead' }, hb('bell', '알림'), el('button', { class: 'ib', type: 'button', onclick: shut, 'aria-label': '닫기' }, icon('close'))),
         el('div', { class: 'rbody' },
-          el('div', { class: 'rform' }, tIn),
+          el('div', { class: 'rform' }, el('div', { class: 'rdel' }, tIn, cur ? el('button', { class: 'ghost sm danger', type: 'button', onclick: () => { shut(); onSave(''); } }, icon('trash'), '삭제') : null)),
           el('div', { class: 'dlgf' },
-            cur ? el('button', { class: 'ghost sm danger', type: 'button', onclick: () => { shut(); onSave(''); } }, icon('trash'), '삭제') : null,
             el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
     document.addEventListener('keydown', key, true);
     document.body.append(layer);
@@ -1882,6 +1881,11 @@
     const opt = multi ? {} : { withText: true, withColors: true };
     const form = repeatForm(init, opt, () => { ok.disabled = !form.read(); });
     ok.disabled = !form.read();
+    const delBtn = rule ? el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await removeRule(rule)) shut(); } }, icon('trash'), '삭제') : null;
+    if (delBtn && form.node.firstElementChild) { // 삭제는 지울 내용(할 일 글자) 바로 옆에
+      const f0 = form.node.firstElementChild, row = el('div', { class: 'rdel' });
+      f0.replaceWith(row); row.append(f0, delBtn);
+    }
     ok.addEventListener('click', () => {
       const f = form.read(); if (!f) return;
       if (rule) { // 규칙을 고치면 따로 고쳐둔 날짜 항목에도 글자·기호·색이 모두 적용돼요
@@ -1909,7 +1913,6 @@
           multi ? el('div', { class: 'rtargets' }, items.map(bulletRow)) : null,
           form.node,
           el('div', { class: 'dlgf' },
-            rule ? el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => { if (await removeRule(rule)) shut(); } }, icon('trash'), '삭제') : null,
             el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
     document.addEventListener('keydown', key, true);
     document.body.append(layer);
