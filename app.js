@@ -1002,22 +1002,24 @@
   }
 
   /* ---------- 알림: 할 일에 시각을 붙이면 그날 그 시각에 알려줘요 ---------- */
-  function openAlarmTime(cur, onSave) {
+  function openAlarmTime(cur, curKeep, onSave) {
     const layer = el('div', { class: 'askw' });
     const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); shut(); } };
     const shut = () => { document.removeEventListener('keydown', key, true); layer.remove(); };
     const tIn = timeSel(cur || '09:00');
+    const cbAuto = el('input', { type: 'checkbox' }); cbAuto.checked = !curKeep; // 기본: 알림 후 자동 해제
+    const autoRow = el('label', { class: 'rchk' }, cbAuto, '알림 후 자동 해제');
     const ok = el('button', { class: 'pri', type: 'button' }, '저장');
     ok.addEventListener('click', () => {
       if (!tIn.value) return;
-      shut(); onSave(tIn.value);
+      shut(); onSave(tIn.value, !cbAuto.checked);
       if (window.Notification && Notification.permission === 'default') { try { Notification.requestPermission(); } catch (e) { /* 권한 요청 불가 */ } }
     });
     layer.append(el('div', { class: 'back', onclick: shut }),
       el('div', { class: 'dlg rdlg aldlg' },
         el('div', { class: 'shead' }, hb('bell', '알림'), el('button', { class: 'ib', type: 'button', onclick: shut, 'aria-label': '닫기' }, icon('close'))),
         el('div', { class: 'rbody' },
-          el('div', { class: 'rform' }, el('div', { class: 'rdel' }, tIn, cur ? el('button', { class: 'ghost sm danger', type: 'button', onclick: () => { shut(); onSave(''); } }, icon('trash'), '삭제') : null)),
+          el('div', { class: 'rform' }, el('div', { class: 'rdel' }, tIn, cur ? el('button', { class: 'ghost sm danger', type: 'button', onclick: () => { shut(); onSave('', false); } }, icon('trash'), '삭제') : null), autoRow),
           el('div', { class: 'dlgf' },
             el('span', { class: 'grow' }), el('button', { class: 'ghost', type: 'button', onclick: shut }, '취소'), ok))));
     document.addEventListener('keydown', key, true);
@@ -1061,6 +1063,7 @@
       const at = new Date(`${a.date}T${a.al}:00`).getTime();
       if (!(at <= t)) return;
       done.push(sig);
+      if (!a.ak) Data.put('todos', clean({ ...a, al: '', ak: '' })); // 알림 후 자동 해제: 목록·아이콘에서 사라져요
       if (t - at < 864e5) fire.push(a);
     });
     if (!fire.length) return;
@@ -1322,7 +1325,7 @@
   }
   function patchItem(id, patch) {
     const it = getItem(id); if (!it) return;
-    if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday, al: it.al, ord: 0, created: Date.now(), ...patch }));
+    if (it.virtual) Data.put('todos', clean({ id: oid(it.rid, it.date), rid: it.rid, date: it.date, text: it.text, done: false, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday, al: it.al, ak: it.ak, ord: 0, created: Date.now(), ...patch }));
     else Data.put('todos', clean({ ...it, ...patch }));
   }
   /* 캘린더에서 고른 할 일 하나를 지움 (반복 항목은 그날만 지움) */
@@ -1438,7 +1441,7 @@
       btn('bell', '알림', () => {
         const ts = ctx.targets();
         if (!ts.length) return;
-        openAlarmTime(ts[0].get().al || '', (v) => { ts.forEach((t) => t.set({ al: v })); if (ctx.after) ctx.after(false); });
+        openAlarmTime(ts[0].get().al || '', !!ts[0].get().ak, (v, keep) => { ts.forEach((t) => t.set({ al: v, ak: v && keep ? true : '' })); if (ctx.after) ctx.after(false); });
       }));
     return bar;
   }
@@ -1533,16 +1536,16 @@
       if (it.virtual) { // 계산으로 생긴 반복 항목: 고친 게 있을 때만 그날 기록으로 저장
         const r = ruleOf(it.rid); if (!r) return;
         seen.add(it.rid);
-        const changed = text !== r.text || it.done || !!it.dday || !!it.al || (it.fg || '') !== (r.fg || '') || (it.bg || '') !== (r.bg || '') || (it.sz || '') !== (r.sz || '') || (it.bl || '') !== (r.bl || '');
-        if (changed) Data.put('todos', clean({ id: oid(it.rid, ds), rid: it.rid, date: ds, text, done: !!it.done, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday || '', al: it.al || '', ord: idx, created: Date.now() }));
+        const changed = text !== r.text || it.done || !!it.dday || !!it.al || !!it.ak || (it.fg || '') !== (r.fg || '') || (it.bg || '') !== (r.bg || '') || (it.sz || '') !== (r.sz || '') || (it.bl || '') !== (r.bl || '');
+        if (changed) Data.put('todos', clean({ id: oid(it.rid, ds), rid: it.rid, date: ds, text, done: !!it.done, fg: it.fg, bg: it.bg, sz: it.sz, bl: it.bl, dday: it.dday || '', al: it.al || '', ak: it.ak || '', ord: idx, created: Date.now() }));
         return;
       }
       if (!it.id) it.id = uid();
       keep.add(it.id);
       if (it.rid) seen.add(it.rid);
       const o = old.find((x) => x.id === it.id);
-      const rec = clean({ ...(o || {}), id: it.id, date: ds, text, done: !!it.done, fg: it.fg || '', bg: it.bg || '', sz: it.sz || '', bl: it.bl || '', dday: it.dday ? true : '', al: it.al || '', ord: idx, created: (o && o.created) || Date.now() });
-      if (!o || o.text !== rec.text || !!o.done !== rec.done || (o.fg || '') !== (rec.fg || '') || (o.bg || '') !== (rec.bg || '') || (o.sz || '') !== (rec.sz || '') || (o.bl || '') !== (rec.bl || '') || !!o.dday !== !!rec.dday || (o.al || '') !== (rec.al || '') || o.ord !== rec.ord) Data.put('todos', rec);
+      const rec = clean({ ...(o || {}), id: it.id, date: ds, text, done: !!it.done, fg: it.fg || '', bg: it.bg || '', sz: it.sz || '', bl: it.bl || '', dday: it.dday ? true : '', al: it.al || '', ak: it.ak || '', ord: idx, created: (o && o.created) || Date.now() });
+      if (!o || o.text !== rec.text || !!o.done !== rec.done || (o.fg || '') !== (rec.fg || '') || (o.bg || '') !== (rec.bg || '') || (o.sz || '') !== (rec.sz || '') || (o.bl || '') !== (rec.bl || '') || !!o.dday !== !!rec.dday || (o.al || '') !== (rec.al || '') || !!o.ak !== !!rec.ak || o.ord !== rec.ord) Data.put('todos', rec);
     });
     old.forEach((o) => {
       if (keep.has(o.id) || o.skip) return;
@@ -1556,7 +1559,7 @@
 
   function openEditor(host, ds, onDone, opt = {}) {
     const box = el('div', { class: 'ed' });
-    const items = itemsOn(ds).map((t) => ({ id: t.id, virtual: !!t.virtual, rid: t.rid, text: t.text, done: !!t.done, fg: t.fg, bg: t.bg, sz: t.sz, bl: t.bl, dday: t.dday, al: t.al }));
+    const items = itemsOn(ds).map((t) => ({ id: t.id, virtual: !!t.virtual, rid: t.rid, text: t.text, done: !!t.done, fg: t.fg, bg: t.bg, sz: t.sz, bl: t.bl, dday: t.dday, al: t.al, ak: t.ak }));
     const origVirtual = items.filter((i) => i.virtual).map((i) => i.rid);
     items.push({ text: '', done: false });
     host.replaceChildren(box);
