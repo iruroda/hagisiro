@@ -2585,8 +2585,11 @@
       };
       const dateRow = (go) => el('tr', { class: 'pdr' }, days.map((d) => el('th', go ? { class: 'pd go' + (bulk === ymd(d) ? ' sel' : ''), onclick: () => { bulk = bulk === ymd(d) ? null : ymd(d); sel = null; drawAll(); } } : { class: 'pd' }, dl(d))));
       if (none) {
-        wrap.replaceChildren(el('div', { class: 'pmw' }, el('table', { class: 'mt pt', style: `width:${148 + 112 * days.length}px;min-width:100%` }, el('thead', {}, weekRow(), dateRow(false))),
-));
+        const cd = docOf(tid);
+        const [m1, m2] = !docHas(cd) ? ['먼저 내 시간표를 만들어 주세요.', '']
+          : cd.kind === 'image' ? ['이미지로 올린 시간표는 진도 확인에 쓸 수 없어요.', '표로 입력하거나 엑셀 파일로 업로드해 주세요.']
+          : ['시간표에서 과목을 찾지 못했어요.', '요일(월~금) 칸이 있는 표로 입력해 주세요.'];
+        wrap.replaceChildren(el('div', { class: 'empty mut' }, el('p', {}, m1), m2 ? el('p', {}, m2) : null));
         sel = null; bulk = null; drawEdit(); return;
       }
       const body = list.map((n, i) => {
