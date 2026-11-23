@@ -13,6 +13,11 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <script>try{var p=JSON.parse(localStorage.getItem("hagisiro:pf")||"{}");if(p.theme==="dark"||p.theme==="light")document.documentElement.setAttribute("data-theme",p.theme)}catch(e){}</script>
 <link rel="stylesheet" href="style.css">
+<!-- 로그인 모듈을 app.js와 동시에 미리 받아 두기 (차례로 받으면 첫 화면이 늦어짐) -->
+<link rel="modulepreload" href="cloud.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js" crossorigin>
 </head>
 <body class="booting">
 <div id="app">
@@ -29,7 +34,20 @@
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+      setInterval(function () { reg.update().catch(function () {}); }, 30 * 60 * 1000); // 켜 둔 채로 오래 쓰는 위젯도 새 버전을 확인
+    }).catch(function () {});
+    // 새 버전이 준비되면, 쓰고 있지 않을 때(팝업·편집·입력 중이 아니고 1분 동안 손대지 않음) 조용히 새로고침
+    var had = !!navigator.serviceWorker.controller, last = Date.now(), pend = false;
+    ['pointerdown', 'keydown', 'wheel'].forEach(function (t) { addEventListener(t, function () { last = Date.now(); }, true); });
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!had || pend) return; pend = true;
+      setInterval(function () {
+        var busy = !document.getElementById('modal').hidden || !document.getElementById('sheet').hidden || document.querySelector('.askw, .ed, #menu')
+          || /^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '');
+        if (!busy && (document.hidden || Date.now() - last > 60000)) location.reload();
+      }, 5000);
+    });
   }
 </script>
 </body>

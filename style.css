@@ -24,6 +24,7 @@ body {
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .booting #app { visibility: hidden; }
+.bootld { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 5; }
 #app { height: 100%; display: flex; flex-direction: column; position: relative; }
 #main { flex: 1; min-height: 0; overflow: hidden; position: relative; }
 .mut { color: var(--mut); } .small { font-size: 12px; } .grow { flex: 1; } .danger { color: var(--sun); }
@@ -91,7 +92,6 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .pfr.tg input { width: 16px; height: 16px; accent-color: var(--accent); flex: none; }
 .pfr.tg small { display: block; font-size: 11px; color: var(--mut); }
 .pc2 { display: flex; align-items: center; gap: 8px; }
-.pfh { font-size: 11px; color: var(--mut); margin-top: -4px; }
 .pfdlg select { font-family: var(--font); font-size: 13px; padding: 3px 6px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--bg); color: var(--text); }
 .ab { font-size: 11px; color: var(--mut); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 0 7px; line-height: 15px; }
 .ab:hover { color: var(--accent); border-color: var(--accent); }
@@ -112,7 +112,6 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .shead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .sg { margin-bottom: 6px; }
 .sbody .td { font-size: 16px; padding: 5px 0; align-items: center; }
-.sbody .sbody .addrow { display: flex; gap: 6px; align-items: center; color: var(--mut); padding: 8px 0 2px; font-size: 14px; }
 .dlg { position: relative; width: min(430px, 92vw); max-height: 90vh; background: var(--bg); border-radius: var(--r-xl); padding: 14px; box-shadow: 0 16px 48px rgba(0,0,0,.25); display: flex; flex-direction: column; gap: 10px; }
 .dlg textarea { resize: none; font-family: var(--font); font-size: 13px; min-height: 180px; }
 .dlgf { display: flex; gap: 8px; align-items: center; }
@@ -153,8 +152,6 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 .msum b { color: var(--text); }
 .rl { display: flex; flex-direction: column; }
 .rr { display: flex; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
-.rd { width: 66px; color: var(--mut); flex: none; }
-.rn { width: 86px; font-weight: 600; flex: none; }
 .rs { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cat { font-size: 11px; line-height: 15px; color: var(--cc, var(--mut)); border: 1px solid color-mix(in srgb, var(--cc, var(--mut)) 40%, var(--line)); border-radius: var(--r-pill); padding: 0 7px; flex: none; }
 .empty:not(input) { text-align: center; margin: 14vh auto; display: flex; flex-direction: column; gap: 6px; align-items: center; }
@@ -206,7 +203,6 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
   body:not(.widget) .rs { flex-basis: 100%; order: 9; white-space: normal; color: var(--mut); }
 }
 
-
 /* ===== 출결: 일별 / 월별 ===== */
 .seg { display: inline-flex; background: var(--bg2); padding: 2px; border-radius: var(--r-md); }
 .sg-b { padding: 3px 12px; border-radius: var(--r-sm); color: var(--mut); font-size: 13px; }
@@ -227,7 +223,6 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
 .dt .kc { min-width: 0; width: 1%; padding: 0 4px; text-align: left; } /* 종류 칸은 드롭다운 폭에 딱 맞게 */
 .dt .rc { min-width: 160px; padding: 0 4px; }
 .dt select { font-size: 12px; padding: 2px 4px; border-radius: var(--r); max-width: 100%; }
-.dt .rsel { width: 66px; }
 .tilde { margin: 0 3px; color: var(--mut); display: inline-flex; vertical-align: middle; }
 .tilde .ic svg { width: 16px; height: 16px; }
 .dt .slc, .dt th.sl-h { min-width: 42px; width: 42px; }
@@ -253,7 +248,6 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
 /* ===== 드래그 체크 ===== */
 .td.picked { background: color-mix(in srgb, var(--accent) 18%, transparent); border-radius: var(--r); }
 .marq { position: fixed; z-index: 35; border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); pointer-events: none; border-radius: var(--r); }
-
 
 /* 모든 입력 요소도 SUITE */
 button, input, select, textarea { font-family: inherit; }
@@ -328,7 +322,6 @@ button, input, select, textarea { font-family: inherit; }
 
 /* 반복 팝업 */
 .rdlg { width: min(480px, 94vw); }
-.rtabs { align-self: flex-start; }
 .rbody { overflow: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
 .rform { display: flex; flex-direction: column; gap: 12px; }
 .rform input[type=text] { width: 100%; }
@@ -368,8 +361,6 @@ button, input, select, textarea { font-family: inherit; }
 .dimg { text-align: center; max-height: 66vh; overflow: auto; }
 .dimg img { max-width: 100%; border-radius: var(--r); }
 .tel { color: var(--accent); text-decoration: none; } .tel:hover { text-decoration: underline; }
-.dsrc { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.dhint { font-size: 12px; }
 .dta { min-height: 280px !important; flex: 1; white-space: pre; font-family: var(--font); }
 @media (max-width: 1100px) { .dbtn .lb { display: none; } }
 
@@ -408,7 +399,6 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 
 /* 급식 */
 .ab.mb { margin-left: 3px; }
-.mealbtn { align-self: flex-start; margin: 0 12px; }
 .meals { display: flex; flex-direction: column; gap: 10px; overflow: auto; }
 .meal ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
 .meal small { color: var(--mut); font-weight: 400; }
@@ -418,10 +408,7 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 .schrow { text-align: left; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r); background: transparent; color: var(--text); }
 .schrow:hover { border-color: var(--accent); }
 .schrow small { color: var(--mut); }
-.keyin { width: 100%; min-width: 0; }
 
-/* 상담 신청 (선생님) */
-.cdlg { width: min(460px, 94vw); }
 .clist, .cform, .cdet { display: flex; flex-direction: column; gap: 8px; overflow: auto; }
 .crow { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 2px 6px 2px 2px; transition: border-color .12s; }
 .crow:hover { border-color: var(--accent); }
@@ -430,15 +417,8 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 .crow2 { display: flex; align-items: center; gap: 6px; }
 .cgrid { display: flex; flex-direction: column; gap: 4px; overflow: auto; max-height: 56vh; }
 .cday { font-weight: 700; margin-top: 8px; }
-.cslot { display: flex; align-items: center; gap: 10px; padding: 3px 4px 3px 8px; border-radius: var(--r); min-height: 32px; }
-.cslot.on { background: var(--sel); }
-.cslot .ct2 { width: 44px; color: var(--mut); font-variant-numeric: tabular-nums; }
-.cslot .cn { flex: 1; } .cslot .cn small { color: var(--mut); }
-.cslot > .mut { flex: 1; }
 .cform input, .cform select { min-width: 0; }
 .cform .pc2 { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.dsel { display: flex; }
-.dsel button { flex: 1; }
 
 /* 상단바: 박스는 캘린더·출결 토글에만 */
 #top .ghost { border: 0; background: none; color: var(--text); }
@@ -449,7 +429,6 @@ html.noanim *, html.noanim *::before, html.noanim *::after { animation: none !im
 /* 상담 탭 화면 */
 .cv { height: 100%; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .cvh { display: flex; align-items: center; gap: 6px; font-size: 16px; }
-.cvm { margin: auto; }
 .cv .cgrid { max-height: none; }
 
 #top button:disabled { opacity: .4; cursor: default; pointer-events: none; }
@@ -557,7 +536,6 @@ body { font-variant-numeric: tabular-nums; }
 .cchip.off { background: var(--bg2); color: var(--mut); text-decoration: line-through; font-weight: 500; }
 .cchip.bk { background: var(--accent); color: #fff; opacity: 1; text-decoration: none; }
 .cchip small { font-size: 11px; opacity: .75; }
-.cregen { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .cform .crow2 input[type=time], .cform .crow2 input[type=date] { width: auto; }
 .pri.sm { padding: 3px 10px; font-size: var(--fs-4); }
 
@@ -587,7 +565,6 @@ body { font-variant-numeric: tabular-nums; }
 
 /* 설정 팝업: 제목·탭·버튼은 고정, 내용만 스크롤 / 스크롤바는 둥근 모서리에서 안쪽으로 */
 .pfdlg { overflow: hidden !important; width: min(380px, 92vw); height: min(560px, 90vh); }
-.pfdlg .ptabs { align-self: flex-start; }
 .pbody { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
 ::-webkit-scrollbar-track { background: transparent; margin: 0; }
 /* 둥근 모서리가 큰 팝업·메뉴 안에서만 모서리를 피해 여백을 넉넉히 */
@@ -707,10 +684,6 @@ body.widget.loginmode #wmove, body.widget.loginmode #wedit { display: none; }
 body.widget.loginmode #app { padding: 0; }
 body.widget.loginmode #main > .login { margin: 14px; height: calc(100% - 28px); background: var(--bg); border-radius: var(--r-xl); -webkit-app-region: drag; user-select: none; }
 body.widget.loginmode #main > .login button { -webkit-app-region: no-drag; }
-/* 팝업이 떠 있는 동안 창이 화면만큼 넓어짐: 위젯은 원래 자리에 그대로, 어두운 막도 위젯 안쪽만 */
-body.xwin #app { position: fixed; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
-body.xwin #modal, body.xwin #sheet { inset: auto; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
-body.xwin .askw { inset: auto; left: var(--xx); top: var(--xy); width: var(--xw); height: var(--xh); }
 
 /* 반복 설정 */
 .rsub { display: grid; }
@@ -764,10 +737,6 @@ body.widget .tour { inset: 3px; border-radius: var(--r); }
 body.aw600 .cbt { display: none; }
 /* 급식 창 */
 .mealdlg { width: min(380px, 94vw); max-height: 88vh; }
-.mw { max-height: 56vh; }
-.mday { padding-bottom: 8px; border-bottom: 1px solid var(--line); }
-.mday:last-child { border-bottom: 0; }
-.mdh { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
 .mk { display: flex; gap: 16px; padding-top: 4px; font-size: 13px; }
 /* 바로가기 칩 폭 줄임 */
 #top .ib { width: 28px; }
@@ -786,7 +755,7 @@ body.widget #top { padding-left: 8px; }
 .rchk input, .mk input { accent-color: var(--accent); }
 
 /* 상담 만들기 폼 입력칸 */
-.cform input[type=text], .cform input[type=date], .cform input[type=time], .cform input[type=datetime-local], .cform select, .cregen input, .cregen select { font: inherit; font-size: 13px; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 5px 8px; }
+.cform input[type=text], .cform input[type=date], .cform input[type=time], .cform input[type=datetime-local], .cform select { font: inherit; font-size: 13px; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 5px 8px; }
 .cform input[type=text] { width: 100%; box-sizing: border-box; }
 .cform input[type=date]::-webkit-calendar-picker-indicator, .cform input[type=time]::-webkit-calendar-picker-indicator, .cform input[type=datetime-local]::-webkit-calendar-picker-indicator { opacity: 1; cursor: pointer; }
 
@@ -800,7 +769,7 @@ body.widget #top { padding-left: 8px; }
 
 /* 날짜·시간 입력의 기본 아이콘을 앱 아이콘으로 통일 (상담 폼) */
 .cform input[type=date]::-webkit-calendar-picker-indicator, .cform input[type=datetime-local]::-webkit-calendar-picker-indicator { background: currentColor; opacity: 1; cursor: pointer; width: 15px; height: 15px; padding: 0; margin-left: 4px; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='3'/%3E%3Cpath d='M3.5 10.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='3'/%3E%3Cpath d='M3.5 10.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / contain no-repeat; }
-.cform input[type=time]::-webkit-calendar-picker-indicator, .cregen input[type=time]::-webkit-calendar-picker-indicator { background: currentColor; opacity: 1; cursor: pointer; width: 15px; height: 15px; padding: 0; margin-left: 4px; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.2'/%3E%3Cpath d='M12 7.6V12l3.2 2'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.2'/%3E%3Cpath d='M12 7.6V12l3.2 2'/%3E%3C/svg%3E") center / contain no-repeat; }
+.cform input[type=time]::-webkit-calendar-picker-indicator { background: currentColor; opacity: 1; cursor: pointer; width: 15px; height: 15px; padding: 0; margin-left: 4px; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.2'/%3E%3Cpath d='M12 7.6V12l3.2 2'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.2'/%3E%3Cpath d='M12 7.6V12l3.2 2'/%3E%3C/svg%3E") center / contain no-repeat; }
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
@@ -831,9 +800,6 @@ body.widget :is(#modal, #sheet, .askw) > .back { inset: 3px; border-radius: var(
 .mtbl th.rk { vertical-align: middle; }
 .askw .dlg { position: relative; }
 
-/* 팝업 때문에 창 크기가 바뀌는 찰나에는 화면을 감춰 깜빡임 방지 */
-body.xprep #app, body.xprep #modal, body.xprep #sheet, body.xprep .askw { opacity: 0 !important; animation: none !important; transition: none !important; }
-
 .ldg { display: grid; place-items: center; width: 100%; padding: 28px 0; }
 
 /* 출결 표: 모서리 둥글리지 않은 직사각형 */
@@ -844,7 +810,6 @@ body.xprep #app, body.xprep #modal, body.xprep #sheet, body.xprep .askw { opacit
 body.widget #sheet .back { animation: none !important; }
 
 #wedit .wdone { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-
 
 /* 출결 표 가로 스크롤바: 세로와 같게 — 양끝까지 꽉 차고, 표와 간격을 둠 */
 .dv > .mwrap::-webkit-scrollbar-track:horizontal, .pmw::-webkit-scrollbar-track:horizontal, .wv > .mwrap::-webkit-scrollbar-track:horizontal, .mv > .mwrap::-webkit-scrollbar-track:horizontal { margin: 0; }
@@ -858,8 +823,8 @@ body.widget #sheet .back { animation: none !important; }
 body.widget #main > .beltclip { background: none; border-radius: 0; }
 
 /* 상담 폼: 기본 포커스 테두리(주황) 대신 앱 색, 시각은 24시간 드롭다운 */
-.cform input, .cform select, .cregen input, .cregen select { outline: 0; }
-.cform input:focus, .cform select:focus, .cregen input:focus, .cregen select:focus { border-color: var(--accent); }
+.cform input, .cform select { outline: 0; }
+.cform input:focus, .cform select:focus { border-color: var(--accent); }
 .cform input[type=date]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
 .cform input[type=date] ::-webkit-datetime-edit-year-field:focus, .cform input[type=date] ::-webkit-datetime-edit-month-field:focus, .cform input[type=date] ::-webkit-datetime-edit-day-field:focus { background: var(--sel); color: var(--accent); outline: 0; }
 .tsel { display: inline-flex; align-items: center; gap: 3px; }
@@ -1180,7 +1145,7 @@ body.widget .ddbar.top { border: 0; border-bottom: 1px solid var(--line); border
 .mealdlg label:has(input:disabled) { opacity: .4; }
 
 /* 학급이 없을 때: 틀은 그대로, 학급 추가를 뺀 나머지는 흐리게 비활성 */
-.att.off .seg, .att.off .qi, .att.off .mv, .att.off .wv, .att.off .dv, .att.off .dtw, .att.off .dhead, .att.off .mt, .att.off .mtw { opacity: .4; pointer-events: none; }
+.att.off .seg, .att.off .qi, .att.off .mv, .att.off .wv, .att.off .dv, .att.off .dtw, .att.off .dhead, .att.off .mt { opacity: .4; pointer-events: none; }
 .att.off button:disabled, .att.off select:disabled { opacity: .4; pointer-events: none; }
 
 /* 위젯: 상단 헤더와 요일 줄 사이의 투명한 띠 제거 */

@@ -123,7 +123,7 @@ async function pickTimes() {
     if (!closed()) await setDoc(pref(), { pin: f.pin.value });
     verified = curKey(); draw();
   } catch (e) {
-    if (e && e.code === 'permission-denied') alertBox('비밀번호가 일치하지 않습니다.'); else console.error(e);
+    if (e && e.code === 'permission-denied') alertBox('비밀번호가 맞지 않아요.'); else console.error(e);
   } finally { busyPick = false; syncPick(); }
 }
 
@@ -136,7 +136,7 @@ function onFree(sid) {
         el('button', { class: 'pri', onclick: async (e) => { e.target.disabled = true; await book(sid, v); close(); } }, '신청')));
   };
   if (C.noDup) { // 중복 신청 불가: 이미 신청한 시간이 남아 있으면 막아요
-    getDoc(aref()).then((d) => { if (d.exists() && taken.has(d.data().sid)) alertBox('이미 신청한 상담이 있습니다.'); else ask(); }).catch(() => ask());
+    getDoc(aref()).then((d) => { if (d.exists() && taken.has(d.data().sid)) alertBox('이미 신청한 상담이 있어요.'); else ask(); }).catch(() => ask());
     return;
   }
   ask();

@@ -79,7 +79,6 @@
     phone: '<path d="M3.20 6.00L4.27 4.50Q5.20 3.20 6.80 3.20L8.40 3.20Q10.00 3.20 10.72 4.63L12.26 7.73Q12.80 8.80 11.95 9.65L10.80 10.80Q12.00 12.00 13.20 13.20L14.35 12.05Q15.20 11.20 16.27 11.74L19.37 13.28Q20.80 14.00 20.80 15.60L20.80 17.20Q20.80 18.80 19.50 19.73L18.00 20.80Q5.30 18.60 3.20 6.00z"/>',
     table: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M3.5 8.2h17M8.2 8.2V20M8.2 14.1h12.3M14.35 8.2V20"/>',
     image: '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M3.5 17.5l6-6 8 8"/><circle cx="15" cy="9.4" r="2.2" class="f"/>',
-    upload: '<path d="M12 14.5v-10M7.5 8.5l4.5-4.5 4.5 4.5M5.5 19.5h13"/>',
     edit: '<g transform="translate(12 12) scale(1.22) translate(-12 -12)"><path stroke-width="2.2" d="M5.5 18.5l.9-3.6L15 6.3a2 2 0 012.8 2.8l-8.6 8.6-3.7.8z"/></g>',
     trash: '<path d="M5 7h14M10 7V5h4v2M7 7l.9 11.5a1 1 0 001 .9h6.2a1 1 0 001-.9L17 7"/>',
     info: '<circle cx="12" cy="12" r="8.2"/><path d="M12 13v3.2M12 7.8v1.3"/>',
@@ -114,7 +113,6 @@
     today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.5" r="2.65" class="f"/>',
     backspace: '<path d="M9.2 5.5H19a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H9.2L3.5 12z"/><path d="M12.6 9.4l4.2 5.2M16.8 9.4l-4.2 5.2"/>',
     undo: '<path d="M4.7 13.97A7.6 7.6 0 1 0 6.63 6.63"/><path d="M9.95 8.40L4.23 9.03L4.86 3.30"/>',
-    textT: '<path d="M6 6.5h12M12 6.5V18.5"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
     spade: '<path fill="currentColor" stroke-width="2.6" d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
@@ -124,17 +122,21 @@
     b_club: '<g fill="currentColor" stroke-width="2.6"><circle cx="12" cy="8.3" r="2.4"/><circle cx="8.2" cy="13.3" r="2.4"/><circle cx="15.8" cy="13.3" r="2.4"/><path d="M12 12.4c0 2.4-.4 4.2-1.5 6.8h3c-1.1-2.6-1.5-4.4-1.5-6.8z"/></g>',
     b_diamond: '<path fill="currentColor" stroke-width="2.6" d="M12 4.6L17.6 12 12 19.4 6.4 12z"/>',
     b_heart: '<path fill="currentColor" stroke-width="2.6" d="M12 18.4L5.8 12.2A3.5 3.5 0 0 1 10.6 7.1L12 8.5l1.4-1.4a3.5 3.5 0 0 1 4.8 5.1z"/>',
-    tilde: '<path d="M3.5 12.5C5.7 8.3 9.6 8.3 12 12.5s6.3 4.2 8.5 0"/>',
   };
   /* 글머리 기호 8종 (정사각형~줄표는 기본색, 나머지는 글씨 팔레트에서 뽑은 색) */
   const BUL = [['sq', '정사각형'], ['ring', '빈 원'], ['dot', '불릿'], ['dash', '줄표'], ['spade', '스페이드'], ['club', '클로버'], ['diamond', '다이아몬드'], ['heart', '하트']];
   const bulIcon = (k) => icon(k && k !== 'dot' ? 'b_' + k : 'dot');
   /* k: 할 일에 따로 정한 기호 (비면 설정의 기본 기호) */
   function setBullet(span, k) { const e = k || PF.tbl || 'dot'; span.dataset.raw = k || ''; span.dataset.bl = e === 'dot' ? '' : e; span.replaceChildren(bulIcon(e)); }
+  const iconCache = new Map(); // 아이콘은 한 번만 해석해 두고 복제해서 써요 (매번 SVG 문자열을 해석하지 않게)
   function icon(name) {
-    const s = el('span', { class: 'ic' });
-    s.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
-    return s;
+    let t = iconCache.get(name);
+    if (!t) {
+      t = el('span', { class: 'ic' });
+      t.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
+      iconCache.set(name, t);
+    }
+    return t.cloneNode(true);
   }
   /* 시각 고르기: 24시간제 드롭다운 (시 · 분). value 는 'HH:MM'. limit(최소, 최대)로 고를 수 있는 범위를 막아요 */
   function timeSel(val, blank) {
@@ -218,7 +220,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF_DEF = { cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, ghol: true, theme: 'auto', opacity: 100, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] };
+  const PF_DEF = { cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, theme: 'auto', opacity: 100, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] };
   const PF = Object.assign(JSON.parse(JSON.stringify(PF_DEF)),
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
@@ -415,6 +417,7 @@
   }
   async function boot() {
     if (/[?&]widget/.test(location.search)) document.body.classList.add('widget');
+    document.body.append(el('div', { class: 'bootld', role: 'status', 'aria-label': '불러오는 중' }, SLIME(40))); // 첫 화면이 그려질 때까지
     Data.loadLocal();
     const cfg = window.FIREBASE_CONFIG;
     if (cfg && cfg.apiKey) {
@@ -699,11 +702,11 @@
     S.cvHost = null;
     if (!S.ready) return;
     clearPicked();
-    document.body.classList.remove('booting');
+    if (document.body.classList.contains('booting')) { document.body.classList.remove('booting'); const bl = $('.bootld'); if (bl) bl.remove(); }
     const q = $('#q');
     const keep = q && { v: q.value, f: document.activeElement === q, s: q.selectionStart };
     S.topSum = null;
-    renderTop();
+    renderTop(true); // 상단 바 너비 맞추기는 본문까지 다 그린 뒤 한 번에 (레이아웃 계산을 한 번만 하려고)
     const main = $('#main');
     S.startDelta = 0;
     beltEnd();
@@ -714,6 +717,7 @@
     else if (S.ready && S.view === 'consult' && !S.cloud) { S.view = 'cal'; main.append(calView()); } // 로그인 전에는 상담 탭이 없으므로 캘린더로
     else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
     syncLoginWin();
+    fitTop();
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
       const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
       const mh = $('#main .mhead');
@@ -727,7 +731,7 @@
     }
   }
 
-  function renderTop() {
+  function renderTop(noFit) {
     const t = $('#top');
     /* 새로고침 화살표가 도는 1초 동안은 상단 바를 다시 그리지 않아요 (다시 그리면 돌던 게 끊겨요). 끝난 뒤에 한 번만 그려요 */
     if (S.spinT > Date.now() && $('#syncBtn')) { clearTimeout(S.topT); S.topT = setTimeout(renderTop, S.spinT - Date.now() + 30); return; }
@@ -752,7 +756,7 @@
     right.append(el('button', { class: 'ib', id: 'ovBtn', hidden: true, onclick: (e) => { e.stopPropagation(); openOverflow(); }, 'aria-label': '더 보기', title: '더 보기' }, icon('more')));
     right.append(el('button', { class: 'ib', id: 'menuBtn', onclick: (e) => { e.stopPropagation(); openMenu(); }, 'aria-label': '메뉴', title: '메뉴' }, icon('menu')));
     t.append(nav, tabs, right);
-    fitTop();
+    if (noFit !== true) fitTop();
     spinSync();
   }
   /* 새로고침 화살표: 누른 직후 상단 바가 다시 그려져도 돌던 걸 이어서 돌려요 */
@@ -798,12 +802,6 @@
   }
 
   function setView(v) { S.view = v; ls.set('hagisiro:view', v); if (PF.cal === 'week') watchRange(); render(); }
-  function setCalMode(m) {
-    if (PF.cal === m) return;
-    PF.cal = m; savePf();
-    if (m === 'week') S.anchor = S.sel;
-    watchRange(); render();
-  }
   function setSub(v) { S.sub = v; ls.set('hagisiro:sub', v); render(); }
   /* 날짜를 고르면 달도 같이 맞춤 */
   function setSel(ds) {
@@ -2170,7 +2168,7 @@
     }
     const live = new Set(); let run = false;
     function loop(now) {
-      live.forEach((n) => { if (!n.isConnected) { if (now - n._t0 > 400) live.delete(n); return; } n.innerHTML = frame((now - n._t0) % TOTAL); });
+      live.forEach((n) => { if (!n.isConnected) { if (now - n._t0 > 400) live.delete(n); return; } n.innerHTML = frame(Math.max(0, now - n._t0) % TOTAL); });
       if (live.size) requestAnimationFrame(loop); else run = false;
     }
     return (size) => {
@@ -2217,7 +2215,7 @@
     const wrap = el('div', { class: 'dv' });
 
     const shift = (n) => { setSel(ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n))); render(); };
-    const cntSel = el('select', { class: 'cnt' + (ovr ? ' ovr' : ''), 'aria-label': '이 날 교시 수', onchange: (e) => { setDayPeriods(ds, +e.target.value, cls.id); render(); } },
+    const cntSel = el('select', { class: 'cnt' + (ovr ? ' ovr' : ''), 'aria-label': '이날 교시 수', onchange: (e) => { setDayPeriods(ds, +e.target.value, cls.id); render(); } },
       Array.from({ length: 11 }, (_, n) => el('option', { value: n, selected: n === last }, n ? `${n}교시` : '수업 없음')));
     wrap.append(el('div', { class: 'dhead' },
       el('button', { class: 'ib', 'aria-label': '이전 날', onclick: () => shift(-1) }, icon('left')),
@@ -2337,7 +2335,7 @@
     const never = el('input', { type: 'checkbox' });
     const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.classList.add('out'); setTimeout(() => box.remove(), 230); };
     const tip = el('div', { class: 'tour-tip' },
-      el('div', {}, '출결은 문장으로도 입력 가능합니다.'),
+      el('div', {}, '출결은 문장으로도 입력할 수 있어요.'),
       el('div', { class: 'mut' }, '예) 김네모 감기로 12일 4교시에 조퇴 /'),
       el('div', { class: 'mut' }, '내일부터 3일간 이세모 가족여행 체험학습'),
       el('div', { class: 'tour-f' }, el('label', { class: 'rchk' }, never, '다시 열지 않음'), el('button', { class: 'pri sm', type: 'button', onclick: close }, '닫기')));
@@ -2357,13 +2355,13 @@
     if (!q || !pv) return;
     const v = q.value.trim();
     pv.replaceChildren(); pv.className = 'pv';
-    const ASK = '이름, 날짜, 사유 등을 입력하세요.';
+    const ASK = '이름, 날짜, 사유 등을 입력해 주세요.';
     if (!v) { pv.append(el('span', { class: 'mut' }, ASK)); return; }
     const r = runParse(v);
     if (r.errors.length) {
       const info = r.info || {};
       if (r.errors.includes('student') && !info.type && !info.period && !info.date) { pv.append(el('span', { class: 'mut' }, ASK)); return; } // 이름 쓰는 중
-      pv.append(el('span', { class: 'mut' }, r.errors.includes('student') ? '학생 이름을 입력해주세요.' : '출결 종류(결석/지각/조퇴/결과)를 입력해주세요.')); // 오류가 아니라 입력 중 안내라서 회색
+      pv.append(el('span', { class: 'mut' }, r.errors.includes('student') ? '학생 이름을 입력해 주세요.' : '출결 종류(결석/지각/조퇴/결과)를 입력해 주세요.')); // 오류가 아니라 입력 중 안내라서 회색
       return;
     }
     r.items.slice(0, 5).forEach((it) => pv.append(el('span', { class: 'chip t-' + it.type }, chipText(it))));
@@ -2371,9 +2369,9 @@
     // 빠진 것 중 가장 중요한 하나만 안내: 사유 → 날짜 → 교시
     const it0 = r.items[0], info = r.info || {};
     let note = '';
-    if (!info.reason) note = '사유 미입력 시 미인정으로 등록됩니다.';
-    else if (r.dateGuessed) note = `날짜 미입력 시 ${(() => { const t = S.sel === ymd(new Date()) ? '오늘' : md(S.sel); return t + ro(t); })()} 등록됩니다.`;
-    else if (!info.period && it0.type !== '결석') note = `교시 미입력 시 ${P.rangeLabel(it0.from, it0.to)}로 등록됩니다.`;
+    if (!info.reason) note = '사유가 없으면 미인정으로 등록돼요.';
+    else if (r.dateGuessed) note = `날짜가 없으면 ${(() => { const t = S.sel === ymd(new Date()) ? '오늘' : md(S.sel); return t + ro(t); })()} 등록돼요.`;
+    else if (!info.period && it0.type !== '결석') note = `교시가 없으면 ${P.rangeLabel(it0.from, it0.to)}로 등록돼요.`;
     if (note) pv.append(el('span', { class: 'mut' }, note));
   }
 
@@ -2637,7 +2635,7 @@
       const t = clean.map((r) => r.slice(0, w).join('\t')).join('\n');
       return { kind: 'text', text: t };
     }
-    throw new Error('엑셀(.xlsx/.xls/.xlsm)이나 이미지 파일만 올릴 수 있어요.');
+    throw new Error('엑셀(.xlsx/.xls/.xlsm)이나 이미지 파일만 업로드할 수 있어요.');
   }
   function compressImage(file) {
     return new Promise((res, rej) => {
@@ -2653,7 +2651,7 @@
           max = Math.round(max * 0.8); q = Math.max(0.5, q - 0.06);
         }
         URL.revokeObjectURL(url);
-        if (out.length >= 900000) rej(new Error('이미지가 너무 커요. 더 작은 이미지로 올려주세요.')); else res(out);
+        if (out.length >= 900000) rej(new Error('이미지가 너무 커요. 더 작은 이미지를 업로드해 주세요.')); else res(out);
       };
       im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('이미지를 열지 못했어요.')); };
       im.src = url;
@@ -2681,8 +2679,8 @@
   function fmtPop(btn) {
     document.querySelector('.fmtpop')?.remove();
     const pop = el('div', { class: 'fmtpop' },
-      el('div', {}, el('span', {}, icon('excel'), '엑셀 업로드'), el('small', {}, '시트 1을 불러옵니다.')),
-      el('div', {}, el('span', {}, icon('image'), '이미지 업로드'), el('small', {}, '이미지를 그대로 보여줍니다.')));
+      el('div', {}, el('span', {}, icon('excel'), '엑셀 업로드'), el('small', {}, '첫 번째 시트를 불러와요.')),
+      el('div', {}, el('span', {}, icon('image'), '이미지 업로드'), el('small', {}, '이미지를 그대로 보여 줘요.')));
     document.body.append(pop);
     const r = btn.getBoundingClientRect();
     pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8)) + 'px';
@@ -2734,7 +2732,7 @@
         document.body.append(inp); inp.click();
       };
       const upload = (accept) => pick(accept, async (f) => { try { draft = await fileToDraft(f); persist(); drawEdit(); } catch (er) { /* 못 읽으면 그대로 */ } });
-      const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀 또는 한글의 표를 복사하여 붙여 넣으세요.' });
+      const ta = el('textarea', { class: 'dta', spellcheck: 'false', placeholder: '엑셀이나 한글의 표를 복사해 붙여 넣어 주세요.' });
       ta.value = draft.text || '';
       ta.addEventListener('input', () => { draft.text = ta.value; sched(); });
       ta.addEventListener('keydown', (e) => { // Tab 키는 칸을 나누는 탭 문자로 (Shift+Tab은 그대로 다음 칸으로 이동)
@@ -2879,7 +2877,7 @@
               const cb = e.target;
               if (cb.checked) connectGcal().finally(() => { cb.checked = gcalWanted(); });
               else { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); }
-            } }), el('span', {}, 'Google 캘린더 연동')) : null,
+            } }), el('span', {}, 'Google 캘린더 일정')) : null,
           el('div', { class: 'pfs' }, '미니 버튼'),
           tog('ab', '출결', '', 'render'),
           tog('cons', '상담', '', 'render', !S.cloud),
@@ -2900,7 +2898,7 @@
 ] : []),
       ],
       sc: () => [
-        el('div', { class: 'pfs' }, '바로가기'),
+        el('div', { class: 'pfs' }, '상단 바에 표시'),
         el('div', { class: 'scgrid' }, shortcutDefs().map((x) =>
           el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: scOn(x), onchange: (e) => {
             const key = x.def ? 'hide' : 'show', h = new Set(PF[key] || []);
@@ -2915,10 +2913,10 @@
           row('보기 방식', seg('cal', [['month', '월별'], ['week', '이번 주']], 'range')),
           dim(row('전체 주 수', sel('weeks', [1, 2, 3, 4, 5, 6], (n) => n + '주', 'range')), mon),
           dim(row('지나간 주 수', sel('past', Array.from({ length: Math.min(5, PF.weeks - 1) + 1 }, (_, i) => i), (n) => n + '주', 'range')), mon),
-          tog('mgap', '월 사이 구분하기', '', 'render', false, mon),
+          tog('mgap', '월 사이 구분', '', 'render', false, mon),
           el('div', { class: 'pfs' }, 'D-day'),
           tog('ddtop', 'D-day 알림을 요일 위에 표시', '', 'render'),
-          tog('pastdd', '지난 D-day 표시하기', '', 'render'),
+          tog('pastdd', '지나간 D-day 표시', '', 'render'),
         ];
       },
       td: () => {
@@ -2933,8 +2931,8 @@
           row('글자색', dots('tfg', FG)),
           row('배경색', dots('tbg', BGC)),
           el('div', { class: 'pfs' }, '완료 시 동작'),
-          tog('sortDone', '완료 시 맨 아래로', '', 'render', false, false, 'autoDel'),
-          tog('autoDel', '완료 시 자동 삭제', '', 'render', false, false, 'sortDone'),
+          tog('sortDone', '맨 아래로 이동', '', 'render', false, false, 'autoDel'),
+          tog('autoDel', '자동 삭제', '', 'render', false, false, 'sortDone'),
         ];
       },
     };
@@ -2953,7 +2951,7 @@
         el('div', { class: 'pmain' }, tabBar, body),
         el('div', { class: 'dlgf' }, el('button', { class: 'ghost sm', type: 'button', onclick: async () => {
           if (!(await ask('모든 설정을 기본으로 되돌릴까요?', '되돌리기', false))) return;
-          ['cal', 'weeks', 'past', 'mgap', 'lunar', 'terms', 'hol', 'ghol', 'ab', 'cons', 'meal', 'pastdd', 'ddtop', 'tsz', 'tfg', 'tbg', 'tlh', 'tbl', 'autoDel', 'sortDone', 'theme', 'anim', 'hide', 'show', 'opacity']
+          ['cal', 'weeks', 'past', 'mgap', 'lunar', 'terms', 'hol', 'ab', 'cons', 'meal', 'pastdd', 'ddtop', 'tsz', 'tfg', 'tbg', 'tlh', 'tbl', 'autoDel', 'sortDone', 'theme', 'anim', 'hide', 'show', 'opacity']
             .forEach((k) => { if (k in PF_DEF) PF[k] = JSON.parse(JSON.stringify(PF_DEF[k])); else delete PF[k]; });
           if (W && W.setZ) { try { S.zmode = await W.setZ('normal'); } catch (e) { /* 창 순서는 그대로 */ } }
           commit('range'); S.pfTab = 'view'; draw();
@@ -3013,7 +3011,7 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const name = el('input', { type: 'text', value: c ? c.name : '', 'aria-label': '학급 이름' });
-    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 김네모\n2 이세모\n\n엑셀 또는 한글의 표를 복사하여 붙여 넣을 수 있습니다.', 'aria-label': '명단' });
+    const ta = el('textarea', { rows: '14', spellcheck: 'false', placeholder: '1 김네모\n2 이세모\n\n엑셀이나 한글의 표를 복사해 붙여 넣을 수 있어요.', 'aria-label': '명단' });
     ta.value = c ? c.students.slice().sort((a, b) => a.no - b.no).map((s) => `${s.no} ${s.name}`).join('\n') : '';
 
     function parseList() {
@@ -3443,7 +3441,6 @@
       if (d) { kids.forEach((c) => c.classList.add('cs-' + d)); host.scrollTop = 0; } // 다음: 오른쪽에서 / 이전: 왼쪽에서 같은 속도로 들어와요
     };
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
-    const dayLabel = (k) => { const d = new Date(+k.slice(0, 4), +k.slice(4, 6) - 1, +k.slice(6, 8)); return `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`; };
     const kOf = (d) => ymd(d).replace(/-/g, '');
     const dcol = (d) => (d.getDay() === 0 || holName(ymd(d), d) ? 'dsun' : d.getDay() === 6 ? 'dsat' : ''); // 캘린더와 같은 요일·공휴일 색
     const mins = (s) => { const [h, m] = (s || '0:0').split(':').map(Number); return h * 60 + m; };
@@ -3568,7 +3565,7 @@
           tm.addEventListener('change', tChk); tm.addEventListener('input', tChk); tChk();
           return el('div', { class: 'cdc' },
             el('div', { class: 'cdh ' + dcol(d) }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`), el('span', { class: 'grow' }),
-              el('button', { class: 'ib sm danger', type: 'button', title: '이 날 삭제', 'aria-label': '이 날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
+              el('button', { class: 'ib sm danger', type: 'button', title: '이날 삭제', 'aria-label': '이날 삭제', onclick: () => { delete dr.days[k]; draw(); } }, icon('trash'))),
             ts.map((t) => {
               const b = booked[k + '_' + t];
               return el('button', { type: 'button', class: 'cchip' + (o[t] ? '' : ' off') + (b ? ' bk' : ''),
@@ -3601,7 +3598,7 @@
               S.qform = null; dir = 'prev'; list();
             } catch (er) {
               console.error(er); btn.disabled = false;
-              fb.prepend(el('span', { class: 'cerr' }, `저장 실패 (${(er && (er.code || er.message)) || '오류'})`));
+              fb.prepend(el('span', { class: 'cerr' }, `저장하지 못했어요 (${(er && (er.code || er.message)) || '오류'})`));
             }
           } }, '저장'))), c ? () => { from === 'detail' ? detail(c) : list(); } : quick);
         keepPos.forEach(([q, pos]) => { const n = pos && host.querySelector(q); if (n) { n.scrollTop = pos[0]; n.scrollLeft = pos[1]; } });
@@ -3637,7 +3634,7 @@
         } catch (e) {
           console.error(e);
           ok.disabled = false;
-          if (e.code === 'pin-mismatch') await notice('비밀번호가 일치하지 않습니다.'); else if (e.code === 'dup') await notice('이미 신청한 상담이 있습니다.');
+          if (e.code === 'pin-mismatch') await notice('비밀번호가 맞지 않아요.'); else if (e.code === 'dup') await notice('이미 신청한 상담이 있어요.');
           fp.focus(); fp.select();
         }
       };
@@ -3767,7 +3764,7 @@
     }
   });
 
-  window.__haru = { S, Data, render, lastOf }; // 디버깅용
+  if (location.hostname === 'localhost') window.__haru = { S, Data, render, lastOf }; // 개발용 (배포 화면에선 노출 안 함)
   /* 모든 팝업: 안의 내용이 바뀌어 세로 크기가 달라질 때 부드럽게 늘고 줄어요 (급식 팝업은 자체 전환 사용) */
   function watchPopups() {
     const seen = new WeakSet();
