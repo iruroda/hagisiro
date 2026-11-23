@@ -1449,3 +1449,4 @@ button:disabled { pointer-events: none; }
 .dttl.sun { color: var(--sun); } .dttl.sat { color: var(--sat); }
 .cdh.dsun > .cday, .cdh.dsun > .mut { color: var(--sun); } .cdh.dsat > .cday, .cdh.dsat > .mut { color: var(--sat); }
 .scgrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; } /* 바로가기: 2열 */
+.cform > .cdiv { height: 0; border-top: 1px solid var(--line); margin: 4px 0; }

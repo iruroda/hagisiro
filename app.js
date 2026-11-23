@@ -3418,6 +3418,7 @@
         };
         shell(c ? '테이블 수정' : '새 테이블 만들기 (2/2)', el('div', { class: 'cform' },
           ...(c ? [r('제목', fld(tIn)), el('div', { class: 'pfr col' }, el('span', { class: 'pl' }, '학생 안내 사항(선택)'), fld(nIn)), r('신청 마감(선택)', cIn), el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: !!dr.noDup, onchange: (e) => { dr.noDup = e.target.checked; } }), el('span', {}, '중복 신청 불가'))] : []),
+          c ? el('div', { class: 'cdiv' }) : null, // 수정할 때: 위 설정(제목·안내·마감·중복)과 날짜 표 사이 구분선
           r('날짜 추가', addDate, dPlus),
           allT.length ? r('상담 시간 한꺼번에 삭제', el('div', { class: 'cchips cbulk' }, allT.map((t) => {
             const on = keys.some((k) => dr.days[k][t]); /* 어느 날에든 켜져 있으면 보통, 모든 날에서 꺼져 있으면 가운데 줄 */
