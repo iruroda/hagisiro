@@ -2892,8 +2892,8 @@
           row('글자색', dots('tfg', FG)),
           row('배경색', dots('tbg', BGC)),
           el('div', { class: 'pfs' }, '완료 설정'),
-          tog('autoDel', '완료 시 자동 삭제', '반복 항목은 그날만', 'render', false, false, 'sortDone'),
           tog('sortDone', '완료 시 맨 아래로', '', 'render', false, false, 'autoDel'),
+          tog('autoDel', '완료 시 자동 삭제', '', 'render', false, false, 'sortDone'),
         ];
       },
     };
