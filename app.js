@@ -1257,7 +1257,7 @@
   }
 
   function holName(ds, d) {
-    if (PF.ghol && S.ghol[ds]) return S.ghol[ds];
+    if (PF.hol && S.ghol[ds]) return S.ghol[ds];
     return PF.hol && window.Lunar ? Lunar.holidayOf(d) : '';
   }
   function selectDate(ds) {
@@ -2826,8 +2826,7 @@
           el('div', { class: 'pfs' }, '날짜에 함께 표시'),
           tog('lunar', '음력 날짜'),
           tog('terms', '24절기'),
-          tog('hol', '공휴일'),
-          tog('ghol', '임시공휴일 자동 반영', '', 'ghol'),
+          tog('hol', '공휴일', '', 'ghol'),
           tog('ab', '출결 버튼', '', 'render'),
           tog('pastdd', '지난 D-day 표시하기', '', 'render'),
           tog('ddtop', 'D-day 줄을 요일 위에 표시', '', 'render'),
@@ -3057,7 +3056,7 @@
 
   /* Google '대한민국의 휴일' 공개 캘린더 (임시공휴일 등 반영) — 로그인·권한 없이 공개 키로 읽어요 */
   async function loadGhol() {
-    if (!PF.ghol) { if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
+    if (!PF.hol) { if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
     const key = window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey;
     const tok = gtoken();
     if (!key && !tok) return;
