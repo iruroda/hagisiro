@@ -1454,3 +1454,5 @@ button:disabled { pointer-events: none; }
 .cdlist { gap: 8px; }
 .cdg { background: var(--bg2); border-radius: var(--r-lg); padding: 8px 12px 6px; }
 .cdg .cdt { margin-bottom: 2px; }
+.meals .meal { background: var(--bg2); border-radius: var(--r-lg); padding: 8px 12px 10px; }
+.meals.hz { gap: 8px; }
