@@ -924,12 +924,9 @@ html:has(body.widget) { scrollbar-gutter: auto; overflow: hidden; }
 .fld.ta .clr { top: 6px; transform: none; right: 14px; }
 .pfr.col { flex-direction: column; align-items: stretch; gap: 6px; }
 
-/* 상담 화면 전환: 페이지 넘기듯 */
-.cv { overflow-x: hidden; }
-@keyframes csnext { from { transform: translateX(100%); opacity: .4; } }
-@keyframes csprev { from { transform: translateX(-100%); opacity: .4; } }
-.cs-next { animation: csnext .3s cubic-bezier(.3, .7, .3, 1); }
-.cs-prev { animation: csprev .3s cubic-bezier(.3, .7, .3, 1); }
+/* 상담 화면 전환: 탭 전환과 같은 방식 (JS에서 처리) */
+.cv { overflow-x: hidden; position: relative; }
+.cv.cs-ghost { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 
 /* 상담 시간표: 카드 폭 = 칩 폭 = 시각 추가 줄 폭, 칩은 더 크고 또렷하게 */
 .cdc { width: 144px; }

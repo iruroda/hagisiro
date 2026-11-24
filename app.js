@@ -475,13 +475,13 @@
     if (!S.belt) return;
     const b = S.belt; S.belt = null;
     S.cont = performance.now() - b.snap.t0 < 300 ? b.snap : null;
-    try { b.an.cancel(); if (b.an2) b.an2.cancel(); } catch (e) { /* noop */ }
+    try { b.an.cancel(); if (b.an2) b.an2.cancel(); if (b.an3) b.an3.cancel(); } catch (e) { /* noop */ }
     b.done();
   }
   function startBelt(main, c, t, snap) {
     if (snap.s == null) snap.s = Math.round(Math.abs(S.startDelta || 0) / 7); // 새 화면을 그린 뒤에야 몇 주 움직였는지 알 수 있어요
     const dir = snap.dir, opt = { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)' };
-    let an, an2, done;
+    let an, an2, an3, done;
     if (S.view === 'cal' && weekMode()) {
       const grid = c.querySelector('.days');
       const olds = [...snap.node.querySelectorAll('.days > .cell')];
@@ -524,20 +524,24 @@
       const clip = el('div', { class: 'beltclip' });
       clip.style.cssText = t.classList.contains('mwrap') ? `flex:none;min-width:0;width:100%;height:${t.offsetHeight}px;position:relative;overflow:hidden` : 'flex:1;min-height:0;min-width:0;height:100%;position:relative;overflow:hidden';
       t.replaceWith(clip); clip.append(t, node);
-      /* 기존 화면은 지우지 않고 그대로 뒤에 두고, 새 화면이 옆에서 페이드인으로 들어와요 (새 화면에 불투명 바탕을 깔아서 겹치는 동안 위젯 뒤가 비치지 않아요) */
+      /* 탭을 옮길 때와 같은 방식: 새 화면은 처음부터 70~80%를 덮은 자리(옆에서 22%)에서 짧게 페이드인하며 끝까지 덮고, 옛 화면은 덮인 부분만 잘라내요 */
       /* 바탕은 틀(clip)에 한 겹만 깔고(설정한 투명도 그대로), 옛·새 화면의 바탕은 움직이는 동안 걷어서 겹쳐도 투명도가 변하지 않아요 */
       clip.style.background = 'var(--wbg, var(--bg-s))';
       if (S.view === 'cal') clip.style.borderRadius = '0 0 var(--r) var(--r)';
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1`;
       node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none';
       t.classList.add('tflat'); node.classList.add('tflat');
-      const D = 12;
-      an = t.animate([{ transform: `translateX(${dir * D}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], opt);
+      const D = 22, fo = { ...opt, duration: 280, fill: 'both' };
+      an = t.animate([{ transform: `translateX(${dir * D}%)` }, { transform: 'none' }], fo);
+      an2 = t.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-out', fill: 'both' });
+      an3 = node.animate(dir > 0
+        ? [{ clipPath: `inset(0 ${100 - D}% 0 0)` }, { clipPath: 'inset(0 100% 0 0)' }]
+        : [{ clipPath: `inset(0 0 0 ${100 - D}%)` }, { clipPath: 'inset(0 0 0 100%)' }], fo);
       done = () => { t.classList.remove('tflat'); t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
     }
     const el0 = performance.now() - snap.t0;
-    if (el0 > 0) { an.currentTime = el0; if (an2) an2.currentTime = el0; }
-    S.belt = { an, an2, done, snap };
+    if (el0 > 0) { an.currentTime = el0; if (an2) an2.currentTime = el0; if (an3) an3.currentTime = el0; }
+    S.belt = { an, an2, an3, done, snap };
     an.onfinish = () => { if (S.belt && S.belt.an === an) { S.belt = null; done(); } };
   }
   function animateMain(main, snap, ghost) {
@@ -611,8 +615,9 @@
       const prev = pillPos[key];
       const opt = { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)' };
       const idx = [...box.children].indexOf(on);
-      if (prev && prev.idx !== idx && pill.animate) {
-        const run = prev.run && performance.now() - prev.run.t0 < 240 && Math.abs(prev.run.to - g.l) < 2 ? prev.run : null; // 이동 중에 다시 그려진 경우: 이어서 재생
+      const cont = prev && prev.run && performance.now() - prev.run.t0 < 300 && Math.abs(prev.run.to - g.l) < 2 ? prev.run : null; // 이동 중에 다시 그려진 경우: 이어서 재생
+      if (prev && (prev.idx !== idx || cont) && pill.animate) {
+        const run = cont;
         const from = run ? run.from : prev.g;
         if (run || Math.abs(prev.g.l - g.l) > 2) {
           const an = pill.animate([{ left: from.l + 'px', width: from.w + 'px' }, { left: g.l + 'px', width: g.w + 'px' }], opt);
@@ -3528,8 +3533,18 @@
       const kids = [
         !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: () => { dir = 'prev'; back(); }, 'aria-label': '이전' }, icon('arrowL')) : null, el('b', {}, title)), body].filter(Boolean);
       const d = dir; dir = '';
+      const olds = d ? [...host.children].map((n) => n.cloneNode(true)) : [];
       host.replaceChildren(...kids);
-      if (d) { kids.forEach((c) => c.classList.add('cs-' + d)); host.scrollTop = 0; } // 다음: 오른쪽에서 / 이전: 왼쪽에서 같은 속도로 들어와요
+      if (d && !noAnim()) { // 탭 전환과 같은 방식: 새 화면이 옆 22% 자리에서 페이드인하며 끝까지 덮고, 옛 화면은 덮인 부분만 잘라내요 (다음: 오른쪽에서 / 이전: 왼쪽에서)
+        host.scrollTop = 0;
+        const dr = d === 'next' ? 1 : -1, D = 22, fo = { duration: 280, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'both' };
+        const ghost = el('div', { class: 'cv cs-ghost', 'aria-hidden': 'true' }, ...olds);
+        ghost.inert = true; ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
+        host.append(ghost);
+        const ans = kids.flatMap((c) => [c.animate([{ transform: `translateX(${dr * D}%)` }, { transform: 'none' }], fo), c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-out', fill: 'both' })]);
+        const ga = ghost.animate(dr > 0 ? [{ clipPath: `inset(0 ${100 - D}% 0 0)` }, { clipPath: 'inset(0 100% 0 0)' }] : [{ clipPath: `inset(0 0 0 ${100 - D}%)` }, { clipPath: 'inset(0 0 0 100%)' }], fo);
+        ga.onfinish = ga.oncancel = () => { ghost.remove(); ans.forEach((x) => x.cancel()); };
+      }
     };
     const hm = (sid) => `${sid.slice(9, 11)}:${sid.slice(11, 13)}`;
     const kOf = (d) => ymd(d).replace(/-/g, '');
