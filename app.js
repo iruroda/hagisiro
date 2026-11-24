@@ -54,6 +54,7 @@
   /* 아이콘은 전부 벡터(SVG): 24칸 격자 · 선 두께 2.7 · 끝과 꺾임은 둥글게. 글자(•, /, ↻ …)로 기호를 만들지 않는다 */
   const ICON = {
     left: '<path d="M14.5 6l-6 6 6 6"/>',
+    arrowL: '<path d="M19.5 12h-15M11 5.5L4.5 12 11 18.5"/>',
     uturn: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
     right: '<path d="M9.5 6l6 6-6 6"/>',
     check: '<path d="M5 12.8l4.6 4.6L19 7.4"/>',
@@ -3509,7 +3510,7 @@
     let dir = ''; // 화면을 넘길 때만: 'next'(오른쪽에서 밀려 들어옴) · 'prev'(왼쪽에서)
     const shell = (title, body, back) => {
       const kids = [
-        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: () => { dir = 'prev'; back(); }, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body].filter(Boolean);
+        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: () => { dir = 'prev'; back(); }, 'aria-label': '이전' }, icon('arrowL')) : null, el('b', {}, title)), body].filter(Boolean);
       const d = dir; dir = '';
       host.replaceChildren(...kids);
       if (d) { kids.forEach((c) => c.classList.add('cs-' + d)); host.scrollTop = 0; } // 다음: 오른쪽에서 / 이전: 왼쪽에서 같은 속도로 들어와요
