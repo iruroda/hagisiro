@@ -256,12 +256,11 @@ fn as_set(v: bool) -> bool {
 }
 #[tauri::command]
 fn min_w(window: WebviewWindow, st: State<Shared>, width: f64) {
-    let mut s = st.lock().unwrap();
-    s.minw = width.round().clamp(240.0, 900.0);
-    if s.in_login { return; }
-    let _ = window.set_min_size(Some(LogicalSize::new(s.minw, MINH)));
+    let (minw, in_login) = { let mut s = st.lock().unwrap(); s.minw = width.round().clamp(240.0, 900.0); (s.minw, s.in_login) };
+    if in_login { return; }
+    let _ = window.set_min_size(Some(LogicalSize::new(minw, MINH)));
     let r = get_rect(&window);
-    if r.width < s.minw { set_rect(&window, Rect { width: s.minw, ..r }); }
+    if r.width < minw { set_rect(&window, Rect { width: minw, ..r }); }
 }
 #[tauri::command]
 fn z_get(st: State<Shared>) -> String { st.lock().unwrap().z() }
@@ -283,19 +282,29 @@ fn hide(window: WebviewWindow) { let _ = window.hide(); }
 /* 로그인 화면: 저장된 위치와 상관없이 작은 창을 화면 가운데에 띄우고, 끝나면 원래 자리로 */
 #[tauri::command]
 fn login_mode(window: WebviewWindow, st: State<Shared>, v: bool) {
-    let mut s = st.lock().unwrap();
+    // 상태는 잠깐만 잠그고, 창 크기·위치는 잠금을 푼 뒤에 바꿔요 (창을 옮기면 Moved 이벤트가 같은 상태를 잠그려 해서 멈춰요)
     let k = sf(&window);
-    if v && !s.in_login {
-        s.in_login = true;
-        s.login_saved = Some(get_rect(&window));
-        let wa = lrect(&w32::primary_work(), k);
-        let (w, h) = (300.0, 310.0);
-        let _ = window.set_min_size(None::<LogicalSize<f64>>);
-        set_rect(&window, Rect { x: (wa.x + (wa.width - w) / 2.0).round(), y: (wa.y + (wa.height - h) / 2.0).round(), width: w, height: h });
-    } else if !v && s.in_login {
-        s.in_login = false;
-        let _ = window.set_min_size(Some(LogicalSize::new(s.minw, MINH)));
-        let r = s.login_saved.take().unwrap_or_else(|| initial_bounds(&s.saved, k));
+    let plan = {
+        let mut s = st.lock().unwrap();
+        if v && !s.in_login {
+            s.in_login = true;
+            s.login_saved = Some(get_rect(&window));
+            Some((None, {
+                let wa = lrect(&w32::primary_work(), k);
+                let (w, h) = (300.0, 310.0);
+                Rect { x: (wa.x + (wa.width - w) / 2.0).round(), y: (wa.y + (wa.height - h) / 2.0).round(), width: w, height: h }
+            }))
+        } else if !v && s.in_login {
+            s.in_login = false;
+            let r = s.login_saved.take().unwrap_or_else(|| initial_bounds(&s.saved, k));
+            Some((Some(s.minw), r))
+        } else { None }
+    };
+    if let Some((minw, r)) = plan {
+        match minw {
+            None => { let _ = window.set_min_size(None::<LogicalSize<f64>>); }
+            Some(m) => { let _ = window.set_min_size(Some(LogicalSize::new(m, MINH))); }
+        }
         set_rect(&window, r);
     }
 }
@@ -362,8 +371,7 @@ fn main() {
                 }
                 WindowEvent::Moved(_) => {
                     let st = h2.state::<Shared>();
-                    let mut s = st.lock().unwrap();
-                    if !s.in_login { s.saved.bounds = Some(get_rect(&w2)); s.save(); }
+                    if let Ok(mut s) = st.try_lock() { if !s.in_login { s.saved.bounds = Some(get_rect(&w2)); s.save(); } }
                 }
                 _ => {}
             });
