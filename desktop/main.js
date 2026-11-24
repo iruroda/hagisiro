@@ -24,7 +24,7 @@ app.on('second-instance', reveal);
 
 function bounds() {
   const wa = screen.getPrimaryDisplay().workArea;
-  const b = st.bounds || { width: 640, height: 700, x: wa.x + wa.width - 660, y: wa.y + 20 };
+  const b = st.bounds || { width: 800, height: 620, x: wa.x + wa.width - 820, y: wa.y + 20 };
   const vis = screen.getAllDisplays().some((d) => b.x < d.bounds.x + d.bounds.width - 40 && b.x + b.width > d.bounds.x + 40 && b.y >= d.bounds.y - 10 && b.y < d.bounds.y + d.bounds.height - 40);
   return vis ? b : { width: b.width, height: b.height, x: wa.x + wa.width - b.width - 20, y: wa.y + 20 };
 }
