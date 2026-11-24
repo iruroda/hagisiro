@@ -3,52 +3,325 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hagisiro — 선생님의 바탕화면 캘린더</title>
+<meta name="description" content="할 일, 출결, 상담 일정을 바탕화면 한쪽에서. 고등학교 선생님이 직접 쓰려고 만든 가벼운 캘린더예요.">
 <meta name="theme-color" content="#6d4aff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Hagisiro">
-<title>Hagisiro</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<script>try{var p=JSON.parse(localStorage.getItem("hagisiro:pf")||"{}");if(p.theme==="dark"||p.theme==="light")document.documentElement.setAttribute("data-theme",p.theme)}catch(e){}</script>
-<link rel="stylesheet" href="style.css">
-<!-- 로그인 모듈을 app.js와 동시에 미리 받아 두기 (차례로 받으면 첫 화면이 늦어짐) -->
-<link rel="modulepreload" href="cloud.js">
-<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js" crossorigin>
-<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js" crossorigin>
-<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js" crossorigin>
-</head>
-<body class="booting">
-<div id="app">
-  <header id="top"></header>
-  <main id="main"></main>
-</div>
-<div id="sheet" hidden></div>
-<div id="modal" hidden></div>
-
-<script src="config.js"></script>
-<script src="parser.js"></script>
-<script src="lunar.js"></script>
-<script src="qr.js"></script>
-<script src="app.js"></script>
+<link rel="icon" href="app/icons/icon.svg" type="image/svg+xml">
 <script>
-  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
-      setInterval(function () { reg.update().catch(function () {}); }, 30 * 60 * 1000); // 켜 둔 채로 오래 쓰는 위젯도 새 버전을 확인
-    }).catch(function () {});
-    // 새 버전이 준비되면, 쓰고 있지 않을 때(팝업·편집·입력 중이 아니고 1분 동안 손대지 않음) 조용히 새로고침
-    var had = !!navigator.serviceWorker.controller, last = Date.now(), pend = false;
-    ['pointerdown', 'keydown', 'wheel'].forEach(function (t) { addEventListener(t, function () { last = Date.now(); }, true); });
-    navigator.serviceWorker.addEventListener('controllerchange', function () {
-      if (!had || pend) return; pend = true;
-      setInterval(function () {
-        var busy = !document.getElementById('modal').hidden || !document.getElementById('sheet').hidden || document.querySelector('.askw, .ed, #menu')
-          || /^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '');
-        if (!busy && (document.hidden || Date.now() - last > 60000)) location.reload();
-      }, 5000);
+  /* 예전 주소로 들어오는 위젯·설치된 앱은 앱 화면으로 바로 보내요 */
+  (function () {
+    var q = location.search, sa = window.matchMedia && matchMedia('(display-mode: standalone)').matches;
+    if (/[?&]widget\b/.test(q) || sa || navigator.standalone) location.replace('app/' + q + location.hash);
+  })();
+  /* 예전 서비스워커가 남아 있으면 정리해요 (루트 sw.js가 캐시를 지우고 스스로 해제돼요) */
+  if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistration('./').then(function (r) { if (r && r.scope === new URL('./', location.href).href) r.update().catch(function () {}); }).catch(function () {});
+</script>
+<style>
+@font-face { font-family: "SUITE"; font-weight: 100 900; font-display: swap; src: url("app/fonts/SUITE-Variable.woff2") format("woff2-variations"), url("app/fonts/SUITE-Variable.woff2") format("woff2"); }
+:root {
+  --paper: #f6f5fb; --card: #ffffff; --ink: #1c1a2b; --mut: #625f75; --line: #e3e0ef;
+  --violet: #6d4aff; --violet-ink: #5534f0; --blue: #2f6df6; --teal: #12c9b3; --sun: #e5484d;
+  --desk-a: #241f4d; --desk-b: #3b2f86; --desk-c: #15807a;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --paper: #15141d; --card: #1f1e2a; --ink: #ecebf3; --mut: #a19fb3; --line: #2e2c3d; --violet: #9b82ff; --violet-ink: #b4a2ff; }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.7 "SUITE", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; word-break: keep-all; }
+a { color: inherit; }
+img { max-width: 100%; height: auto; display: block; }
+:focus-visible { outline: 2.5px solid var(--violet); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
+
+/* 상단 */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; letter-spacing: -.01em; text-decoration: none; }
+.brand img { width: 28px; height: 28px; }
+.bar nav { display: flex; gap: 4px; }
+.bar nav a { text-decoration: none; font-size: 15px; font-weight: 600; color: var(--mut); padding: 6px 12px; border-radius: 8px; }
+.bar nav a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
+
+/* 첫 화면 */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; padding: 48px 0 32px; }
+.hero h1 { font-size: clamp(34px, 5.6vw, 60px); line-height: 1.18; letter-spacing: -.035em; font-weight: 800; margin: 0; max-width: 13em; }
+.hero p { font-size: clamp(17px, 2vw, 20px); color: var(--mut); margin: 18px 0 0; max-width: 34em; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+.btn { display: inline-flex; align-items: center; gap: 9px; padding: 13px 20px; border-radius: 12px; font-weight: 700; font-size: 16px; text-decoration: none; border: 0; cursor: pointer; font-family: inherit; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn.pri { background: var(--violet); color: #fff; }
+.btn.pri:hover { background: var(--violet-ink); }
+.btn.sub { background: var(--card); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.btn.sub:hover { box-shadow: inset 0 0 0 1px var(--mut); }
+.cta small { flex-basis: 100%; color: var(--mut); font-size: 14px; }
+
+/* 바탕화면 장면: 이 페이지에서 가장 눈에 띄는 한 곳 */
+.desk { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 9.4; background:
+  radial-gradient(60% 80% at 85% 15%, color-mix(in srgb, var(--desk-c) 70%, transparent), transparent 70%),
+  radial-gradient(70% 90% at 10% 100%, var(--desk-b), transparent 70%),
+  linear-gradient(160deg, var(--desk-a), #120f2a); }
+.desk .icons { position: absolute; left: 3.2%; top: 6%; display: grid; gap: 4.2%; width: 6.5%; height: 70%; grid-auto-rows: 9%; }
+.desk .icons i { border-radius: 18%; background: rgba(255,255,255,.14); }
+.desk .widget { display: block; position: absolute; left: 16%; top: 7%; width: 62%; filter: drop-shadow(0 18px 40px rgba(0,0,0,.35)); border-radius: 10px; }
+.desk .widget img { border-radius: 10px; }
+.desk .taskbar { position: absolute; left: 0; right: 0; bottom: 0; height: 6.5%; background: rgba(20,18,40,.55); backdrop-filter: blur(12px); }
+.desk .toast { position: absolute; right: 3%; bottom: 10%; width: 25%; background: rgba(250,250,252,.94); color: #1c1a2b; border-radius: 10px; padding: 1.1% 1.3%; font-size: clamp(9px, 1.15vw, 14px); line-height: 1.45; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.desk .toast b { display: flex; align-items: center; gap: 6px; font-size: .86em; color: #625f75; font-weight: 600; margin-bottom: .3em; }
+.desk .toast b img { width: 1.25em; height: 1.25em; }
+.desk .toast span { display: block; color: #625f75; font-size: .9em; }
+@media (prefers-color-scheme: dark) { .desk .toast { background: rgba(40,38,54,.95); color: #ecebf3; } .desk .toast b, .desk .toast span { color: #a19fb3; } }
+
+/* 출결 시연 */
+section { padding: 72px 0; }
+section + section { border-top: 1px solid var(--line); }
+h2 { font-size: clamp(26px, 3.6vw, 38px); line-height: 1.3; letter-spacing: -.03em; margin: 0; font-weight: 800; }
+.lead { color: var(--mut); margin: 12px 0 0; max-width: 36em; }
+.demo { margin-top: 32px; background: var(--card); border-radius: 20px; box-shadow: inset 0 0 0 1px var(--line); padding: 22px; }
+.demo label { display: block; font-size: 14px; font-weight: 600; color: var(--mut); margin-bottom: 8px; }
+.demo .row { display: flex; gap: 8px; }
+.demo input { flex: 1; min-width: 0; font: inherit; font-size: 18px; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); outline: 0; }
+.demo input:focus { border-color: var(--violet); }
+.samples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.samples button { font: inherit; font-size: 14px; padding: 5px 11px; border-radius: 99px; border: 0; background: color-mix(in srgb, var(--violet) 10%, transparent); color: var(--violet-ink); cursor: pointer; }
+.samples button:hover { background: color-mix(in srgb, var(--violet) 18%, transparent); }
+.result { margin-top: 20px; display: grid; gap: 8px; min-height: 54px; }
+.rec { display: grid; grid-template-columns: 5.5em 6.5em 7em 1fr 1fr; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; background: var(--paper); font-size: 15px; }
+.rec .k { font-weight: 700; }
+.rec .t { font-weight: 700; }
+.rec .t.결석 { color: #d98a00; } .rec .t.지각 { color: var(--blue); } .rec .t.조퇴 { color: #8a5cf6; } .rec .t.결과 { color: var(--teal); }
+.rec .m { color: var(--mut); }
+.empty { color: var(--mut); font-size: 15px; padding: 12px 2px; }
+.note { font-size: 14px; color: var(--mut); margin-top: 14px; }
+
+/* 기능 */
+.feat { display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; margin-top: 44px; }
+.f { display: grid; gap: 22px; align-items: center; }
+.f h3 { font-size: 23px; letter-spacing: -.02em; margin: 0; line-height: 1.35; }
+.f p { margin: 8px 0 0; color: var(--mut); max-width: 30em; }
+.f ul { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.f li { padding-left: 18px; position: relative; }
+.f li::before { content: ""; position: absolute; left: 2px; top: .72em; width: 6px; height: 6px; border-radius: 2px; background: var(--violet); }
+.shot.dk { background: #1f2228; }
+.shot { border-radius: 14px; overflow: hidden; box-shadow: 0 0 0 1px var(--line), 0 20px 50px -20px rgba(40,30,90,.35); background: #fff; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.chips span { font-size: 14px; padding: 6px 12px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--line); background: var(--card); }
+
+/* 가벼움 */
+.light { display: grid; gap: 28px; margin-top: 36px; }
+.light div { border-left: 3px solid var(--violet); padding-left: 16px; }
+.light b { display: block; font-size: 18px; }
+.light p { margin: 4px 0 0; color: var(--mut); font-size: 16px; }
+
+/* 다운로드 */
+.dl { display: grid; gap: 18px; margin-top: 36px; }
+.pane { background: var(--card); border-radius: 20px; box-shadow: inset 0 0 0 1px var(--line); padding: 26px; }
+.pane h3 { margin: 0; font-size: 21px; letter-spacing: -.02em; }
+.pane > p { margin: 6px 0 0; color: var(--mut); font-size: 15px; }
+.pane .cta { margin-top: 20px; }
+.steps { margin: 18px 0 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 26px 1fr; gap: 10px; font-size: 15.5px; }
+.steps li::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: color-mix(in srgb, var(--violet) 12%, transparent); color: var(--violet-ink); font-weight: 700; font-size: 13px; display: grid; place-items: center; margin-top: 1px; }
+.os { font-weight: 700; margin-top: 18px; font-size: 15px; }
+.os + .steps { margin-top: 8px; }
+.warn { margin-top: 16px; font-size: 14px; color: var(--mut); background: var(--paper); border-radius: 10px; padding: 10px 14px; }
+
+footer { padding: 40px 0 60px; color: var(--mut); font-size: 14px; border-top: 1px solid var(--line); }
+footer p { margin: 4px 0; }
+
+@media (min-width: 860px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding-top: 64px; }
+  .f { grid-template-columns: 5fr 7fr; gap: 48px; }
+  .f.flip { grid-template-columns: 7fr 5fr; }
+  .f.flip .txt { order: 2; }
+  .light { grid-template-columns: repeat(3, 1fr); }
+  .dl { grid-template-columns: 1fr 1fr; }
+  .dl .pane.web { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .dl .pane.web .cta { margin-top: 0; }
+}
+@media (max-width: 620px) {
+  .bar nav a:not(.go) { display: none; }
+  .rec { grid-template-columns: 1fr 1fr; }
+  .rec .m.r { grid-column: 1 / -1; }
+  .desk .toast { display: none; }
+  .desk .widget { left: 10%; width: 80%; }
+  .desk .icons { display: none; }
+  section { padding: 56px 0; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="brand" href="./"><img src="app/icons/icon.svg" alt="">Hagisiro</a>
+    <nav aria-label="바로가기">
+      <a href="#attend">출결</a>
+      <a href="#features">기능</a>
+      <a class="go" href="#download">내려받기</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>할 일과 출결을 바탕화면 한쪽에 두고 쓰세요</h1>
+      <p>고등학교 선생님이 직접 쓰려고 만든 가벼운 캘린더예요. 할 일 적기, 출결 기록, 상담 일정까지 창을 열지 않고 바탕화면에서 바로 해요.</p>
+      <div class="cta">
+        <a class="btn pri" href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Windows용 내려받기</a>
+        <a class="btn sub" href="app/">웹에서 바로 쓰기</a>
+        <small>Windows 10과 11에서 돼요. 폰과 태블릿은 아래 <a href="#download">설치 방법</a>을 보세요.</small>
+      </div>
+    </div>
+    <div class="desk" role="img" aria-label="바탕화면에 반투명하게 떠 있는 Hagisiro 캘린더 위젯과 할 일 알림">
+      <div class="icons" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <picture class="widget">
+        <source srcset="site/widget-dark.webp" media="(prefers-color-scheme: dark)">
+        <img src="site/widget-light.webp" alt="" width="1600" height="1240">
+      </picture>
+      <div class="toast" aria-hidden="true"><b><img src="app/icons/icon.svg" alt="">Hagisiro</b>학부모 상담 3명<span>11. 24. 오후 3:30</span></div>
+      <div class="taskbar" aria-hidden="true"></div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section id="attend">
+    <div class="wrap">
+      <h2>출결은 문장 한 줄이면 돼요</h2>
+      <p class="lead">평소 말하듯 적으면 날짜, 종류, 교시, 사유를 알아서 나눠 기록해요. 인터넷이 없어도 바로 돼요. 아래에 직접 적어 보세요.</p>
+      <div class="demo">
+        <label for="q">출결 문장 (학생: 김민준, 이서연, 박도윤)</label>
+        <div class="row"><input id="q" autocomplete="off" spellcheck="false" value="이서연 감기로 2교시 후 조퇴"></div>
+        <div class="samples" aria-label="예시 문장">
+          <button type="button">박도윤 3교시까지 지각</button>
+          <button type="button">김민준, 이서연 금요일 체험학습 결석</button>
+          <button type="button">2번 11/3~11/5 독감으로 결석</button>
+          <button type="button">박도윤 생리통으로 4교시 결과</button>
+        </div>
+        <div class="result" id="out" aria-live="polite"></div>
+        <p class="note">실제 앱에서는 여기서 엔터를 누르면 그날 출결표에 바로 기록돼요. 학생 이름 대신 번호로 적어도 돼요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>교무수첩에 적던 일을 한 화면에서</h2>
+      <div class="feat">
+        <div class="f">
+          <div class="txt">
+            <h3>캘린더</h3>
+            <p>날짜 칸을 두 번 누르면 바로 적어요. 엔터로 다음 줄, 다 적었으면 바깥을 누르면 끝이에요.</p>
+            <ul>
+              <li>완료 표시, 글자색·배경색, 매일·매주·매달·매년 반복</li>
+              <li>공휴일과 대체공휴일, 음력과 24절기를 날짜 칸에 함께</li>
+              <li>기말고사 같은 날은 D-day로 아래에 띄워 두기</li>
+              <li>정해 둔 시간에 윈도우 알림</li>
+            </ul>
+          </div>
+          <div class="shot dk"><img src="site/widget-dark.webp" alt="다크 모드로 본 한 달 캘린더에 할 일과 출결 기록 수가 표시된 화면" width="1600" height="1240"></div>
+        </div>
+        <div class="f flip">
+          <div class="txt">
+            <h3>출결</h3>
+            <p>일별로 교시마다 빗금이 쳐지고, 주별·월별 표로 한눈에 봐요. 고칠 게 있으면 표에서 바로 바꿔요.</p>
+            <ul>
+              <li>질병·미인정·기타·출석인정 × 결석·지각·조퇴·결과</li>
+              <li>서류 제출 확인, 요일별 교시 수와 단축수업 날</li>
+              <li>한 달 기록을 엑셀 파일로 저장</li>
+            </ul>
+          </div>
+          <div class="shot"><img src="site/att-day.webp" alt="학생별로 종류와 교시 빗금이 표시된 일별 출결표" width="1600" height="1240"></div>
+        </div>
+        <div class="f">
+          <div class="txt">
+            <h3>상담 일정</h3>
+            <p>상담 가능한 날짜와 시간을 표로 만들고, 링크를 보내면 학생과 학부모가 빈 시간을 골라 신청해요. 신청한 내용은 바로 내 표에 들어와요.</p>
+          </div>
+          <div class="txt">
+            <h3>바탕화면 위젯</h3>
+            <p>투명도를 정해 바탕화면에 붙여 두고, 다른 창 아래나 위에 둘 수 있어요. 급식, 연락처, 일과 시간표, 내 시간표는 위쪽 버튼 하나로 열어요.</p>
+            <div class="chips"><span>다크 모드</span><span>투명도 조절</span><span>급식</span><span>연락처</span><span>일과 시간표</span><span>내 시간표</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>가볍고 빠르게 만들었어요</h2>
+      <div class="light">
+        <div><b>누르는 횟수를 줄였어요</b><p>할 일 적기도, 출결 기록도, 메뉴를 몇 번씩 거치지 않게 짰어요.</p></div>
+        <div><b>데이터는 내 구글 계정에만</b><p>구글로 로그인하면 내 계정에만 저장되고, 학교 PC와 집 PC, 폰에서 똑같이 보여요.</p></div>
+        <div><b>로그인 없이도 써 볼 수 있어요</b><p>"이 기기에만 저장"을 고르면 이 컴퓨터에만 기록돼요. 나중에 로그인하면 옮겨 줘요.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="wrap">
+      <h2>내려받기</h2>
+      <p class="lead">어디서 쓰든 같은 구글 계정으로 로그인하면 기록이 이어져요.</p>
+      <div class="dl">
+        <div class="pane">
+          <h3>Windows 컴퓨터</h3>
+          <p>바탕화면 위젯으로 써요. 앱 화면은 인터넷으로 늘 최신 상태가 유지돼서, 수정될 때마다 다시 설치하지 않아도 돼요.</p>
+          <div class="cta">
+            <a class="btn pri" href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>설치 파일</a>
+            <a class="btn sub" href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro.exe">설치 없이 실행하는 파일</a>
+          </div>
+          <p class="warn">처음 실행할 때 "Windows의 PC 보호" 창이 뜨면 <b>추가 정보</b>를 누른 뒤 <b>실행</b>을 누르세요. 서명 비용이 드는 인증서를 쓰지 않아서 뜨는 안내예요.</p>
+        </div>
+        <div class="pane">
+          <h3>폰·태블릿</h3>
+          <p>앱 스토어 없이 홈 화면에 추가해서 앱처럼 써요.</p>
+          <p class="os">안드로이드 (크롬)</p>
+          <ol class="steps"><li><span>크롬에서 <a href="app/">iruroda.github.io/hagisiro/app</a>을 열어요</span></li><li><span>오른쪽 위 ⋮ 메뉴에서 <b>앱 설치</b>를 눌러요</span></li></ol>
+          <p class="os">아이폰·아이패드 (사파리)</p>
+          <ol class="steps"><li><span>사파리에서 같은 주소를 열어요</span></li><li><span>공유 버튼을 누르고 <b>홈 화면에 추가</b>를 눌러요</span></li></ol>
+        </div>
+        <div class="pane web">
+          <div><h3>설치 없이 웹에서</h3><p>학교 공용 PC처럼 아무것도 깔 수 없을 때는 브라우저에서 바로 열어요.</p></div>
+          <div class="cta"><a class="btn sub" href="app/">웹에서 열기</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Hagisiro는 Iruroda가 만들었어요.</p>
+    <p>학생 출결 기록은 로그인한 본인 계정에서만 읽고 쓸 수 있어요. 학교 방침상 실명이 걱정되면 이름 대신 번호만 넣어도 똑같이 동작해요.</p>
+  </div>
+</footer>
+
+<script src="app/parser.js"></script>
+<script>
+(function () {
+  var P = window.Parser, q = document.getElementById('q'), out = document.getElementById('out');
+  var students = [{ id: 'a', no: 1, name: '김민준' }, { id: 'b', no: 2, name: '이서연' }, { id: 'c', no: 3, name: '박도윤' }];
+  var DOW = ['일', '월', '화', '수', '목', '금', '토'];
+  function md(s) { var d = new Date(s + 'T00:00'); return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + DOW[d.getDay()] + ')'; }
+  function show() {
+    if (!P) return;
+    var r = P.parse(q.value, { students: students, today: new Date() });
+    out.replaceChildren();
+    if (!r.items.length) { var e = document.createElement('p'); e.className = 'empty'; e.textContent = q.value.trim() ? '학생 이름이나 번호를 함께 적어 주세요.' : '위 칸에 출결 문장을 적어 보세요.'; out.append(e); return; }
+    r.items.slice(0, 6).forEach(function (it) {
+      var row = document.createElement('div'); row.className = 'rec';
+      [['k', it.name], ['m', md(it.date)], ['t ' + it.type, it.cat + it.type], ['m', P.rangeLabel(it.from, it.to)], ['m r', it.reason || '사유 없음']].forEach(function (c) {
+        var s = document.createElement('span'); s.className = c[0]; s.textContent = c[1]; row.append(s);
+      });
+      out.append(row);
     });
+    if (r.items.length > 6) { var m = document.createElement('p'); m.className = 'empty'; m.textContent = '외 ' + (r.items.length - 6) + '건'; out.append(m); }
   }
+  q.addEventListener('input', show);
+  document.querySelectorAll('.samples button').forEach(function (b) { b.addEventListener('click', function () { q.value = b.textContent; show(); q.focus(); }); });
+  show();
+})();
 </script>
 </body>
 </html>

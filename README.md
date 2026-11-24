@@ -1,6 +1,6 @@
 # Hagisiro — 캘린더 · 할 일 · 출결
 
-설정 없이 `index.html`만 열어도 **이 기기에만 저장**되는 모드로 바로 써볼 수 있어요.
+설정 없이 `app/index.html`만 열어도 **이 기기에만 저장**되는 모드로 바로 써볼 수 있어요.
 (크롬에서 파일을 직접 열면 서비스워커·로그인은 안 되고, 아래 3단계를 거쳐야 어디서든 쓸 수 있어요.)
 
 ## 쓰는 법
@@ -66,7 +66,7 @@
 1. GitHub에서 새 저장소 만들기 (예: `hagisiro`)
 2. 이 폴더의 파일 전체를 업로드 (`Add file → Upload files`)
 3. 저장소 **Settings → Pages → Branch: main / (root) → Save**
-4. 1~2분 뒤 `https://내아이디.github.io/hagisiro/` 로 접속
+4. 1~2분 뒤 `https://내아이디.github.io/hagisiro/` 로 접속하면 소개 페이지, 앱은 `/hagisiro/app/`
 
 ### 3) 로그인 허용 도메인 추가
 - Firebase **Authentication → 설정 → 승인된 도메인 → 도메인 추가** → `내아이디.github.io`
@@ -92,7 +92,9 @@
 - 학교 정책상 실명 저장이 걱정되면 명단에 이름 대신 이니셜/번호만 넣어도 똑같이 동작해요.
 
 ## 파일 구성
-`index.html` 화면 · `style.css` 디자인 · `app.js` 앱 로직 · `parser.js` 출결 문장 해석 · `cloud.js` Firebase 연결 ·
+루트: `index.html` 소개 페이지 · `site/` 소개 페이지 그림 · `sw.js`·`book.html`·`manifest.json` 예전 주소 호환용 (옛 위젯·설치 앱·예약 링크를 `app/`으로 보내요)
+
+`app/` 안: `index.html` 화면 · `style.css` 디자인 · `app.js` 앱 로직 · `parser.js` 출결 문장 해석 · `cloud.js` Firebase 연결 ·
 `lunar.js` 음력·절기·공휴일 계산 · `fonts/` SUITE 글꼴(OFL) · `config.js` 내 Firebase 설정 · `firestore.rules` 보안 규칙 · `manifest.json`/`sw.js`/`icons/` 앱 설치(PWA)
 
 ## 다음 단계 (원하면)

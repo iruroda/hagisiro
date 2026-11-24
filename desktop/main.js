@@ -2,7 +2,7 @@ const { app, BrowserWindow, Tray, Menu, nativeImage, screen, shell, ipcMain, ses
 const path = require('path');
 const fs = require('fs');
 
-const URL = 'https://iruroda.github.io/hagisiro/?widget=1';
+const URL = 'https://iruroda.github.io/hagisiro/app/?widget=1';
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 
 app.setName('Hagisiro'); // 창·작업표시줄에 package 이름(hagisiro-widget)이 아니라 Hagisiro가 보이게
