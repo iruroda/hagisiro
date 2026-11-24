@@ -1317,6 +1317,7 @@
     if (rowsL.some((r) => r.gap)) grid.classList.add('msplit');
     rowsL.forEach((row, ri) => { if (row.gap && ri > 0) tracks.push('var(--mg, 5px)'); gapIdx.push(tracks.length + 1); tracks.push('minmax(0,1fr)'); });
     grid.style.gridTemplateRows = tracks.join(' ');
+    grid.dataset.rn = rowsL.length; // 줄 수 (snapCal이 줄 높이를 픽셀로 바꾼 뒤에도 알 수 있게)
     for (let ri = 0; ri < rowsL.length; ri++) {
       const row = rowsL[ri];
       for (let ci = 0; ci < 7; ci++) {
@@ -1479,7 +1480,7 @@
     g.style.gridTemplateColumns = cols;
     const wk = $('#cal .wk'); if (wk) wk.style.gridTemplateColumns = cols;
     if (!g.classList.contains('msplit')) {
-      const n = (g.style.gridTemplateRows.match(/1fr/g) || []).length, top = rb.top + parseFloat(cs.borderTopWidth || 0);
+      const n = +g.dataset.rn || 0, top = rb.top + parseFloat(cs.borderTopWidth || 0);
       if (n > 1) g.style.gridTemplateRows = cuts(top, rb.bottom - top, n);
     }
   }
