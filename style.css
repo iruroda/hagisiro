@@ -163,7 +163,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 
 /* 바탕화면 위젯 모드 (?widget=1) — 데스크톱 래퍼에서 사용 */
 html.widget, body.widget { background: transparent; }
-body.widget { --bg: color-mix(in srgb, var(--bg-s) var(--wa, 90%), transparent); --bg2: color-mix(in srgb, var(--bg2-s) var(--wa, 90%), transparent); --wbg: var(--bg); font-weight: 500; }
+body.widget { --bg: color-mix(in srgb, var(--bg-s) var(--wa, 90%), transparent); --bg2: color-mix(in srgb, var(--bg2-s) var(--wa, 90%), transparent); --wbg: var(--bg); --bgc: var(--bg); font-weight: 500; }
 body.widget :is(.dlg, .menu, #sheet > *, .sbody) { --bg: var(--bg-s); --bg2: var(--bg2-s); }
 body.widget #app { background: none; padding: 3px; gap: 3px; }
 body.widget #top { background: var(--wbg); border: 0; border-bottom: 1px solid var(--line); border-radius: var(--r) var(--r) 0 0; padding-left: 40px; }
@@ -173,7 +173,7 @@ body.widget .days { gap: 0; border: 0; border-top: 1px solid var(--line); }
 body.widget .cell { border-radius: 0; background: var(--wbg); }
 body.widget .cell:nth-last-child(7) { border-bottom-left-radius: var(--r); }
 body.widget .cell:last-child { border-bottom-right-radius: var(--r); }
-body.widget .cell.sel { background: color-mix(in srgb, var(--sel) var(--wa, 90%), transparent); }
+body.widget .cell.sel { --selc: color-mix(in srgb, var(--sel) var(--wa, 90%), transparent); background: linear-gradient(var(--selc), var(--selc)), var(--wbg); } /* 선택 칸도 평소 칸 바탕 위에 덧칠 → 전환 중(바탕은 아래 한 겹)과 같은 농도 */
 body.widget .cell.editing { background: var(--bg); }
 body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(--r) var(--r); }
 /* 이동·크기 변경 모드 */
@@ -1415,6 +1415,8 @@ button:disabled { pointer-events: none; }
 .aldlg { width: min(300px, 94vw); }
 
 .tflat { --bg: transparent; --wbg: transparent; }
+/* 움직이는 동안에도 입력칸·드롭다운·알약은 평소와 같은 바탕을 그대로 (바탕을 걷는 건 화면 덩어리만 — 안 그러면 끝나는 순간 진해져요) */
+.tflat :is(input, select, textarea, .pill) { background-color: var(--bgc, var(--bg)); }
 .rdel { display: flex; align-items: center; gap: 8px; }
 .rdel > .fld { flex: 1; min-width: 0; }
 .cbt { flex-wrap: wrap; row-gap: 2px; }
