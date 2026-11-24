@@ -1762,8 +1762,10 @@
         selDrag = { state };
       });
       inp.addEventListener('mousedown', (e) => { clearPicks(); if (e.button === 0) rowDrag = { row, on: false }; });
-      const fit = () => { if (!inp.isConnected) return; inp.style.width = '0px'; inp.style.width = Math.max(inp.scrollWidth, 8) + 'px'; }; // 배경색은 입력한 글자 뒤에만
+      const fit = () => { if (!inp.isConnected) return; inp.style.width = '0px'; inp.style.width = Math.max(Math.ceil(inp.scrollWidth) + 2, 8) + 'px'; }; // 배경색은 입력한 글자 뒤에만
       requestAnimationFrame(fit);
+      if (document.fonts) document.fonts.ready.then(() => requestAnimationFrame(fit)); // 글꼴이 늦게 와서 너비가 달라져도 다시 맞춰요
+      ['compositionupdate', 'compositionend', 'keyup'].forEach((t) => inp.addEventListener(t, () => requestAnimationFrame(fit))); // 모바일 한글 입력: 조합 중인 마지막 글자까지 넓혀요
       row.addEventListener('mousedown', (e) => { if (e.target === row) { e.preventDefault(); inp.focus(); const n = inp.value.length; inp.setSelectionRange(n, n); } });
       inp.addEventListener('input', () => { it.text = inp.value; fit(); });
       onEnter(inp, () => {
