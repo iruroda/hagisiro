@@ -418,7 +418,6 @@
   }
   async function boot() {
     if (/[?&]widget/.test(location.search)) document.body.classList.add('widget');
-    document.body.append(el('div', { class: 'bootld', role: 'status', 'aria-label': '불러오는 중' }, SLIME(40))); // 첫 화면이 그려질 때까지
     Data.loadLocal();
     const cfg = window.FIREBASE_CONFIG;
     if (cfg && cfg.apiKey) {
@@ -731,7 +730,7 @@
     S.cvHost = null;
     if (!S.ready) return;
     clearPicked();
-    if (document.body.classList.contains('booting')) { document.body.classList.remove('booting'); const bl = $('.bootld'); if (bl) bl.remove(); }
+    if (document.body.classList.contains('booting')) { document.body.classList.remove('booting'); }
     const q = $('#q');
     const keep = q && { v: q.value, f: document.activeElement === q, s: q.selectionStart };
     S.topSum = null;

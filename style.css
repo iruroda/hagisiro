@@ -24,7 +24,6 @@ body {
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .booting #app { visibility: hidden; }
-.bootld { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 5; }
 #app { height: 100%; display: flex; flex-direction: column; position: relative; }
 #main { flex: 1; min-height: 0; overflow: hidden; position: relative; }
 .mut { color: var(--mut); } .small { font-size: 12px; } .grow { flex: 1; } .danger { color: var(--sun); }
