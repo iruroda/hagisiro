@@ -544,18 +544,18 @@
       let t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
       let cls = null;
       if (k !== S.lastKey) {
-        if (ghost && !needLogin()) { // 기존 화면은 뒤에 남아 옅어지고, 새 화면이 페이드인
+        if (ghost && !needLogin()) { // 기존 화면은 지우지 않고 뒤에 그대로 두고, 새 화면이 옆에서 페이드인으로 넘어와요 (출결의 날짜 넘기기와 같은 방식)
           ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
           ghost.inert = true;
           ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none';
           ghost.classList.add('tflat'); c.classList.add('tflat'); // 바탕은 main에 한 겹만 (설정한 투명도 유지)
-          main.style.background = 'var(--wbg, var(--bg-s))'; main.style.borderRadius = '0 0 var(--r) var(--r)';
+          main.style.background = 'var(--wbg, var(--bg-s))'; main.style.borderRadius = '0 0 var(--r) var(--r)'; main.style.overflow = 'hidden';
           c.style.position = 'relative'; c.style.zIndex = '1';
           main.prepend(ghost);
-          const op = { duration: 150, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'both' }; // 짧게, 끝에서 꼬리가 길어지지 않게
-          const an = c.animate([{ opacity: 0 }, { opacity: 1 }], op);
-          ghost.animate([{ opacity: 1 }, { opacity: 0 }], op); // 옛 화면은 새 화면이 나타나는 만큼 옅어져서, 끝날 때 툭 사라지지 않아요
-          const fin = () => { an.oncancel = null; an.cancel(); ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; };
+          const ORD = { cal: 0, att: 1, consult: 2 }; // 오른쪽 탭으로 가면 오른쪽에서, 왼쪽 탭으로 가면 왼쪽에서
+          const dir = (ORD[S.view] ?? 0) >= (ORD[String(S.lastKey).split('|')[0]] ?? 0) ? 1 : -1;
+          const an = c.animate([{ transform: `translateX(${dir * 12}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'both' });
+          const fin = () => { an.oncancel = null; an.cancel(); ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; main.style.overflow = ''; };
           an.onfinish = fin; an.oncancel = fin;
         } else cls = 'vin';
       }
