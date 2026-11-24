@@ -429,7 +429,7 @@
           S.ready = true;
           if (u) enterCloud(u);
           else {
-            if (S.user) S.lgFaded = 0; // 로그아웃: 로그인 화면이 부드럽게 나타나요
+            if (S.user) { S.lgOut = true; S.lgFaded = 0; } // 로그인해 쓰던 중에 로그아웃: 로그인 화면은 처음 애니메이션 없이 부드럽게 나타나요
             S.user = null; S.cloud = null; stopWatches();
             if (S.guest) enterLocal();
             else { COLS.forEach((c) => { S[c] = []; }); S.gcal = {}; S.clsLoaded = true; render(); }
@@ -1169,7 +1169,7 @@
   function syncLoginWin() {
     const on = needLogin();
     if (document.body.classList.contains('loginmode') !== on) { document.body.classList.toggle('loginmode', on); applyPf(); } // 로그인 화면 ↔ 앱을 오갈 때 테마 다시 적용
-    if (!on) { S.lgFaded = 0; } // 로그인 화면을 벗어나면 다음에 다시 처음부터
+    if (!on) { S.lgT0 = null; S.lgOut = false; S.lgFaded = 0; } // 로그인 화면을 벗어나면 다음에 다시 처음부터
     const api = window.hagisiroWidget;
     if (api && api.loginMode && on !== loginWinOn) {
       if (!on && !noAnim()) { const ap = document.getElementById('app'); if (ap) ap.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, delay: 140, easing: 'ease-out', fill: 'both' }); } // 로그인 창 → 위젯 크기로 바뀌는 동안은 비워뒀다가 부드럽게 켜져요
@@ -1184,16 +1184,78 @@
     if (window.ResizeObserver) new ResizeObserver(set).observe(app);
   })();
   /* ---------- 로그인 화면 ---------- */
-  /* 로그인 화면: 로고는 그대로 두고 창 전체가 부드럽게 나타나기만 해요 */
-  function loginAnim(login, box) {
-    box.innerHTML = LOGO;
-    if (noAnim()) return;
-    const el0 = S.lgFaded ? performance.now() - S.lgFaded : 0; // 다시 그려져도 이어서 (처음 한 번만 시작)
-    if (!S.lgFaded) S.lgFaded = performance.now();
-    if (el0 < 400) {
-      login.style.opacity = '0';
-      requestAnimationFrame(() => { const an = login.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out', fill: 'both' }); an.currentTime = el0; an.onfinish = () => { an.cancel(); login.style.opacity = ''; }; });
+  /* 로그인 로고 애니메이션: 창 전체의 파란색이 왼쪽 위 네모로 줄어들며 H가 나타나고, 오른쪽·아래로 번져 네 칸이 되고, 마지막에 체크가 그려져요.
+   * 슬라임처럼 이어 보이는 건 움직이는 동안만이고, 자리를 잡은 네모는 원래 모양(정확한 네모)을 위에 덮어서 끝났을 때 모양이 달라지지 않게 해요.
+   * 흰 공간이 드러나는 때부터 제목·버튼이 나타나 바로 누를 수 있어요. 같은 실행에서 다시 보일 땐 줄어드는 부분은 건너뛰어요. */
+  const LGX = { SH0: 200, SH1: 850, HF0: 700, HF1: 1000, UI0: 600, UI1: 900, OFF: 900, hold: 350, right: 560, gap: 60, down: 560, gap2: 80, check: 520, CK: 28 };
+  const lgBez = (a, b, c, d) => { const f = (t, p, q) => 3 * p * t * (1 - t) * (1 - t) + 3 * q * t * t * (1 - t) + t * t * t; return (x) => { if (x <= 0) return 0; if (x >= 1) return 1; let lo = 0, hi = 1, t = x; for (let i = 0; i < 24; i++) { t = (lo + hi) / 2; if (f(t, a, c) < x) lo = t; else hi = t; } return f(t, b, d); }; };
+  const lgLead = lgBez(.45, 0, .25, 1.12), lgFollow = lgBez(.35, 0, .25, 1), lgInOut = lgBez(.5, 0, .3, 1);
+  const lgClamp = (x) => Math.max(0, Math.min(1, x));
+  const lgLerp = (a, b, k) => a + (b - a) * k;
+  const LG_SVG = '<svg width="64" height="64" viewBox="0 0 64 64" style="overflow:visible" aria-label="HAGISIRO"><defs><linearGradient id="lgxg" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#6d4aff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient>'
+    + '<linearGradient id="lgxo" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop id="lgxo0" offset="0" stop-color="#2f6df6"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#2f6df6"/></linearGradient>'
+    + '<filter id="lgxf" filterUnits="userSpaceOnUse" x="-12" y="-12" width="88" height="88" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="1.6" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -12"/></filter></defs>'
+    + '<g id="lgxG" filter="url(#lgxf)" fill="url(#lgxg)"><rect id="lgxTL" width="30" height="30" rx="9"/><rect id="lgxTR" width="30" height="30" rx="9"/><rect id="lgxBL" width="30" height="30" rx="9"/><rect id="lgxBR" x="34" width="30" height="30" rx="9"/></g>'
+    + '<rect id="lgxOV" width="30" height="30" rx="9" fill="url(#lgxo)"/>'
+    + '<g fill="url(#lgxg)"><rect id="lgxsTL" width="30" height="30" rx="9" opacity="0"/><rect id="lgxsTR" x="34" width="30" height="30" rx="9" opacity="0"/><rect id="lgxsBL" y="34" width="30" height="30" rx="9" opacity="0"/><rect id="lgxsBR" x="34" y="34" width="30" height="30" rx="9" opacity="0"/></g>'
+    + '<path id="lgxH" opacity="0" d="M8.7 6.5v17M21.3 6.5v17M8.7 15h12.6" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round"/>'
+    + '<path id="lgxC" d="M40 49.5l6.4 6.6 12-14.2" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round" style="opacity:0"/></svg>';
+  function loginAnim(login, box, ui) {
+    if (noAnim()) { box.innerHTML = LOGO; return; }
+    if (S.lgOut || S.wasIn) { // 로그아웃 뒤: 파란 화면·로고 애니메이션 없이 하얀 화면에서 로그인 창 전체가 페이드인으로만
+      box.innerHTML = LOGO;
+      const el0 = S.lgFaded ? performance.now() - S.lgFaded : 0; // 다시 그려져도 이어서 (처음 한 번만 시작)
+      if (!S.lgFaded) S.lgFaded = performance.now();
+      if (el0 < 400) {
+        login.style.opacity = '0';
+        requestAnimationFrame(() => { const an = login.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out', fill: 'both' }); an.currentTime = el0; an.onfinish = () => { an.cancel(); login.style.opacity = ''; }; });
+      }
+      return;
     }
+    const first = S.lgT0 == null; if (first) S.lgT0 = performance.now();
+    if (first) S.lgSkip = S.lgSeen ? 1000 : 0; // 같은 실행에서 다시 보일 땐 줄어드는 부분을 건너뛰어요
+    S.lgSeen = true;
+    const skip = S.lgSkip || 0;
+    box.innerHTML = LG_SVG;
+    const $$ = (id) => box.querySelector('#lgx' + id);
+    const q = {}; ['G', 'TL', 'TR', 'BL', 'BR', 'OV', 'sTL', 'sTR', 'sBL', 'sBR', 'H', 'C', 'o0'].forEach((k) => { q[k] = $$(k); });
+    const R = (e, x, y, w, h) => { e.setAttribute('x', x); e.setAttribute('y', y); e.setAttribute('width', w); e.setAttribute('height', h); };
+    const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const mix = (a, b, k) => '#' + hex(a).map((v, i) => Math.round(lgLerp(v, hex(b)[i], k)).toString(16).padStart(2, '0')).join('');
+    const slide = (e, horiz, p) => { // 앞쪽 가장자리는 빨리, 뒤쪽은 늦게 따라가며 늘어났다 줄어들어요
+      const head = 30 + 34 * lgLead(p), tail = 34 * lgFollow(lgClamp((p - .14) / .86)), len = head - tail, thin = 30 - Math.max(0, len - 30) * .16, off = (30 - thin) / 2;
+      if (horiz) R(e, tail, off, len, thin); else R(e, off, tail, thin, len);
+    };
+    const endAt = LGX.OFF + LGX.hold + LGX.right + LGX.gap + LGX.down + LGX.gap2 + LGX.check;
+    let geo = null, raf = 0;
+    // 줄어드는 동안 매 프레임 창 모양을 다시 재요: 위젯 창이 로그인 크기로 줄어드는 중에도 파란색이 둥근 로그인 창에 딱 맞아요
+    const measure = () => { const sv = box.firstElementChild.getBoundingClientRect(), c = login.getBoundingClientRect(), k = sv.width / 64 || 1;
+      geo = { x: (c.left - sv.left) / k, y: (c.top - sv.top) / k, w: c.width / k, h: c.height / k, r: (parseFloat(getComputedStyle(login).borderTopLeftRadius) || 0) / k, bleed: 2 / k }; };  // 가장자리가 반 픽셀씩 모자라 흰 줄이 보이지 않게 2px 크게 그리고, 둥근 로그인 창 모양으로 잘라요
+    const draw = (T) => {
+      const k = lgInOut(lgClamp((T - LGX.SH0) / (LGX.SH1 - LGX.SH0))), done = k >= 1;
+      if (!done) { measure(); const bl = geo.bleed * (1 - k); R(q.OV, lgLerp(geo.x, 0, k) - bl, lgLerp(geo.y, 0, k) - bl, lgLerp(geo.w, 30, k) + 2 * bl, lgLerp(geo.h, 30, k) + 2 * bl); q.OV.setAttribute('rx', lgLerp(geo.r, 9, k)); q.o0.setAttribute('stop-color', mix('#2f6df6', '#6d4aff', k * k * k)); }
+      login.style.overflow = done ? '' : 'hidden'; q.OV.style.display = done ? 'none' : ''; q.sTL.setAttribute('opacity', done ? 1 : 0); q.TL.style.display = done ? '' : 'none';
+      q.H.setAttribute('opacity', lgClamp((T - LGX.HF0) / (LGX.HF1 - LGX.HF0)));
+      const u = lgClamp((T - LGX.UI0) / (LGX.UI1 - LGX.UI0)); ui.forEach((n) => { n.style.opacity = u; n.style.pointerEvents = u > 0 ? '' : 'none'; });
+      const t = T - LGX.OFF, tr = LGX.hold, td = tr + LGX.right + LGX.gap, tc = td + LGX.down + LGX.gap2;
+      const pr = lgClamp((t - tr) / LGX.right), pd = lgClamp((t - td) / LGX.down), rest = lgClamp((t - (td + LGX.down)) / 320);
+      slide(q.TR, true, pr); slide(q.BL, false, pd);
+      q.BR.style.display = pd > 0 ? '' : 'none'; q.BL.style.display = pd > 0 && pd < 1 ? '' : 'none'; q.TR.style.display = pd >= 1 ? 'none' : '';
+      { const head = 30 + 34 * lgLead(pd), tail = 34 * lgFollow(lgClamp((pd - .14) / .86)), len = head - tail, thin = 30 - Math.max(0, len - 30) * .16; R(q.BR, 34 + (30 - thin) / 2, tail, thin, len); }
+      q.sTR.setAttribute('opacity', pr >= 1 ? (pd >= 1 ? 1 - .38 * lgInOut(rest) : 1) : 0);
+      q.sBL.setAttribute('opacity', pd >= 1 ? 1 - .38 * lgInOut(rest) : 0);
+      q.sBR.setAttribute('opacity', pd >= 1 ? 1 : 0);
+      const pc = lgClamp((t - tc) / LGX.check);
+      q.C.style.strokeDasharray = LGX.CK; q.C.style.strokeDashoffset = LGX.CK * (1 - lgInOut(pc)); q.C.style.opacity = pc > 0 ? 1 : 0;
+      return T < endAt + 100;
+    };
+    const tick = () => {
+      if (!box.isConnected || !S.lgT0) return;
+      const more = draw(skip + performance.now() - S.lgT0);
+      if (more) raf = requestAnimationFrame(tick); else { q.G.style.display = 'none'; ui.forEach((n) => { n.style.opacity = ''; n.style.pointerEvents = ''; }); }
+    };
+    ui.forEach((n) => { n.style.opacity = 0; n.style.pointerEvents = 'none'; });
+    raf = requestAnimationFrame(tick); // 붙은 뒤 첫 그림 직전에 시작
   }
   function loginView() {
     const logo = el('div', { class: 'logo' });
@@ -1201,7 +1263,7 @@
       el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, 'Google 로그인'),
       el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '이 기기에만 저장')];
     const v = el('div', { class: 'login' }, logo, ...ui);
-    loginAnim(v, logo);
+    loginAnim(v, logo, ui);
     return v;
   }
 

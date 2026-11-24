@@ -1,35 +1,8 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><title>HAGISIRO</title>
-<style>
-html,body{margin:0;height:100%;background:transparent;overflow:hidden}
-body{display:grid;place-items:center}
-svg{overflow:visible}
-</style></head>
+<style>html,body{margin:0;height:100%;background:transparent;overflow:hidden}</style></head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="slG" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#6d4aff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient><filter id="slGoo" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="1.7" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter></defs></svg>
-<svg id="sl" width="48" height="48" viewBox="-6 -6 76 76"></svg>
 <script>
-// 앱 안 로딩(app.js의 SLIME)과 같은 슬라임. 실제 화면이 그려지면 이 페이지째로 바뀌어 사라져요
-const POS=[[0,0],[34,0],[34,34],[0,34]],SZ=30,RX=9,STEP=450,STEPS=[];
-for(let l=0;l<2;l++)for(let k=0;k<4;k++)STEPS.push({from:k,to:(k+1)%4,erase:!!l});
-const TOTAL=STEPS.length*STEP;
-const bez=(x1,y1,x2,y2)=>t=>{let lo=0,hi=1,u=t;for(let i=0;i<24;i++){u=(lo+hi)/2;const x=3*(1-u)*(1-u)*u*x1+3*(1-u)*u*u*x2+u*u*u;if(x<t)lo=u;else hi=u;}return 3*(1-u)*(1-u)*u*y1+3*(1-u)*u*u*y2+u*u*u;};
-const ease=bez(.5,-.12,.3,1.1);
-function frame(t){
-  const idx=Math.min(STEPS.length-1,Math.floor(t/STEP)),cells=new Set([0]);
-  for(let i=0;i<idx;i++){const x=STEPS[i];if(x.erase)cells.delete(x.from);cells.add(x.to);}
-  const x=STEPS[idx],u=(t-idx*STEP)/STEP;if(x.erase)cells.delete(x.from);
-  const e=ease(u),d=1e-3,v=(ease(Math.min(1,u+d))-ease(Math.max(0,u-d)))/(2*d);
-  const dx=POS[x.to][0]-POS[x.from][0],dy=POS[x.to][1]-POS[x.from][1],st=1+Math.min(.5,Math.abs(v)*.16);
-  const w=dx?SZ*st:SZ/Math.sqrt(st),h=dx?SZ/Math.sqrt(st):SZ*st;
-  const cx=POS[x.from][0]+dx*e+SZ/2,cy=POS[x.from][1]+dy*e+SZ/2;
-  let o='<g filter="url(#slGoo)" fill="url(#slG)">';
-  cells.forEach(i=>{o+=`<rect x="${POS[i][0]}" y="${POS[i][1]}" width="${SZ}" height="${SZ}" rx="${RX}"/>`;});
-  return o+`<rect x="${cx-w/2}" y="${cy-h/2}" width="${w}" height="${h}" rx="${RX}"/></g>`;
-}
-const sl=document.getElementById('sl'),t0=performance.now();
-function tick(now){sl.innerHTML=frame(((now-t0)%TOTAL+TOTAL)%TOTAL);requestAnimationFrame(tick);}
-requestAnimationFrame(tick);
-// 먼저 그린 뒤 실제 화면으로 이동 (새 화면이 그려질 때까지 이 슬라임이 남아 있음)
-requestAnimationFrame(()=>requestAnimationFrame(()=>location.replace(decodeURIComponent(location.hash.slice(1))))); // 한 번 그린 직후 바로 이동
+// 불러오는 동안 아무것도 그리지 않고 바로 실제 화면으로 이동해요 (기다리는 중 애니메이션 없음)
+location.replace(decodeURIComponent(location.hash.slice(1)));
 </script></body></html>
