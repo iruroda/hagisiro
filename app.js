@@ -1168,7 +1168,10 @@
     if (document.body.classList.contains('loginmode') !== on) { document.body.classList.toggle('loginmode', on); applyPf(); } // 로그인 화면 ↔ 앱을 오갈 때 테마 다시 적용
     if (!on) { S.lgT0 = null; S.lgOut = false; S.lgFaded = 0; } // 로그인 화면을 벗어나면 다음에 다시 처음부터
     const api = window.hagisiroWidget;
-    if (api && api.loginMode && on !== loginWinOn) { loginWinOn = on; api.loginMode(on); }
+    if (api && api.loginMode && on !== loginWinOn) {
+      if (!on && !noAnim()) { const ap = document.getElementById('app'); if (ap) ap.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, delay: 140, easing: 'ease-out', fill: 'both' }); } // 로그인 창 → 위젯 크기로 바뀌는 동안은 비워뒀다가 부드럽게 켜져요
+      loginWinOn = on; api.loginMode(on);
+    }
   }
   /* 화면 폭에 따른 배치는 '창'이 아니라 '앱' 폭을 기준으로 (팝업 때문에 창이 커져도 메인이 안 변하게) */
   (function appWidthClass() {
