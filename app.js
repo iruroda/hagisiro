@@ -220,7 +220,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF_DEF = { cal: 'month', weeks: 4, past: 1, lunar: false, terms: false, hol: true, theme: 'auto', opacity: 100, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] };
+  const PF_DEF = { cal: 'month', weeks: 4, past: 1, lunar: false, terms: false, hol: true, theme: 'auto', opacity: 100, sortDone: true, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] };
   const PF = Object.assign(JSON.parse(JSON.stringify(PF_DEF)),
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
@@ -1434,8 +1434,8 @@
   }
 
   /* ---------- 글자색 · 배경색 팔레트 ---------- */
-  const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#2f6df6', '파랑'], ['#0e9aa7', '청록'], ['#d6409f', '보라'], ['#8b9098', '회색']];
-  const BGC = [['', '없음'], ['rgba(229,72,77,.24)', '빨강'], ['rgba(217,138,0,.28)', '주황'], ['rgba(46,158,91,.26)', '초록'], ['rgba(47,109,246,.26)', '파랑'], ['rgba(14,154,167,.26)', '청록'], ['rgba(214,64,159,.24)', '보라'], ['rgba(139,144,152,.28)', '회색']];
+  const FG = [['', '기본'], ['#e5484d', '빨강'], ['#d98a00', '주황'], ['#2e9e5b', '초록'], ['#0e9aa7', '청록'], ['#2f6df6', '파랑'], ['#d6409f', '보라'], ['#8b9098', '회색']];
+  const BGC = [['', '없음'], ['rgba(229,72,77,.24)', '빨강'], ['rgba(217,138,0,.28)', '주황'], ['rgba(46,158,91,.26)', '초록'], ['rgba(14,154,167,.26)', '청록'], ['rgba(47,109,246,.26)', '파랑'], ['rgba(214,64,159,.24)', '보라'], ['rgba(139,144,152,.28)', '회색']];
   const SIZES = [['xs', '아주 작게'], ['s', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
   function swatches(onPick, cur) {
     const wrap = el('div', { class: 'sw' });
