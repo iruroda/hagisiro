@@ -2344,7 +2344,7 @@
       el('b', { class: 'dttl jump' + (d.getDay() === 0 || holName(ds, d) ? ' sun' : d.getDay() === 6 ? ' sat' : ''), onclick: (e) => editTtl(e.currentTarget, true) }, `${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`),
       el('button', { class: 'ib', 'aria-label': '다음 날', onclick: () => shift(1) }, icon('right')),
       el('span', { class: 'grow' }),
-      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def, cls.id); render(); } }, icon('backspace'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
+      ovr ? el('button', { class: 'ghost sm', onclick: () => { setDayPeriods(ds, def, cls.id); render(); } }, icon('uturn'), `기본 ${def ? def + '교시' : '수업 없음'}`) : null,
       cntSel));
 
     const recs = S.att.filter((a) => a.classId === cls.id && a.date === ds);
