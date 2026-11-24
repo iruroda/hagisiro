@@ -2863,7 +2863,8 @@
         const availW = window.innerWidth * 0.94 - 28, availH = window.innerHeight * 0.9 - 150 - hasSrc;
         const k = Math.min(1, availW / nw, availH / nh);
         const w = Math.round(nw * k);
-        img.style.width = w + 'px'; img.style.height = 'auto';
+        const first0 = !d.dataset.fitted; if (first0) img.style.transition = 'none'; // 처음 맞출 땐 움직임 없이 바로
+        img.style.width = w + 'px'; img.style.height = 'auto'; if (first0) { void img.offsetWidth; img.style.transition = ''; }
         /* 사진 폭에 맞추되, 윗줄(드롭박스·버튼)이 한 줄에 들어갈 만큼보다는 좁아지지 않게 — 줄어들고 늘어날 땐 부드럽게 */
         const bar = d.querySelector('.docent');
         let need = 0;
@@ -2871,7 +2872,18 @@
         const tw = Math.min(Math.max(need, w + 28), window.innerWidth * 0.94) + 'px';
         if (!d.dataset.fitted) { d.style.transition = 'none'; d.style.width = tw; void d.offsetWidth; d.style.transition = ''; d.dataset.fitted = '1'; } else d.style.width = tw;
       };
-      if (img.complete && img.naturalWidth) run(); else img.addEventListener('load', run, { once: true });
+      /* 사진을 아직 못 읽었으면 크기를 맞출 때까지 팝업을 감춰 뒀다가, 맞춘 크기로 한 번에 나타나요 (큰 팝업 → 줄어듦 → 늘어남이 눈에 보이지 않게) */
+      const reveal = () => {
+        if (!d.dataset.hid) return;
+        delete d.dataset.hid; d.dataset.nofx = String(performance.now()); d.style.visibility = '';
+        if (!noAnim()) d.animate([{ opacity: 0, transform: 'translateY(6px) scale(.985)' }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'ease-out' });
+      };
+      if (img.complete && img.naturalWidth) run();
+      else {
+        if (!d.dataset.fitted && !d.dataset.hid) { d.dataset.hid = '1'; d.style.visibility = 'hidden'; }
+        img.addEventListener('load', () => { run(); reveal(); }, { once: true });
+        img.addEventListener('error', reveal, { once: true });
+      }
     }
     const _de = drawEdit, _dv = drawView;
     /* 항목을 바꿀 땐 팝업을 닫았다 다시 열지 않고, 같은 창에서 내용만 바꿔요 (높이는 모든 팝업 공통의 부드러운 늘고 줄기가 맡아요) */
@@ -3881,6 +3893,7 @@
       new ResizeObserver(() => {
         if (busy) return;
         const h = n.offsetHeight;
+        if (n.dataset.nofx && performance.now() - +n.dataset.nofx < 400) { last = h; return; } // 처음 나타날 때 크기를 맞추는 건 움직이지 않아요
         if (noAnim() || Math.abs(h - last) < 2) { last = h; return; }
         const from = last; last = h; busy = true;
         const ov = n.style.overflow; n.style.overflow = 'hidden';
