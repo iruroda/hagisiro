@@ -578,8 +578,8 @@ body { font-variant-numeric: tabular-nums; }
 .pnav button { text-align: left; padding: 8px 10px; border-radius: var(--r); font-size: var(--fs-2); color: var(--mut); font-weight: 600; }
 .pnav button:hover { background: var(--bg2); color: var(--text); }
 .pnav button.on { background: var(--sel); color: var(--accent); }
-.pnav .preset { margin-top: auto; padding: 7px 4px; font-size: 12px; text-align: center; white-space: nowrap; color: #fff; } /* 탭 목록 맨 아래: 구분선 왼쪽에 파란 버튼 */
-.pnav .preset:hover { color: #fff; }
+.pnav .preset { margin-top: auto; padding: 7px 4px; gap: 4px; font-size: 12px; white-space: nowrap; color: var(--mut); font-weight: 500; } /* 탭 목록 맨 아래 */
+.pnav .preset:hover { color: var(--text); }
 .pmain .pbody { padding-right: 6px; }
 @media (max-width: 520px) {
   .pmain { flex-direction: column; gap: 8px; }

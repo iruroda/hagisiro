@@ -3020,13 +3020,13 @@
       body.replaceChildren(...pages[S.pfTab]().filter(Boolean));
       body.scrollTop = keep; shown = S.pfTab;
     }
-    const resetBtn = el('button', { class: 'pri sm preset', type: 'button', onclick: async () => {
+    const resetBtn = el('button', { class: 'ghost sm preset', type: 'button', onclick: async () => {
           if (!(await ask('모든 설정을 기본으로 되돌릴까요?', '되돌리기', false))) return;
           ['cal', 'weeks', 'past', 'mgap', 'lunar', 'terms', 'hol', 'ab', 'cons', 'meal', 'pastdd', 'ddtop', 'tsz', 'tfg', 'tbg', 'tlh', 'tbl', 'autoDel', 'sortDone', 'theme', 'anim', 'hide', 'show', 'opacity']
             .forEach((k) => { if (k in PF_DEF) PF[k] = JSON.parse(JSON.stringify(PF_DEF[k])); else delete PF[k]; });
           if (W && W.setZ) { try { S.zmode = await W.setZ('normal'); } catch (e) { /* 창 순서는 그대로 */ } }
           commit('range'); S.pfTab = 'view'; draw();
-        } }, '기본으로 되돌리기');
+        } }, icon('undo'), '기본으로 되돌리기');
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg pfdlg' },
         el('div', { class: 'shead' }, hb('gear', '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
