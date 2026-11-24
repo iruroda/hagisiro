@@ -513,7 +513,10 @@
       if (dir > 0) grid.prepend(...take); else grid.append(...take);
       const dist = news[0].isConnected ? grid.children[s * 7].getBoundingClientRect().top - grid.getBoundingClientRect().top - bt : 0;
       const a = dir > 0 ? 0 : -dist, b = dir > 0 ? -dist : 0;
-      an = grid.animate([{ transform: `translateY(${a}px)` }, { transform: `translateY(${b}px)` }], opt);
+      /* 소수 픽셀로 움직이면 줄(1px)이 화면 배율에 따라 번져서 두꺼워 보여요 → 위치를 실제 화면 픽셀 단위로 맞춘 키프레임으로 움직여요 */
+      const dpr = window.devicePixelRatio || 1, ez = lgBez(.3, .7, .3, 1), N = 60;
+      const kf = Array.from({ length: N + 1 }, (_, i) => ({ offset: i / N, transform: `translateY(${Math.round((a + (b - a) * ez(i / N)) * dpr) / dpr}px)`, easing: i < N ? 'steps(1, jump-end)' : 'linear' }));
+      an = grid.animate(kf, { duration: opt.duration, easing: 'linear' });
       done = () => { take.forEach((n) => n.remove()); grid.style.cssText = saved; news.forEach((n, i) => { n.style.gridRow = saveRows[i]; }); if (clip.isConnected) clip.replaceWith(grid); };
     } else {
       const saved = t.style.cssText, node = snap.node;
