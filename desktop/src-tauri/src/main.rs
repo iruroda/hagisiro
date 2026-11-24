@@ -347,6 +347,8 @@ fn main() {
                 .on_page_load(|w, p| { if matches!(p.event(), PageLoadEvent::Finished) { send_bottom(w.app_handle()); } })
                 .build()?;
 
+            // 문제 확인용: 파일 이름에 debug가 들어간 exe로 실행하면 개발자 도구를 열어요
+            if std::env::current_exe().ok().and_then(|p| p.file_name().map(|n| n.to_string_lossy().to_lowercase().contains("debug"))).unwrap_or(false) { win.open_devtools(); }
             let _ = win.show();
             let _ = win.set_focus(); // 처음 켰을 때 투명 창이 그려지지 않고 안 보이던 것 방지
             let h2 = h.clone();

@@ -2,8 +2,8 @@
 // (Electron 때 preload.js와 같은 이름·같은 함수라서 앱 코드는 그대로)
 (() => {
   if (location.hostname !== 'iruroda.github.io' || window.hagisiroWidget) return;
-  const I = (cmd, args) => window.__TAURI_INTERNALS__.invoke(cmd, args || {});
-  const quiet = (p) => { p.catch(() => {}); };
+  const I = (cmd, args) => { const t = window.__TAURI_INTERNALS__; if (!t) return Promise.reject(new Error('Tauri IPC 없음')); return t.invoke(cmd, args || {}); };
+  const quiet = (p) => { p.catch((e) => console.warn('[hagisiro]', e)); };
   window.hagisiroWidget = {
     getBounds: () => I('wb_get'),
     setBounds: (b, mode) => quiet(I('wb_set', { b: { x: +b.x, y: +b.y, width: +b.width, height: +b.height }, mode: String(mode || '') })),
