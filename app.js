@@ -552,7 +552,17 @@
       // 출결 안에서 일·주·월을 바꾸거나 날짜를 넘길 땐 학급 버튼·입력칸은 그대로 두고 아래 표만 움직여요
       let t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
       let cls = null;
-      if (k !== S.lastKey) {
+      const attSub = k !== S.lastKey && S.view === 'att' && String(S.lastKey).startsWith('att|') && ghost && !needLogin() && !noAnim() ? (() => { // 출결 안에서 일별·주별·월별을 바꿀 땐 입력칸·설명은 제자리, 아래 표만 옆에서 들어와요
+        const SO = { day: 0, week: 1, month: 2 }, from = String(S.lastKey).split('|')[1];
+        const ot = attTable(ghost), nt = attTable(c); if (!ot || !nt) return null;
+        const node = ot; node.removeAttribute('id'); node.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id')); node.inert = true; node.style.pointerEvents = 'none';
+        return { node, nt, dir: (SO[S.sub] ?? 0) >= (SO[from] ?? 0) ? 1 : -1, s: null, t0: performance.now() };
+      })() : null;
+      if (attSub) {
+        [...attSub.nt.parentElement.children].filter((n) => n !== attSub.nt).forEach((n) => n.classList.add('hfade'));
+        setTimeout(() => document.querySelectorAll('.hfade').forEach((n) => n.classList.remove('hfade')), 320);
+        startBelt(main, c, attSub.nt, attSub);
+      } else if (k !== S.lastKey) {
         if (ghost && !needLogin()) { // 새 화면이 옆에서 옛 화면을 덮으며 들어와요
           ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
           ghost.inert = true;
