@@ -1,7 +1,7 @@
 {
   "name": "hagisiro-widget",
   "productName": "Hagisiro",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Hagisiro 바탕화면 위젯",
   "main": "main.js",
   "author": "Iruroda",
@@ -51,6 +51,6 @@
       "language": "1042"
     },
     "copyright": "Copyright © Iruroda",
-    "buildVersion": "1.2.2.0"
+    "buildVersion": "1.2.3.0"
   }
 }
