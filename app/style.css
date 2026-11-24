@@ -625,8 +625,8 @@ html, .tl, .att, .cv, .pfdlg, .pbody, .rbody, .dbody, .dtw, .dtxt, .dimg, .meals
 body.widget .ddbar { border: 0; border-top: 1px solid var(--line); background: var(--wbg); border-radius: 0 0 var(--r) var(--r); }
 body.widget .cal.hasdd .cell { border-radius: 0 !important; }
 /* 더블클릭 팝업: 데스크톱·위젯에서는 가운데 팝업, 모바일은 아래에서 올라오는 시트 그대로 */
-body.widget #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; width: min(430px, 92vw); height: fit-content; max-height: 82vh; border-radius: var(--r); padding-bottom: 14px; }
-@media (min-width: 701px) { body:not(.widget) #sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; width: min(430px, 92vw); height: fit-content; max-height: 82vh; border-radius: var(--r); padding-bottom: 14px; } }
+/* 할 일 팝업도 다른 팝업처럼 화면 가운데에 (모바일도 아래 서랍 대신) */
+#sheet .panel { left: 0; right: 0; top: 0; bottom: 0; margin: auto; width: min(430px, 92vw); height: fit-content; max-height: 82vh; border-radius: var(--r); padding-bottom: 14px; }
 
 /* 할 일 검색 */
 .sdlg { width: min(430px, 92vw); }
