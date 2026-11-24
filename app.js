@@ -220,7 +220,7 @@
   /* 화면 설정 (이 기기에만 저장) */
   const PFK = 'hagisiro:pf';
   const IS_WIDGET = /[?&]widget/.test(location.search);
-  const PF_DEF = { cal: IS_WIDGET ? 'week' : 'month', weeks: IS_WIDGET ? 3 : 4, past: 1, lunar: false, terms: false, hol: true, theme: 'auto', opacity: 100, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] };
+  const PF_DEF = { cal: 'month', weeks: 4, past: 1, lunar: false, terms: false, hol: true, theme: 'auto', opacity: 100, sortDone: false, meal: false, school: null, neisKey: '', anim: true, mgap: false, pastdd: true, tsz: '', tfg: '', tbg: '', tlh: 2, autoDel: false, tbl: '', ab: true, cons: true, hide: [], show: [], mwe: true, mk: ['중식'] };
   const PF = Object.assign(JSON.parse(JSON.stringify(PF_DEF)),
     (() => { try { return JSON.parse(ls.get(PFK) || '{}') || {}; } catch (e) { return {}; } })());
   function normPf() {
