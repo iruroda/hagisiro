@@ -24,9 +24,10 @@ app.on('second-instance', reveal);
 
 function bounds() {
   const wa = screen.getPrimaryDisplay().workArea;
-  const b = st.bounds || { width: 800, height: 620, x: wa.x + wa.width - 820, y: wa.y + 20 };
+  const mid = (w, h) => ({ width: w, height: h, x: Math.round(wa.x + (wa.width - w) / 2), y: Math.round(wa.y + (wa.height - h) / 2) }); // 처음엔 화면 정가운데
+  const b = st.bounds || mid(800, 620);
   const vis = screen.getAllDisplays().some((d) => b.x < d.bounds.x + d.bounds.width - 40 && b.x + b.width > d.bounds.x + 40 && b.y >= d.bounds.y - 10 && b.y < d.bounds.y + d.bounds.height - 40);
-  return vis ? b : { width: b.width, height: b.height, x: wa.x + wa.width - b.width - 20, y: wa.y + 20 };
+  return vis ? b : mid(b.width, b.height);
 }
 
 /* 이동·크기 변경: 화면(작업 영역) 가장자리에 자석처럼 붙임 */
