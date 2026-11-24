@@ -16,6 +16,12 @@ jobs:
         working-directory: desktop
       - run: npm run dist
         working-directory: desktop
+      - name: 이전 배포 파일 지우기 (이름이 바뀌어도 겹치지 않게)
+        run: gh release delete widget-latest --yes --cleanup-tag
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: desktop
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: widget-latest
