@@ -175,7 +175,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
     <h2>상담 신청은 링크 하나로</h2>
     <p class="lede">신청표를 만들고 링크를 공유하세요. 신청 현황은 캘린더에서 바로 확인하세요.</p>
     <div class="cstage">
-      <div class="vid"><video id="cvid" src="site/consult.mp4" poster="site/consult-poster.webp" autoplay muted loop playsinline aria-label="설정 두 페이지로 상담 신청표를 만들고 링크를 복사하는 모습"></video></div>
+      <div class="vid"><video id="cvid" src="site/consult.mp4" poster="site/consult-poster.webp" autoplay muted loop playsinline aria-label="설정 두 페이지로 상담 신청표를 만드는 모습"></video></div>
       <div class="p3d"><div class="phone"><i><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2280"></i></div></div>
     </div>
   </section>
@@ -209,7 +209,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 </main>
 <script>
 /* 상담 영상: 링크를 복사한 뒤에 학생 휴대폰이 나타나요 */
-(() => { const v = document.getElementById('cvid'), ph = document.querySelector('.p3d'); if (v && ph) v.addEventListener('timeupdate', () => ph.classList.toggle('hid', v.currentTime < 13.1)); })();
+(() => { const v = document.getElementById('cvid'), ph = document.querySelector('.p3d'); if (v && ph) v.addEventListener('timeupdate', () => ph.classList.toggle('hid', v.currentTime < 9.3)); })();
 </script>
 
 
