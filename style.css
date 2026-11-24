@@ -10,10 +10,10 @@
   --accent: #6d4aff; --yel: #d98a00; --teal: #12c9b3; --grad: linear-gradient(135deg, #6d4aff 0%, #2f6df6 55%, #12c9b3 100%); --sel: #f4f1ff; --sun: #e5484d; --sat: #2f6df6;
   --font: "SUITE", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
-:root[data-theme="dark"] { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --bg-s: #16181c; --bg2-s: #1d2025; --text: #e8eaed; --mut: #8b9098; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; }
+:root[data-theme="dark"] { color-scheme: dark; --bg: #1f2228; --bg2: #272b32; --bg-s: #1f2228; --bg2-s: #272b32; --text: #e8eaed; --mut: #9097a0; --line: #343942; --accent: #9b82ff; --sel: #2d2850; --scrim: rgba(0,0,0,.55); --ab-bg: color-mix(in srgb, var(--text) 17%, var(--bg-s)); --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; }
 :root[data-theme="light"] { color-scheme: light; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { color-scheme: dark; --bg: #16181c; --bg2: #1d2025; --bg-s: #16181c; --bg2-s: #1d2025; --text: #e8eaed; --mut: #8b9098; --line: #2a2e35; --accent: #9b82ff; --sel: #241f3d; --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; }
+  :root:not([data-theme="light"]) { color-scheme: dark; --bg: #1f2228; --bg2: #272b32; --bg-s: #1f2228; --bg2-s: #272b32; --text: #e8eaed; --mut: #9097a0; --line: #343942; --accent: #9b82ff; --sel: #2d2850; --scrim: rgba(0,0,0,.55); --ab-bg: color-mix(in srgb, var(--text) 17%, var(--bg-s)); --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; }
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -107,7 +107,7 @@ input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accen
 /* 모바일 시트 / 모달 */
 #sheet, #modal { position: fixed; inset: 0; z-index: 30; }
 #modal { z-index: 40; display: grid; place-items: center; grid-template: minmax(0, 1fr) / minmax(0, 1fr); } /* 안쪽 표가 아무리 넓어도 팝업이 화면 밖으로 밀려나지 않게 */
-.back { position: absolute; inset: 0; background: rgba(0,0,0,.35); }
+.back { position: absolute; inset: 0; background: var(--scrim, rgba(0,0,0,.35)); }
 #sheet .panel { position: absolute; left: 0; right: 0; bottom: 0; background: var(--bg); border-radius: var(--r-xl) var(--r-xl) 0 0; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); max-height: 72vh; overflow: auto; box-shadow: 0 -8px 30px rgba(0,0,0,.25); }
 .shead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .sg { margin-bottom: 6px; }
@@ -540,7 +540,7 @@ body { font-variant-numeric: tabular-nums; }
 .pri.sm { padding: 3px 10px; font-size: var(--fs-4); }
 
 .askw { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; }
-.askw .back { position: absolute; inset: 0; background: rgba(0,0,0,.35); animation: fadein .22s ease-out; }
+.askw .back { position: absolute; inset: 0; background: var(--scrim, rgba(0,0,0,.35)); animation: fadein .22s ease-out; }
 .askd { width: min(320px, 90vw); animation: pop .22s ease-out; --bg: var(--bg-s); --bg2: var(--bg2-s); }
 .askm { display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-3); word-break: break-all; padding: 4px 2px; }
 .pri.danger { background: var(--sun); color: #fff; }
@@ -1072,7 +1072,7 @@ body.widget .cell { padding-top: 5px; }
 
 /* 글자색 통일안: 검정 = 누르거나 고칠 수 있는 것 / 회색 = 고칠 수 없는 정보·이름표, 또는 비활성 */
 .ab { color: var(--text); }
-.ab, .ab:hover { background: var(--bg2-s); }
+.ab, .ab:hover { background: var(--ab-bg, var(--bg2-s)); } /* 다크에서는 칸보다 밝게 떠서 할 일과 섞이지 않게 */
 .ab:hover { color: var(--accent); }
 .rper .rchk, .tour-f .rchk, .link { color: var(--text); }
 .mt thead th, .dt thead th { text-align: center; padding-left: 0; padding-right: 0; }
