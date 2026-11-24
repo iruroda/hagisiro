@@ -38,7 +38,8 @@ img { max-width: 100%; height: auto; display: block; }
 .ins { position: relative; display: inline-block; width: .7em; height: 1em; vertical-align: baseline; }
 .ins b { position: absolute; left: .58em; line-height: 1; bottom: 1.32em; transform: translateX(-50%) rotate(-10deg); transform-origin: 50% 100%; color: var(--violet); font-weight: 800; font-size: .8em; white-space: nowrap; letter-spacing: -.02em; }
 .ins svg { position: absolute; left: -.05em; bottom: .3em; width: .85em; height: .85em; overflow: visible; }
-.hero p { font-size: clamp(16px, 2vw, 20px); color: var(--mut); margin: 18px 0 0; }
+.hero .name { display: flex; align-items: center; justify-content: center; gap: .32em; margin: 18px 0 0; font-size: clamp(22px, 2.8vw, 30px); font-weight: 800; letter-spacing: -.01em; }
+.hero .name img { width: 1.25em; height: 1.25em; }
 .cta { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); justify-content: center; gap: 10px; margin-top: 30px; }
 .btn { display: flex; align-items: center; justify-content: center; gap: 9px; height: 54px; padding: 0 18px; border-radius: 13px; font-weight: 700; font-size: 17px; text-decoration: none; white-space: nowrap; }
 .btn svg { width: 19px; height: 19px; flex: none; }
@@ -82,13 +83,14 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .shot img { filter: drop-shadow(0 18px 30px rgba(40,30,90,.18)); }
 /* 동영상은 위젯 모서리(8px, 원본 794px 폭 기준)와 같은 비율로 깎아요 */
 .vid { container-type: inline-size; margin-top: 30px; max-width: 900px; }
-.vid video { display: block; width: 100%; border-radius: calc(8 / 794 * 100cqw); box-shadow: 0 18px 40px -12px rgba(40,30,90,.3); }
+.vid video { display: block; width: 100%; border-radius: calc(6 / 794 * 100cqw); box-shadow: 0 18px 40px -12px rgba(40,30,90,.3); }
 @media (prefers-reduced-motion: reduce) { .vid video { animation: none; } }
 
 /* 상담: 선생님 표 + 비스듬히 놓인 학생 휴대폰 */
-.cstage { position: relative; padding-bottom: 28%; }
-.cstage .shot { width: 86%; }
-.p3d { position: absolute; right: 7%; top: 18%; width: 22%; min-width: 120px; perspective: 1400px; }
+.cstage { position: relative; max-width: 1080px; }
+.p3d { transition: opacity .7s ease, translate .7s ease; }
+.p3d.hid { opacity: 0; translate: 0 14px; }
+.p3d { position: absolute; right: 2%; top: 24%; width: 20%; min-width: 120px; perspective: 1400px; }
 .phone { position: relative; border-radius: 15% / 7%; padding: 1.1%; background: linear-gradient(135deg, #d9d9df, #8d8c96 30%, #4b4a55 55%, #a9a8b2 80%, #e2e2e8);
   transform: rotateY(-26deg) rotateX(14deg) rotateZ(4deg); transform-style: preserve-3d;
   box-shadow: 1px 1px 0 #77767f, 2px 2px 0 #6a6972, 3px 3px 0 #5d5c65, 4px 4px 0 #504f58, 5px 5px 0 #44434b,
@@ -123,7 +125,6 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   .notes { display: grid; gap: 12px; margin: 20px 0 0; padding-left: 22px; color: var(--mut); font-size: 15.5px; }
   .notes li::marker { color: #6d4aff; font-weight: 800; }
   .notes b { display: block; color: var(--ink); }
-  .cstage .shot { width: 100%; }
   .p3d { position: relative; width: 42%; margin: -40px 4% 0 auto; }
 }
 </style>
@@ -134,7 +135,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 
   <div class="hero">
     <h1>바탕화면에 두고 쓰는<span class="ins"><b>가벼운</b><svg viewBox="0 0 85 85" fill="none" stroke="#6d4aff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 28 26 62 81 14.4"/></svg></span>캘린더</h1>
-    <p>할 일, 출결, 상담 신청을 바탕화면에서 바로 관리합니다.</p>
+    <p class="name"><img src="app/icons/icon.svg" alt="">Hagisiro</p>
     <div class="cta">
       <a class="btn pri" href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Windows용 다운로드</a>
       <a class="btn alt" href="app/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>모바일에서 사용하기</a>
@@ -173,20 +174,16 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   </section>
 
   <section>
-    <div class="two">
-      <div>
-        <h2>상담 신청은 링크 하나로</h2>
-        <p class="lede">신청표를 만들어 학생에게 링크를 보내면 끝입니다. 신청 현황은 상담표와 캘린더에서 바로 확인합니다.</p>
-      </div>
-      <div class="cstage">
-        <div class="shot"><img src="site/consult.webp" alt="날짜별 상담 시간에 신청한 학생 이름이 채워진 상담표" width="1600" height="720"></div>
-        <div class="p3d"><div class="phone"><i><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2532"></i></div></div>
-      </div>
+    <h2>상담 신청은 링크 하나로</h2>
+    <p class="lede">신청표를 만들어 학생에게 링크를 보내면 끝입니다. 신청 현황은 상담표와 캘린더에서 바로 확인합니다.</p>
+    <div class="cstage">
+      <div class="vid"><video id="cvid" src="site/consult.mp4" poster="site/consult-poster.webp" autoplay muted loop playsinline aria-label="설정 두 페이지로 상담 신청표를 만들고 링크를 복사하는 모습"></video></div>
+      <div class="p3d"><div class="phone"><i><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2280"></i></div></div>
     </div>
   </section>
 
   <section class="more">
-    <h2>캘린더라면 꼭 필요한 기능도</h2>
+    <h2>캘린더 기본 기능도 충실</h2>
     <div class="mandala">
       <img src="site/cal.webp" alt="Hagisiro 캘린더 화면" width="1600" height="1240">
       <svg class="pen" viewBox="0 0 1000 720" aria-hidden="true">
@@ -194,7 +191,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
           <polyline points="610,123 610,36 540,36"/>
           <polyline points="700,137 760,137 760,170 798,170"/>
           <polyline points="302,441 206,441"/>
-          <polyline points="311,542 798,542"/>
+          <polyline points="254,553 254,622 288,622"/>
         </g>
         <g class="dot" fill="none" stroke="#6d4aff" stroke-width="1.8"><circle cx="610" cy="137" r="14"/><circle cx="686" cy="137" r="14"/><rect x="302" y="412" width="77" height="58" rx="6"/><rect x="227" y="531" width="84" height="22" rx="6"/></g>
         <g class="num"><g fill="#6d4aff"><circle cx="610" cy="163" r="9"/><circle cx="686" cy="163" r="9"/><circle cx="379" cy="412" r="9"/><circle cx="311" cy="531" r="9"/></g><g fill="#fff" font-size="11" font-weight="800" text-anchor="middle" dominant-baseline="central"><text x="610" y="163">1</text><text x="686" y="163">2</text><text x="379" y="412">3</text><text x="311" y="531">4</text></g></g>
@@ -202,7 +199,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
       <div class="note" style="left:25.4%;top:.4%;text-align:right;width:28%"><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</div>
       <div class="note" style="left:80.5%;top:21.5%;width:19.5%"><b>시간표와 진도 확인</b>내 시간표를 등록하면 과목별 진도표에 수업 진도를 기록합니다.</div>
       <div class="note" style="left:0;top:59.2%;width:20%;text-align:right"><b>할 일 알림</b>할 일에 시간을 지정하면 그 시각에 알림이 표시됩니다.</div>
-      <div class="note" style="left:80.5%;top:73.2%;width:19.5%"><b>D-day</b>중요한 날을 D-day로 지정하면 아래 줄에 표시됩니다.</div>
+      <div class="note" style="left:29.6%;top:84.3%;width:36%"><b>D-day</b>중요한 날을 D-day로 지정하면 아래 줄에 표시됩니다.</div>
     </div>
     <ol class="notes">
       <li><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</li>
@@ -212,6 +209,10 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
     </ol>
   </section>
 </main>
+<script>
+/* 상담 영상: 링크를 복사한 뒤에 학생 휴대폰이 나타나요 */
+(() => { const v = document.getElementById('cvid'), ph = document.querySelector('.p3d'); if (v && ph) v.addEventListener('timeupdate', () => ph.classList.toggle('hid', v.currentTime < 13.1)); })();
+</script>
 
 
 </body>
