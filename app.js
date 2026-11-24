@@ -1186,11 +1186,12 @@
     };
     const endAt = LGX.OFF + LGX.hold + LGX.right + LGX.gap + LGX.down + LGX.gap2 + LGX.check;
     let geo = null, raf = 0;
+    // 줄어드는 동안 매 프레임 창 모양을 다시 재요: 위젯 창이 로그인 크기로 줄어드는 중에도 파란색이 둥근 로그인 창에 딱 맞아요
     const measure = () => { const sv = box.firstElementChild.getBoundingClientRect(), c = login.getBoundingClientRect(), k = sv.width / 64 || 1;
       geo = { x: (c.left - sv.left) / k, y: (c.top - sv.top) / k, w: c.width / k, h: c.height / k, r: (parseFloat(getComputedStyle(login).borderTopLeftRadius) || 0) / k }; };
     const draw = (T) => {
       const k = lgInOut(lgClamp((T - LGX.SH0) / (LGX.SH1 - LGX.SH0))), done = k >= 1;
-      if (!done) { if (!geo) measure(); R(q.OV, lgLerp(geo.x, 0, k), lgLerp(geo.y, 0, k), lgLerp(geo.w, 30, k), lgLerp(geo.h, 30, k)); q.OV.setAttribute('rx', lgLerp(geo.r, 9, k)); q.o0.setAttribute('stop-color', mix('#2f6df6', '#6d4aff', k * k * k)); }
+      if (!done) { measure(); R(q.OV, lgLerp(geo.x, 0, k), lgLerp(geo.y, 0, k), lgLerp(geo.w, 30, k), lgLerp(geo.h, 30, k)); q.OV.setAttribute('rx', lgLerp(geo.r, 9, k)); q.o0.setAttribute('stop-color', mix('#2f6df6', '#6d4aff', k * k * k)); }
       q.OV.style.display = done ? 'none' : ''; q.sTL.setAttribute('opacity', done ? 1 : 0); q.TL.style.display = done ? '' : 'none';
       q.H.setAttribute('opacity', lgClamp((T - LGX.HF0) / (LGX.HF1 - LGX.HF0)));
       const u = lgClamp((T - LGX.UI0) / (LGX.UI1 - LGX.UI0)); ui.forEach((n) => { n.style.opacity = u; n.style.pointerEvents = u > 0 ? '' : 'none'; });
