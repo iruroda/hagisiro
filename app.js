@@ -833,10 +833,9 @@
   }
   function go(dm) {
     if (weekMode()) {
-      const a = parseYmd(S.anchor), sd = parseYmd(S.sel);
-      S.anchor = ymd(new Date(a.getFullYear(), a.getMonth(), a.getDate() + 7 * dm));
-      const ns = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate() + 7 * dm);
-      S.sel = ymd(ns); S.y = ns.getFullYear(); S.m = ns.getMonth(); S.extra = {};
+      const a = parseYmd(S.anchor); // 화면만 넘기고 선택한 날짜는 그대로 (선택은 칸을 누를 때만 바뀌어요)
+      const na = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 7 * dm);
+      S.anchor = ymd(na); S.y = na.getFullYear(); S.m = na.getMonth(); S.extra = {};
       watchRange(); render(); return;
     }
     const d = new Date(S.y, S.m + dm, 1);
