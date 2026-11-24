@@ -91,13 +91,15 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .phone b { position: absolute; left: -2.2%; width: 2.2%; border-radius: 3px 0 0 3px; background: #2a2933; }
 .phone b:nth-of-type(1) { top: 20%; height: 7%; } .phone b:nth-of-type(2) { top: 29%; height: 10%; }
 
-/* 그 밖에: 사진첩 */
-.album { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; margin-top: 40px; padding-bottom: 120px; }
-.album figure { margin: 0; background: #fff; padding: 12px 12px 14px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 18px 40px -18px rgba(40,30,90,.35); }
-.album figure:nth-child(1) { transform: rotate(-2.2deg); } .album figure:nth-child(2) { transform: rotate(1.4deg) translateY(10px); } .album figure:nth-child(3) { transform: rotate(-1deg); }
-.album .ph { aspect-ratio: 4 / 3; overflow: hidden; border-radius: 3px; background: #f1f0f6; display: grid; place-items: center; }
-.album .ph img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
-.album figcaption { margin-top: 10px; font-weight: 700; text-align: center; font-size: 16px; }
+/* 그 밖의 기능: 화면 가운데, 색연필로 동그라미 치고 줄을 그어 설명 */
+.more { padding-bottom: 120px; }
+.mandala { position: relative; aspect-ratio: 1000 / 720; margin-top: 36px; }
+.mandala > img { position: absolute; left: 22%; top: 16.67%; width: 56%; border-radius: 12px; box-shadow: 0 0 0 1px var(--line), 0 24px 60px -24px rgba(40,30,90,.4); }
+.mandala .pen { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.mandala .num { display: none; }
+.note { position: absolute; font-size: 15px; line-height: 1.55; color: var(--mut); }
+.note b { display: block; color: var(--ink); font-size: 17px; margin-bottom: 2px; }
+.notes { display: none; }
 
 @media (min-width: 880px) {
   .two { grid-template-columns: 5fr 7fr; gap: 56px; }
@@ -108,7 +110,14 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   .rec { grid-template-columns: 1fr 1fr; }
   .rec .m.r { grid-column: 1 / -1; }
   section { padding-top: 64px; }
-  .album { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .note, .mandala .pen .ln { display: none; }
+  .mandala .num { display: inline; }
+  .mandala { aspect-ratio: 1000 / 775; }
+  .mandala > img { left: 0; top: 0; width: 100%; }
+  .mandala .pen { inset: 0 auto auto 0; height: auto; aspect-ratio: 1000 / 720; transform: translate(-39.3%, -29.76%) scale(1.786); transform-origin: 0 0; }
+  .notes { display: grid; gap: 12px; margin: 20px 0 0; padding-left: 22px; color: var(--mut); font-size: 15.5px; }
+  .notes li::marker { color: #e5484d; font-weight: 800; }
+  .notes b { display: block; color: var(--ink); }
   .cstage .shot { width: 100%; }
   .p3d { position: relative; width: 56%; margin: -30px 0 0 auto; }
 }
@@ -169,13 +178,35 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
     </div>
   </section>
 
-  <section>
+  <section class="more">
     <h2>그 밖의 기능</h2>
-    <div class="album">
-      <figure><div class="ph"><img src="site/alarm.webp" alt="바탕화면 오른쪽 아래에 뜬 할 일 알림" width="1280" height="840"></div><figcaption>할 일 알림</figcaption></figure>
-      <figure><div class="ph"><img src="site/meal.webp" alt="요일별 급식 표" width="1536" height="692"></div><figcaption>급식 확인</figcaption></figure>
-      <figure><div class="ph"><img src="site/prog.webp" alt="과목별 날짜마다 수업 진도가 적힌 표" width="1536" height="536"></div><figcaption>진도 확인</figcaption></figure>
+    <div class="mandala">
+      <img src="site/cal.webp" alt="Hagisiro 캘린더 화면" width="1600" height="1240">
+      <svg class="pen" viewBox="0 0 1000 720" aria-hidden="true">
+        <defs><filter id="pencil" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter></defs>
+        <g filter="url(#pencil)" fill="none" stroke="#e5484d" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
+          <path d="M589 134c3-12 36-15 41-2 4 11-14 20-29 17-12-2-16-11-8-19 5-4 12-6 20-5"/>
+          <path class="ln" d="M604 122c-10-20-24-36-44-50"/>
+          <path d="M665 134c3-12 36-15 41-2 4 11-14 20-29 17-12-2-16-11-8-19 5-4 12-6 20-5"/>
+          <path class="ln" d="M700 126c26-22 58-12 98 6"/>
+          <path d="M284 296c14-22 104-24 118 4 11 24-38 44-82 38-38-6-50-26-30-40 12-8 30-11 50-10"/>
+          <path class="ln" d="M276 322c-24 2-46 4-70 0"/>
+          <path d="M234 534c18-12 104-14 118 2 10 13-42 22-80 20-34-2-48-10-34-20"/>
+          <path class="ln" d="M240 552c-12 24-26 44-40 62"/>
+        </g>
+        <g class="num" fill="#e5484d" font-size="22" font-weight="800" font-style="italic"><text x="590" y="112">1</text><text x="700" y="112">2</text><text x="410" y="300">3</text><text x="360" y="530">4</text></g>
+      </svg>
+      <div class="note" style="left:30%;top:1%;text-align:right;width:26%"><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</div>
+      <div class="note" style="left:81%;top:15%;width:19%"><b>시간표와 진도 확인</b>내 시간표를 등록하면 과목별 진도표에 수업 진도를 기록합니다.</div>
+      <div class="note" style="left:0;top:38%;width:20%;text-align:right"><b>할 일 알림</b>할 일에 시간을 지정하면 그 시각에 알림이 표시됩니다.</div>
+      <div class="note" style="left:0;top:84%;width:24%;text-align:right"><b>D-day</b>중요한 날을 D-day로 지정하면 아래 줄에 표시됩니다.</div>
     </div>
+    <ol class="notes">
+      <li><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</li>
+      <li><b>시간표와 진도 확인</b>내 시간표를 등록하면 과목별 진도표에 수업 진도를 기록합니다.</li>
+      <li><b>할 일 알림</b>할 일에 시간을 지정하면 그 시각에 알림이 표시됩니다.</li>
+      <li><b>D-day</b>중요한 날을 D-day로 지정하면 아래 줄에 표시됩니다.</li>
+    </ol>
   </section>
 </main>
 
