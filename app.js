@@ -599,7 +599,7 @@
       if (box.closest('#top') && box.classList.contains('seg')) return; // 위쪽 분할 버튼은 알약 없이 글자색만
       const on = box.querySelector(':scope > .on');
       if (!on || !box.offsetWidth) return;
-      const key = (box.classList.contains('tabs') ? 't' : 's') + (box.closest('#modal') ? 'm' : box.closest('#top') ? 'top' : 'main') + i;
+      const key = (box.classList.contains('tabs') ? 't' : 's') + (box.closest('#modal') ? 'm' : box.closest('#top') ? 'top' : 'main') + (box.closest('.pbody') ? S.pfTab : '') + i; // 설정은 대분류마다 따로 (다른 분류의 토글과 한 몸처럼 움직이지 않게)
       const b = box.getBoundingClientRect(), r = on.getBoundingClientRect();
       const g = { l: r.left - b.left - box.clientLeft, w: r.width };
       let pill = box.querySelector(':scope > .pill');
