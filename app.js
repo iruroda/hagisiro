@@ -2959,7 +2959,7 @@
         ],
       view: () => [
         el('div', { class: 'pfs' }, '모양'),
-        row('테마', seg('theme', [['auto', '자동'], ['light', '낮'], ['dark', '밤']])),
+        row('테마', seg('theme', [['auto', '자동'], ['light', '라이트'], ['dark', '다크']])),
         tog('anim', '애니메이션 효과'),
         ...(W ? [el('div', { class: 'pfs' }, '창'),
         S.zmode ? row('창 순서', el('div', { class: 'seg' }, [['normal', '일반'], ['top', '맨 앞'], ['bottom', '맨 뒤']].map(([v, l]) =>
