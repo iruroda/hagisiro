@@ -2506,13 +2506,13 @@
       preview(); q.classList.add('shake'); setTimeout(() => q.classList.remove('shake'), 350);
       return;
     }
+    q.value = ''; // 저장하면서 화면이 다시 그려져도 입력한 문장이 남지 않게 먼저 비워요
     const created = [], replaced = [];
     for (const it of r.items) {
       const dup = S.att.find((a) => a.studentId === it.studentId && a.date === it.date); // 하루 1건: 같은 학생·같은 날이면 덮어씀
       if (dup) { if (!created.some((c) => c.id === dup.id)) replaced.push(dup); Data.put('att', { ...dup, ...it, id: dup.id }); }
       else { const rec = { ...it, id: uid(), created: Date.now() }; created.push(rec); Data.put('att', rec); }
     }
-    q.value = '';
     S.sub = 'day'; ls.set('hagisiro:sub', 'day');
     setSel(r.items[0].date); // 입력한 날짜의 일별 보기로 이동
     render();
