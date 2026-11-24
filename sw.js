@@ -1,7 +1,7 @@
 // HAGISIRO 서비스워커 — 앱 껍데기를 캐시해서 오프라인에서도 열리게 함
 // (데이터 자체는 Firestore가 기기에 따로 캐시해요)
-const CACHE = 'hagisiro-v518';
-const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'parser.js', 'lunar.js', 'cloud.js', 'qr.js', 'config.js', 'manifest.json', 'book.html', 'book.js', 'book.css', 'icons/icon.svg', 'icons/icon-192.png', 'fonts/SUITE-Variable.woff2'];
+const CACHE = 'hagisiro-v519';
+const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'parser.js', 'lunar.js', 'cloud.js', 'qr.js', 'config.js', 'manifest.json', 'book.html', 'book.js', 'book.css', 'icons/icon.svg', 'icons/icon-192.png', 'icons/notif-192.png', 'fonts/SUITE-Variable.woff2'];
 
 self.addEventListener('install', (e) => {
   // 새 버전 파일을 브라우저 HTTP 캐시가 아닌 서버에서 새로 받아 둠
