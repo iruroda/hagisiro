@@ -2,7 +2,29 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
   "description": "위젯 창(원격 주소의 앱)이 위젯 기능을 부를 수 있게",
-  "windows": ["main"],
-  "remote": { "urls": ["https://iruroda.github.io/*"] },
-  "permissions": ["core:default"]
+  "windows": [
+    "main"
+  ],
+  "remote": {
+    "urls": [
+      "https://iruroda.github.io/*"
+    ]
+  },
+  "permissions": [
+    "core:default",
+    "allow-wb-get",
+    "allow-wb-set",
+    "allow-wb-done",
+    "allow-installed",
+    "allow-as-get",
+    "allow-as-set",
+    "allow-min-w",
+    "allow-z-get",
+    "allow-z-set",
+    "allow-quit",
+    "allow-hide",
+    "allow-login-mode",
+    "allow-notify",
+    "allow-ctx-menu"
+  ]
 }

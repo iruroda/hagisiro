@@ -347,6 +347,8 @@ fn main() {
                 .on_page_load(|w, p| { if matches!(p.event(), PageLoadEvent::Finished) { send_bottom(w.app_handle()); } })
                 .build()?;
 
+            let _ = win.show();
+            let _ = win.set_focus(); // 처음 켰을 때 투명 창이 그려지지 않고 안 보이던 것 방지
             let h2 = h.clone();
             let w2 = win.clone();
             win.on_window_event(move |e| match e {
