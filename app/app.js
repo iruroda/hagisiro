@@ -750,6 +750,7 @@
     const snap = wantBelt(main);
     const ghost = !snap && S.lastKey != null && !needLogin() && !noAnim() && viewKey() !== S.lastKey && main.firstElementChild ? main.firstElementChild.cloneNode(true) : null; // 화면 종류가 바뀔 때도 기존 화면을 뒤에 남겨둬요
     main.replaceChildren();
+    if (!needLogin() && S.view === 'cal' && !S.todoTourShown) setTimeout(maybeTodoTour, 900);
     if (needLogin()) main.append(loginView());
     else if (S.ready && S.view === 'consult' && !S.cloud) { S.view = 'cal'; main.append(calView()); } // 로그인 전에는 상담 탭이 없으므로 캘린더로
     else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
@@ -2445,20 +2446,13 @@
   /* ---------- 문장 입력 ---------- */
   const chipText = (it) => `${it.no} ${it.name} · ${md(it.date)} · ${it.cat}${it.type} ${P.rangeLabel(it.from, it.to)}${it.reason ? ' · ' + it.reason : ''}`;
 
-  /* 출결 화면에 처음 들어오면: 입력칸만 밝게, 나머지는 어둡게 하고 말풍선으로 안내 */
-  function maybeTour() {
-    if (S.tourShown || ls.get('hagisiro:tourAtt') === '1') return;
-    const row = $('#main .qrow');
-    if (!row || !row.offsetWidth) return;
-    S.tourShown = true;
-    const r = row.getBoundingClientRect();
+  /* 처음 쓰는 사람에게: 대상만 밝게, 나머지는 어둡게 하고 말풍선으로 안내 ('다시 열지 않음'을 고르면 다시 안 떠요) */
+  function showTour(target, key, lines) {
+    const r = target.getBoundingClientRect();
     const hole = el('div', { class: 'tour-hole' });
     const never = el('input', { type: 'checkbox' });
-    const close = () => { if (never.checked) ls.set('hagisiro:tourAtt', '1'); box.classList.add('out'); setTimeout(() => box.remove(), 230); };
-    const tip = el('div', { class: 'tour-tip' },
-      el('div', {}, '출결은 문장으로도 입력할 수 있어요.'),
-      el('div', { class: 'mut' }, '예) 김네모 감기로 12일 4교시에 조퇴 /'),
-      el('div', { class: 'mut' }, '내일부터 3일간 이세모 가족여행 체험학습'),
+    const close = () => { if (never.checked) ls.set(key, '1'); box.classList.add('out'); setTimeout(() => box.remove(), 230); };
+    const tip = el('div', { class: 'tour-tip' }, lines,
       el('div', { class: 'tour-f' }, el('label', { class: 'rchk' }, never, '다시 열지 않음'), el('button', { class: 'pri sm', type: 'button', onclick: close }, '닫기')));
     const box = el('div', { class: 'tour' }, hole, tip);
     document.body.append(box);
@@ -2470,6 +2464,25 @@
     tip.style.left = Math.max(8, Math.min(rl, cr.width - w - 8)) + 'px';
     const th = tip.offsetHeight;
     tip.style.top = (rt + r.height + 12 + th < cr.height ? rt + r.height + 12 : Math.max(8, rt - th - 12)) + 'px';
+  }
+  /* 출결 화면에 처음 들어오면: 입력칸 */
+  function maybeTour() {
+    if (S.tourShown || ls.get('hagisiro:tourAtt') === '1') return;
+    const row = $('#main .qrow');
+    if (!row || !row.offsetWidth) return;
+    S.tourShown = true;
+    showTour(row, 'hagisiro:tourAtt', [
+      el('div', {}, '출결은 문장으로도 입력할 수 있어요.'),
+      el('div', { class: 'mut' }, '예) 김네모 감기로 12일 4교시에 조퇴 /'),
+      el('div', { class: 'mut' }, '내일부터 3일간 이세모 가족여행 체험학습')]);
+  }
+  /* 캘린더를 처음 열면: 오늘 칸 (두 번 클릭은 화면에 안 보이는 동작이라서. 한 번 터치로 여는 모바일은 안내 없음) */
+  function maybeTodoTour() {
+    if (S.todoTourShown || ls.get('hagisiro:tourTodo') === '1' || tapEdit() || S.editing || needLogin() || S.view !== 'cal' || document.querySelector('.tour, #sheet:not([hidden])')) return;
+    const cell = $(`#cal .cell[data-date="${ymd(new Date())}"]`);
+    if (!cell || !cell.offsetWidth) return;
+    S.todoTourShown = true;
+    showTour(cell, 'hagisiro:tourTodo', [el('div', {}, '날짜 칸을 더블클릭해서 할 일을 입력해 보세요.')]);
   }
   function preview() {
     const q = $('#q'), pv = $('#pv');
@@ -3620,7 +3633,7 @@
     function quick() {
       stop();
       const today = ymd(new Date());
-      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '09:00', t2: '16:00', step: 60, skipWE: true, closeD: '', closeT: '', noDup: false });
+      const q = S.qform || (S.qform = { title: '', note: '', from: today, to: ymd(new Date(Date.now() + 13 * 864e5)), t1: '16:00', t2: '17:00', step: 20, skipWE: true, closeD: '', closeT: '', noDup: false });
       const f = {
         title: el('input', { type: 'text', maxlength: 40, value: q.title }),
         note: el('textarea', { rows: 3, maxlength: 500, spellcheck: 'false' }, q.note),
