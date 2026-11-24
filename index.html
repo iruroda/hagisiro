@@ -91,7 +91,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .phone b { position: absolute; left: -2.2%; width: 2.2%; border-radius: 3px 0 0 3px; background: #2a2933; }
 .phone b:nth-of-type(1) { top: 20%; height: 7%; } .phone b:nth-of-type(2) { top: 29%; height: 10%; }
 
-/* 그 밖의 기능: 화면 가운데, 색연필로 동그라미 치고 줄을 그어 설명 */
+/* 그 밖의 기능: 화면 가운데, 가는 보라 선으로 기능 위치와 설명을 이음 (폰은 번호 점 + 아래 목록) */
 .more { padding-bottom: 120px; }
 .mandala { position: relative; aspect-ratio: 1000 / 720; margin-top: 36px; }
 .mandala > img { position: absolute; left: 22%; top: 16.67%; width: 56%; border-radius: 12px; box-shadow: 0 0 0 1px var(--line), 0 24px 60px -24px rgba(40,30,90,.4); }
@@ -116,7 +116,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   .mandala > img { left: 0; top: 0; width: 100%; }
   .mandala .pen { inset: 0 auto auto 0; height: auto; aspect-ratio: 1000 / 720; transform: translate(-39.3%, -29.76%) scale(1.786); transform-origin: 0 0; }
   .notes { display: grid; gap: 12px; margin: 20px 0 0; padding-left: 22px; color: var(--mut); font-size: 15.5px; }
-  .notes li::marker { color: #e5484d; font-weight: 800; }
+  .notes li::marker { color: #6d4aff; font-weight: 800; }
   .notes b { display: block; color: var(--ink); }
   .cstage .shot { width: 100%; }
   .p3d { position: relative; width: 56%; margin: -30px 0 0 auto; }
@@ -183,23 +183,19 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
     <div class="mandala">
       <img src="site/cal.webp" alt="Hagisiro 캘린더 화면" width="1600" height="1240">
       <svg class="pen" viewBox="0 0 1000 720" aria-hidden="true">
-        <defs><filter id="pencil" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter></defs>
-        <g filter="url(#pencil)" fill="none" stroke="#e5484d" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
-          <path d="M589 134c3-12 36-15 41-2 4 11-14 20-29 17-12-2-16-11-8-19 5-4 12-6 20-5"/>
-          <path class="ln" d="M604 122c-10-20-24-36-44-50"/>
-          <path d="M665 134c3-12 36-15 41-2 4 11-14 20-29 17-12-2-16-11-8-19 5-4 12-6 20-5"/>
-          <path class="ln" d="M700 126c26-22 58-12 98 6"/>
-          <path d="M284 296c14-22 104-24 118 4 11 24-38 44-82 38-38-6-50-26-30-40 12-8 30-11 50-10"/>
-          <path class="ln" d="M276 322c-24 2-46 4-70 0"/>
-          <path d="M234 534c18-12 104-14 118 2 10 13-42 22-80 20-34-2-48-10-34-20"/>
-          <path class="ln" d="M240 552c-12 24-26 44-40 62"/>
+        <g class="ln" fill="none" stroke="#6d4aff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="610,123 610,62 562,62"/>
+          <polyline points="700,137 760,137 760,170 798,170"/>
+          <polyline points="300,320 206,320"/>
+          <polyline points="254,553 254,630 222,630"/>
         </g>
-        <g class="num" fill="#e5484d" font-size="22" font-weight="800" font-style="italic"><text x="590" y="112">1</text><text x="700" y="112">2</text><text x="410" y="300">3</text><text x="360" y="530">4</text></g>
+        <g class="dot" fill="none" stroke="#6d4aff" stroke-width="1.8"><circle cx="610" cy="137" r="14"/><circle cx="686" cy="137" r="14"/><rect x="300" y="290" width="80" height="61" rx="6"/><rect x="227" y="531" width="84" height="22" rx="6"/></g>
+        <g class="num"><g fill="#6d4aff"><circle cx="610" cy="163" r="9"/><circle cx="686" cy="163" r="9"/><circle cx="380" cy="290" r="9"/><circle cx="311" cy="531" r="9"/></g><g fill="#fff" font-size="11" font-weight="800" text-anchor="middle" dominant-baseline="central"><text x="610" y="163">1</text><text x="686" y="163">2</text><text x="380" y="290">3</text><text x="311" y="531">4</text></g></g>
       </svg>
-      <div class="note" style="left:30%;top:1%;text-align:right;width:26%"><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</div>
-      <div class="note" style="left:81%;top:15%;width:19%"><b>시간표와 진도 확인</b>내 시간표를 등록하면 과목별 진도표에 수업 진도를 기록합니다.</div>
-      <div class="note" style="left:0;top:38%;width:20%;text-align:right"><b>할 일 알림</b>할 일에 시간을 지정하면 그 시각에 알림이 표시됩니다.</div>
-      <div class="note" style="left:0;top:84%;width:24%;text-align:right"><b>D-day</b>중요한 날을 D-day로 지정하면 아래 줄에 표시됩니다.</div>
+      <div class="note" style="left:28%;top:4%;text-align:right;width:27.6%"><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</div>
+      <div class="note" style="left:80.5%;top:21.5%;width:19.5%"><b>시간표와 진도 확인</b>내 시간표를 등록하면 과목별 진도표에 수업 진도를 기록합니다.</div>
+      <div class="note" style="left:0;top:41%;width:20%;text-align:right"><b>할 일 알림</b>할 일에 시간을 지정하면 그 시각에 알림이 표시됩니다.</div>
+      <div class="note" style="left:0;top:83%;width:21.6%;text-align:right"><b>D-day</b>중요한 날을 D-day로 지정하면 아래 줄에 표시됩니다.</div>
     </div>
     <ol class="notes">
       <li><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</li>
