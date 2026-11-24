@@ -528,7 +528,7 @@
       /* 탭을 옮길 때와 같은 방식: 새 화면은 처음부터 70~80%를 덮은 자리(옆에서 22%)에서 짧게 페이드인하며 끝까지 덮고, 옛 화면은 덮인 부분만 잘라내요 */
       /* 바탕은 틀(clip)에 한 겹만 깔고(설정한 투명도 그대로), 옛·새 화면의 바탕은 움직이는 동안 걷어서 겹쳐도 투명도가 변하지 않아요 */
       clip.style.background = 'var(--wbg, var(--bg-s))';
-      if (S.view === 'cal') clip.style.borderRadius = '0 0 var(--r) var(--r)';
+      if (S.view === 'cal' && Math.abs(clip.getBoundingClientRect().bottom - main.getBoundingClientRect().bottom) < 3) clip.style.borderRadius = '0 0 var(--r) var(--r)'; // 창의 맨 아래 모서리에 닿을 때만 (D-day 줄이 아래에 있으면 칸 중간이 둥글게 깎이지 않게)
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1`;
       node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none';
       t.classList.add('tflat'); node.classList.add('tflat');
