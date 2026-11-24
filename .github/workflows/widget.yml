@@ -20,4 +20,6 @@ jobs:
         with:
           tag_name: widget-latest
           name: HAGISIRO 위젯 (Windows)
-          files: desktop/dist/HAGISIRO.exe
+          files: |
+            desktop/dist/HAGISIRO-Setup.exe
+            desktop/dist/HAGISIRO.exe

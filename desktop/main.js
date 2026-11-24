@@ -152,7 +152,7 @@ function menu() {
 }
 
 app.whenReady().then(() => {
-  app.setAppUserModelId('HAGISIRO'); // 윈도우 알림 제목에 앱 이름으로 보이는 값 (바로가기가 없는 포터블은 이 문자열이 그대로 표시)
+  app.setAppUserModelId(process.env.PORTABLE_EXECUTABLE_FILE ? 'HAGISIRO' : 'com.iruroda.hagisiro'); // 알림 제목·아이콘에 쓰이는 값: 설치식은 시작 메뉴 바로가기(appId)와 같아야 아이콘이 나오고, 바로가기가 없는 포터블은 이 문자열이 그대로 표시
   session.defaultSession.setPermissionRequestHandler((wc, perm, cb) => cb(true));
   create();
   const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 16, height: 16 });
