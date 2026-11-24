@@ -369,7 +369,7 @@ fn main() {
                 .icon(app.default_window_icon().unwrap().clone())
                 .tooltip("Hagisiro")
                 .menu(&tray_menu)
-                .menu_on_left_click(false)
+                .show_menu_on_left_click(false)
                 .on_tray_icon_event(|tray, e| {
                     let app = tray.app_handle();
                     match e {
