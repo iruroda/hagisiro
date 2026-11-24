@@ -844,7 +844,7 @@
       if (x.menu) x.menu.forEach(([l, on, fn]) => m.append(item(l, fn, on))); else m.append(item(x.label, x.run, false, x.ic));
     });
     $('#app').append(m);
-    setTimeout(() => document.addEventListener('click', onDocClick), 0);
+    setTimeout(() => document.addEventListener('click', onDocClick, true), 0);
   }
 
   function setView(v) { S.view = v; ls.set('hagisiro:view', v); if (PF.cal === 'week') watchRange(); render(); }
@@ -976,8 +976,9 @@
   }
 
   /* ---------- 메뉴 ---------- */
-  function closeMenu() { const m = $('#menu'); if (m) m.remove(); document.removeEventListener('click', onDocClick); }
-  function onDocClick(e) { const m = $('#menu'); if (m && !m.contains(e.target)) closeMenu(); }
+  function closeMenu() { const m = $('#menu'); if (m) m.remove(); document.removeEventListener('click', onDocClick, true); }
+  /* 메뉴 바깥을 누르면 메뉴만 닫고, 그 클릭은 아래 화면(날짜 칸 등)에 전달하지 않아요 */
+  function onDocClick(e) { const m = $('#menu'); if (m && !m.contains(e.target)) { e.preventDefault(); e.stopPropagation(); closeMenu(); } }
   function openMenu() {
     if ($('#menu')) { closeMenu(); return; }
     const item = (label, fn, ic) => el('button', { class: 'mi mic', onclick: () => { closeMenu(); fn(); } }, ic ? icon(ic) : null, el('span', {}, label));
@@ -1004,7 +1005,7 @@
     if (wapi && wapi.hide) m.append(item('숨기기', () => wapi.hide(), 'minimize'));
     if (wapi && wapi.quit) m.append(item('종료', () => wapi.quit(), 'power'));
     $('#app').append(m);
-    setTimeout(() => document.addEventListener('click', onDocClick), 0);
+    setTimeout(() => document.addEventListener('click', onDocClick, true), 0);
   }
   /* ---------- 할 일 검색 ---------- */
   function gotoDate(ds) {
