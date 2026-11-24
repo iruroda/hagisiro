@@ -344,7 +344,6 @@ button, input, select, textarea { font-family: inherit; }
 .rchip { display: inline-block; max-width: 100%; padding: 1px 8px; border-radius: var(--r-xs); font-size: 12px; color: var(--tfg, var(--text)); overflow-wrap: anywhere; }
 .rrow { display: flex; gap: 6px; align-items: center; }
 .rinfo { flex: 1; min-width: 0; }
-.rnone { font-size: 13px; line-height: 1.6; margin: 4px 0; }
 
 /* 모든 아이콘 공통: 면으로 채우는 부분(점)은 선 없이 */
 .ic .f { fill: currentColor; stroke: none; }

@@ -757,6 +757,7 @@
     syncLoginWin();
     fitTop();
     if (isMobile()) requestAnimationFrame(fitCellsMobile);
+    snapCal();
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
       const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
       const mh = $('#main .mhead');
@@ -1468,6 +1469,22 @@
     }
   }
 
+  /* 캘린더 칸 경계를 화면의 실제 픽셀에 맞춰요: 1fr로 나누면 소수점 경계가 생겨서, 배율 125·150%(특히 설치형 위젯)에서
+     칸 사이·맨 오른쪽·D-day 줄 위에 1px 투명한 틈이 보였어요. 마지막 칸은 남는 만큼(1fr) 채워 바깥 테두리와 정확히 맞춰요 */
+  function snapCal() {
+    const g = $('#cal .days'); if (!g) return;
+    const dpr = window.devicePixelRatio || 1, rb = g.getBoundingClientRect(), cs = getComputedStyle(g);
+    const cuts = (start, size, n) => { const out = []; let prev = start; for (let i = 1; i < n; i++) { const b = Math.round((start + size * i / n) * dpr) / dpr; out.push(Math.max(0, b - prev) + 'px'); prev = b; } out.push('minmax(0,1fr)'); return out.join(' '); };
+    const cols = cuts(rb.left, rb.width, 7);
+    g.style.gridTemplateColumns = cols;
+    const wk = $('#cal .wk'); if (wk) wk.style.gridTemplateColumns = cols;
+    if (!g.classList.contains('msplit')) {
+      const n = (g.style.gridTemplateRows.match(/1fr/g) || []).length, top = rb.top + parseFloat(cs.borderTopWidth || 0);
+      if (n > 1) g.style.gridTemplateRows = cuts(top, rb.bottom - top, n);
+    }
+  }
+  if (window.ResizeObserver) { let rq = 0; new ResizeObserver(() => { cancelAnimationFrame(rq); rq = requestAnimationFrame(snapCal); }).observe(document.documentElement); }
+
   /* 폰: 칸에 다 안 들어가는 할 일은 숨기고 마지막 줄에 '+N' */
   function fitCellsMobile() {
     document.querySelectorAll('#cal .cell .tl').forEach((tl) => {
@@ -2115,7 +2132,7 @@
     function showList() {
       const list = S.repeats.slice().sort((a, b) => (a.created || 0) - (b.created || 0));
       body.append(el('div', { class: 'abar' }, el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = null; showForm(); } }, icon('plus'), '반복 추가')));
-      if (!list.length) body.append(el('p', { class: 'mut rnone' }, '반복 없음'));
+      if (!list.length) body.append(el('div', { class: 'mut small sempty' }, '반복 없음'));
       list.forEach((r) => {
         const per = r.start + (r.end ? ` ~ ${r.end}` : ' ~ 계속');
         body.append(el('div', { class: 'rrow' },

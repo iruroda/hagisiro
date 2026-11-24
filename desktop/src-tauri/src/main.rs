@@ -308,6 +308,10 @@ fn login_mode(window: WebviewWindow, st: State<Shared>, v: bool) {
         }
         set_rect(&window, r);
     }
+    // 로그인이 끝나면(로그인 화면을 벗어나면) 남아 있는 구글 로그인 창을 닫아요 (팝업이 스스로 닫히지 않을 때가 있어서)
+    if !v {
+        for (label, w) in window.app_handle().webview_windows() { if label.starts_with("login") { let _ = w.close(); } }
+    }
 }
 #[tauri::command]
 fn notify(app: AppHandle, title: String, body: String) {
