@@ -457,6 +457,8 @@
     return dayNum(S.sel);
   }
   /* 날짜·달·주를 넘길 땐 화면이 벨트처럼 이어져 움직여요: 월별·출결은 좌우, 이번 주 보기는 상하 */
+  /* 움직임이 끝나 'tflat'(바탕 한 겹)을 걷어낼 때는 칸·줄의 바탕색 전환(.12s)이 걸리지 않게 두 프레임 막아요: 안 그러면 한 번 완전히 투명해졌다가 천천히 채워져요 */
+  const flatOff = () => { const r = document.documentElement; r.classList.add('notr'); requestAnimationFrame(() => requestAnimationFrame(() => r.classList.remove('notr'))); };
   const noAnim = () => document.documentElement.classList.contains('noanim') || !PF.anim;
   /* 출결: 날짜 줄·통계는 제자리에서 사르륵 바뀌고, 아래 표만 벨트처럼 움직여요 */
   const attTable = (c) => { const v = c && c.classList.contains('att') ? c.lastElementChild : null; return v ? v.querySelector(':scope > .mwrap, :scope > .empty') : null; };
@@ -526,7 +528,8 @@
       t.replaceWith(clip); clip.append(t, node);
       /* 탭을 옮길 때와 같은 방식: 새 화면은 처음부터 70~80%를 덮은 자리(옆에서 22%)에서 짧게 페이드인하며 끝까지 덮고, 옛 화면은 덮인 부분만 잘라내요 */
       /* 바탕은 틀(clip)에 한 겹만 깔고(설정한 투명도 그대로), 옛·새 화면의 바탕은 움직이는 동안 걷어서 겹쳐도 투명도가 변하지 않아요 */
-      clip.style.background = 'var(--wbg, var(--bg-s))';
+      const upBg = (() => { for (let e = clip.parentElement; e && e !== main; e = e.parentElement) if (getComputedStyle(e).backgroundColor !== 'rgba(0, 0, 0, 0)') return true; return false; })();
+      if (!upBg) clip.style.background = 'var(--wbg, var(--bg-s))'; // 출결처럼 위에 이미 바탕이 있는 화면 안이면 또 깔지 않아요(겹쳐서 더 진해져요)
       if (S.view === 'cal' && Math.abs(clip.getBoundingClientRect().bottom - main.getBoundingClientRect().bottom) < 3) clip.style.borderRadius = '0 0 var(--r) var(--r)'; // 창의 맨 아래 모서리에 닿을 때만 (D-day 줄이 아래에 있으면 칸 중간이 둥글게 깎이지 않게)
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1`;
       node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none';
@@ -537,7 +540,7 @@
       an3 = node.animate(dir > 0
         ? [{ clipPath: `inset(0 ${100 - D}% 0 0)` }, { clipPath: 'inset(0 100% 0 0)' }]
         : [{ clipPath: `inset(0 0 0 ${100 - D}%)` }, { clipPath: 'inset(0 0 0 100%)' }], fo);
-      done = () => { t.classList.remove('tflat'); t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
+      done = () => { flatOff(); t.classList.remove('tflat'); t.style.cssText = saved; if (clip.isConnected) clip.replaceWith(t); };
     }
     const el0 = performance.now() - snap.t0;
     if (el0 > 0) { an.currentTime = el0; if (an2) an2.currentTime = el0; if (an3) an3.currentTime = el0; }
@@ -580,7 +583,7 @@
           ghost.animate(dir > 0
             ? [{ clipPath: `inset(0 ${100 - D}% 0 0)` }, { clipPath: 'inset(0 100% 0 0)' }]
             : [{ clipPath: `inset(0 0 0 ${100 - D}%)` }, { clipPath: 'inset(0 0 0 100%)' }], opt);
-          const fin = () => { an.oncancel = null; an.cancel(); fade.cancel(); ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; main.style.overflow = ''; };
+          const fin = () => { an.oncancel = null; an.cancel(); fade.cancel(); ghost.remove(); flatOff(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; main.style.overflow = ''; };
           an.onfinish = fin; an.oncancel = fin;
         } else cls = 'vin';
       }
@@ -849,9 +852,7 @@
     }
     const d = new Date(S.y, S.m + dm, 1);
     S.y = d.getFullYear(); S.m = d.getMonth();
-    const sd = parseYmd(S.sel);
-    if (sd.getFullYear() !== S.y || sd.getMonth() !== S.m) S.sel = ymd(new Date(S.y, S.m, 1));
-    S.extra = {};
+    S.extra = {}; // 달만 넘기고 선택한 날짜는 그대로 (선택은 칸을 누를 때만 바뀌어요)
     watchRange(); render();
   }
   function jumpTo(y, m) {
