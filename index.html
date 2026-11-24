@@ -86,16 +86,16 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 @media (prefers-reduced-motion: reduce) { .vid video { animation: none; } }
 
 /* 상담: 선생님 표 + 비스듬히 놓인 학생 휴대폰 */
-.cstage { position: relative; padding-bottom: 40px; }
+.cstage { position: relative; padding-bottom: 28%; }
 .cstage .shot { width: 86%; }
-.p3d { position: absolute; right: 0; bottom: -10px; width: 34%; min-width: 170px; perspective: 1400px; }
-.phone { position: relative; border-radius: 15% / 7.5%; padding: 4.2%; background: linear-gradient(145deg, #3a3846, #15141c 60%);
+.p3d { position: absolute; right: 7%; top: 18%; width: 22%; min-width: 120px; perspective: 1400px; }
+.phone { position: relative; border-radius: 16% / 7.4%; padding: 4.6%; background: linear-gradient(145deg, #3a3846, #15141c 60%);
   transform: rotateY(-26deg) rotateX(14deg) rotateZ(4deg); transform-style: preserve-3d;
   box-shadow: 1px 1px 0 #2c2b36, 2px 2px 0 #29282f, 3px 3px 0 #26252c, 4px 4px 0 #232229, 5px 5px 0 #201f26, 6px 6px 0 #1d1c23, 7px 7px 0 #1a1920,
     -26px 46px 50px -10px rgba(25,18,60,.45), -8px 14px 18px rgba(25,18,60,.25); }
-.phone img { border-radius: 11% / 5.5%; }
-.phone::before { content: ""; position: absolute; top: 5.4%; left: 50%; width: 28%; height: 2.6%; transform: translateX(-50%); border-radius: 99px; background: #0d0c12; z-index: 1; }
-.phone::after { content: ""; position: absolute; inset: 4.2%; border-radius: 11% / 5.5%; background: linear-gradient(115deg, rgba(255,255,255,.28), rgba(255,255,255,0) 38%); pointer-events: none; }
+.phone img { border-radius: 12% / 5.6%; }
+.phone::before { content: ""; position: absolute; top: 3.4%; left: 50%; width: 30%; height: 1.9%; transform: translateX(-50%); border-radius: 99px; background: #0d0c12; z-index: 1; }
+.phone::after { content: ""; position: absolute; inset: 4.6%; border-radius: 12% / 5.6%; background: linear-gradient(115deg, rgba(255,255,255,.28), rgba(255,255,255,0) 38%); pointer-events: none; }
 .phone b { position: absolute; left: -2.2%; width: 2.2%; border-radius: 3px 0 0 3px; background: #2a2933; }
 .phone b:nth-of-type(1) { top: 20%; height: 7%; } .phone b:nth-of-type(2) { top: 29%; height: 10%; }
 
@@ -126,7 +126,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   .notes li::marker { color: #6d4aff; font-weight: 800; }
   .notes b { display: block; color: var(--ink); }
   .cstage .shot { width: 100%; }
-  .p3d { position: relative; width: 56%; margin: -30px 0 0 auto; }
+  .p3d { position: relative; width: 42%; margin: -40px 4% 0 auto; }
 }
 </style>
 </head>
@@ -170,7 +170,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 
   <section>
     <h2>출결은 문장 한 줄</h2>
-    <p class="lede">문장으로 입력하면 날짜, 종류, 교시, 사유가 자동으로 기록됩니다.</p>
+    <p class="lede">이름, 날짜, 교시, 사유를 한 문장으로 입력하면 출결표의 각 칸에 나뉘어 기록됩니다.</p>
     <div class="vid"><video src="site/att.mp4" poster="site/att-poster.webp" autoplay muted loop playsinline aria-label="출결 문장을 한 글자씩 입력하면 출결표에 바로 기록되는 모습"></video></div>
   </section>
 
@@ -178,11 +178,11 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
     <div class="two">
       <div>
         <h2>상담 신청은 링크 하나로</h2>
-        <p class="lede">상담 가능한 날짜와 시간으로 신청표를 만들어 학생에게 링크를 보내면, 학생이 빈 시간을 골라 신청합니다. 신청 내용은 내 표에 바로 반영됩니다.</p>
+        <p class="lede">신청표를 만들어 학생에게 링크를 보내면 끝입니다. 신청 현황은 상담표와 캘린더에서 바로 확인합니다.</p>
       </div>
       <div class="cstage">
         <div class="shot"><img src="site/consult.webp" alt="날짜별 상담 시간에 신청한 학생 이름이 채워진 상담표" width="1600" height="720"></div>
-        <div class="p3d"><div class="phone"><b></b><b></b><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="1470"></div></div>
+        <div class="p3d"><div class="phone"><b></b><b></b><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2532"></div></div>
       </div>
     </div>
   </section>
