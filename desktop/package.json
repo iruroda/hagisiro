@@ -1,56 +1,12 @@
 {
   "name": "hagisiro-widget",
-  "productName": "Hagisiro",
-  "version": "1.2.3",
-  "description": "Hagisiro 바탕화면 위젯",
-  "main": "main.js",
-  "author": "Iruroda",
-  "license": "MIT",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Hagisiro 바탕화면 위젯 (Tauri)",
   "scripts": {
-    "start": "electron .",
-    "dist": "electron-builder --win nsis portable --publish never"
+    "build": "tauri build"
   },
   "devDependencies": {
-    "electron": "33.2.1",
-    "electron-builder": "25.1.8"
-  },
-  "build": {
-    "appId": "com.iruroda.hagisiro",
-    "productName": "Hagisiro",
-    "directories": {
-      "output": "dist",
-      "buildResources": "build"
-    },
-    "files": [
-      "main.js",
-      "preload.js",
-      "loading.html",
-      "package.json",
-      "build/icon.png"
-    ],
-    "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ],
-      "icon": "build/icon.png"
-    },
-    "portable": {
-      "artifactName": "Hagisiro.exe"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "runAfterFinish": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Hagisiro",
-      "deleteAppDataOnUninstall": false,
-      "artifactName": "Hagisiro-Setup.exe",
-      "allowToChangeInstallationDirectory": true,
-      "language": "1042"
-    },
-    "copyright": "Copyright © Iruroda",
-    "buildVersion": "1.2.3.0"
+    "@tauri-apps/cli": "^2"
   }
 }

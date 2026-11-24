@@ -12,20 +12,34 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: desktop/src-tauri }
       - run: npm install
         working-directory: desktop
-      - run: npm run dist
+      - run: npm run build
         working-directory: desktop
-      - name: 이전 배포 파일 지우기 (이름이 바뀌어도 겹치지 않게)
-        run: gh release delete widget-latest --yes --cleanup-tag
+      - name: 배포 파일 이름 정리 (설치 파일 · 포터블)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          Get-ChildItem src-tauri/target/release/bundle/nsis/*.exe | Select-Object -First 1 | Copy-Item -Destination out/Hagisiro-Setup.exe
+          $exe = Get-ChildItem src-tauri/target/release/*.exe | Where-Object { $_.Name -match '^(hagisiro|Hagisiro)\.exe$' } | Select-Object -First 1
+          Copy-Item $exe.FullName out/Hagisiro.exe
+          Get-ChildItem out | Format-Table Name, Length
+        working-directory: desktop
+      # 새(Tauri) 위젯은 확인이 끝날 때까지 시험판(widget-test)으로만 올려요. 소개 페이지의 다운로드(widget-latest)는 그대로
+      - name: 이전 시험판 지우기
+        run: gh release delete widget-test --yes --cleanup-tag
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         working-directory: desktop
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: widget-latest
-          name: Hagisiro 위젯 (Windows)
+          tag_name: widget-test
+          name: Hagisiro 위젯 시험판 (Tauri)
+          prerelease: true
           files: |
-            desktop/dist/Hagisiro-Setup.exe
-            desktop/dist/Hagisiro.exe
+            desktop/out/Hagisiro-Setup.exe
+            desktop/out/Hagisiro.exe
