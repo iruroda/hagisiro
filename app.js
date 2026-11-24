@@ -532,7 +532,7 @@
       t.replaceWith(clip); clip.append(t, node);
       /* 탭을 옮길 때와 같은 방식: 새 화면은 처음부터 70~80%를 덮은 자리(옆에서 22%)에서 짧게 페이드인하며 끝까지 덮고, 옛 화면은 덮인 부분만 잘라내요 */
       /* 바탕은 틀(clip)에 한 겹만 깔고(설정한 투명도 그대로), 옛·새 화면의 바탕은 움직이는 동안 걷어서 겹쳐도 투명도가 변하지 않아요 */
-      const upBg = (() => { for (let e = clip.parentElement; e && e !== main; e = e.parentElement) if (getComputedStyle(e).backgroundColor !== 'rgba(0, 0, 0, 0)') return true; return false; })();
+      const upBg = document.body.classList.contains('widget') && !!clip.closest('.att'); // 위젯의 출결 화면만 틀(.att)에 이미 바탕이 있어요 (캘린더·상담·웹 화면은 없음)
       if (!upBg) clip.style.background = 'var(--wbg, var(--bg-s))'; // 출결처럼 위에 이미 바탕이 있는 화면 안이면 또 깔지 않아요(겹쳐서 더 진해져요)
       if (S.view === 'cal' && Math.abs(clip.getBoundingClientRect().bottom - main.getBoundingClientRect().bottom) < 3) clip.style.borderRadius = '0 0 var(--r) var(--r)'; // 창의 맨 아래 모서리에 닿을 때만 (D-day 줄이 아래에 있으면 칸 중간이 둥글게 깎이지 않게)
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1`;
@@ -809,6 +809,13 @@
     if (!t || t.hidden) return;
     const items = [...t.querySelectorAll('.right [data-ov]')], more = $('#ovBtn');
     if (!more) return;
+    /* 상단 바 너비·제목·탭·도구 구성이 지난번과 같으면 다시 재지 않고 지난 결과를 그대로 써요 (화면을 넘길 때마다 하던 강제 레이아웃 계산을 없앰) */
+    const ttl = t.querySelector('.ttl'), sig = [S.topW, ttl && ttl.textContent, t.querySelectorAll('.tab').length, items.map((i) => i.dataset.ov).join()].join('|');
+    if (S.topW && sig === S.fitSig) {
+      const hid = new Set(S.hiddenTools || []);
+      items.forEach((i) => { i.hidden = hid.has(i.dataset.ov); }); more.hidden = !hid.size;
+      markErr(); return;
+    }
     items.forEach((i) => { i.hidden = false; }); more.hidden = true;
     const over = () => t.scrollWidth > t.clientWidth + 1;
     let n = 0;
@@ -824,6 +831,7 @@
       const w = Math.ceil(need + (IS_WIDGET ? 6 : 0));
       if (S.minW !== w) { S.minW = w; api.setMinWidth(w); }
     }
+    S.fitSig = sig;
   }
   function openOverflow() {
     if ($('#menu')) { closeMenu(); return; }
@@ -3985,6 +3993,7 @@
   initSelects();
   watchPopups();
   initWidgetEdit();
-  { const tp = $('#top'); if (tp && window.ResizeObserver) new ResizeObserver(() => fitTop()).observe(tp); }
+  { const tp = $('#top'); if (tp && window.ResizeObserver) new ResizeObserver((es) => { S.topW = Math.round(es[0].contentRect.width); fitTop(); }).observe(tp); }
+  if (document.fonts) document.fonts.ready.then(() => { S.fitSig = null; fitTop(); }); // 글꼴이 늦게 들어와 글자 폭이 바뀌면 한 번 다시 재요
   boot();
 })();
