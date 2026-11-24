@@ -399,7 +399,7 @@
     Data.loadLocal(); S.gcal = {}; render();
   }
   function enterCloud(u) {
-    S.user = u; S.cloud = S.cloudMod;
+    S.user = u; S.wasIn = true; S.cloud = S.cloudMod; // wasIn: 이 실행에서 로그인한 적이 있으면 로그인 화면에 처음 애니메이션을 다시 보여주지 않아요
     COLS.forEach((c) => { S[c] = []; });
     watchStatic(); watchRange(); maybeMigrate(); render();
   }
@@ -1187,7 +1187,7 @@
     + '<path id="lgxC" d="M40 49.5l6.4 6.6 12-14.2" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round" style="opacity:0"/></svg>';
   function loginAnim(login, box, ui) {
     if (noAnim()) { box.innerHTML = LOGO; return; }
-    if (S.lgOut) { // 로그아웃 뒤: 파란 화면·로고 애니메이션 없이 하얀 화면에서 로그인 창 전체가 페이드인으로만
+    if (S.lgOut || S.wasIn) { // 로그아웃 뒤: 파란 화면·로고 애니메이션 없이 하얀 화면에서 로그인 창 전체가 페이드인으로만
       box.innerHTML = LOGO;
       const el0 = S.lgFaded ? performance.now() - S.lgFaded : 0; // 다시 그려져도 이어서 (처음 한 번만 시작)
       if (!S.lgFaded) S.lgFaded = performance.now();
