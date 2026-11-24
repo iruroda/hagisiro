@@ -1102,7 +1102,7 @@
     ls.set(AL_KEY, JSON.stringify(done.slice(-300)));
     fire.forEach((a) => {
       let shown = false;
-      if (window.Notification && Notification.permission === 'granted') { try { new Notification(a.text, { body: `${md(a.date)} ${a.al}`, tag: 'hagisiro-' + a.id, ...(S.instWidget ? {} : { icon: new URL('icons/notif-192.png', location.href).href }) }); // 설치식 위젯은 알림 위쪽에 앱 아이콘이 나와서 본문 아이콘은 빼요 shown = true; } catch (e) { /* 앱 안 팝업으로 대신 */ } }
+      if (window.Notification && Notification.permission === 'granted') { try { new Notification(a.text, { body: `${md(a.date)} ${a.al}`, tag: 'hagisiro-' + a.id, ...(S.instWidget ? {} : { icon: new URL('icons/notif-192.png', location.href).href }) }); /* 설치식 위젯은 알림 위쪽에 앱 아이콘이 나와서 본문 아이콘은 빼요 */ shown = true; } catch (e) { /* 앱 안 팝업으로 대신 */ } }
       if (!shown) notice(`${a.text}\n${md(a.date)} ${a.al}`);
     });
   }
