@@ -457,8 +457,9 @@
     return dayNum(S.sel);
   }
   /* 날짜·달·주를 넘길 땐 화면이 벨트처럼 이어져 움직여요: 월별·출결은 좌우, 이번 주 보기는 상하 */
-  /* 움직임이 끝나 'tflat'(바탕 한 겹)을 걷어낼 때는 칸·줄의 바탕색 전환(.12s)이 걸리지 않게 두 프레임 막아요: 안 그러면 한 번 완전히 투명해졌다가 천천히 채워져요 */
-  const flatOff = () => { const r = document.documentElement; r.classList.add('notr'); requestAnimationFrame(() => requestAnimationFrame(() => r.classList.remove('notr'))); };
+  /* 'tflat'(바탕 한 겹)을 켜고 끌 때는 칸·줄의 바탕색 전환(.12s)이 걸리지 않게 두 프레임 막아요: 안 그러면 한 번 완전히 투명해졌다가 천천히 채워져요 */
+  let flatTok = 0;
+  const flatOff = () => { const r = document.documentElement, k = ++flatTok; r.classList.add('notr'); requestAnimationFrame(() => requestAnimationFrame(() => { if (k === flatTok) r.classList.remove('notr'); })); };
   const noAnim = () => document.documentElement.classList.contains('noanim') || !PF.anim;
   /* 출결: 날짜 줄·통계는 제자리에서 사르륵 바뀌고, 아래 표만 벨트처럼 움직여요 */
   const attTable = (c) => { const v = c && c.classList.contains('att') ? c.lastElementChild : null; return v ? v.querySelector(':scope > .mwrap, :scope > .empty') : null; };
@@ -533,7 +534,7 @@
       if (S.view === 'cal' && Math.abs(clip.getBoundingClientRect().bottom - main.getBoundingClientRect().bottom) < 3) clip.style.borderRadius = '0 0 var(--r) var(--r)'; // 창의 맨 아래 모서리에 닿을 때만 (D-day 줄이 아래에 있으면 칸 중간이 둥글게 깎이지 않게)
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1`;
       node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none';
-      t.classList.add('tflat'); node.classList.add('tflat');
+      flatOff(); t.classList.add('tflat'); node.classList.add('tflat');
       const D = 22, fo = { ...opt, duration: 280, fill: 'both' };
       an = t.animate([{ transform: `translateX(${dir * D}%)` }, { transform: 'none' }], fo);
       an2 = t.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-out', fill: 'both' });
@@ -569,7 +570,7 @@
           ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
           ghost.inert = true;
           ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none';
-          ghost.classList.add('tflat'); c.classList.add('tflat'); // 바탕은 main에 한 겹만 (설정한 투명도 유지)
+          flatOff(); ghost.classList.add('tflat'); c.classList.add('tflat'); // 바탕은 main에 한 겹만 (설정한 투명도 유지)
           main.style.background = 'var(--wbg, var(--bg-s))'; main.style.borderRadius = '0 0 var(--r) var(--r)'; main.style.overflow = 'hidden';
           c.style.position = 'relative'; c.style.zIndex = '1';
           main.prepend(ghost);
