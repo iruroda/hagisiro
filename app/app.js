@@ -756,6 +756,7 @@
     else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
     syncLoginWin();
     fitTop();
+    if (isMobile()) requestAnimationFrame(fitCellsMobile);
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
       const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
       const mh = $('#main .mhead');
@@ -1466,6 +1467,21 @@
       default: return '';
     }
   }
+
+  /* 폰: 칸에 다 안 들어가는 할 일은 숨기고 마지막 줄에 '+N' */
+  function fitCellsMobile() {
+    document.querySelectorAll('#cal .cell .tl').forEach((tl) => {
+      tl.querySelectorAll('.tmore').forEach((x) => x.remove());
+      const rows = [...tl.querySelectorAll(':scope > .td')];
+      rows.forEach((r) => { r.hidden = false; });
+      if (tl.scrollHeight <= tl.clientHeight + 1) return;
+      const more = el('div', { class: 'tmore' });
+      tl.append(more);
+      let n = 0;
+      for (let i = rows.length - 1; i >= 0 && tl.scrollHeight > tl.clientHeight + 1; i--) { rows[i].hidden = true; n++; more.textContent = '+' + n; }
+    });
+  }
+  addEventListener('resize', () => { if (isMobile()) requestAnimationFrame(fitCellsMobile); });
 
   /* ---------- 캘린더 칸의 할 일 한 줄: 불릿 + 글자 ---------- */
   const colorVars = (t) => (t.fg ? `--tfg:${t.fg};` : '') + (t.bg ? `--tbg:${t.bg};` : '');

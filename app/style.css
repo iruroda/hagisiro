@@ -188,9 +188,17 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
   body:not(.widget) .tabs { margin-left: 0; }
   body:not(.widget) .cell { padding: 2px; align-items: center; }
   body:not(.widget) .ct { justify-content: center; }
-  body:not(.widget) .tl,body:not(.widget) .ab,body:not(.widget) .sb { display: none; }
+  body:not(.widget) .ab,body:not(.widget) .sb { display: none; }
+  /* 폰: 할 일은 점 대신 글자로 (한 줄씩, 넘치면 잘라 보이고 칸에 다 안 들어가면 +N) */
+  body:not(.widget) .cell { align-items: stretch; }
+  body:not(.widget) .cell .tl { overflow: hidden; padding: 0; margin-top: 1px; }
+  body:not(.widget) .cell .td { font-size: 10.5px; line-height: 1.35; padding: 0 0 1px; gap: 0; }
+  body:not(.widget) .cell .td .bl, body:not(.widget) .cell .td .ddm, body:not(.widget) .cell .td .rpt { display: none; }
+  body:not(.widget) .cell .td .tt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: clip; padding: 0 2px; border-radius: 3px; background: var(--tbg, color-mix(in srgb, var(--accent) 9%, transparent)); }
+  body:not(.widget) .cell .td.done .tt { background: transparent; }
+  body:not(.widget) .cell .tmore { font-size: 10px; line-height: 1.35; color: var(--mut); padding: 0 2px; }
   body:not(.widget) .seg button { padding: 2px 6px; font-size: 11px; }
-  body:not(.widget) .dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; margin-top: 3px; }
+  body:not(.widget) .dots { display: none; }
   body:not(.widget) .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--text); opacity: .75; }
   body:not(.widget) .dots i.on { background: transparent; border: 1px solid var(--mut); }
   body:not(.widget) .dots i.g { background: var(--teal); }
