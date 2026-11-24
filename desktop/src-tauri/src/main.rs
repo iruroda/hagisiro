@@ -109,7 +109,22 @@ fn initial_bounds(saved: &Saved, s: f64) -> Rect {
         let d = lrect(&m.full, s);
         b.x < d.x + d.width - 40.0 && b.x + b.width > d.x + 40.0 && b.y >= d.y - 10.0 && b.y < d.y + d.height - 40.0
     });
-    if vis { b } else { mid(b.width, b.height) }
+    if vis { keep_inside(b, s, 300.0) } else { mid(b.width, b.height) }
+}
+
+/* 창이 화면(작업 영역) 밖으로 삐져나가지 않게: 가장 많이 겹치는 모니터 안으로 크기·위치를 맞춤 */
+fn work_of(b: Rect, s: f64) -> Option<Rect> {
+    let ov = |w: &Rect| (b.x + b.width).min(w.x + w.width).max(b.x.max(w.x)) - b.x.max(w.x);
+    let ovy = |w: &Rect| (b.y + b.height).min(w.y + w.height).max(b.y.max(w.y)) - b.y.max(w.y);
+    w32::monitors().iter().map(|m| lrect(&m.work, s)).max_by(|a, c| (ov(a) * ovy(a)).partial_cmp(&(ov(c) * ovy(c))).unwrap_or(std::cmp::Ordering::Equal))
+}
+fn keep_inside(b: Rect, s: f64, minw: f64) -> Rect {
+    let Some(w) = work_of(b, s) else { return b };
+    let width = b.width.min(w.width).max(minw.min(w.width));
+    let height = b.height.min(w.height).max(MINH.min(w.height));
+    let x = b.x.min(w.x + w.width - width).max(w.x);
+    let y = b.y.min(w.y + w.height - height).max(w.y);
+    Rect { x: x.round(), y: y.round(), width: width.round(), height: height.round() }
 }
 
 /* 이동·크기 변경: 화면(작업 영역) 가장자리에 자석처럼 붙임 */
@@ -237,7 +252,9 @@ fn wb_get(window: WebviewWindow) -> Rect { get_rect(&window) }
 #[tauri::command]
 fn wb_set(window: WebviewWindow, st: State<Shared>, b: Rect, mode: String) {
     let minw = st.lock().unwrap().minw;
-    set_rect(&window, snap_bounds(b, &mode, sf(&window), minw));
+    let k = sf(&window);
+    let r = snap_bounds(b, &mode, k, minw);
+    set_rect(&window, if mode == "move" { r } else { keep_inside(r, k, minw) });
 }
 #[tauri::command]
 fn wb_done(window: WebviewWindow, st: State<Shared>) {
