@@ -194,7 +194,7 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
   body:not(.widget) .cell .tl { overflow: hidden; padding: 0; margin-top: 1px; }
   body:not(.widget) .cell .td { font-size: 10.5px; line-height: 1.35; padding: 0 0 1px; gap: 0; }
   body:not(.widget) .cell .td .bl, body:not(.widget) .cell .td .ddm, body:not(.widget) .cell .td .rpt { display: none; }
-  body:not(.widget) .cell .td .tt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: clip; padding: 0 2px; border-radius: 3px; background: var(--tbg, color-mix(in srgb, var(--accent) 9%, transparent)); }
+  body:not(.widget) .cell .td .tt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: clip; padding: 0 2px; border-radius: 3px; background: var(--tbg, transparent); }
   body:not(.widget) .cell .td.done .tt { background: transparent; }
   body:not(.widget) .cell .tmore { font-size: 10px; line-height: 1.35; color: var(--mut); padding: 0 2px; }
   body:not(.widget) .seg button { padding: 2px 6px; font-size: 11px; }
