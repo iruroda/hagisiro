@@ -1,8 +1,8 @@
 {
   "name": "hagisiro-widget",
-  "productName": "HAGISIRO",
-  "version": "1.1.2",
-  "description": "HAGISIRO 바탕화면 위젯",
+  "productName": "Hagisiro",
+  "version": "1.2.0",
+  "description": "Hagisiro 바탕화면 위젯",
   "main": "main.js",
   "author": "iruroda",
   "license": "MIT",
@@ -16,7 +16,7 @@
   },
   "build": {
     "appId": "com.iruroda.hagisiro",
-    "productName": "HAGISIRO",
+    "productName": "Hagisiro",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -36,7 +36,7 @@
       "icon": "build/icon.png"
     },
     "portable": {
-      "artifactName": "HAGISIRO.exe"
+      "artifactName": "Hagisiro.exe"
     },
     "nsis": {
       "oneClick": false,
@@ -44,9 +44,9 @@
       "runAfterFinish": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "HAGISIRO",
+      "shortcutName": "Hagisiro",
       "deleteAppDataOnUninstall": false,
-      "artifactName": "HAGISIRO-Setup.exe",
+      "artifactName": "Hagisiro-Setup.exe",
       "allowToChangeInstallationDirectory": true,
       "language": "1042"
     }

@@ -1,6 +1,6 @@
 {
-  "name": "HAGISIRO",
-  "short_name": "HAGISIRO",
+  "name": "Hagisiro",
+  "short_name": "Hagisiro",
   "description": "할 일과 출결을 한 화면에서",
   "start_url": "./",
   "scope": "./",

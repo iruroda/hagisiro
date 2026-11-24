@@ -5,7 +5,7 @@ const fs = require('fs');
 const URL = 'https://iruroda.github.io/hagisiro/?widget=1';
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 
-app.setName('HAGISIRO'); // 창·작업표시줄에 package 이름(hagisiro-widget)이 아니라 HAGISIRO가 보이게
+app.setName('Hagisiro'); // 창·작업표시줄에 package 이름(hagisiro-widget)이 아니라 Hagisiro가 보이게
 let win, tray, st;
 const file = () => path.join(app.getPath('userData'), 'widget.json');
 const load = () => { try { return JSON.parse(fs.readFileSync(file(), 'utf8')); } catch (e) { return {}; } };
@@ -115,7 +115,7 @@ function create() {
   st = load();
   win = new BrowserWindow({
     ...bounds(), frame: false, transparent: true, hasShadow: false, resizable: false, skipTaskbar: true,
-    alwaysOnTop: zmode() === 'top', backgroundColor: '#00000000', title: 'HAGISIRO',
+    alwaysOnTop: zmode() === 'top', backgroundColor: '#00000000', title: 'Hagisiro',
     minWidth: 300, minHeight: 320,
     webPreferences: { contextIsolation: true, nodeIntegration: false, preload: path.join(__dirname, 'preload.js') },
   });
@@ -123,14 +123,14 @@ function create() {
   win.loadFile(path.join(__dirname, 'loading.html'), { hash: encodeURIComponent(URL) }); // 불러오는 동안은 빈 투명 페이지
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/accounts\.google\.com|firebaseapp\.com|google\.com\/o\/oauth/.test(url)) {
-      return { action: 'allow', overrideBrowserWindowOptions: { width: 480, height: 640, frame: true, transparent: false, backgroundColor: '#ffffff', title: 'HAGISIRO', hasShadow: true, roundedCorners: true, thickFrame: true, resizable: true, skipTaskbar: false, alwaysOnTop: false, autoHideMenuBar: true, parent: win, modal: false } };
+      return { action: 'allow', overrideBrowserWindowOptions: { width: 480, height: 640, frame: true, transparent: false, backgroundColor: '#ffffff', title: 'Hagisiro', hasShadow: true, roundedCorners: true, thickFrame: true, resizable: true, skipTaskbar: false, alwaysOnTop: false, autoHideMenuBar: true, parent: win, modal: false } };
     }
     shell.openExternal(url); return { action: 'deny' };
   });
   // 로그인 팝업에도 같은 UA 적용(안 하면 구글이 다른 화면을 내려줘 깨져 보임)
   win.webContents.on('did-create-window', (child) => {
     child.webContents.setUserAgent(UA); child.setMenuBarVisibility(false);
-    const T = () => { if (!child.isDestroyed() && child.getTitle() !== 'HAGISIRO') child.setTitle('HAGISIRO'); }; // 창 제목이 패키지 이름(hagisiro-widget)이나 구글 페이지 제목으로 바뀌지 않게, 여러 시점에서 다시 맞춰요
+    const T = () => { if (!child.isDestroyed() && child.getTitle() !== 'Hagisiro') child.setTitle('Hagisiro'); }; // 창 제목이 패키지 이름(hagisiro-widget)이나 구글 페이지 제목으로 바뀌지 않게, 여러 시점에서 다시 맞춰요
     T(); child.on('page-title-updated', (ev) => { ev.preventDefault(); T(); }); child.once('ready-to-show', T); child.on('show', T);
     child.webContents.on('did-start-navigation', T); child.webContents.on('did-navigate', T); child.webContents.on('did-finish-load', T);
   });
@@ -152,12 +152,12 @@ function menu() {
 }
 
 app.whenReady().then(() => {
-  app.setAppUserModelId(process.env.PORTABLE_EXECUTABLE_FILE ? 'HAGISIRO' : 'com.iruroda.hagisiro'); // 알림 제목·아이콘에 쓰이는 값: 설치식은 시작 메뉴 바로가기(appId)와 같아야 아이콘이 나오고, 바로가기가 없는 포터블은 이 문자열이 그대로 표시
+  app.setAppUserModelId(process.env.PORTABLE_EXECUTABLE_FILE ? 'Hagisiro' : 'com.iruroda.hagisiro'); // 알림 제목·아이콘에 쓰이는 값: 설치식은 시작 메뉴 바로가기(appId)와 같아야 아이콘이 나오고, 바로가기가 없는 포터블은 이 문자열이 그대로 표시
   session.defaultSession.setPermissionRequestHandler((wc, perm, cb) => cb(true));
   create();
   const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 16, height: 16 });
   tray = new Tray(icon);
-  tray.setToolTip('HAGISIRO');
+  tray.setToolTip('Hagisiro');
   tray.on('right-click', () => tray.popUpContextMenu(menu()));
   tray.on('click', () => (front() ? win.hide() : reveal()));
 });

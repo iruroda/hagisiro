@@ -19,7 +19,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: widget-latest
-          name: HAGISIRO 위젯 (Windows)
+          name: Hagisiro 위젯 (Windows)
           files: |
-            desktop/dist/HAGISIRO-Setup.exe
-            desktop/dist/HAGISIRO.exe
+            desktop/dist/Hagisiro-Setup.exe
+            desktop/dist/Hagisiro.exe

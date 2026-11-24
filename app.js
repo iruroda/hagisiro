@@ -1,4 +1,4 @@
-/* HAGISIRO — 캘린더 · 할 일 · 출결 */
+/* Hagisiro — 캘린더 · 할 일 · 출결 */
 (function () {
   'use strict';
   const P = window.Parser;
@@ -1192,7 +1192,7 @@
   const lgLead = lgBez(.45, 0, .25, 1.12), lgFollow = lgBez(.35, 0, .25, 1), lgInOut = lgBez(.5, 0, .3, 1);
   const lgClamp = (x) => Math.max(0, Math.min(1, x));
   const lgLerp = (a, b, k) => a + (b - a) * k;
-  const LG_SVG = '<svg width="64" height="64" viewBox="0 0 64 64" style="overflow:visible" aria-label="HAGISIRO"><defs><linearGradient id="lgxg" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#6d4aff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient>'
+  const LG_SVG = '<svg width="64" height="64" viewBox="0 0 64 64" style="overflow:visible" aria-label="Hagisiro"><defs><linearGradient id="lgxg" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#6d4aff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient>'
     + '<linearGradient id="lgxo" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop id="lgxo0" offset="0" stop-color="#2f6df6"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#2f6df6"/></linearGradient>'
     + '<filter id="lgxf" filterUnits="userSpaceOnUse" x="-12" y="-12" width="88" height="88" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="1.6" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -12"/></filter></defs>'
     + '<g id="lgxG" filter="url(#lgxf)" fill="url(#lgxg)"><rect id="lgxTL" width="30" height="30" rx="9"/><rect id="lgxTR" width="30" height="30" rx="9"/><rect id="lgxBL" width="30" height="30" rx="9"/><rect id="lgxBR" x="34" width="30" height="30" rx="9"/></g>'
@@ -1259,7 +1259,7 @@
   }
   function loginView() {
     const logo = el('div', { class: 'logo' });
-    const ui = [el('h1', {}, 'HAGISIRO'),
+    const ui = [el('h1', {}, 'Hagisiro'),
       el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, 'Google 로그인'),
       el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '이 기기에만 저장')];
     const v = el('div', { class: 'login' }, logo, ...ui);
