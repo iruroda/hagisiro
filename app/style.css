@@ -270,7 +270,7 @@ button, input, select, textarea { font-family: inherit; }
 /* 주별: 학생 × 요일 */
 .wv { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
 .wttl { width: 188px; }
-.wt { table-layout: fixed; }
+.wt { table-layout: fixed; width: calc(36px + 76px + var(--n, 5) * 118px); min-width: 100%; } /* 열 너비(번호·이름·날짜)와 같은 숫자 */
 .wt th.c1 { width: 36px; } .wt th.c2 { width: 76px; } .wt th.sum { width: 44px; }
 
 .wt th.wcol { width: 118px; font-size: 12px; }
@@ -581,8 +581,9 @@ body { -webkit-tap-highlight-color: transparent; font-variant-numeric: tabular-n
 
 @media (max-width: 520px) {
   .pmain { flex-direction: column; gap: 8px; }
-  .pnav { width: auto; flex-direction: row; border-right: 0; padding: 0; overflow-x: auto; }
-  .pnav button { flex: 1; text-align: center; }
+  .pnav { width: auto; flex-direction: row; border-right: 0; padding: 0; overflow-x: auto; scrollbar-width: none; }
+  .pnav button { flex: none; text-align: center; white-space: nowrap; }
+  .pnav .preset { margin: 0 0 0 auto; }
 }
 
 /* 스크롤바는 둥근 박스 '안쪽 칸'이 아니라 박스 바깥/안쪽 여백에서만 움직여요 (전체 공통) */
@@ -1417,3 +1418,23 @@ button:disabled { pointer-events: none; }
 .rdel > .fld { flex: 1; min-width: 0; }
 .cbt { flex-wrap: wrap; row-gap: 2px; }
 .cbt .ab { white-space: nowrap; }
+
+/* ===== 폰 (가로 700px 이하, 위젯 아님): 탭은 아래 고정 막대로, 위쪽은 날짜 이동과 메뉴만 ===== */
+@media (max-width: 700px) {
+  body:not(.widget) #app { padding-bottom: calc(59px + env(safe-area-inset-bottom)); }
+  body:not(.widget) #top { padding-top: calc(6px + env(safe-area-inset-top)); }
+  body:not(.widget) #top .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; height: auto; margin: 0; padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); gap: 6px; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--bg); border-top: 1px solid var(--line); border-radius: 0; }
+  body:not(.widget) #top .tab { flex-direction: column; gap: 3px; height: 46px; font-size: 11.5px; border-radius: var(--r-md); }
+  body:not(.widget) #top .tab .ic svg { width: 21px; height: 21px; }
+  body:not(.widget) #top .tab.on { color: var(--accent); }
+  body:not(.widget) #top .tabs .pill { display: none; }
+  body:not(.widget) #top .tabs > .tab.on { background: var(--sel) !important; }
+  body:not(.widget) #top .right { margin-left: auto; }
+  body:not(.widget) .wt th.c1 { width: 26px; } body:not(.widget) .wt th.c2 { width: 54px; }
+  body:not(.widget) .wt th.wcol { width: 58px; font-size: 11px; }
+  body:not(.widget) .wt { width: calc(26px + 54px + var(--n, 5) * 58px); }
+  body:not(.widget) .wt td.wc { padding: 4px 5px; font-size: 11.5px; word-break: keep-all; }
+  body:not(.widget) .wt .c1 { min-width: 26px; } body:not(.widget) .wt .c2 { left: 26px; padding: 0 4px; }
+  body:not(.widget) .wt th.wcol { white-space: normal; line-height: 1.25; padding: 4px 2px; }
+  body:not(.widget) .wt .wi.wdoc { flex-wrap: wrap; } body:not(.widget) .wt .wi.wdoc .wtx { flex-basis: 100%; }
+}

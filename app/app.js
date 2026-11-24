@@ -27,6 +27,8 @@
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   const byOrd = (a, b) => (a.ord || 0) - (b.ord || 0) || (a.created || 0) - (b.created || 0);
   const isMobile = () => !/[?&]widget/.test(location.search) && !!(window.matchMedia && window.matchMedia('(max-width:700px)').matches);
+  /* 손가락으로만 쓰는 기기(태블릿 등): 두 번 누르기가 잘 안 먹어서, 날짜 칸을 한 번 누르면 바로 입력창이 떠요 */
+  const tapEdit = () => isMobile() || (!/[?&]widget/.test(location.search) && !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches));
   const md = (ds) => { const d = parseYmd(ds); return `${d.getMonth() + 1}.${d.getDate()}. (${DOW[d.getDay()]})`; };
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -1351,10 +1353,10 @@
       const cell = e.target.closest('.cell');
       if (!cell || S.editing) return;
       selectDate(cell.dataset.date);
-      if (isMobile()) openSheet(cell.dataset.date);
+      if (tapEdit()) openSheet(cell.dataset.date);
     });
     grid.addEventListener('dblclick', (e) => {
-      if (isMobile() || S.editing || e.target.closest('.ab')) return;
+      if (tapEdit() || S.editing || e.target.closest('.ab')) return;
       const cell = e.target.closest('.cell');
       if (!cell) return;
       const row = e.target.closest('.td');
@@ -2240,7 +2242,7 @@
       });
       tbody.append(tr);
     });
-    const tbl = el('table', { class: 'mt wt', style: `width:${36 + 76 + cols.length * 118}px;min-width:100%` }, el('thead', {}, head), tbody);
+    const tbl = el('table', { class: 'mt wt', style: `--n:${cols.length}` }, el('thead', {}, head), tbody);
     tbl.addEventListener('click', (e) => {
       if (e.target.closest('.docchk')) return; // 서류 체크는 날짜 이동 없이 바로 저장
       const c = e.target.closest('[data-d]');
