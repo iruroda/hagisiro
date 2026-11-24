@@ -1007,7 +1007,8 @@
     const layer = el('div', { class: 'askw' });
     const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); shut(); } };
     const shut = () => { document.removeEventListener('keydown', key, true); layer.remove(); };
-    const tIn = timeSel(cur || '09:00');
+    const nowHM = () => { const d = new Date(Math.min(Math.ceil(Date.now() / 3e5) * 3e5, new Date().setHours(23, 55, 0, 0))); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }; // 지금 이후 가장 가까운 5분 (바로 울리지 않게)
+    const tIn = timeSel(cur || nowHM());
     const cbAuto = el('input', { type: 'checkbox' }); cbAuto.checked = !curKeep; // 기본: 알림 후 자동 해제
     const autoRow = el('label', { class: 'rchk' }, cbAuto, '알림 후 자동 해제');
     const ok = el('button', { class: 'pri', type: 'button' }, '저장');
