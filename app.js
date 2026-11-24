@@ -3021,7 +3021,9 @@
       const keep = shown === S.pfTab ? body.scrollTop : 0;
       tabBar.replaceChildren(...TABS.map(([k, l]) => el('button', { type: 'button', class: S.pfTab === k ? 'on' : '', onclick: () => { S.pfTab = k; draw(); } }, l)), resetBtn);
       body.replaceChildren(...pages[S.pfTab]().filter(Boolean));
-      body.scrollTop = keep; shown = S.pfTab;
+      body.scrollTop = keep;
+      if (shown != null && shown !== S.pfTab && !noAnim()) body.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' }); // 다른 대분류로 옮길 땐 부드럽게 나타나요
+      shown = S.pfTab;
     }
     const resetBtn = el('button', { class: 'ghost sm preset', type: 'button', onclick: async () => {
           if (!(await ask('모든 설정을 기본으로 되돌릴까요?', '되돌리기', false))) return;
