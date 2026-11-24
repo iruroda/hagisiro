@@ -139,12 +139,12 @@
     return t.cloneNode(true);
   }
   /* 시각 고르기: 24시간제 드롭다운 (시 · 분). value 는 'HH:MM'. limit(최소, 최대)로 고를 수 있는 범위를 막아요 */
-  function timeSel(val, blank) {
+  function timeSel(val, blank, fine) { // fine: 분을 1분 단위로 (기본은 5분 단위)
     const isB = blank && !val; // blank: 빈칸을 고를 수 있고 처음에도 비어 있음 (신청 마감처럼 선택 사항일 때)
     const [h0, m0] = isB ? [-1, -1] : (val || '16:00').split(':').map(Number);
     const bo = (t) => (blank ? [el('option', { value: '', selected: isB }, t)] : []);
     const hs = el('select', { 'aria-label': '시' }, bo('시'), Array.from({ length: 24 }, (_, i) => el('option', { value: i, selected: i === h0 }, pad(i))));
-    const ms = el('select', { 'aria-label': '분' }, bo('분'), Array.from({ length: 12 }, (_, i) => el('option', { value: i * 5, selected: i * 5 === m0 }, pad(i * 5))));
+    const ms = el('select', { 'aria-label': '분' }, bo('분'), Array.from({ length: fine ? 60 : 12 }, (_, i) => el('option', { value: i * (fine ? 1 : 5), selected: i * (fine ? 1 : 5) === m0 }, pad(i * (fine ? 1 : 5)))));
     const w = el('span', { class: 'tsel' }, hs, el('span', {}, ':'), ms);
     let lo = 0, hi = 1439;
     const toM = (v) => { const [h, m] = String(v).split(':').map(Number); return h * 60 + m; };
@@ -155,7 +155,7 @@
       let c = +hs.value * 60 + +ms.value;
       c = Math.min(hi, Math.max(lo, c));
       hs.value = Math.floor(c / 60); ms.value = c % 60;
-      [...hs.options].forEach((o) => { o.disabled = +o.value * 60 + 55 < lo || +o.value * 60 > hi; });
+      [...hs.options].forEach((o) => { o.disabled = +o.value * 60 + (fine ? 59 : 55) < lo || +o.value * 60 > hi; });
       [...ms.options].forEach((o) => { const t = +hs.value * 60 + +o.value; o.disabled = t < lo || t > hi; });
     };
     hs.addEventListener('change', refresh); ms.addEventListener('change', refresh);
@@ -1007,8 +1007,8 @@
     const layer = el('div', { class: 'askw' });
     const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); shut(); } };
     const shut = () => { document.removeEventListener('keydown', key, true); layer.remove(); };
-    const nowHM = () => { const d = new Date(Math.min(Math.ceil(Date.now() / 3e5) * 3e5, new Date().setHours(23, 55, 0, 0))); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }; // 지금 이후 가장 가까운 5분 (바로 울리지 않게)
-    const tIn = timeSel(cur || nowHM());
+    const nowHM = () => { const d = new Date(Math.min(Math.ceil(Date.now() / 6e4) * 6e4, new Date().setHours(23, 59, 0, 0))); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }; // 지금 이후 가장 가까운 분 (바로 울리지 않게)
+    const tIn = timeSel(cur || nowHM(), false, true);
     const cbAuto = el('input', { type: 'checkbox' }); cbAuto.checked = !curKeep; // 기본: 알림 후 자동 해제
     const autoRow = el('label', { class: 'rchk' }, cbAuto, '알림 후 자동 해제');
     const ok = el('button', { class: 'pri', type: 'button' }, '저장');
