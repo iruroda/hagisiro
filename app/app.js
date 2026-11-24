@@ -956,7 +956,7 @@
       { k: 'dday', label: 'D-day 관리', ic: 'dday', pop: true, run: openDdays },
       { k: 'alarm', label: '알림 관리', ic: 'bell', pop: true, run: openAlarms },
       { k: 'meal', label: '급식', ic: 'utensils', def: true, pop: true, run: openMealWeek },
-      ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, ic, def: true, doc: id, run: () => openDoc(id) })),
+      ...DOCS.map(([id, label, ic]) => ({ k: 'doc-' + id, label, ic, def: id !== 'schedule', doc: id, run: () => openDoc(id) })), // 일과 진행 시간표는 기본으로는 숨김
       { k: 'prog', label: '진도 확인', ic: 'progress', pop: true, run: openProgress },
       { k: 'sync', label: '새로고침', ic: 'refresh', def: true, run: forceSync },
       { k: 'prefs', label: '설정', ic: 'gear', pop: true, run: openPrefs },
