@@ -89,17 +89,15 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .cstage { position: relative; padding-bottom: 28%; }
 .cstage .shot { width: 86%; }
 .p3d { position: absolute; right: 7%; top: 18%; width: 22%; min-width: 120px; perspective: 1400px; }
-.phone { position: relative; border-radius: 16% / 7.4%; padding: 4.6%; background: linear-gradient(145deg, #3a3846, #15141c 60%);
+.phone { position: relative; border-radius: 15% / 7%; padding: 1.1%; background: linear-gradient(135deg, #d9d9df, #8d8c96 30%, #4b4a55 55%, #a9a8b2 80%, #e2e2e8);
   transform: rotateY(-26deg) rotateX(14deg) rotateZ(4deg); transform-style: preserve-3d;
-  box-shadow: 1px 1px 0 #2c2b36, 2px 2px 0 #29282f, 3px 3px 0 #26252c, 4px 4px 0 #232229, 5px 5px 0 #201f26, 6px 6px 0 #1d1c23, 7px 7px 0 #1a1920,
-    -26px 46px 50px -10px rgba(25,18,60,.45), -8px 14px 18px rgba(25,18,60,.25); }
-.phone img { border-radius: 12% / 5.6%; }
-.phone::before { content: ""; position: absolute; top: 3.4%; left: 50%; width: 30%; height: 1.9%; transform: translateX(-50%); border-radius: 99px; background: #0d0c12; z-index: 1; }
-.phone::after { content: ""; position: absolute; inset: 4.6%; border-radius: 12% / 5.6%; background: linear-gradient(115deg, rgba(255,255,255,.28), rgba(255,255,255,0) 38%); pointer-events: none; }
-.phone b { position: absolute; left: -2.2%; width: 2.2%; border-radius: 3px 0 0 3px; background: #2a2933; }
-.phone b:nth-of-type(1) { top: 20%; height: 7%; } .phone b:nth-of-type(2) { top: 29%; height: 10%; }
+  box-shadow: 1px 1px 0 #77767f, 2px 2px 0 #6a6972, 3px 3px 0 #5d5c65, 4px 4px 0 #504f58, 5px 5px 0 #44434b,
+    -26px 46px 50px -10px rgba(25,18,60,.42), -8px 14px 18px rgba(25,18,60,.22); }
+.phone > i { display: block; border-radius: 14% / 6.5%; padding: 3%; background: #0b0b10; }
+.phone img { display: block; border-radius: 11.5% / 5.3%; }
+.phone::after { content: ""; position: absolute; inset: 4%; border-radius: 11.5% / 5.3%; background: linear-gradient(115deg, rgba(255,255,255,.22), rgba(255,255,255,0) 34%); pointer-events: none; }
 
-/* 그 밖의 기능: 화면 가운데, 가는 보라 선으로 기능 위치와 설명을 이음 (폰은 번호 점 + 아래 목록) */
+/* 캘린더 기본 기능: 화면 가운데, 가는 보라 선으로 기능 위치와 설명을 이음 (폰은 번호 점 + 아래 목록) */
 .more { padding-bottom: 120px; }
 .mandala { position: relative; aspect-ratio: 1000 / 720; margin-top: 36px; }
 .mandala > img { position: absolute; left: 22%; top: 16.67%; width: 56%; filter: drop-shadow(0 18px 30px rgba(40,30,90,.18)); }
@@ -182,29 +180,29 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
       </div>
       <div class="cstage">
         <div class="shot"><img src="site/consult.webp" alt="날짜별 상담 시간에 신청한 학생 이름이 채워진 상담표" width="1600" height="720"></div>
-        <div class="p3d"><div class="phone"><b></b><b></b><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2532"></div></div>
+        <div class="p3d"><div class="phone"><i><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2532"></i></div></div>
       </div>
     </div>
   </section>
 
   <section class="more">
-    <h2>그 밖의 기능</h2>
+    <h2>캘린더라면 꼭 필요한 기능도</h2>
     <div class="mandala">
       <img src="site/cal.webp" alt="Hagisiro 캘린더 화면" width="1600" height="1240">
       <svg class="pen" viewBox="0 0 1000 720" aria-hidden="true">
         <g class="ln" fill="none" stroke="#6d4aff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="610,123 610,62 562,62"/>
+          <polyline points="610,123 610,36 540,36"/>
           <polyline points="700,137 760,137 760,170 798,170"/>
-          <polyline points="300,320 206,320"/>
-          <polyline points="254,553 254,630 222,630"/>
+          <polyline points="302,441 206,441"/>
+          <polyline points="311,542 798,542"/>
         </g>
-        <g class="dot" fill="none" stroke="#6d4aff" stroke-width="1.8"><circle cx="610" cy="137" r="14"/><circle cx="686" cy="137" r="14"/><rect x="300" y="290" width="80" height="61" rx="6"/><rect x="227" y="531" width="84" height="22" rx="6"/></g>
-        <g class="num"><g fill="#6d4aff"><circle cx="610" cy="163" r="9"/><circle cx="686" cy="163" r="9"/><circle cx="380" cy="290" r="9"/><circle cx="311" cy="531" r="9"/></g><g fill="#fff" font-size="11" font-weight="800" text-anchor="middle" dominant-baseline="central"><text x="610" y="163">1</text><text x="686" y="163">2</text><text x="380" y="290">3</text><text x="311" y="531">4</text></g></g>
+        <g class="dot" fill="none" stroke="#6d4aff" stroke-width="1.8"><circle cx="610" cy="137" r="14"/><circle cx="686" cy="137" r="14"/><rect x="302" y="412" width="77" height="58" rx="6"/><rect x="227" y="531" width="84" height="22" rx="6"/></g>
+        <g class="num"><g fill="#6d4aff"><circle cx="610" cy="163" r="9"/><circle cx="686" cy="163" r="9"/><circle cx="379" cy="412" r="9"/><circle cx="311" cy="531" r="9"/></g><g fill="#fff" font-size="11" font-weight="800" text-anchor="middle" dominant-baseline="central"><text x="610" y="163">1</text><text x="686" y="163">2</text><text x="379" y="412">3</text><text x="311" y="531">4</text></g></g>
       </svg>
-      <div class="note" style="left:28%;top:4%;text-align:right;width:27.6%"><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</div>
+      <div class="note" style="left:25.4%;top:.4%;text-align:right;width:28%"><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</div>
       <div class="note" style="left:80.5%;top:21.5%;width:19.5%"><b>시간표와 진도 확인</b>내 시간표를 등록하면 과목별 진도표에 수업 진도를 기록합니다.</div>
-      <div class="note" style="left:0;top:41%;width:20%;text-align:right"><b>할 일 알림</b>할 일에 시간을 지정하면 그 시각에 알림이 표시됩니다.</div>
-      <div class="note" style="left:0;top:83%;width:21.6%;text-align:right"><b>D-day</b>중요한 날을 D-day로 지정하면 아래 줄에 표시됩니다.</div>
+      <div class="note" style="left:0;top:59.2%;width:20%;text-align:right"><b>할 일 알림</b>할 일에 시간을 지정하면 그 시각에 알림이 표시됩니다.</div>
+      <div class="note" style="left:80.5%;top:73.2%;width:19.5%"><b>D-day</b>중요한 날을 D-day로 지정하면 아래 줄에 표시됩니다.</div>
     </div>
     <ol class="notes">
       <li><b>급식 확인</b>학교를 등록하면 주간 급식표를 바로 확인합니다.</li>
