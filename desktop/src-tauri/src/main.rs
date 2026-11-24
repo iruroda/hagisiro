@@ -13,6 +13,7 @@ const URL: &str = "https://iruroda.github.io/hagisiro/app/?widget=1";
 const INIT: &str = include_str!("init.js");
 const SNAP: f64 = 3.0;
 const MINH: f64 = 320.0;
+static POPUPS: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 struct Rect { x: f64, y: f64, width: f64, height: f64 }
@@ -354,6 +355,29 @@ fn main() {
                 .data_directory(web_dir)
                 .initialization_script(INIT)
                 .on_page_load(|w, p| { if matches!(p.event(), PageLoadEvent::Finished) { send_bottom(w.app_handle()); } })
+                .on_new_window({
+                    // 구글 로그인 팝업은 앱 안의 작은 창으로 (위젯 창이 로그인 페이지로 넘어가지 않게), 다른 링크는 기본 브라우저로
+                    let app2 = h.clone();
+                    move |url, features| {
+                        let u = url.as_str();
+                        if u.contains("accounts.google.com") || u.contains("firebaseapp.com") || u == "about:blank" {
+                            let n = POPUPS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                            match WebviewWindowBuilder::new(&app2, format!("login{n}"), WebviewUrl::External(url.clone()))
+                                .window_features(features)
+                                .title("Hagisiro")
+                                .inner_size(480.0, 640.0)
+                                .center()
+                                .build()
+                            {
+                                Ok(window) => tauri::webview::NewWindowResponse::Create { window },
+                                Err(_) => tauri::webview::NewWindowResponse::Allow,
+                            }
+                        } else {
+                            let _ = std::process::Command::new("rundll32").args(["url.dll,FileProtocolHandler", u]).spawn();
+                            tauri::webview::NewWindowResponse::Deny
+                        }
+                    }
+                })
                 .build()?;
 
             // 문제 확인용: 파일 이름에 debug가 들어간 exe로 실행하면 개발자 도구를 열어요
