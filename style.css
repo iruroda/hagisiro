@@ -1328,7 +1328,7 @@ input[type=date].empty { color: var(--mut); }
 .pedr { display: flex; align-items: center; gap: 10px; }
 .pedr .fld { flex: 1; min-width: 0; }
 .psyms { display: flex; gap: 2px; flex: none; }
-.psyms .blb { color: var(--text); }
+.psyms .blb { color: var(--mut); } /* 배경 없음(점선 원)은 회색 */
 .psyms .blb .ic svg { width: 20px; height: 20px; }
 .pt { height: auto; }
 .pt tbody tr { height: 44px; }
