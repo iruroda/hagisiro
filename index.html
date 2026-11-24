@@ -74,6 +74,7 @@ section { padding: 96px 0 8px; }
 .two { display: grid; gap: 36px; align-items: center; }
 h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03em; margin: 0; font-weight: 800; }
 .lede { color: var(--mut); margin: 12px 0 0; font-size: 18px; max-width: 34em; }
+.fine { color: var(--mut); margin: 6px 0 0; font-size: 14.5px; opacity: .85; }
 /*steps*/ .steps { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 12px; counter-reset: s; }
 .steps li { counter-increment: s; display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
 .steps li::before { content: counter(s); width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--violet); color: #fff; font-size: 15px; display: grid; place-items: center; }
@@ -166,6 +167,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   <section>
     <h2>출결은 문장 한 줄</h2>
     <p class="lede">출결 사항을 한 문장으로 입력하면 표에 자동으로 기록됩니다.</p>
+    <p class="fine">(NEIS와 연동되지 않으며, 기록을 보조해주는 기능입니다.)</p>
     <div class="vid"><video src="site/att.mp4" poster="site/att-poster.webp" autoplay muted loop playsinline aria-label="출결 문장을 한 글자씩 입력하면 출결표에 바로 기록되는 모습"></video></div>
   </section>
 
