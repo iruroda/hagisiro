@@ -544,7 +544,7 @@
       let t = S.view === 'att' && String(S.lastKey).startsWith('att|') && c.classList.contains('att') && c.lastElementChild ? c.lastElementChild : c;
       let cls = null;
       if (k !== S.lastKey) {
-        if (ghost && !needLogin()) { // 기존 화면은 지우지 않고 뒤에 그대로 두고, 새 화면이 옆에서 페이드인으로 넘어와요 (출결의 날짜 넘기기와 같은 방식)
+        if (ghost && !needLogin()) { // 새 화면이 옆에서 옛 화면을 덮으며 들어와요
           ghost.removeAttribute('id'); ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
           ghost.inert = true;
           ghost.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none';
@@ -552,10 +552,17 @@
           main.style.background = 'var(--wbg, var(--bg-s))'; main.style.borderRadius = '0 0 var(--r) var(--r)'; main.style.overflow = 'hidden';
           c.style.position = 'relative'; c.style.zIndex = '1';
           main.prepend(ghost);
+          /* 새 화면은 처음부터 화면의 70~80%를 덮은 자리(옆에서 22%만 떨어진 곳)에서 짧게 페이드인하며 나타나 끝까지 덮어요.
+           * 옛 화면은 새 화면이 덮은 부분을 잘라내서, 두 화면이 겹쳐 비치지 않아요. */
           const ORD = { cal: 0, att: 1, consult: 2 }; // 오른쪽 탭으로 가면 오른쪽에서, 왼쪽 탭으로 가면 왼쪽에서
           const dir = (ORD[S.view] ?? 0) >= (ORD[String(S.lastKey).split('|')[0]] ?? 0) ? 1 : -1;
-          const an = c.animate([{ transform: `translateX(${dir * 12}%)`, opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'both' });
-          const fin = () => { an.oncancel = null; an.cancel(); ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; main.style.overflow = ''; };
+          const D = 22, opt = { duration: 280, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'both' };
+          const an = c.animate([{ transform: `translateX(${dir * D}%)` }, { transform: 'none' }], opt);
+          const fade = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-out', fill: 'both' }); // 순간이동이 깜빡임처럼 보이지 않게 짧게 페이드인
+          ghost.animate(dir > 0
+            ? [{ clipPath: `inset(0 ${100 - D}% 0 0)` }, { clipPath: 'inset(0 100% 0 0)' }]
+            : [{ clipPath: `inset(0 0 0 ${100 - D}%)` }, { clipPath: 'inset(0 0 0 100%)' }], opt);
+          const fin = () => { an.oncancel = null; an.cancel(); fade.cancel(); ghost.remove(); c.classList.remove('tflat'); c.style.position = ''; c.style.zIndex = ''; main.style.background = ''; main.style.borderRadius = ''; main.style.overflow = ''; };
           an.onfinish = fin; an.oncancel = fin;
         } else cls = 'vin';
       }
