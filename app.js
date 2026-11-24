@@ -429,6 +429,7 @@
           S.ready = true;
           if (u) enterCloud(u);
           else {
+            if (S.user) { S.lgOut = true; S.lgFaded = 0; } // 로그인해 쓰던 중에 로그아웃: 로그인 화면은 처음 애니메이션 없이 부드럽게 나타나요
             S.user = null; S.cloud = null; stopWatches();
             if (S.guest) enterLocal();
             else { COLS.forEach((c) => { S[c] = []; }); S.gcal = {}; S.clsLoaded = true; render(); }
@@ -1150,7 +1151,7 @@
   function syncLoginWin() {
     const on = needLogin();
     document.body.classList.toggle('loginmode', on);
-    if (!on) S.lgT0 = null; // 로그인 화면을 벗어나면 다음에 다시 처음부터
+    if (!on) { S.lgT0 = null; S.lgOut = false; S.lgFaded = 0; } // 로그인 화면을 벗어나면 다음에 다시 처음부터
     const api = window.hagisiroWidget;
     if (api && api.loginMode && on !== loginWinOn) { loginWinOn = on; api.loginMode(on); }
   }
@@ -1180,6 +1181,16 @@
     + '<path id="lgxC" d="M40 49.5l6.4 6.6 12-14.2" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round" style="opacity:0"/></svg>';
   function loginAnim(login, box, ui) {
     if (noAnim()) { box.innerHTML = LOGO; return; }
+    if (S.lgOut) { // 로그아웃 뒤: 파란 화면·로고 애니메이션 없이 하얀 화면에서 로그인 창 전체가 페이드인으로만
+      box.innerHTML = LOGO;
+      const el0 = S.lgFaded ? performance.now() - S.lgFaded : 0; // 다시 그려져도 이어서 (처음 한 번만 시작)
+      if (!S.lgFaded) S.lgFaded = performance.now();
+      if (el0 < 400) {
+        login.style.opacity = '0';
+        requestAnimationFrame(() => { const an = login.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out', fill: 'both' }); an.currentTime = el0; an.onfinish = () => { an.cancel(); login.style.opacity = ''; }; });
+      }
+      return;
+    }
     const first = S.lgT0 == null; if (first) S.lgT0 = performance.now();
     if (first) S.lgSkip = S.lgSeen ? 1000 : 0; // 같은 실행에서 다시 보일 땐 줄어드는 부분을 건너뛰어요
     S.lgSeen = true;
@@ -2976,12 +2987,12 @@
       ],
       sc: () => [
         el('div', { class: 'pfs' }, '상단 바에 표시'),
-        el('div', { class: 'scgrid' }, shortcutDefs().map((x) =>
+        ((defs) => el('div', { class: 'scgrid', style: `grid-template-rows: repeat(${Math.ceil(defs.length / 2)}, auto); grid-auto-flow: column` }, defs.map((x) => // 세로로 먼저 채워요
           el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: scOn(x), onchange: (e) => {
             const key = x.def ? 'hide' : 'show', h = new Set(PF[key] || []);
             if (e.target.checked === !!x.def) h.delete(x.k); else h.add(x.k);
             PF[key] = [...h]; commit('render');
-          } }), el('span', {}, x.label)))),
+          } }), el('span', {}, x.label)))))(shortcutDefs()),
       ],
       look: () => {
         const mon = PF.cal === 'month'; // 월별에선 이번 주 보기용 설정을 잠가요
