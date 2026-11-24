@@ -310,7 +310,10 @@ fn login_mode(window: WebviewWindow, st: State<Shared>, v: bool) {
     }
     // 로그인이 끝나면(로그인 화면을 벗어나면) 남아 있는 구글 로그인 창을 닫아요 (팝업이 스스로 닫히지 않을 때가 있어서)
     if !v {
-        for (label, w) in window.app_handle().webview_windows() { if label.starts_with("login") { let _ = w.close(); } }
+        let pops: Vec<WebviewWindow> = window.app_handle().webview_windows().into_iter().filter(|(l, _)| l.starts_with("login")).map(|(_, w)| w).collect();
+        if !pops.is_empty() {
+            std::thread::spawn(move || { std::thread::sleep(Duration::from_millis(300)); for w in pops { let _ = w.destroy(); } }); // close()로는 안 닫혀서 destroy
+        }
     }
 }
 #[tauri::command]
