@@ -127,7 +127,12 @@ function create() {
     shell.openExternal(url); return { action: 'deny' };
   });
   // 로그인 팝업에도 같은 UA 적용(안 하면 구글이 다른 화면을 내려줘 깨져 보임)
-  win.webContents.on('did-create-window', (child) => { child.webContents.setUserAgent(UA); child.setMenuBarVisibility(false); child.setTitle('HAGISIRO'); child.on('page-title-updated', (ev) => { ev.preventDefault(); child.setTitle('HAGISIRO'); }); });
+  win.webContents.on('did-create-window', (child) => {
+    child.webContents.setUserAgent(UA); child.setMenuBarVisibility(false);
+    const T = () => { if (!child.isDestroyed() && child.getTitle() !== 'HAGISIRO') child.setTitle('HAGISIRO'); }; // 창 제목이 패키지 이름(hagisiro-widget)이나 구글 페이지 제목으로 바뀌지 않게, 여러 시점에서 다시 맞춰요
+    T(); child.on('page-title-updated', (ev) => { ev.preventDefault(); T(); }); child.once('ready-to-show', T); child.on('show', T);
+    child.webContents.on('did-start-navigation', T); child.webContents.on('did-navigate', T); child.webContents.on('did-finish-load', T);
+  });
   // 위젯 위에서 오른쪽 버튼 → 트레이와 같은 메뉴 (입력칸에서는 기본 메뉴)
   win.webContents.on('context-menu', (e, params) => { if (!params.isEditable) menu().popup({ window: win }); });
   win.on('moved', () => { if (inLogin || expanded) return; st.bounds = win.getBounds(); save(); });
