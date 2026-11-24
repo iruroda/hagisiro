@@ -3026,7 +3026,7 @@
             .forEach((k) => { if (k in PF_DEF) PF[k] = JSON.parse(JSON.stringify(PF_DEF[k])); else delete PF[k]; });
           if (W && W.setZ) { try { S.zmode = await W.setZ('normal'); } catch (e) { /* 창 순서는 그대로 */ } }
           commit('range'); S.pfTab = 'view'; draw();
-        } }, icon('undo'), '기본으로 되돌리기');
+        } }, icon('backspace'), '기본으로 되돌리기');
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg pfdlg' },
         el('div', { class: 'shead' }, hb('gear', '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
