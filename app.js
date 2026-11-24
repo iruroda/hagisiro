@@ -2958,7 +2958,7 @@
           el('div', { class: 'pfs' }, '미니 버튼'),
           tog('ab', '출결', '', 'render'),
           tog('cons', '상담', '', 'render', !S.cloud),
-          tog('meal', '급식', '', 'render', !PF.school),
+          tog('meal', '급식', '', 'render'),
         ],
       view: () => [
         el('div', { class: 'pfs' }, '모양'),
