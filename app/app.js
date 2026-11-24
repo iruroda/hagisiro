@@ -3088,7 +3088,7 @@
 ] : []),
       ],
       sc: () => [
-        el('div', { class: 'pfs' }, '상단 바에 표시'),
+        el('div', { class: 'pfs' }, '상단 줄에 표시'),
         ((defs) => el('div', { class: 'scgrid', style: `grid-template-rows: repeat(${Math.ceil(defs.length / 2)}, auto); grid-auto-flow: column` }, defs.map((x) => // 세로로 먼저 채워요
           el('label', { class: 'pfr tg' }, el('input', { type: 'checkbox', checked: scOn(x), onchange: (e) => {
             const key = x.def ? 'hide' : 'show', h = new Set(PF[key] || []);

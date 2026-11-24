@@ -583,7 +583,7 @@ body { -webkit-tap-highlight-color: transparent; font-variant-numeric: tabular-n
 .pnav button { text-align: left; padding: 8px 10px; border-radius: var(--r); font-size: var(--fs-2); color: var(--mut); }
 .pnav button:hover { background: var(--bg2); color: var(--text); }
 .pnav button.on { background: var(--sel); color: var(--accent); }
-.pnav .preset { margin-top: auto; padding: 7px 10px; gap: 5px; font-size: 12px; white-space: nowrap; color: var(--mut); font-weight: 500; } /* 탭 목록 맨 아래 */
+.pnav .preset { margin-top: auto; padding: 7px 10px; gap: 5px; font-size: 12px; white-space: nowrap; color: var(--text); font-weight: 500; } /* 탭 목록 맨 아래 */
 .pnav .preset:hover { color: var(--text); }
 
 @media (max-width: 520px) {
