@@ -112,7 +112,6 @@
     excel: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M14.8 4v16M14.8 9.3h5.7M14.8 14.7h5.7"/><path class="f" d="M6.4 8h1.9L11.9 16h-1.9zM10 8h1.9L8.3 16H6.4z"/>',
     today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.5" r="2.65" class="f"/>',
     backspace: '<path d="M9.2 5.5H19a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H9.2L3.5 12z"/><path d="M12.6 9.4l4.2 5.2M16.8 9.4l-4.2 5.2"/>',
-    undo: '<path d="M9 5L4.5 9.5 9 14"/><path d="M4.5 9.5H14.5a5 5 0 0 1 0 10H10"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
     spade: '<path fill="currentColor" stroke-width="2.6" d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
@@ -3026,7 +3025,7 @@
             .forEach((k) => { if (k in PF_DEF) PF[k] = JSON.parse(JSON.stringify(PF_DEF[k])); else delete PF[k]; });
           if (W && W.setZ) { try { S.zmode = await W.setZ('normal'); } catch (e) { /* 창 순서는 그대로 */ } }
           commit('range'); S.pfTab = 'view'; draw();
-        } }, icon('backspace'), '기본으로 되돌리기');
+        } }, icon('uturn'), '기본으로 되돌리기');
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
       el('div', { class: 'dlg pfdlg' },
         el('div', { class: 'shead' }, hb('gear', '설정'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
@@ -3510,7 +3509,7 @@
     let dir = ''; // 화면을 넘길 때만: 'next'(오른쪽에서 밀려 들어옴) · 'prev'(왼쪽에서)
     const shell = (title, body, back) => {
       const kids = [
-        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: () => { dir = 'prev'; back(); }, 'aria-label': '이전' }, icon('uturn')) : null, el('b', {}, title)), body].filter(Boolean);
+        !title && !back ? null : el('div', { class: 'cvh' }, back ? el('button', { class: 'ib', type: 'button', onclick: () => { dir = 'prev'; back(); }, 'aria-label': '이전' }, icon('left')) : null, el('b', {}, title)), body].filter(Boolean);
       const d = dir; dir = '';
       host.replaceChildren(...kids);
       if (d) { kids.forEach((c) => c.classList.add('cs-' + d)); host.scrollTop = 0; } // 다음: 오른쪽에서 / 이전: 왼쪽에서 같은 속도로 들어와요
