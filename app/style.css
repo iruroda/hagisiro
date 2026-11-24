@@ -685,6 +685,7 @@ body.widget.loginmode #wmove, body.widget.loginmode #wedit { display: none; }
 body.widget.loginmode #app { padding: 0; }
 body.widget.loginmode #main > .login { margin: 14px; height: calc(100% - 28px); background: var(--bg-s); /* 투명도 설정과 상관없이 또렷하게 */ border-radius: var(--r-xl); -webkit-app-region: drag; user-select: none; }
 body.widget.loginmode #main > .login button { -webkit-app-region: no-drag; }
+body.loginmode:not(.widget) #main > .login { position: fixed; inset: 0; height: auto; z-index: 5; } /* 브라우저·모바일: 첫 파란 화면이 화면 전체를 덮도록 */
 
 /* 반복 설정 */
 .rsub { display: grid; }
