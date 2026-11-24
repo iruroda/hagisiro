@@ -371,7 +371,7 @@ fn main() {
                 }
                 WindowEvent::Moved(_) => {
                     let st = h2.state::<Shared>();
-                    if let Ok(mut s) = st.try_lock() { if !s.in_login { s.saved.bounds = Some(get_rect(&w2)); s.save(); } }
+                    if let Ok(mut s) = st.try_lock() { if !s.in_login { s.saved.bounds = Some(get_rect(&w2)); s.save(); } };
                 }
                 _ => {}
             });
