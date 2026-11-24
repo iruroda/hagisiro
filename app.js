@@ -1188,11 +1188,11 @@
     let geo = null, raf = 0;
     // 줄어드는 동안 매 프레임 창 모양을 다시 재요: 위젯 창이 로그인 크기로 줄어드는 중에도 파란색이 둥근 로그인 창에 딱 맞아요
     const measure = () => { const sv = box.firstElementChild.getBoundingClientRect(), c = login.getBoundingClientRect(), k = sv.width / 64 || 1;
-      geo = { x: (c.left - sv.left) / k, y: (c.top - sv.top) / k, w: c.width / k, h: c.height / k, r: (parseFloat(getComputedStyle(login).borderTopLeftRadius) || 0) / k }; };
+      geo = { x: (c.left - sv.left) / k, y: (c.top - sv.top) / k, w: c.width / k, h: c.height / k, r: (parseFloat(getComputedStyle(login).borderTopLeftRadius) || 0) / k, bleed: 2 / k }; };  // 가장자리가 반 픽셀씩 모자라 흰 줄이 보이지 않게 2px 크게 그리고, 둥근 로그인 창 모양으로 잘라요
     const draw = (T) => {
       const k = lgInOut(lgClamp((T - LGX.SH0) / (LGX.SH1 - LGX.SH0))), done = k >= 1;
-      if (!done) { measure(); R(q.OV, lgLerp(geo.x, 0, k), lgLerp(geo.y, 0, k), lgLerp(geo.w, 30, k), lgLerp(geo.h, 30, k)); q.OV.setAttribute('rx', lgLerp(geo.r, 9, k)); q.o0.setAttribute('stop-color', mix('#2f6df6', '#6d4aff', k * k * k)); }
-      q.OV.style.display = done ? 'none' : ''; q.sTL.setAttribute('opacity', done ? 1 : 0); q.TL.style.display = done ? '' : 'none';
+      if (!done) { measure(); const bl = geo.bleed * (1 - k); R(q.OV, lgLerp(geo.x, 0, k) - bl, lgLerp(geo.y, 0, k) - bl, lgLerp(geo.w, 30, k) + 2 * bl, lgLerp(geo.h, 30, k) + 2 * bl); q.OV.setAttribute('rx', lgLerp(geo.r, 9, k)); q.o0.setAttribute('stop-color', mix('#2f6df6', '#6d4aff', k * k * k)); }
+      login.style.overflow = done ? '' : 'hidden'; q.OV.style.display = done ? 'none' : ''; q.sTL.setAttribute('opacity', done ? 1 : 0); q.TL.style.display = done ? '' : 'none';
       q.H.setAttribute('opacity', lgClamp((T - LGX.HF0) / (LGX.HF1 - LGX.HF0)));
       const u = lgClamp((T - LGX.UI0) / (LGX.UI1 - LGX.UI0)); ui.forEach((n) => { n.style.opacity = u; n.style.pointerEvents = u > 0 ? '' : 'none'; });
       const t = T - LGX.OFF, tr = LGX.hold, td = tr + LGX.right + LGX.gap, tc = td + LGX.down + LGX.gap2;
