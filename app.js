@@ -3441,7 +3441,7 @@
         el('button', { class: 'ghost sm danger', type: 'button', onclick: async () => {
           if (!(await ask(`${z.name}${eul(z.name)} 삭제할까요?`))) return;
           PF.schools = PF.schools.filter((x) => x.code !== z.code);
-          if (PF.school && PF.school.code === z.code) { PF.school = PF.schools[0] || null; if (!PF.school) PF.meal = false; }
+          if (PF.school && PF.school.code === z.code) { PF.school = PF.schools[0] || null; }
           S.meal = {}; savePf(); loadMeal(); render(); changed = true; drawList();
         } }, icon('trash'), '삭제'))));
       const full = PF.schools.length >= 5;
