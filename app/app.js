@@ -1572,6 +1572,32 @@
     bar.style.top = Math.max(6, Math.min(y, innerHeight - h - 6)) + 'px';
   }
 
+  /* ---------- 터치 화면: 좌우로 밀어서 넘기기 (캘린더는 달·주, 출결은 날·주) ---------- */
+  {
+    let sw = null;
+    const hScroll = (n) => { for (let e = n; e && e !== document.body; e = e.parentElement) { if (e.scrollWidth > e.clientWidth + 2) { const o = getComputedStyle(e).overflowX; if (o === 'auto' || o === 'scroll') return true; } } return false; };
+    const navBtn = (next) => {
+      const re = next ? /^다음 (달|주|날)$/ : /^이전 (달|주|날)$/;
+      const pick = (root) => [...document.querySelectorAll(root + ' button[aria-label]')].find((b) => b.offsetParent && !b.disabled && re.test(b.getAttribute('aria-label')));
+      return (S.view === 'att' && pick('#main')) || pick('#top');
+    };
+    document.addEventListener('touchstart', (e) => {
+      sw = null;
+      if (e.touches.length !== 1 || S.editing || (S.view !== 'cal' && S.view !== 'att')) return;
+      const t = e.target;
+      if (!t.closest || !t.closest('#main') || t.closest('input, textarea, select, .dlg, #sheet, .tour') || hScroll(t)) return; // 옆으로 스크롤되는 표 안에서는 표를 스크롤
+      sw = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      if (!sw) return;
+      const p = e.changedTouches[0], dx = p.clientX - sw.x, dy = p.clientY - sw.y, dt = Date.now() - sw.t;
+      sw = null;
+      if (dt > 700 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      const b = navBtn(dx < 0); // 왼쪽으로 밀면 다음, 오른쪽으로 밀면 이전
+      if (b) b.click();
+    }, { passive: true });
+  }
+
   /* ---------- 끌어서 여러 개 선택 (보기 화면) → 아이콘 막대 ---------- */
   let skipClick = false, drag = null;
   const allowClick = () => setTimeout(() => { skipClick = false; }, 0);
