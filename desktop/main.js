@@ -53,6 +53,7 @@ function snapBounds(b, mode) {
 }
 ipcMain.handle('wb-get', () => (win ? win.getBounds() : null));
 ipcMain.on('wb-set', (e, b, mode) => { if (win && b) win.setBounds(snapBounds(b, mode)); });
+ipcMain.handle('installed', () => !process.env.PORTABLE_EXECUTABLE_FILE && app.isPackaged);
 ipcMain.handle('as-get', () => app.getLoginItemSettings().openAtLogin);
 ipcMain.handle('as-set', (e, v) => { app.setLoginItemSettings({ openAtLogin: !!v }); return app.getLoginItemSettings().openAtLogin; });
 ipcMain.on('min-w', (e, w) => { MINW = Math.max(240, Math.min(900, Math.round(+w) || 300)); if (win) { win.setMinimumSize(MINW, MINH); const b = win.getBounds(); if (b.width < MINW) win.setBounds({ ...b, width: MINW }); } });

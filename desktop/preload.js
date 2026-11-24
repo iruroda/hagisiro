@@ -12,4 +12,5 @@ contextBridge.exposeInMainWorld('hagisiroWidget', {
   hide: () => ipcRenderer.send('hide'),
   loginMode: (v) => ipcRenderer.send('login-mode', !!v),
   expand: (v) => ipcRenderer.invoke('expand', !!v),
+  installed: () => ipcRenderer.invoke('installed'), // 설치식이면 true (알림 위쪽에 앱 아이콘이 나오므로 본문 아이콘은 빼요)
 });
