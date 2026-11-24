@@ -238,7 +238,8 @@
   function applyPf() {
     normPf();
     const h = document.documentElement;
-    if (PF.theme === 'auto') h.removeAttribute('data-theme'); else h.setAttribute('data-theme', PF.theme);
+    const th = S.ready && S.cloudAvail && !S.user && !S.guest ? PF_DEF.theme : PF.theme; // 로그인 화면은 어느 계정 것도 아니라서 기본 설정을 따라요
+    if (th === 'auto') h.removeAttribute('data-theme'); else h.setAttribute('data-theme', th);
     h.style.setProperty('--wa', PF.opacity + '%');
     h.classList.toggle('noanim', PF.anim === false);
     const FS = { xs: 10, m: 14, l: 16, xl: 19 }, LH = [[1.2, 0], [1.3, 1], [1.4, 1], [1.55, 2], [1.75, 3]];
@@ -1155,7 +1156,7 @@
   let loginWinOn = false;
   function syncLoginWin() {
     const on = needLogin();
-    document.body.classList.toggle('loginmode', on);
+    if (document.body.classList.contains('loginmode') !== on) { document.body.classList.toggle('loginmode', on); applyPf(); } // 로그인 화면 ↔ 앱을 오갈 때 테마 다시 적용
     if (!on) { S.lgT0 = null; S.lgOut = false; S.lgFaded = 0; } // 로그인 화면을 벗어나면 다음에 다시 처음부터
     const api = window.hagisiroWidget;
     if (api && api.loginMode && on !== loginWinOn) { loginWinOn = on; api.loginMode(on); }
