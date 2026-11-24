@@ -4,7 +4,7 @@
   "version": "1.2.0",
   "description": "Hagisiro 바탕화면 위젯",
   "main": "main.js",
-  "author": "iruroda",
+  "author": "Iruroda",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
@@ -49,6 +49,8 @@
       "artifactName": "Hagisiro-Setup.exe",
       "allowToChangeInstallationDirectory": true,
       "language": "1042"
-    }
+    },
+    "copyright": "Copyright © Iruroda",
+    "buildVersion": "1.2.0.0"
   }
 }
