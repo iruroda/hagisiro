@@ -85,10 +85,10 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 @media (prefers-reduced-motion: reduce) { .vid video { animation: none; } }
 
 /* 상담: 선생님 표 + 비스듬히 놓인 학생 휴대폰 */
-.cstage { position: relative; max-width: 1080px; }
+.cstage { position: relative; max-width: 1080px; padding-bottom: 44%; }
 .p3d { transition: opacity .7s ease, translate .7s ease; }
 .p3d.hid { opacity: 0; translate: 0 14px; }
-.p3d { position: absolute; right: 2%; top: 24%; width: 20%; min-width: 120px; perspective: 1400px; }
+.p3d { position: absolute; right: 0; top: 30%; width: 38%; min-width: 120px; perspective: 1400px; }
 .phone { position: relative; border-radius: 15% / 7%; padding: 1.1%; background: linear-gradient(135deg, #d9d9df, #8d8c96 30%, #4b4a55 55%, #a9a8b2 80%, #e2e2e8);
   transform: rotateY(-26deg) rotateX(14deg) rotateZ(4deg); transform-style: preserve-3d;
   box-shadow: 1px 1px 0 #77767f, 2px 2px 0 #6a6972, 3px 3px 0 #5d5c65, 4px 4px 0 #504f58, 5px 5px 0 #44434b,
@@ -123,7 +123,8 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   .notes { display: grid; gap: 12px; margin: 20px 0 0; padding-left: 22px; color: var(--mut); font-size: 15.5px; }
   .notes li::marker { color: #6d4aff; font-weight: 800; }
   .notes b { display: block; color: var(--ink); }
-  .p3d { position: relative; width: 42%; margin: -40px 4% 0 auto; }
+  .cstage { padding-bottom: 0; }
+  .p3d { position: relative; width: 72%; margin: -60px 2% 0 auto; }
 }
 </style>
 </head>
@@ -186,13 +187,13 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
       <img src="site/cal.webp" alt="Hagisiro 캘린더 화면" width="1600" height="1240">
       <svg class="pen" viewBox="0 0 1000 720" aria-hidden="true">
         <g class="ln" fill="none" stroke="#6d4aff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="610,123 610,36 540,36"/>
+          <polyline points="635,123 635,36 540,36"/>
           <polyline points="700,137 760,137 760,170 798,170"/>
           <polyline points="302,441 206,441"/>
           <polyline points="254,553 254,622 288,622"/>
         </g>
-        <g class="dot" fill="none" stroke="#6d4aff" stroke-width="1.8"><circle cx="610" cy="137" r="14"/><circle cx="686" cy="137" r="14"/><rect x="302" y="412" width="77" height="58" rx="6"/><rect x="227" y="531" width="84" height="22" rx="6"/></g>
-        <g class="num"><g fill="#6d4aff"><circle cx="610" cy="163" r="9"/><circle cx="686" cy="163" r="9"/><circle cx="379" cy="412" r="9"/><circle cx="311" cy="531" r="9"/></g><g fill="#fff" font-size="11" font-weight="800" text-anchor="middle" dominant-baseline="central"><text x="610" y="163">1</text><text x="686" y="163">2</text><text x="379" y="412">3</text><text x="311" y="531">4</text></g></g>
+        <g class="dot" fill="none" stroke="#6d4aff" stroke-width="1.8"><circle cx="635" cy="137" r="14"/><circle cx="686" cy="137" r="14"/><rect x="302" y="412" width="77" height="58" rx="6"/><rect x="227" y="531" width="84" height="22" rx="6"/></g>
+        <g class="num"><g fill="#6d4aff"><circle cx="635" cy="163" r="9"/><circle cx="686" cy="163" r="9"/><circle cx="379" cy="412" r="9"/><circle cx="311" cy="531" r="9"/></g><g fill="#fff" font-size="11" font-weight="800" text-anchor="middle" dominant-baseline="central"><text x="635" y="163">1</text><text x="686" y="163">2</text><text x="379" y="412">3</text><text x="311" y="531">4</text></g></g>
       </svg>
       <div class="note" style="left:25.4%;top:.4%;text-align:right;width:28%"><b>급식 확인</b>주간 급식표를 바로 확인합니다.</div>
       <div class="note" style="left:80.5%;top:21.5%;width:19.5%"><b>시간표와 진도 확인</b>내 시간표를 확인하고 진도표에서 수업 진도를 기록합니다.</div>
@@ -209,7 +210,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 </main>
 <script>
 /* 상담 영상: 링크를 복사한 뒤에 학생 휴대폰이 나타나요 */
-(() => { const v = document.getElementById('cvid'), ph = document.querySelector('.p3d'); if (v && ph) v.addEventListener('timeupdate', () => ph.classList.toggle('hid', v.currentTime < 9.3)); })();
+(() => { const v = document.getElementById('cvid'), ph = document.querySelector('.p3d'); if (v && ph) v.addEventListener('timeupdate', () => ph.classList.toggle('hid', v.currentTime < 9.1)); })();
 </script>
 
 
