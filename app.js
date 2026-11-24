@@ -458,6 +458,8 @@
   }
   /* 날짜·달·주를 넘길 땐 화면이 벨트처럼 이어져 움직여요: 월별·출결은 좌우, 이번 주 보기는 상하 */
   /* 'tflat'(바탕 한 겹)을 켜고 끌 때는 칸·줄의 바탕색 전환(.12s)이 걸리지 않게 두 프레임 막아요: 안 그러면 한 번 완전히 투명해졌다가 천천히 채워져요 */
+  /* 옆으로 들어오는 전환(탭·월/일/주 이동·상담 화면)의 공통 값: 출발은 살짝 느리게 붙고 끝에서 길게 가라앉는 곡선 + 새 화면이 천천히 나타나게 + 맞닿는 선에 옅은 그림자 */
+  const SL = { dur: 360, ease: 'cubic-bezier(.3,.08,.2,1)', fade: 200, shadow: (dir) => `${-dir * 10}px 0 18px -8px rgba(0,0,0,.16)`, none: '0 0 0 0 rgba(0,0,0,0)' };
   let flatTok = 0;
   const flatOff = () => { const r = document.documentElement, k = ++flatTok; r.classList.add('notr'); requestAnimationFrame(() => requestAnimationFrame(() => { if (k === flatTok) r.classList.remove('notr'); })); };
   const noAnim = () => document.documentElement.classList.contains('noanim') || !PF.anim;
@@ -535,9 +537,9 @@
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1`;
       node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none';
       flatOff(); t.classList.add('tflat'); node.classList.add('tflat');
-      const D = 22, fo = { ...opt, duration: 280, fill: 'both' };
-      an = t.animate([{ transform: `translateX(${dir * D}%)` }, { transform: 'none' }], fo);
-      an2 = t.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-out', fill: 'both' });
+      const D = 22, fo = { ...opt, duration: SL.dur, easing: SL.ease, fill: 'both' };
+      an = t.animate([{ transform: `translateX(${dir * D}%)`, boxShadow: SL.shadow(dir) }, { transform: 'none', boxShadow: SL.none }], fo);
+      an2 = t.animate([{ opacity: 0 }, { opacity: 1 }], { duration: SL.fade, easing: 'ease-out', fill: 'both' });
       an3 = node.animate(dir > 0
         ? [{ clipPath: `inset(0 ${100 - D}% 0 0)` }, { clipPath: 'inset(0 100% 0 0)' }]
         : [{ clipPath: `inset(0 0 0 ${100 - D}%)` }, { clipPath: 'inset(0 0 0 100%)' }], fo);
@@ -578,9 +580,9 @@
            * 옛 화면은 새 화면이 덮은 부분을 잘라내서, 두 화면이 겹쳐 비치지 않아요. */
           const ORD = { cal: 0, att: 1, consult: 2 }; // 오른쪽 탭으로 가면 오른쪽에서, 왼쪽 탭으로 가면 왼쪽에서
           const dir = (ORD[S.view] ?? 0) >= (ORD[String(S.lastKey).split('|')[0]] ?? 0) ? 1 : -1;
-          const D = 22, opt = { duration: 280, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'both' };
-          const an = c.animate([{ transform: `translateX(${dir * D}%)` }, { transform: 'none' }], opt);
-          const fade = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-out', fill: 'both' }); // 순간이동이 깜빡임처럼 보이지 않게 짧게 페이드인
+          const D = 22, opt = { duration: SL.dur, easing: SL.ease, fill: 'both' };
+          const an = c.animate([{ transform: `translateX(${dir * D}%)`, boxShadow: SL.shadow(dir) }, { transform: 'none', boxShadow: SL.none }], opt);
+          const fade = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: SL.fade, easing: 'ease-out', fill: 'both' }); // 순간이동이 깜빡임처럼 보이지 않게 짧게 페이드인
           ghost.animate(dir > 0
             ? [{ clipPath: `inset(0 ${100 - D}% 0 0)` }, { clipPath: 'inset(0 100% 0 0)' }]
             : [{ clipPath: `inset(0 0 0 ${100 - D}%)` }, { clipPath: 'inset(0 0 0 100%)' }], opt);
@@ -3501,11 +3503,11 @@
       host.replaceChildren(...kids);
       if (d && !noAnim()) { // 탭 전환과 같은 방식: 새 화면이 옆 22% 자리에서 페이드인하며 끝까지 덮고, 옛 화면은 덮인 부분만 잘라내요 (다음: 오른쪽에서 / 이전: 왼쪽에서)
         host.scrollTop = 0;
-        const dr = d === 'next' ? 1 : -1, D = 22, fo = { duration: 280, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'both' };
+        const dr = d === 'next' ? 1 : -1, D = 22, fo = { duration: SL.dur, easing: SL.ease, fill: 'both' };
         const ghost = el('div', { class: 'cv cs-ghost', 'aria-hidden': 'true' }, ...olds);
         ghost.inert = true; ghost.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
         host.append(ghost);
-        const ans = kids.flatMap((c) => [c.animate([{ transform: `translateX(${dr * D}%)` }, { transform: 'none' }], fo), c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-out', fill: 'both' })]);
+        const ans = kids.flatMap((c) => [c.animate([{ transform: `translateX(${dr * D}%)` }, { transform: 'none' }], fo), c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: SL.fade, easing: 'ease-out', fill: 'both' })]);
         const ga = ghost.animate(dr > 0 ? [{ clipPath: `inset(0 ${100 - D}% 0 0)` }, { clipPath: 'inset(0 100% 0 0)' }] : [{ clipPath: `inset(0 0 0 ${100 - D}%)` }, { clipPath: 'inset(0 0 0 100%)' }], fo);
         ga.onfinish = ga.oncancel = () => { ghost.remove(); ans.forEach((x) => x.cancel()); };
       }
