@@ -37,16 +37,14 @@ img { max-width: 100%; height: auto; display: block; }
 .ins svg { position: absolute; left: -.05em; bottom: .3em; width: .85em; height: .85em; overflow: visible; }
 .hero .name { display: flex; align-items: center; justify-content: center; gap: .28em; margin: 22px 0 0; font-size: clamp(26px, 5.4vw, 58px); line-height: 1.1; font-weight: 800; letter-spacing: -.02em; }
 .hero .name img { width: 1.1em; height: 1.1em; }
-.cta { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); justify-content: center; gap: 10px; margin-top: 30px; }
+.cta { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); grid-template-rows: 54px 54px; justify-content: center; gap: 10px; margin-top: 30px; }
 .btn { display: flex; align-items: center; justify-content: center; gap: 9px; height: 54px; padding: 0 18px; border-radius: 13px; font-weight: 700; font-size: 17px; text-decoration: none; white-space: nowrap; }
 .btn svg { width: 19px; height: 19px; flex: none; }
 .btn.pri { background: var(--violet); color: #fff; }
 .btn.pri:hover { background: var(--violet-ink); }
 .btn.alt { background: var(--card); box-shadow: inset 0 0 0 1px var(--line); }
 .btn.alt:hover { box-shadow: inset 0 0 0 1px var(--mut); }
-.dl2 { margin: 14px 0 0; font-size: 15px; line-height: 1.4; }
-.dl2 a { color: var(--mut); text-underline-offset: 3px; }
-.dl2 a:hover { color: var(--ink); }
+.cta .m { grid-column: 2; grid-row: 1 / span 2; height: auto; flex-direction: column; }
 
 .desk { position: relative; margin-top: 52px; border-radius: min(8px, 1.1vw); overflow: hidden; aspect-ratio: 16 / 9.4; background:
   radial-gradient(60% 80% at 85% 15%, rgba(21,128,122,.7), transparent 70%),
@@ -116,7 +114,8 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   .two { grid-template-columns: 5fr 7fr; gap: 56px; }
 }
 @media (max-width: 700px) {
-  .cta { grid-template-columns: minmax(0, 1fr); width: min(320px, 100%); margin-inline: auto; }
+  .cta { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; width: min(320px, 100%); margin-inline: auto; }
+  .cta .m { grid-column: auto; grid-row: auto; height: 54px; flex-direction: row; }
   .desk > img { left: 6%; width: 88%; }
   .dicons { display: none; }
   section { padding-top: 64px; }
@@ -249,10 +248,10 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
     <p class="name"><img src="app/icons/icon.svg" alt="">Hagisiro</p>
     <div class="cta">
       <a class="btn pri" href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Windows용 다운로드</a>
-      <a class="btn alt" href="app/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>모바일에서 사용하기</a>
+      <a class="btn alt" href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>포터블 버전 다운로드</a>
+      <a class="btn alt m" href="app/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>모바일에서 사용하기</a>
     </div>
-    <p class="dl2"><a href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro.exe">설치 없이 실행하는 파일</a></p>
-    <div class="desk" role="img" aria-label="바탕화면 한쪽에 반투명하게 떠 있는 Hagisiro 캘린더">
+        <div class="desk" role="img" aria-label="바탕화면 한쪽에 반투명하게 떠 있는 Hagisiro 캘린더">
       <div class="dicons" aria-hidden="true">
         <div class="dicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5h11l-1 12.2a1.5 1.5 0 0 1-1.5 1.3H9a1.5 1.5 0 0 1-1.5-1.3z" fill="#dfe6f2"/><path d="M5.5 6.5h13" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M10 4.5h4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M10.3 10.5v7.5M13.7 10.5v7.5" stroke="#9aa6bb" stroke-width="1.2" stroke-linecap="round"/></svg>휴지통</div>
         <div class="dicon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="12" rx="1.8" fill="#4f8ff7"/><rect x="4.6" y="6" width="14.8" height="9" rx=".8" fill="#9cc6ff"/><path d="M9 20h6M12 16.5V20" stroke="#dfe6f2" stroke-width="1.6" stroke-linecap="round"/></svg>내 PC</div>
