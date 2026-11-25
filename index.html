@@ -163,11 +163,11 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm-tdo .pop li::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #c3c1d1; flex: none; }
 .dm-tdo li.d { color: var(--mut); text-decoration: line-through; text-decoration-thickness: 2px; }
 .dm-tdo .c li.d { text-decoration-thickness: 1px; }
-.dm-tdo .pop li i { display: inline-block; width: 2px; height: 26px; margin-left: 2px; background: var(--violet); animation: dmc 1s steps(1) infinite; }
+.dm-tdo .pop li i { display: inline-block; width: 2px; height: 26px; margin-left: -10px; background: var(--violet); animation: dmc 1s steps(1) infinite; }
 .dm-tdo .tl { display: flex; gap: 8px; margin-top: 6px; }
 .dm-tdo .tl span { width: 46px; height: 46px; border-radius: 10px; display: grid; place-items: center; transition: background-color .2s, color .2s, transform .12s; }
 .dm-tdo .tl span.on { background: var(--tint); color: var(--violet); } .dm-tdo .tl span.p { transform: scale(.9); }
-.dm-tdo .tl svg { width: 24px; height: 24px; }
+.dm-tdo .tl svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.15; stroke-linecap: round; stroke-linejoin: round; }
 .dm-tdo .pt svg { fill: none; stroke: currentColor; stroke-width: 2.15; stroke-linecap: round; stroke-linejoin: round; }
 
 /* 출결 */
