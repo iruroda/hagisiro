@@ -209,7 +209,7 @@
     view: ls.get('hagisiro:view') === 'att' ? 'att' : 'cal',
     sub: ['month', 'week'].includes(ls.get('hagisiro:sub')) ? ls.get('hagisiro:sub') : 'day',
     y: now.getFullYear(), m: now.getMonth(), sel: ymd(now),
-    ddays: [], alms: [], todos: [], classes: [], att: [], settings: [], days: [], repeats: [], docs: [], gcal: {},
+    ddays: [], alms: [], todos: [], classes: [], att: [], settings: [], days: [], repeats: [], docs: [],
     extra: {},
     weekAll: ls.get('hagisiro:weekall') === '1',
     user: null, cloud: null, cloudMod: null, cloudAvail: false,
@@ -353,10 +353,10 @@
       S.unsubs.push(S.cloud.watch('todos', rg, (d) => { S.todos = d; render(); }, cloudErr));
       S.unsubs.push(S.cloud.watch('att', rg, (d) => { S.att = d.map(normRec); render(); }, cloudErr));
       S.unsubs.push(S.cloud.watch('days', rg, (d) => { S.days = d; render(); }, cloudErr));
-      // Google 일정 사본(연동할 때 가져와 저장해 둔 것) — 토큰이 만료돼도 체크를 풀 때까지 보여요
-      S.unsubs.push(S.cloud.watch('gcal', rg, (d) => { S.gcal = gcalWanted() ? Object.fromEntries(d.map((x) => [x.date, x.items || []])) : {}; render(); }, cloudErr));
+      // 없앤 Google 캘린더 연동의 흔적 정리(예전에 켜 둔 계정만 한 번)
+      if (ls.get('hagisiro:gcal') === '1') { ls.set('hagisiro:gcal', '0'); S.cloud.clearAll('gcal').catch(() => {}); }
     }
-    loadGcal(); loadGhol(); loadMeal();
+    loadGhol(); loadMeal();
   }
   /* 캘린더 '상담' 버튼: 날짜별 상담 신청 수 (상담표마다 신청 목록을 실시간으로 지켜봐요) */
   function watchConsults() {
@@ -400,7 +400,7 @@
   /* ================= 부팅 / 로그인 ================= */
   function enterLocal() {
     stopWatches(); S.cloud = null; S.user = null; S.clsLoaded = true;
-    Data.loadLocal(); S.gcal = {}; render();
+    Data.loadLocal(); render();
   }
   /* 위젯: 로그인 화면을 거치지 않고(이 기기에만 저장 → 메뉴에서 로그인) 로그인하면 구글 로그인 창이 안 닫히고 남아서, 끝났을 때 닫아요 */
   const closeLoginWin = () => { const w = window.hagisiroWidget; if (w && w.loginMode && !loginWinOn) w.loginMode(false); };
@@ -441,7 +441,7 @@
             if (S.user) { S.lgOut = true; S.lgFaded = 0; } // 로그인해 쓰던 중에 로그아웃: 로그인 화면은 처음 애니메이션 없이 부드럽게 나타나요
             S.user = null; S.cloud = null; stopWatches();
             if (S.guest) enterLocal();
-            else { COLS.forEach((c) => { S[c] = []; }); S.gcal = {}; S.clsLoaded = true; render(); }
+            else { COLS.forEach((c) => { S[c] = []; }); S.clsLoaded = true; render(); }
           }
         });
         return;
@@ -1369,7 +1369,6 @@
         if (!d) { grid.append(el('div', { class: 'cell blank' + (row.gap ? ' mgap' : ''), 'aria-hidden': 'true', 'data-rk': rk, style: `grid-row:${gapIdx[ri]}` })); continue; }
       const ds = ymd(d);
       const list = itemsOn(ds);
-      const gl = S.gcal[ds] || [];
       const hn = holName(ds, d);
       const lu = PF.lunar && window.Lunar ? Lunar.lunarLabel(d) : '';
       const tm = PF.terms && window.Lunar ? Lunar.termOf(d) : '';
@@ -1381,12 +1380,12 @@
           hn || tm || lu ? el('span', { class: 'sb' },
             hn ? el('i', { class: 'hn' }, hn) : null, tm ? el('i', { class: 'tm' }, tm) : null, lu ? el('i', { class: 'lu' }, lu) : null) : null,
           ),
-        el('div', { class: 'tl' }, gl.map(gev), list.map(todoRow)),
+        el('div', { class: 'tl' }, list.map(todoRow)),
         (PF.ab && attBy[ds]) || (PF.cons && S.cloud && S.cbk && S.cbk[ds]) || (PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length) ? el('div', { class: 'cbt' },
           PF.ab && attBy[ds] ? el('button', { class: 'ab', 'data-act': 'att' }, `출결 ${attBy[ds]}`) : null,
           PF.cons && S.cloud && S.cbk && S.cbk[ds] ? el('button', { class: 'ab mb', 'data-act': 'cons' }, `상담 ${S.cbk[ds].n}`) : null,
           PF.meal && S.meal[ds] && mealShown(S.meal[ds]).length ? el('button', { class: 'ab mb', 'data-act': 'meal' }, '급식') : null) : null,
-        el('div', { class: 'dots' }, list.slice(0, 5).map((t) => el('i', { class: t.done ? 'on' : '' })), gl.length ? el('i', { class: 'g' }) : null)));
+        el('div', { class: 'dots' }, list.slice(0, 5).map((t) => el('i', { class: t.done ? 'on' : '' })))));
       }
     }
 
@@ -1437,10 +1436,6 @@
     document.querySelectorAll('.cell.sel').forEach((c) => c.classList.remove('sel'));
     const c = document.querySelector(`.cell[data-date="${ds}"]`);
     if (c) c.classList.add('sel');
-  }
-
-  function gev(ev) {
-    return el('div', { class: 'gev' }, (ev.t ? ev.t + ' ' : '') + ev.s);
   }
 
   /* ================= 반복 규칙 =================
@@ -1954,11 +1949,9 @@
     const noBlur = (b) => { b.addEventListener('mousedown', (e) => e.preventDefault()); return b; };
     const close = noBlur(el('button', { class: 'ib', type: 'button', 'aria-label': '닫기', onclick: () => api && api.finish() }, icon('close')));
     const foot = el('div', { class: 'sfoot' });
-    const g = (S.gcal[ds] || []).map(gev);
     sh.append(el('div', { class: 'back', onclick: () => api && api.finish() }),
       el('div', { class: 'panel' },
         el('div', { class: 'shead' }, el('b', {}, `${md(ymd(d))}`), el('span', { class: 'grow' }), close),
-        g.length ? el('div', { class: 'sg' }, g) : null,
         body, foot));
     sh.querySelector('.panel').addEventListener('mousedown', (e) => { if (!e.target.closest('input, textarea, select, button')) e.preventDefault(); });
     api = openEditor(body, ds, () => { sh.hidden = true; sh.replaceChildren(); }, { barHost: foot, focusId: opt.focusId });
@@ -3127,12 +3120,6 @@
           tog('hol', '공휴일', '', 'ghol'),
           tog('lunar', '음력 날짜'),
           tog('terms', '24절기'),
-          S.cloud ? el('label', { class: 'pfr tg' },
-            el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
-              const cb = e.target;
-              if (cb.checked) connectGcal().finally(() => { cb.checked = gcalWanted(); });
-              else { ls.set('hagisiro:gcal', '0'); S.gcal = {}; S.cloud.clearAll('gcal').catch(cloudErr); render(); }
-            } }), el('span', {}, 'Google 캘린더 일정')) : null,
           el('div', { class: 'pfs' }, '미니 버튼'),
           tog('ab', '출결', '', 'render'),
           tog('cons', '상담', '', 'render', !S.cloud),
@@ -3319,78 +3306,18 @@
     (c ? ta : name).focus();
   }
 
-  /* ================= Google 캘린더 (선택, 읽기 전용) ================= */
-  const GK = 'hagisiro:gtok';
-  function gtoken() {
-    try { const o = JSON.parse(sessionStorage.getItem(GK) || 'null'); if (o && o.exp > Date.now()) return o.t; } catch (e) { /* noop */ }
-    return null;
-  }
-  const gcalWanted = () => !!S.cloud && ls.get('hagisiro:gcal') === '1';
-  async function connectGcal() {
-    try {
-      const t = await S.cloud.calendarToken();
-      closeLoginWin();
-      if (!t) return;
-      try { sessionStorage.setItem(GK, JSON.stringify({ t, exp: Date.now() + 50 * 60e3 })); } catch (e) { /* noop */ }
-      ls.set('hagisiro:gcal', '1');
-      await loadGcal();
-      render();
-    } catch (e) { console.error(e); }
-  }
-  async function loadGcal() {
-    if (!gcalWanted()) return;
-    const tok = gtoken();
-    if (!tok) return; // 토큰이 없어도 저장해 둔 일정은 그대로 보여요
-    const r = range();
-    const end = parseYmd(r.to); end.setDate(end.getDate() + 1);
-    const url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?' + new URLSearchParams({
-      timeMin: r.start.toISOString(), timeMax: end.toISOString(), singleEvents: 'true', orderBy: 'startTime', maxResults: '250',
-    });
-    try {
-      const res = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
-      if (res.status === 401 || res.status === 403) {
-        try { sessionStorage.removeItem(GK); } catch (e) { /* noop */ }
-        return;
-      }
-      const j = await res.json();
-      const g = {};
-      (j.items || []).forEach((ev) => {
-        if (ev.status === 'cancelled' || !ev.start) return;
-        const s = ev.summary || '(제목 없음)';
-        if (ev.start.date) {
-          let d = parseYmd(ev.start.date); const e2 = parseYmd(ev.end.date);
-          for (let i = 0; d < e2 && i < 31; i++) { (g[ymd(d)] = g[ymd(d)] || []).push({ s }); d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
-        } else {
-          const ds = ev.start.dateTime.slice(0, 10);
-          (g[ds] = g[ds] || []).push({ s, t: ev.start.dateTime.slice(11, 16) });
-        }
-      });
-      // 가져온 일정을 내 계정에 저장해 둬요(바뀐 날짜만) — 토큰이 만료돼도 체크를 풀 때까지 남아요
-      const next = { ...S.gcal };
-      for (let d = parseYmd(r.from); ymd(d) <= r.to; d.setDate(d.getDate() + 1)) {
-        const ds = ymd(d), n = g[ds], c = S.gcal[ds];
-        if (JSON.stringify(n || null) === JSON.stringify(c || null)) continue;
-        if (n) { next[ds] = n; S.cloud.save('gcal', { id: ds, date: ds, items: n }).then(saveOk, cloudErr); }
-        else { delete next[ds]; S.cloud.remove('gcal', ds).then(saveOk, cloudErr); }
-      }
-      S.gcal = next; render();
-    } catch (e) { console.error(e); }
-  }
-
   /* Google '대한민국의 휴일' 공개 캘린더 (임시공휴일 등 반영) — 로그인·권한 없이 공개 키로 읽어요 */
   async function loadGhol() {
     if (!PF.hol) { if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
     const key = window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey;
-    const tok = gtoken();
-    if (!key && !tok) return;
+    if (!key) return;
     const r = range();
     const end = parseYmd(r.to); end.setDate(end.getDate() + 1);
     const q = { timeMin: r.start.toISOString(), timeMax: end.toISOString(), singleEvents: 'true', maxResults: '100' };
     if (key) q.key = key;
     const url = 'https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent('ko.south_korea#holiday@group.v.calendar.google.com') + '/events?' + new URLSearchParams(q);
     try {
-      let res = await fetch(url);
-      if (!res.ok && tok) res = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } }); // 키로 안 되면 로그인 권한으로 한 번 더
+      const res = await fetch(url);
       if (!res.ok) {
         return;
       }

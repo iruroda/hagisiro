@@ -37,15 +37,6 @@ export async function login() {
 
 export function logout() { return signOut(auth); }
 
-// 구글 캘린더(읽기 전용) 연동용 토큰 — 선택 기능
-export async function calendarToken() {
-  const p = new GoogleAuthProvider();
-  p.addScope('https://www.googleapis.com/auth/calendar.readonly');
-  const r = await signInWithPopup(auth, p);
-  const cred = GoogleAuthProvider.credentialFromResult(r);
-  return cred && cred.accessToken;
-}
-
 const colRef = (name) => collection(db, 'users', user.uid, name);
 
 export function watch(name, range, onData, onError) {
