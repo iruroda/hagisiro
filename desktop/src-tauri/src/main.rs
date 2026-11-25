@@ -203,17 +203,12 @@ fn reveal(app: &AppHandle) {
     let _ = w.set_always_on_top(true);
     let _ = w.set_focus();
 }
-/* 보이는 것만으로는 앞에 있다고 할 수 없음(맨 뒤 모드에선 다른 창에 가려짐): 포커스가 있을 때만 '앞'으로 봄 */
-fn front(app: &AppHandle) -> bool {
-    app.get_webview_window("main").map_or(false, |w| w.is_visible().unwrap_or(false) && w.is_focused().unwrap_or(false))
-}
-fn toggle(app: &AppHandle) {
-    if front(app) { if let Some(w) = app.get_webview_window("main") { let _ = w.hide(); } } else { reveal(app); }
-}
 fn menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
-    let t = MenuItem::with_id(app, "toggle", if front(app) { "숨기기" } else { "열기" }, true, None::<&str>)?;
+    // 글자를 상태에 따라 바꾸지 않고 고정: 클릭하는 순간 메뉴를 갈아끼우면 빈 작은 상자만 뜨던 문제
+    let o = MenuItem::with_id(app, "open", "열기", true, None::<&str>)?;
+    let h = MenuItem::with_id(app, "hide", "숨기기", true, None::<&str>)?;
     let q = MenuItem::with_id(app, "quit", "종료", true, None::<&str>)?;
-    Menu::with_items(app, &[&t, &q])
+    Menu::with_items(app, &[&o, &h, &q])
 }
 
 /* ---------- 시작 프로그램 (Windows 시작 시 실행) ---------- */
@@ -366,7 +361,8 @@ fn main() {
         .plugin(tauri_plugin_notification::init())
         .invoke_handler(tauri::generate_handler![wb_get, wb_set, wb_done, installed, as_get, as_set, min_w, z_get, z_set, quit, hide, login_mode, notify, ctx_menu])
         .on_menu_event(|app, e| match e.id().as_ref() {
-            "toggle" => toggle(app),
+            "open" => reveal(app),
+            "hide" => { if let Some(w) = app.get_webview_window("main") { let _ = w.hide(); } }
             "quit" => app.exit(0),
             _ => {}
         })
@@ -470,10 +466,7 @@ fn main() {
                 .on_tray_icon_event(|tray, e| {
                     let app = tray.app_handle();
                     match e {
-                        TrayIconEvent::Click { button: MouseButton::Left, button_state: MouseButtonState::Up, .. } => toggle(app),
-                        TrayIconEvent::Click { button: MouseButton::Right, button_state: MouseButtonState::Down, .. } => {
-                            if let Ok(m) = menu(app) { let _ = tray.set_menu(Some(m)); } // 열기·숨기기 글자를 지금 상태에 맞게
-                        }
+                        TrayIconEvent::Click { button: MouseButton::Left, button_state: MouseButtonState::Up, .. } => reveal(app), // 트레이를 누르면 포커스가 넘어가서 '앞에 있는지' 판단이 안 맞아 숨기기만 되던 것: 왼쪽 클릭은 항상 꺼내기
                         _ => {}
                     }
                 })
