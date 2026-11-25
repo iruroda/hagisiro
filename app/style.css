@@ -461,8 +461,6 @@ input, textarea, .docdlg, .docdlg * { -webkit-user-select: text; user-select: te
 /* 상단바는 한 줄 고정 — 넘치면 ⋯ 로 접어요 */
 #top { flex-wrap: nowrap !important; overflow: hidden; }
 #top > * { flex: none; }
-#top .tabs { flex: 0 1 auto; min-width: 0; overflow: hidden; } /* 창이 아주 좁아져도 오른쪽 ⋯·메뉴(이동·크기 조절)는 항상 보이게: 모자라면 탭이 잘려요 */
-#top .right { flex: none; }
 #top .right { gap: 4px; }
 .mi.on { color: var(--accent); font-weight: 600; }
 
