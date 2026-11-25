@@ -174,13 +174,14 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 
 /* 출결 */
 .dm-att .in { padding: 22px 20px 20px; }
+.dm-att .sr, .dm-att .dh { flex: none; }
 .dm .sr { display: flex; gap: 10px; }
 .dm .inp { flex: 1; height: 58px; border-radius: 12px; border: 2px solid #b9a8ff; box-shadow: 0 0 0 3px rgba(109,74,255,.12); padding: 0 16px; display: flex; align-items: center; font-size: 22px; font-weight: 500; white-space: nowrap; overflow: hidden; }
 .dm .inp i { display: inline-block; width: 2px; height: 26px; margin-left: 2px; background: var(--violet); animation: dmc 1s steps(1) infinite; }
 .dm .go { width: 58px; height: 58px; border-radius: 12px; background: var(--violet); display: grid; place-items: center; transition: transform .12s; }
 .dm .go.p { transform: scale(.93); }
 .dm .go svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 2.15; stroke-linecap: round; stroke-linejoin: round; }
-.dm .chips { height: 32px; margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.dm .chips { height: 32px; flex: none; margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .dm .chips .mut { font-size: 14px; color: var(--mut); }
 .dm .chip { padding: 4px 14px; border-radius: 99px; font-size: 15px; color: var(--tc); background: color-mix(in srgb, var(--tc) 13%, #fff); opacity: 0; transform: translateY(4px); transition: opacity .35s, transform .35s; }
 .dm .chip.on { opacity: 1; transform: none; }
