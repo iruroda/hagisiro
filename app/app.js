@@ -2829,7 +2829,7 @@
       };
       const dateRow = (go) => el('tr', { class: 'pdr' }, days.map((d) => el('th', go ? { class: 'pd go' + (bulk === ymd(d) ? ' sel' : ''), onclick: () => { bulk = bulk === ymd(d) ? null : ymd(d); sel = null; drawAll(); } } : { class: 'pd' }, dl(d))));
       if (none) {
-        wrap.replaceChildren(el('div', { class: 'empty mut' }, '먼저 내 시간표를 표로 만들어 주세요.'));
+        wrap.replaceChildren(el('div', { class: 'empty mut' }, '먼저 내 시간표를 만들어 주세요. (이미지는 불가)'));
         sel = null; bulk = null; drawEdit(); return;
       }
       const body = list.map((n, i) => {
