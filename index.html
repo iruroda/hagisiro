@@ -87,11 +87,11 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 
 /* 상담: 선생님 표 + 비스듬히 놓인 학생 휴대폰 */
 /* 휴대폰 위치·크기는 영상 너비 기준 하나로만 (화면 크기별로 따로 두지 않음) */
-.cstage { position: relative; container-type: inline-size; min-height: 70cqw; }
+.cstage { position: relative; container-type: inline-size; max-width: 640px; margin-inline: auto; }
 .cstage .vid { margin-top: 30px; }
 .p3d { transition: opacity .7s ease, translate .7s ease; }
 .p3d.hid { opacity: 0; translate: 0 14px; }
-.p3d { position: absolute; right: 0; top: 30px; width: 32cqw; perspective: 1400px; }
+.p3d { position: absolute; right: 1cqw; top: 14cqw; width: 26cqw; perspective: 1400px; }
 .phone { position: relative; border-radius: 15% / 7%; padding: 1.1%; background: linear-gradient(135deg, #d9d9df, #8d8c96 30%, #4b4a55 55%, #a9a8b2 80%, #e2e2e8);
   transform: rotateY(-26deg) rotateX(14deg) rotateZ(4deg); transform-style: preserve-3d;
   box-shadow: 1px 1px 0 #77767f, 2px 2px 0 #6a6972, 3px 3px 0 #5d5c65, 4px 4px 0 #504f58, 5px 5px 0 #44434b,
@@ -134,8 +134,9 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 
 /* 출결·상담 예시: 실제 화면을 줄여 찍은 영상 대신, 핵심만 크게 만든 움직이는 그림 (폭 560·640 기준으로 만들고 칸 너비에 맞춰 비율만 줄여요) */
 .dm { --yel: #d98a00; --sat: #2f6df6; --teal: #12c9b3; position: relative; margin: 30px auto 0; background: #fff; border-radius: 12px; box-shadow: 0 18px 40px -12px rgba(40,30,90,.3); overflow: hidden; }
-.dm .in { position: absolute; left: 0; top: 0; transform-origin: 0 0; font-size: 15px; line-height: 1.4; color: var(--ink); text-align: left; word-break: keep-all; }
-.dm-att { max-width: 560px; } .dm-att .in { width: 560px; padding: 22px 20px 20px; }
+.dm .in { position: absolute; left: 0; top: 0; width: 640px; height: 480px; display: flex; flex-direction: column; transform-origin: 0 0; font-size: 15px; line-height: 1.4; color: var(--ink); text-align: left; word-break: keep-all; }
+.dm { max-width: 640px; }
+.dm-att .in { padding: 22px 20px 20px; }
 .dm .sr { display: flex; gap: 10px; }
 .dm .inp { flex: 1; height: 58px; border-radius: 12px; border: 2px solid #b9a8ff; box-shadow: 0 0 0 3px rgba(109,74,255,.12); padding: 0 16px; display: flex; align-items: center; font-size: 22px; font-weight: 500; white-space: nowrap; overflow: hidden; }
 .dm .inp i { display: inline-block; width: 2px; height: 26px; margin-left: 2px; background: var(--violet); animation: dmc 1s steps(1) infinite; }
@@ -161,10 +162,26 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm .kd::after { content: ""; position: absolute; right: 10px; top: 10px; width: 5px; height: 5px; border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor; transform: rotate(45deg); }
 .dm .kd.t-la, .dm .kd.t-ea, .dm .kd.t-ab { color: var(--tc); border-color: var(--tc); }
 .dm td.rs { font-size: 14px; color: var(--ink); }
+/* 설명 글 (세 예시 모두 같은 자리) */
+.dm .cap { height: 44px; margin-top: auto; text-align: center; font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: var(--violet-ink); opacity: 0; transition: opacity .3s; }
+.dm .cap.on { opacity: 1; }
+/* 할 일 */
+.dm-tdo .pop { margin-top: 6px; border: 1.5px solid var(--line); border-radius: 12px; padding: 24px 26px 22px; box-shadow: 0 10px 28px -14px rgba(40,30,90,.35); }
+.dm-tdo .pt { display: flex; align-items: center; justify-content: space-between; font-size: 26px; font-weight: 700; }
+.dm-tdo .pt svg { width: 22px; height: 22px; }
+.dm-tdo ul { list-style: none; margin: 14px 0 6px; padding: 0; min-height: 168px; }
+.dm-tdo li { display: flex; align-items: center; gap: 14px; height: 62px; font-size: 26px; font-weight: 500; }
+.dm-tdo li::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #c3c1d1; flex: none; }
+.dm-tdo li.d { color: var(--mut); text-decoration: line-through; text-decoration-thickness: 2px; }
+.dm-tdo li i { display: inline-block; width: 2px; height: 26px; margin-left: 2px; background: var(--violet); animation: dmc 1s steps(1) infinite; }
+.dm-tdo .tl { display: flex; gap: 10px; margin-top: 8px; }
+.dm-tdo .tl span { width: 48px; height: 48px; border-radius: 10px; display: grid; place-items: center; transition: background-color .2s, color .2s, transform .12s; }
+.dm-tdo .tl span.on { background: var(--tint); color: var(--violet); } .dm-tdo .tl span.p { transform: scale(.9); }
+.dm-tdo .tl svg, .dm-tdo .pt svg { fill: none; stroke: currentColor; stroke-width: 2.15; stroke-linecap: round; stroke-linejoin: round; } .dm-tdo .tl svg { width: 24px; height: 24px; }
 /* 상담 */
-.cstage { max-width: 1000px; margin-inline: auto; }
-.dm-con { width: 64%; margin-left: 0; margin-right: auto; } .dm-con .in { width: 640px; padding: 24px 24px 24px; }
-.dm-con .ph { position: relative; height: 262px; }
+.dm-con .in { padding: 24px 24px 20px; }
+.dm-tdo .in { padding: 24px 24px 20px; }
+.dm-con .ph { position: relative; height: 262px; margin-bottom: 8px; }
 .dm-con .ph > * { position: absolute; inset: 0 0 auto 0; transition: opacity .5s; }
 .dm-con .ph .tb, .dm-con .ph .fm, .dm-con .ph .sv { opacity: 0; pointer-events: none; }
 .dm-con .ph .st { inset: 0; height: 262px; display: grid; place-items: center; }
@@ -173,8 +190,8 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm-con .nb { width: 250px; height: 112px; border-radius: 16px; background: var(--violet); color: #fff; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 24px; font-weight: 800; line-height: 1.25; letter-spacing: -.02em; box-shadow: 0 14px 28px -12px rgba(109,74,255,.7); transition: transform .12s; }
 .dm-con .nb.p { transform: scale(.94); }
 .dm-con .nb svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round; }
-.dm-con .cap { height: 44px; margin-top: 18px; text-align: center; font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: var(--violet-ink); opacity: 0; transition: opacity .3s; }
-.dm-con .cap.on { opacity: 1; }
+
+
 .dm-con .hd { display: flex; align-items: center; gap: 12px; height: 38px; margin-bottom: 16px; }
 .dm-con .hd b { font-size: 22px; font-weight: 800; letter-spacing: -.02em; min-width: 12px; }
 .dm-con .hd .cp { opacity: 0; margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--mut); transition: color .3s, background-color .3s; }
@@ -195,7 +212,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm-con .sl small { font-size: 12.5px; font-weight: 500; opacity: 0; transition: opacity .3s; }
 .dm-con .sl.f { background: var(--violet); color: #fff; } .dm-con .sl.f small { opacity: .9; }
 .dm .dmb { position: absolute; inset: 0; }
-@media (max-width: 700px) { .dm-con { width: 100%; } .cstage { min-height: 0; padding-bottom: 80cqw; } .p3d { top: 68cqw; width: 46cqw; } }
+@media (max-width: 700px) { .p3d { right: 1cqw; top: 28cqw; width: 34cqw; } .cstage { padding-bottom: 22cqw; } }
 </style>
 </head>
 <body>
@@ -232,7 +249,16 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   <section>
     <h2>종이 달력에 쓰듯 간단하게</h2>
     <p class="lede">날짜 선택하고 할 일 입력, 다 한 일은 완료 체크하면 끝</p>
-    <div class="vid"><video src="site/todo.mp4" poster="site/todo-poster.webp" autoplay muted loop playsinline aria-label="날짜를 두 번 눌러 할 일 두 줄을 쓰고, 한 줄을 완료로 체크하는 모습"></video></div>
+    <div class="dm dm-tdo" id="dmtdo" role="img" aria-label="날짜를 눌러 할 일을 쓰고, 다 한 일은 체크하는 모습">
+      <div class="in">
+        <div class="pop">
+          <div class="pt"><span>5.13. (수)</span><svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></div>
+          <ul id="dmtl"></ul>
+          <div class="tl"><span id="dmdone"><svg viewBox="0 0 24 24"><path d="M18 13.95V16.7A3 3 0 0 1 15 19.7H7A3 3 0 0 1 4 16.7V8.7A3 3 0 0 1 7 5.7H14.2"/><path d="M8.3 10.9l3.5 3.5 7.14-7.6"/></svg></span><span><svg viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.007) translate(-12.05 -12.00)" stroke-width="2.135"><path d="M12 3.8a8.2 8.2 0 100 16.4c1.5 0 2.2-1 2.2-2 0-1.5-1.1-1.9-1.1-3 0-1 .8-1.8 1.9-1.8H17a3.3 3.3 0 003.3-3.3c0-3.8-3.7-6.3-8.3-6.3z"/><circle cx="7.7" cy="12.2" r="1.4" fill="currentColor" stroke="none"/><circle cx="10.7" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="15.3" cy="8.9" r="1.4" fill="currentColor" stroke="none"/></g></svg></span><span><svg viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.005) translate(-12.00 -12.00)" stroke-width="2.140"><path d="M16.5 3.5l3.2 3.2-3.2 3.2"/><path d="M4.3 12v-1.3a4 4 0 014-4h11.4"/><path d="M7.5 20.5l-3.2-3.2 3.2-3.2"/><path d="M19.7 12v1.3a4 4 0 01-4 4H4.3"/></g></svg></span><span><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3.2"/><path d="M9.4 8.2v7.6h2.3a3.8 3.8 0 000-7.6z"/></svg></span><span><svg viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.028) translate(-12.00 -11.15)" stroke-width="2.091"><path d="M12 3a6 6 0 00-6 6v4.2l-1.7 2.2a.9.9 0 00.75 1.4h13.9a.9.9 0 00.75-1.4L18 13.2V9a6 6 0 00-6-6z"/><path d="M8.9 16.8a3.1 2.5 0 006.2 0"/></g></svg></span></div>
+        </div>
+        <div class="cap" id="dmcap1"></div>
+      </div>
+    </div>
   </section>
 
   <section>
@@ -244,10 +270,11 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
         <div class="sr"><div class="inp"><span id="dmtx"></span><i></i></div><div class="go" id="dmgo"><svg viewBox="0 0 24 24"><path d="M19 6v4a3 3 0 0 1-3 3H5m0 0 4-4m-4 4 4 4"/></svg></div></div>
         <div class="chips" id="dmch"></div>
         <div class="dh"><b>5월 13일 (수)</b><span id="dmsm"></span></div>
-        <table id="dmtb"><colgroup><col style="width:76px"><col style="width:134px"><col span="7" style="width:34px"><col></colgroup>
+        <table id="dmtb"><colgroup><col style="width:88px"><col style="width:150px"><col span="7" style="width:40px"><col></colgroup>
           <tr><th>이름</th><th>종류</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>사유</th></tr>
           <tr data-n="김네모"><td class="nm">김네모</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="이세모"><td class="nm">이세모</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="박동글"><td class="nm">박동글</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="최반달"><td class="nm">최반달</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr>
         </table>
+        <div class="cap" id="dmcap0"></div>
       </div>
     </div>
   </section>
@@ -322,10 +349,28 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   async function type(el, text, ms, stop) { for (let i = 1; i <= text.length; i++) { if (stop()) return; el.textContent = text.slice(0, i); await wait(ms); } }
 
   /* 출결 */
+  /* 할 일 */
+  const tdo = $('#dmtdo');
+  if (tdo) {
+    fit(tdo);
+    const ul = $('#dmtl'), dn = $('#dmdone'), cap = $('#dmcap1');
+    const say = async (t) => { cap.classList.remove('on'); await wait(260); cap.textContent = t || ''; if (t) cap.classList.add('on'); };
+    const reset = () => { ul.replaceChildren(); dn.className = ''; cap.classList.remove('on'); cap.textContent = ''; };
+    const li = (t) => { const e = document.createElement('li'); const sp = document.createElement('span'); e.append(sp); ul.append(e); return e; };
+    const last = () => { reset(); ['수행평가 채점', '진로 상담 자료 준비'].forEach((t, i) => { const e = li(); e.firstChild.textContent = t; if (i) e.classList.add('d'); }); dn.className = 'on'; cap.textContent = '다 한 일은 체크합니다'; cap.classList.add('on'); };
+    loop(tdo, async (stop) => {
+      reset(); await wait(500); await say('날짜를 눌러 할 일을 씁니다'); await wait(900); if (stop()) return;
+      const a = li(), cur = document.createElement('i'); a.append(cur); await type(a.firstChild, '수행평가 채점', 90, stop); if (stop()) return; await wait(500); cur.remove();
+      const b = li(); b.append(cur); await type(b.firstChild, '진로 상담 자료 준비', 90, stop); if (stop()) return; await wait(700); cur.remove();
+      await say('다 한 일은 체크합니다'); await wait(900); if (stop()) return;
+      dn.className = 'on p'; await wait(160); dn.className = 'on'; b.classList.add('d'); await wait(3800);
+    }, last);
+  }
+
   const att = $('#dmatt');
   if (att) {
     fit(att);
-    const tx = $('#dmtx'), go = $('#dmgo'), ch = $('#dmch'), sm = $('#dmsm'), rows = $$('#dmtb tr[data-n]');
+    const cp0 = $('#dmcap0'), tx = $('#dmtx'), go = $('#dmgo'), ch = $('#dmch'), sm = $('#dmsm'), rows = $$('#dmtb tr[data-n]');
     const row = (n) => rows.find((r) => r.dataset.n === n);
     const setRow = (n, kind, cls, from, to, why) => {
       const r = row(n), c = $$('td', r), k = $('.kd', r);
@@ -336,20 +381,21 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
     const resetRows = () => { rows.forEach((r) => setRow(r.dataset.n, '출석', '', 0, 0, '')); ch.replaceChildren(); sm.replaceChildren(); tx.textContent = ''; };
     const chip = (t, cls) => { const e = document.createElement('div'); e.className = 'chip ' + cls; e.textContent = t; ch.append(e); requestAnimationFrame(() => requestAnimationFrame(() => e.classList.add('on'))); };
     const summary = (a) => { sm.replaceChildren(...a.map(([t, c], i) => { const f = document.createDocumentFragment(); if (i) f.append(' · '); const e = document.createElement('em'); e.className = c; e.textContent = t; f.append(e); return f; })); };
+    const say = async (t) => { cp0.classList.remove('on'); await wait(260); cp0.textContent = t || ''; if (t) cp0.classList.add('on'); };
     const press = async () => { go.classList.add('p'); await wait(160); go.classList.remove('p'); };
-    const say = async (text, stop) => { ch.replaceChildren(); await type(tx, text, 80, stop); await wait(650); await press(); tx.textContent = ''; };
-    const last = () => { setRow('이세모', '질병조퇴', 't-ea', 3, 7, '감기'); setRow('박동글', '미인정지각', 't-la', 1, 4, ''); summary([['지각 1', 't-la'], ['조퇴 1', 't-ea']]); chip('최반달 · 5.14. (목) ~ 5.18. (월) · 출석인정결석 3일 · 체험학습', 't-ab'); };
+    const input = async (text, stop) => { ch.replaceChildren(); await type(tx, text, 80, stop); await wait(650); await press(); tx.textContent = ''; };
+    const last = () => { setRow('이세모', '질병조퇴', 't-ea', 3, 7, '감기'); setRow('박동글', '미인정지각', 't-la', 1, 4, ''); summary([['지각 1', 't-la'], ['조퇴 1', 't-ea']]); chip('최반달 · 5.14. (목) ~ 5.18. (월) · 출석인정결석 3일 · 체험학습', 't-ab'); cp0.textContent = '표에 바로 기록됩니다'; cp0.classList.add('on'); };
     loop(att, async (stop) => {
-      resetRows(); await wait(900); if (stop()) return;
-      await say('이세모 감기로 3교시부터 조퇴', stop); if (stop()) return;
+      resetRows(); cp0.classList.remove('on'); await wait(500); await say('이름, 날짜, 사유를 한 문장으로 입력합니다'); await wait(900); if (stop()) return;
+      await input('이세모 감기로 3교시부터 조퇴', stop); if (stop()) return;
       setRow('이세모', '질병조퇴', 't-ea', 3, 7, '감기'); summary([['조퇴 1', 't-ea']]); chip('이세모 · 5.13. (수) · 질병조퇴 3교시~ · 감기', 't-ea');
       await wait(1900); if (stop()) return;
-      await say('박동글 4교시까지 미인정지각', stop); if (stop()) return;
+      await input('박동글 4교시까지 미인정지각', stop); if (stop()) return;
       setRow('박동글', '미인정지각', 't-la', 1, 4, ''); summary([['지각 1', 't-la'], ['조퇴 1', 't-ea']]); chip('박동글 · 5.13. (수) · 미인정지각 1~4교시', 't-la');
       await wait(1900); if (stop()) return;
-      await say('최반달 내일부터 3일간 체험학습', stop); if (stop()) return;
+      await input('최반달 내일부터 3일간 체험학습', stop); if (stop()) return;
       chip('최반달 · 5.14. (목) ~ 5.18. (월) · 출석인정결석 3일 · 체험학습', 't-ab');
-      await wait(3600);
+      await say('표에 바로 기록됩니다'); await wait(3400);
     }, last);
   }
 
@@ -358,7 +404,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   if (con) {
     fit(con);
     const ct = $('#dmct'), f = [$('#dmf1'), $('#dmf2'), $('#dmf3')], sv = $('#dmsv'), nb = $('#dmnb'), cap = $('#dmcap'), sl = $$('.sl', con);
-    const names = [['김네모', 0], ['장별이', 5], ['박동글', 2], ['윤꽃잎', 7], ['오나무', 10], ['한바다', 8]];
+    const names = [['김네모', 0], ['박동글', 2], ['장별이', 5], ['윤꽃잎', 7]];
     const html = { 1: '2026. 05. 18.<span class="m">~</span>2026. 05. 20.', 2: '15:30<span class="m">~</span>16:50', 3: '20분' };
     const say = async (t) => { cap.classList.remove('on'); await wait(260); cap.textContent = t || ''; if (t) cap.classList.add('on'); };
     const reset = () => { con.classList.remove('form', 'tab', 'link'); ct.textContent = ''; cap.classList.remove('on'); cap.textContent = ''; f.forEach((x) => { x.innerHTML = ''; x.classList.remove('cur'); }); sl.forEach((s) => { s.classList.remove('f'); $('small', s).textContent = ''; }); if (ph) ph.classList.add('hid'); };
