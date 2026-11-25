@@ -836,7 +836,7 @@
     if (api && api.setMinWidth) {
       const cs = getComputedStyle(t), nav = t.querySelector('.nav'), tabs = t.querySelector('.tabs'), r = t.querySelector('.right');
       const g = parseFloat(cs.columnGap) || 6, rg = parseFloat(getComputedStyle(r).columnGap) || 4;
-      const need = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + nav.offsetWidth + tabs.offsetWidth + 2 * g + 2 * 28 + rg + 8;
+      const need = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + nav.offsetWidth + Math.max(tabs.offsetWidth, tabs.scrollWidth) + 2 * g + 2 * 28 + rg + 8;
       const w = Math.ceil(need + (IS_WIDGET ? 6 : 0));
       if (S.minW !== w) { S.minW = w; api.setMinWidth(w); }
     }
