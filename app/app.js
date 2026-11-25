@@ -341,13 +341,17 @@
   }
 
   function stopWatches() {
-    S.unsubs.forEach((f) => f()); S.unsubs = [];
+    S.unsubs.forEach((f) => f()); S.unsubs = []; S.wWin = null;
     S.unsubStatic.forEach((f) => f()); S.unsubStatic = [];
   }
+  /* 지켜보는 기간은 보이는 기간의 앞뒤 10주씩 더 넓게 잡아요: 달·주를 한 칸 넘길 땐 이미 받아 둔 자료로 바로 그리고, 다시 받아서 한 번 더 그리지 않아요 */
   function watchRange() {
-    S.unsubs.forEach((f) => f()); S.unsubs = [];
+    const r = range(), w = S.wWin;
+    if (S.cloud && w && S.unsubs.length && r.from >= w.from && r.to <= w.to) { loadGhol(); loadMeal(); return; }
+    S.unsubs.forEach((f) => f()); S.unsubs = []; S.wWin = null;
     if (S.cloud) {
-      const r = range(); const rg = { from: r.from, to: r.to };
+      const shift = (ds, n) => { const d = parseYmd(ds); return ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)); };
+      const rg = { from: shift(r.from, -70), to: shift(r.to, 70) }; S.wWin = rg;
       S.unsubs.push(S.cloud.watch('todos', rg, (d) => { S.todos = d; renderSoon(); }, cloudErr));
       S.unsubs.push(S.cloud.watch('att', rg, (d) => { S.att = d.map(normRec); renderSoon(); }, cloudErr));
       S.unsubs.push(S.cloud.watch('days', rg, (d) => { S.days = d; renderSoon(); }, cloudErr));
@@ -3308,10 +3312,12 @@
 
   /* Google '대한민국의 휴일' 공개 캘린더 (임시공휴일 등 반영) — 로그인·권한 없이 공개 키로 읽어요 */
   async function loadGhol() {
-    if (!PF.hol) { if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
+    if (!PF.hol) { S.gholDone = null; if (Object.keys(S.ghol).length) { S.ghol = {}; render(); } return; }
     const key = window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey;
     if (!key) return;
     const r = range();
+    const gk = ymd(r.start) + '|' + r.to; // 이미 받은 기간은 다시 받지 않아요 (달을 넘길 때마다 받고 다시 그리던 일을 없앰)
+    if (S.gholDone && S.gholDone.has(gk)) return;
     const end = parseYmd(r.to); end.setDate(end.getDate() + 1);
     const q = { timeMin: r.start.toISOString(), timeMax: end.toISOString(), singleEvents: 'true', maxResults: '100' };
     if (key) q.key = key;
@@ -3327,7 +3333,12 @@
         let d = parseYmd(ev.start.date); const e2 = parseYmd(ev.end.date);
         for (let i = 0; d < e2 && i < 10; i++) { g[ymd(d)] = ev.summary || '공휴일'; d = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1); }
       });
-      S.ghol = g; render();
+      (S.gholDone || (S.gholDone = new Set())).add(gk);
+      let ch = false; // 받은 기간 안에서 달라진 날이 있을 때만 다시 그려요
+      const a = ymd(r.start);
+      for (const k in S.ghol) if (k >= a && k <= r.to && !(k in g)) { delete S.ghol[k]; ch = true; }
+      for (const k in g) if (S.ghol[k] !== g[k]) { S.ghol[k] = g[k]; ch = true; }
+      if (ch) render();
     } catch (e) { console.error(e); }
   }
 
