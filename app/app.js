@@ -1279,7 +1279,10 @@
   function loginView() {
     const logo = el('div', { class: 'logo' });
     const ui = [el('h1', {}, 'Hagisiro'),
-      el('button', { class: 'pri', onclick: () => S.cloudMod.login().catch(loginErr) }, 'Google 로그인'),
+      el('button', { class: 'pri', onclick: (e) => { // 누르면 '로그인 중…'으로 바꿔 두어서, 로그인 창이 닫히고 캘린더가 뜨기까지 버튼 화면이 잠깐 다시 보이지 않게
+        const b = e.currentTarget, t = b.textContent; b.disabled = true; b.textContent = '로그인 중…'; v.classList.add('busy');
+        S.cloudMod.login().catch(loginErr).finally(() => { if (v.isConnected) { b.disabled = false; b.textContent = t; v.classList.remove('busy'); } });
+      } }, 'Google 로그인'),
       el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '이 기기에만 저장')];
     const v = el('div', { class: 'login' }, logo, ...ui);
     loginAnim(v, logo, ui);

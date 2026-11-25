@@ -409,9 +409,27 @@ fn main() {
                                 .title("Hagisiro")
                                 .inner_size(480.0, 640.0)
                                 .center()
+                                .visible(false) // 이미 로그인된 구글 계정이면 비밀번호 없이 몇 초 만에 끝나서, 빈 흰 창이 깜빡이지 않게 숨겨 두고 사용자가 직접 할 일이 있을 때만 보여요
                                 .build()
                             {
-                                Ok(window) => tauri::webview::NewWindowResponse::Create { window },
+                                Ok(window) => {
+                                    let w2 = window.clone();
+                                    std::thread::spawn(move || {
+                                        let t0 = std::time::Instant::now();
+                                        let mut seen: Option<std::time::Instant> = None;
+                                        loop {
+                                            std::thread::sleep(Duration::from_millis(120));
+                                            let Ok(u) = w2.url() else { break }; // 창이 닫혔으면(로그인 끝) 그대로 끝
+                                            if u.host_str().map(|h| h.contains("accounts.google.com")).unwrap_or(false) { if seen.is_none() { seen = Some(std::time::Instant::now()); } } else { seen = None; }
+                                            // 구글 계정 화면이 0.9초 넘게 머물면(선택·비밀번호·동의가 필요한 때) 보여주고, 아무 일 없어도 5초가 지나면 안전하게 보여줘요
+                                            if seen.map(|t| t.elapsed() > Duration::from_millis(900)).unwrap_or(false) || t0.elapsed() > Duration::from_secs(5) {
+                                                let _ = w2.show(); let _ = w2.set_focus();
+                                                break;
+                                            }
+                                        }
+                                    });
+                                    tauri::webview::NewWindowResponse::Create { window }
+                                },
                                 Err(_) => tauri::webview::NewWindowResponse::Allow,
                             }
                         } else {

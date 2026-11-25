@@ -1471,3 +1471,7 @@ button:disabled { pointer-events: none; }
 
 /* 날짜 팝업: 스크롤바가 없을 때 오른쪽에 빈 자리가 남아 선택 박스 좌우 여백이 달라지던 것 */
 #sheet .panel .sbody { scrollbar-gutter: auto; }
+
+/* 로그인 진행 중: 다른 선택지는 숨기고 버튼은 흐리게 */
+.login.busy .link { visibility: hidden; }
+.login.busy .pri { opacity: .6; cursor: default; }
