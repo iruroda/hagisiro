@@ -237,6 +237,17 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm-con .dts { display: flex; gap: 14px; margin-top: 4px; }
 .dm-con .dc { flex: none; width: 132px; background: #f4f4f9; border-radius: 10px; padding: 10px 10px 12px; }
 .dm-con .dc h4 { margin: 0 0 8px 2px; font-size: 16px; font-weight: 700; }
+.dm-con .lkp { position: absolute; inset: 0; background: rgba(28,26,43,.38); display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.dm-con.lk .lkp { opacity: 1; }
+.dm-con .lkd { width: 460px; background: #fff; border-radius: 12px; padding: 22px 24px; box-shadow: 0 18px 40px -12px rgba(28,26,43,.5); transform: scale(.96); transition: transform .25s; }
+.dm-con.lk .lkd { transform: none; }
+.dm-con .lkh { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.dm-con .lkh .ci { width: 24px; height: 24px; }
+.dm-con .lkh b { flex: 1; font-size: 19px; font-weight: 700; }
+.dm-con .lkh .x { width: 22px; height: 22px; color: var(--mut); }
+.dm-con .lkm { display: flex; align-items: center; justify-content: space-between; font-size: 16px; margin-bottom: 10px; }
+.dm-con .lkm i { font-style: normal; font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 8px; color: var(--mut); background: #f4f2fb; }
+.dm-con .lkb { background: #f4f2fb; border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5; word-break: break-all; color: var(--ink); }
 .dm-con .sl { height: 44px; margin-top: 6px; border-radius: 8px; background: #fff; color: var(--violet); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 16px; font-weight: 600; transition: background-color .3s, color .3s; }
 .dm-con .sl small { font-size: 12px; font-weight: 500; opacity: 0; transition: opacity .3s; }
 .dm-con .sl.f { background: var(--violet); color: #fff; } .dm-con .sl.f small { opacity: .9; }
@@ -328,6 +339,11 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
             <div class="tb"><div class="dts"><div class="dc"><h4>5.18. (월)</h4><div class="sl" data-t="15:30">15:30<small></small></div><div class="sl" data-t="15:50">15:50<small></small></div><div class="sl" data-t="16:10">16:10<small></small></div><div class="sl" data-t="16:30">16:30<small></small></div></div><div class="dc"><h4>5.19. (화)</h4><div class="sl" data-t="15:30">15:30<small></small></div><div class="sl" data-t="15:50">15:50<small></small></div><div class="sl" data-t="16:10">16:10<small></small></div><div class="sl" data-t="16:30">16:30<small></small></div></div><div class="dc"><h4>5.20. (수)</h4><div class="sl" data-t="15:30">15:30<small></small></div><div class="sl" data-t="15:50">15:50<small></small></div><div class="sl" data-t="16:10">16:10<small></small></div><div class="sl" data-t="16:30">16:30<small></small></div></div></div></div>
             <div class="ft"><span class="gh">이전</span><span class="sv" id="dmsv">저장</span></div>
           </div>
+          <div class="lkp"><div class="lkd">
+            <div class="lkh"><svg class="ci" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.160) translate(-12.00 -12.00)" stroke-width="1.853"><path stroke-width="1.853" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/></g></svg><b>링크 복사</b><svg class="ci x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+            <div class="lkm"><span>아래 링크를 복사했어요.</span><i>QR코드</i></div>
+            <div class="lkb">https://iruroda.github.io/hagisiro/app/book.html?c=Rk3mWq8Tn2</div>
+          </div></div>
           </div>
           <div class="p3d hid"><div class="phone"><i><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2280"></i></div></div>
         </div>
@@ -454,15 +470,17 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
   if (con) {
     fit(con);
     const ct = $('#dmct'), nx = $('#dmnx'), sv = $('#dmsv'), sl = $$('.sl', con);
-    const names = [['김네모', 0], ['박동글', 2], ['최별이', 5], ['윤꽃잎', 9]];
     const T = '1학기 진학 상담';
-    const tt = $('#dmtt span'); const reset = () => { con.classList.remove('s2', 'tab', 'link'); ct.textContent = '새 테이블 만들기 (1/2)'; tt.textContent = T; sl.forEach((s) => { s.classList.remove('f'); $('small', s).textContent = ''; }); if (ph) ph.classList.add('hid'); };
-    const last = () => { reset(); ct.textContent = T; con.classList.add('tab', 'link'); names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); if (ph) ph.classList.remove('hid'); };
+    const tt = $('#dmtt span'); const reset = () => { con.classList.remove('s2', 'tab', 'link', 'lk'); ct.textContent = '새 테이블 만들기 (1/2)'; tt.textContent = T; sl.forEach((s) => { s.classList.remove('f'); $('small', s).textContent = ''; }); if (ph) ph.classList.add('hid'); };
+    const last = () => { reset(); ct.textContent = T; con.classList.add('tab', 'link'); if (ph) ph.classList.remove('hid'); };
     loop(con, async (stop) => {
       reset(); tt.textContent = ''; await wait(900); if (stop()) return;
       await type(tt, T, 90, stop); if (stop()) return; await wait(1500); if (stop()) return;
       await tap(nx); con.classList.add('s2'); ct.textContent = '새 테이블 만들기 (2/2)'; await wait(2400); if (stop()) return;
-      await tap(sv); ct.textContent = T; names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); con.classList.add('tab', 'link'); if (ph) ph.classList.remove('hid'); await wait(6200);
+      await tap(sv); ct.textContent = T; con.classList.add('tab'); await wait(1700); if (stop()) return;
+      await tap($('.cp', con)); con.classList.add('link', 'lk'); await wait(2600); if (stop()) return;
+      con.classList.remove('lk'); await wait(500); if (stop()) return;
+      if (ph) ph.classList.remove('hid'); await wait(6000);
     }, last);
   }
 })();
