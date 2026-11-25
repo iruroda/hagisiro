@@ -760,22 +760,15 @@
     beltEnd();
     const snap = wantBelt(main);
     const ghost = !snap && S.lastKey != null && !needLogin() && !noAnim() && viewKey() !== S.lastKey && main.firstElementChild ? main.firstElementChild.cloneNode(true) : null; // 화면 종류가 바뀔 때도 기존 화면을 뒤에 남겨둬요
-    /* 같은 캘린더 화면(달·주만 넘기거나 자료가 바뀐 경우)이면 칸 틀(요소)은 그대로 두고 달라진 부분만 바꿔요: 칸 28~42개를 매번 새로 만들고 크기를 다시 재던 일을 줄여요 */
-    const liveCal = !needLogin() && S.view === 'cal' && !ghost && main.firstElementChild && main.firstElementChild.id === 'cal' ? main.firstElementChild : null;
-    let reused = false;
+    main.replaceChildren();
     if (!needLogin() && S.view === 'cal' && !S.todoTourShown) setTimeout(maybeTodoTour, 900);
-    if (liveCal) { const v = calView(liveCal); reused = v === liveCal; if (!reused) { main.replaceChildren(); main.append(v); } }
-    else {
-      main.replaceChildren();
-      if (needLogin()) main.append(loginView());
-      else if (S.ready && S.view === 'consult' && !S.cloud) { S.view = 'cal'; main.append(calView()); } // 로그인 전에는 상담 탭이 없으므로 캘린더로
-      else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
-    }
+    if (needLogin()) main.append(loginView());
+    else if (S.ready && S.view === 'consult' && !S.cloud) { S.view = 'cal'; main.append(calView()); } // 로그인 전에는 상담 탭이 없으므로 캘린더로
+    else main.append(S.view === 'att' ? attView() : S.view === 'consult' ? consultView() : calView());
     syncLoginWin();
     fitTop();
     if (isMobile()) requestAnimationFrame(fitCellsMobile);
-    if (!reused || S.snapNeed) snapCal();
-    S.snapNeed = false;
+    snapCal();
     if (S.topSum && S.view === 'att') { // 통계는 날짜 줄(일별·주별) 또는 월별 화면 맨 위에 둠 — 맨 윗줄은 항상 고정
       const nx = S.sub === 'month' ? null : $('#main .dhead .dttl + .ib');
       const mh = $('#main .mhead');
@@ -1337,7 +1330,7 @@
   }
 
   /* ================= 캘린더 ================= */
-  function calView(live) {
+  function calView() {
     const r = range();
     { const ns = dayNum(ymd(r.start)); S.startDelta = ns - (S.curStart == null ? ns : S.curStart); S.curStart = ns; S.curRows = r.rows; }
     const todayS = ymd(new Date());
@@ -1372,7 +1365,6 @@
     rowsL.forEach((row, ri) => { if (row.gap && ri > 0) tracks.push('var(--mg, 5px)'); gapIdx.push(tracks.length + 1); tracks.push('minmax(0,1fr)'); });
     grid.style.gridTemplateRows = tracks.join(' ');
     grid.dataset.rn = rowsL.length; // 줄 수 (snapCal이 줄 높이를 픽셀로 바꾼 뒤에도 알 수 있게)
-    grid.dataset.rt = tracks.join(' '); // 줄 구성(달 사이 구분 줄 위치 포함): 같을 때만 칸 틀을 재사용해요
     for (let ri = 0; ri < rowsL.length; ri++) {
       const row = rowsL[ri];
       for (let ci = 0; ci < 7; ci++) {
@@ -1429,18 +1421,6 @@
         dd.map((x) => el('button', { type: 'button', class: 'ddc', style: colorVars(x.t) || null, onclick: () => gotoDate(x.t.date) }, el('b', {}, x.label), ' ', el('span', { class: 'ddt' }, x.t.text))));
       if (PF.ddtop) wrap.prepend(bar); else { wrap.classList.add('hasdd'); wrap.append(bar); }
     }
-    /* 이미 그려진 캘린더가 있고 줄 수·구성이 같으면, 새로 만든 칸과 하나씩 비교해서 다른 칸만 고쳐요 (결과는 새로 만든 것과 똑같아요) */
-    const lg = live && live.querySelector(':scope > .days');
-    if (lg && lg.children.length === grid.children.length && lg.dataset.rn === grid.dataset.rn && lg.dataset.rt === grid.dataset.rt && lg.classList.contains('msplit') === grid.classList.contains('msplit')
-        && !!live.querySelector(':scope > .ddbar') === !!wrap.querySelector(':scope > .ddbar') && live.className === wrap.className) {
-      const a = [...lg.children], b = [...grid.children];
-      for (let i = 0; i < a.length; i++) morph(a[i], b[i]);
-      const ob = live.querySelector(':scope > .ddbar'), nb = wrap.querySelector(':scope > .ddbar');
-      if (ob) ob.replaceWith(nb); // D-day 줄은 눌렀을 때 동작이 새 자료를 따라야 해서 통째로 바꿔요
-      lg.dataset.rn = grid.dataset.rn;
-      return live;
-    }
-    S.snapNeed = true;
     return wrap;
   }
   /* D-day로 표시한 할 일 중 오늘 이후(완료한 것 제외)를 가까운 날부터 */
@@ -1530,21 +1510,6 @@
       case 'yearly': return `매년 ${r.lunar ? '음력 ' : ''}${r.month}월 ${r.day}일`;
       default: return '';
     }
-  }
-
-  /* a(지금 화면의 요소)를 b(새로 만든 요소)와 똑같이 맞춰요. 같은 부분은 건드리지 않아서 다시 계산할 것이 줄어요 (칸 안처럼 눌렀을 때 동작이 따로 붙지 않은 곳에만 써요) */
-  function morph(a, b) {
-    if (a.nodeType === 3) { if (a.nodeValue !== b.nodeValue) a.nodeValue = b.nodeValue; return; }
-    for (const n of [...a.attributes]) if (!b.hasAttribute(n.name)) a.removeAttribute(n.name);
-    for (const n of b.attributes) if (a.getAttribute(n.name) !== n.value) a.setAttribute(n.name, n.value);
-    const ak = [...a.childNodes], bk = [...b.childNodes];
-    for (let i = 0; i < bk.length; i++) {
-      const x = ak[i], y = bk[i];
-      if (!x) a.append(y);
-      else if (x.nodeType !== y.nodeType || x.nodeName !== y.nodeName) a.replaceChild(y, x);
-      else morph(x, y);
-    }
-    for (let i = ak.length - 1; i >= bk.length; i--) ak[i].remove();
   }
 
   /* 캘린더 칸 경계를 화면의 실제 픽셀에 맞춰요: 1fr로 나누면 소수점 경계가 생겨서, 배율 125·150%(특히 설치형 위젯)에서
