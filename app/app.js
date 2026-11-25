@@ -107,14 +107,12 @@
     share: '<g transform="translate(12 12) scale(1.160) translate(-12.00 -12.00)" stroke-width="1.853"><path stroke-width="1.853" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/></g>',
     refresh: '<g transform="translate(12 12) scale(1.076) translate(-12.05 -12.00)" stroke-width="1.998"><path d="M18.89 15.21A7.6 7.6 0 1 1 17.82 7.11"/><path d="M19.73 5.54L19.43 9.03L15.94 8.72"/></g>',
     menu: '<path d="M5 6h14M5 12h14M5 18h14"/>',
-    lock: '<g transform="translate(12 12) scale(1.134) translate(-12.00 -12.00)" stroke-width="1.896"><rect x="5.5" y="10.5" width="13" height="9" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5"/></g>',
     move: '<g transform="translate(12 12) scale(0.979) translate(-12.00 -12.00)" stroke-width="2.196"><path d="M12 3.5v17M3.5 12h17M12 3.5l-2.8 2.8M12 3.5l2.8 2.8M12 20.5l-2.8-2.8M12 20.5l2.8-2.8M3.5 12l2.8-2.8M3.5 12l2.8 2.8M20.5 12l-2.8-2.8M20.5 12l-2.8 2.8"/></g>',
     weekNow: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4M8 15.5h8"/>',
     attend: '<g transform="translate(12 12) scale(0.963) translate(-12.50 -12.40)" stroke-width="2.232"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c0-3.7 2.8-5.8 6.5-5.8C10.67 14.20 11.30 14.27 11.90 14.40"/><path d="M14.2 17.9l2.4 2.4 4.9-5.2"/></g>',
     chat: '<g transform="translate(12 12) scale(0.960) translate(-12.00 -12.20)" stroke-width="2.240"><path d="M10.44 17.70L5.6 20.2L5.11 15.37A9 6.8 0 1 1 10.44 17.70z"/><g class="f" fill="currentColor" stroke="none"><circle cx="8" cy="10.6" r="1.35"/><circle cx="12" cy="10.6" r="1.35"/><circle cx="16" cy="10.6" r="1.35"/></g></g>',
     excel: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M15.3 4v16M15.3 9.3h5.2M15.3 14.7h5.2"/><path class="f" d="M6.5 8h1.95L12.3 16h-1.95zM10.35 8h1.95L8.45 16H6.5z"/>',
     today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.6" r="1.95" class="f"/>',
-    backspace: '<g transform="translate(12 12) scale(1.049) translate(-12.00 -12.00)" stroke-width="2.051"><path d="M9.2 5.5H19a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H9.2L3.5 12z"/><path d="M12.6 9.4l4.2 5.2M16.8 9.4l-4.2 5.2"/></g>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
     spade: '<path fill="currentColor" stroke-width="2.6" d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
@@ -350,9 +348,9 @@
     S.unsubs.forEach((f) => f()); S.unsubs = [];
     if (S.cloud) {
       const r = range(); const rg = { from: r.from, to: r.to };
-      S.unsubs.push(S.cloud.watch('todos', rg, (d) => { S.todos = d; render(); }, cloudErr));
-      S.unsubs.push(S.cloud.watch('att', rg, (d) => { S.att = d.map(normRec); render(); }, cloudErr));
-      S.unsubs.push(S.cloud.watch('days', rg, (d) => { S.days = d; render(); }, cloudErr));
+      S.unsubs.push(S.cloud.watch('todos', rg, (d) => { S.todos = d; renderSoon(); }, cloudErr));
+      S.unsubs.push(S.cloud.watch('att', rg, (d) => { S.att = d.map(normRec); renderSoon(); }, cloudErr));
+      S.unsubs.push(S.cloud.watch('days', rg, (d) => { S.days = d; renderSoon(); }, cloudErr));
       // 없앤 Google 캘린더 연동의 흔적 정리(예전에 켜 둔 계정만 한 번)
       if (ls.get('hagisiro:gcal') === '1') { ls.set('hagisiro:gcal', '0'); S.cloud.clearAll('gcal').catch(() => {}); }
     }
@@ -370,7 +368,7 @@
         let g = e.it.find((x) => x.c.id === c.id); if (!g) e.it.push(g = { c, bs: [] });
         g.bs.push(b);
       }));
-      S.cbk = m; if (S.view === 'cal') render();
+      S.cbk = m; if (S.view === 'cal') renderSoon();
     };
     const un = S.cloud.consultWatchList((rows) => {
       const ids = new Set(rows.map((r) => r.id));
@@ -389,13 +387,13 @@
   function watchStatic() {
     S.unsubStatic.forEach((f) => f()); S.unsubStatic = [];
     S.clsLoaded = false;
-    S.unsubStatic.push(S.cloud.watch('classes', null, (d) => { S.classes = d.sort(byOrd); S.clsLoaded = true; render(); }, cloudErr));
-    S.unsubStatic.push(S.cloud.watch('settings', null, (d) => { S.settings = d; render(); }, cloudErr));
-    S.unsubStatic.push(S.cloud.watchDday((d) => { S.ddays = d; render(); }, cloudErr));
-    S.unsubStatic.push(S.cloud.watchAlarm((d) => { S.alms = d; if (!$('#modal .sdlg')) render(); }, cloudErr));
-    S.unsubStatic.push(S.cloud.watch('repeats', null, (d) => { S.repeats = d; render(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watch('classes', null, (d) => { S.classes = d.sort(byOrd); S.clsLoaded = true; renderSoon(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watch('settings', null, (d) => { S.settings = d; renderSoon(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watchDday((d) => { S.ddays = d; renderSoon(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watchAlarm((d) => { S.alms = d; if (!$('#modal .sdlg')) renderSoon(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watch('repeats', null, (d) => { S.repeats = d; renderSoon(); }, cloudErr));
     watchConsults();
-    S.unsubStatic.push(S.cloud.watch('docs', null, (d) => { S.docs = d; if (!$('#modal .docdlg, #modal .progdlg')) render(); }, cloudErr));
+    S.unsubStatic.push(S.cloud.watch('docs', null, (d) => { S.docs = d; if (!$('#modal .docdlg, #modal .progdlg')) renderSoon(); }, cloudErr));
   }
 
   /* ================= 부팅 / 로그인 ================= */
@@ -634,7 +632,6 @@
       const b = box.getBoundingClientRect(), r = on.getBoundingClientRect();
       const g = { l: r.left - b.left - box.clientLeft, w: r.width };
       let pill = box.querySelector(':scope > .pill');
-      const fresh = !pill;
       if (!pill) { pill = el('span', { class: 'pill', 'aria-hidden': 'true' }); box.prepend(pill); }
       if (!box.classList.contains('has-pill')) box.classList.add('has-pill');
       Object.assign(pill.style, { left: g.l + 'px', top: (r.top - b.top - box.clientTop) + 'px', width: g.w + 'px', height: r.height + 'px' });
@@ -738,6 +735,9 @@
   }
 
   /* ================= 렌더 ================= */
+  /* 서버에서 데이터가 연달아 올 때(처음 열 때·새로고침) 화면을 그때마다 새로 그리지 않고 한 번에 모아서 그려요 */
+  let renderT = 0;
+  function renderSoon() { if (!renderT) renderT = setTimeout(() => { renderT = 0; render(); }, 30); }
   function render() {
     if (S.editing) return; // 편집 중엔 화면을 갈아엎지 않음 (끝나면 다시 그림)
     { const ae = document.activeElement; if (S.view === 'consult' && ae && ae.closest && ae.closest('.cv') && ae.matches('input,select')) return; }
@@ -1135,7 +1135,6 @@
     });
   }
   setInterval(() => { if (S.ready) alarmTick(); }, 15000);
-  let searchAll = null;
   async function openSearch() {
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
@@ -3894,7 +3893,7 @@
     return host;
   }
 
-  /* ================= 위젯 이동·크기 변경 (Electron) ================= */
+  /* ================= 위젯 이동·크기 변경 ================= */
   function initWidgetEdit() {
     if (!IS_WIDGET) return;
     const api = window.hagisiroWidget;

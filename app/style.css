@@ -4,10 +4,10 @@
      글자 --text · 회색글자 --mut · 선 --line · 연한배경 --bg2 · 배경 --bg · 포인트 --accent(보라) · 선택 --sel
      파랑 --sat · 빨강 --sun · 노랑 --yel · 청록 --teal · 그림자/가림막은 검정+투명도 */
   /* 글자 위계: 제목 16/700 · 본문 13 · 보조 12 · 캡션 11 (굵기: 제목 700, 강조 600, 보통 400~500) */
-  --fs-1: 16px; --fs-2: 14px; --fs-3: 13px; --fs-4: 12px; --fs-5: 11px;
+  --fs-1: 16px; --fs-2: 14px; --fs-3: 13px; --fs-4: 12px;
   --r: 8px; --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 10px; --r-xl: 12px; --r-pill: 99px;
   --bg: #ffffff; --bg2: #f5f6f8; --bg-s: #ffffff; --bg2-s: #f5f6f8; --text: #1b1d21; --mut: #8b9098; --line: #ebedf0;
-  --accent: #6d4aff; --yel: #d98a00; --teal: #12c9b3; --grad: linear-gradient(135deg, #6d4aff 0%, #2f6df6 55%, #12c9b3 100%); --sel: #f4f1ff; --sun: #e5484d; --sat: #2f6df6;
+  --accent: #6d4aff; --yel: #d98a00; --teal: #12c9b3; --sel: #f4f1ff; --sun: #e5484d; --sat: #2f6df6;
   --font: "SUITE", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 :root[data-theme="dark"] { color-scheme: dark; --bg: #1f2228; --bg2: #272b32; --bg-s: #1f2228; --bg2-s: #272b32; --text: #e8eaed; --mut: #9097a0; --line: #343942; --accent: #9b82ff; --sel: #2d2850; --scrim: rgba(0,0,0,.55); --ab-bg: color-mix(in srgb, var(--text) 17%, var(--bg-s)); --sun: #ff6b6f; --sat: #6ea0ff; --yel: #f5a524; }
@@ -224,8 +224,6 @@ body.widget #main > :not(.cal) { background: var(--wbg); border-radius: 0 0 var(
 .dt .kc { min-width: 0; width: 1%; padding: 0 4px; text-align: left; } /* 종류 칸은 드롭다운 폭에 딱 맞게 */
 .dt .rc { min-width: 160px; padding: 0 4px; }
 .dt select { font-size: 12px; padding: 2px 4px; border-radius: var(--r); max-width: 100%; }
-.tilde { margin: 0 3px; color: var(--mut); display: inline-flex; vertical-align: middle; }
-.tilde .ic svg { width: 16px; height: 16px; }
 .dt .slc, .dt th.sl-h { min-width: 42px; width: 42px; }
 .dt .sl { color: var(--tc); font-weight: 700; font-size: 17px; background: color-mix(in srgb, var(--tc) 11%, transparent); }
 .dt th.rs-h, .dt td.rs { min-width: 76px; text-align: left; padding: 0 6px; }
