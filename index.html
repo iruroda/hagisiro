@@ -310,7 +310,7 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
 
   <section>
     <h2>링크 하나로 관리하는 상담</h2>
-    <p class="lede">학생이 빈 시간을 직접 고르고,<br class="mbr"> 신청 현황은 캘린더에서 바로 확인합니다.</p>
+    <p class="lede">학생은 링크를 통해 상담 시간을 선택하고,<br class="mbr"> 신청 현황은 캘린더에서 바로 확인합니다.</p>
       <div class="dm dm-con" id="dmcon" role="img" aria-label="제목과 날짜, 시간을 골라 상담 신청표를 만들고 링크를 공유하면 신청 현황이 채워지는 모습">
         <div class="in">
           <div class="cd">
@@ -444,13 +444,13 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
     const ct = $('#dmct'), nx = $('#dmnx'), sv = $('#dmsv'), sl = $$('.sl', con);
     const names = [['김네모', 0], ['박동글', 2], ['최별이', 5], ['윤꽃잎', 9]];
     const T = '1학기 진학 상담';
-    const reset = () => { con.classList.remove('s2', 'tab', 'link'); ct.textContent = '새 테이블 만들기 (1/2)'; sl.forEach((s) => { s.classList.remove('f'); $('small', s).textContent = ''; }); if (ph) ph.classList.add('hid'); };
+    const tt = $('#dmtt span'); const reset = () => { con.classList.remove('s2', 'tab', 'link'); ct.textContent = '새 테이블 만들기 (1/2)'; tt.textContent = T; sl.forEach((s) => { s.classList.remove('f'); $('small', s).textContent = ''; }); if (ph) ph.classList.add('hid'); };
     const last = () => { reset(); ct.textContent = T; con.classList.add('tab', 'link'); names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); if (ph) ph.classList.remove('hid'); };
     loop(con, async (stop) => {
-      reset(); await wait(2400); if (stop()) return;
+      reset(); tt.textContent = ''; await wait(900); if (stop()) return;
+      await type(tt, T, 90, stop); if (stop()) return; await wait(1500); if (stop()) return;
       await tap(nx); con.classList.add('s2'); ct.textContent = '새 테이블 만들기 (2/2)'; await wait(2400); if (stop()) return;
-      await tap(sv); con.classList.add('tab'); ct.textContent = T; await wait(1700); if (stop()) return;
-      con.classList.add('link'); names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); if (ph) ph.classList.remove('hid'); await wait(5200);
+      await tap(sv); ct.textContent = T; names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); con.classList.add('tab', 'link'); if (ph) ph.classList.remove('hid'); await wait(6200);
     }, last);
   }
 })();
