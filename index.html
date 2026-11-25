@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Hagisiro — 중·고등학교 담임 선생님을 위한 간편한 캘린더</title>
-<meta name="description" content="중·고등학교 담임 선생님을 위한 간편한 캘린더. 할 일, 출결, 상담 신청을 바탕화면에서 바로 관리해요.">
+<title>Hagisiro — 중·고 담임 선생님을 위한 간편한 캘린더</title>
+<meta name="description" content="중·고 담임 선생님을 위한 간편한 캘린더. 할 일, 출결, 상담 신청을 바탕화면에서 바로 관리합니다.">
 <meta name="theme-color" content="#6d4aff">
 <link rel="icon" href="app/icons/icon.svg" type="image/svg+xml">
 <script>
@@ -44,6 +44,9 @@ img { max-width: 100%; height: auto; display: block; }
 .btn.pri:hover { background: var(--violet-ink); }
 .btn.alt { background: var(--card); box-shadow: inset 0 0 0 1px var(--line); }
 .btn.alt:hover { box-shadow: inset 0 0 0 1px var(--mut); }
+.dl2 { margin: 14px 0 0; font-size: 15px; line-height: 1.4; }
+.dl2 a { color: var(--mut); text-underline-offset: 3px; }
+.dl2 a:hover { color: var(--ink); }
 
 .desk { position: relative; margin-top: 52px; border-radius: min(8px, 1.1vw); overflow: hidden; aspect-ratio: 16 / 9.4; background:
   radial-gradient(60% 80% at 85% 15%, rgba(21,128,122,.7), transparent 70%),
@@ -87,11 +90,9 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 
 /* 상담: 선생님 표 + 비스듬히 놓인 학생 휴대폰 */
 /* 휴대폰 위치·크기는 영상 너비 기준 하나로만 (화면 크기별로 따로 두지 않음) */
-.cstage { position: relative; container-type: inline-size; max-width: 640px; margin-inline: auto; }
-.cstage .vid { margin-top: 30px; }
 .p3d { transition: opacity .7s ease, translate .7s ease; }
 .p3d.hid { opacity: 0; translate: 0 14px; }
-.p3d { position: absolute; right: 1cqw; top: 14cqw; width: 26cqw; perspective: 1400px; }
+.p3d { position: absolute; right: 8px; top: 64px; width: 318px; perspective: 1400px; }
 .phone { position: relative; border-radius: 15% / 7%; padding: 1.1%; background: linear-gradient(135deg, #d9d9df, #8d8c96 30%, #4b4a55 55%, #a9a8b2 80%, #e2e2e8);
   transform: rotateY(-26deg) rotateX(14deg) rotateZ(4deg); transform-style: preserve-3d;
   box-shadow: 1px 1px 0 #77767f, 2px 2px 0 #6a6972, 3px 3px 0 #5d5c65, 4px 4px 0 #504f58, 5px 5px 0 #44434b,
@@ -105,6 +106,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .mandala { position: relative; aspect-ratio: 1000 / 720; margin-top: 36px; }
 .mandala > img { position: absolute; left: 22%; top: 16.67%; width: 56%; filter: drop-shadow(0 18px 30px rgba(40,30,90,.18)); }
 .mandala .pen { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.penbox { position: absolute; inset: 0; pointer-events: none; }
 .mandala .num { display: none; }
 .note { position: absolute; font-size: 15px; line-height: 1.55; color: var(--mut); }
 .note b { display: block; color: var(--ink); font-size: 17px; margin-bottom: 2px; }
@@ -120,15 +122,15 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
   section { padding-top: 64px; }
   .note, .mandala .pen .ln { display: none; }
   .mandala .num { display: inline; }
-  .mandala { aspect-ratio: 1000 / 775; overflow: hidden; }
+  .mandala { aspect-ratio: 1000 / 775; }
+  .penbox { overflow: hidden; }
   .mandala > img { left: 0; top: 0; width: 100%; }
   .mandala .pen { inset: 0 auto auto 0; height: auto; aspect-ratio: 1000 / 720; transform: translate(-39.3%, -29.76%) scale(1.786); transform-origin: 0 0; }
   .notes { display: grid; gap: 12px; margin: 20px 0 0; padding-left: 22px; color: var(--mut); font-size: 15.5px; }
   .notes li::marker { color: #6d4aff; font-weight: 800; }
   .notes b { display: block; color: var(--ink); }
   .mbr { display: inline; }
-  .hero h1 { font-size: calc((100vw - 36px) / 14.5); padding-top: 0; }
-  .hero h1 .l2 { display: block; margin-top: 1.05em; }
+  .hero h1 { font-size: calc((100vw - 32px) / 13.4); }
   .hero .name { font-size: 30px; margin-top: 16px; }
   .hero { padding-top: 48px; }
 }
@@ -141,15 +143,14 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 @keyframes dmc { 50% { opacity: 0; } }
 
 /* 할 일: 달력에서 날짜를 누르면 그 날의 창이 열려요 */
-.dm-tdo .cal { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: 36px repeat(6, 1fr); }
-.dm-tdo .w { text-align: center; line-height: 36px; font-size: 14px; font-weight: 500; color: var(--mut); border-bottom: 1px solid var(--line); }
+.dm-tdo .cal { position: absolute; left: -150px; top: 0; display: grid; grid-template-columns: repeat(7, 150px); grid-template-rows: 44px repeat(5, 132px); }
+.dm-tdo .w { text-align: center; line-height: 44px; font-size: 15px; font-weight: 500; color: var(--mut); border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
 .dm-tdo .su { color: var(--red); } .dm-tdo .sa { color: var(--sat); }
-.dm-tdo .c { padding: 8px 8px 6px; font-size: 15px; font-weight: 500; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); overflow: hidden; transition: background-color .25s, transform .12s; }
-.dm-tdo .c:nth-child(7n + 1) { border-right: 0; }
+.dm-tdo .c { padding: 10px 10px 6px; font-size: 17px; font-weight: 500; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); overflow: hidden; transition: background-color .25s, transform .12s; }
 .dm-tdo .c.o { color: #b4b2c3; }
-.dm-tdo .c.sel { background: var(--tint); } .dm-tdo .c.p { transform: scale(.95); }
-.dm-tdo .c ul { list-style: none; margin: 4px 0 0; padding: 0; }
-.dm-tdo .c li { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12.5px; line-height: 1.3; font-weight: 500; margin-bottom: 3px; }
+.dm-tdo .c.sel { background: var(--tint); } .dm-tdo .c.p { transform: scale(.96); }
+.dm-tdo .c ul { list-style: none; margin: 6px 0 0; padding: 0; }
+.dm-tdo .c li { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; line-height: 1.3; font-weight: 500; margin-bottom: 4px; }
 .dm-tdo .c li::before { content: ""; display: inline-block; width: 5px; height: 5px; margin: 0 5px 1px 0; border-radius: 50%; background: #c3c1d1; }
 .dm-tdo .ov { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(28,26,43,.28); opacity: 0; pointer-events: none; transition: opacity .25s; }
 .dm-tdo.open .ov { opacity: 1; }
@@ -198,7 +199,8 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 
 /* 상담: 앱의 '새 테이블 만들기' 입력 그대로 (제목은 입력, 날짜·시각·간격은 고르기) */
 .dm-con .in { padding: 22px 24px 20px; }
-.dm-con .hd { display: flex; align-items: center; gap: 12px; height: 44px; margin-bottom: 10px; }
+.dm-con .hd { display: flex; align-items: center; gap: 14px; height: 44px; margin-bottom: 10px; }
+.dm-con .hd .bk { width: 26px; height: 26px; flex: none; margin-left: 4px; }
 .dm-con .hd b { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
 .dm-con .hd .cp { margin-left: auto; width: 40px; height: 40px; border-radius: 8px; display: grid; place-items: center; color: var(--mut); opacity: 0; transition: opacity .3s, color .3s, background-color .3s; }
 .dm-con .hd .cp svg { width: 22px; height: 22px; }
@@ -206,13 +208,9 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm-con.link .hd .cp { color: var(--violet); background: var(--tint); }
 .dm-con .ph { position: relative; height: 372px; }
 .dm-con .ph > * { position: absolute; transition: opacity .5s; }
-.dm-con .ph .tb, .dm-con .ph .fm, .dm-con .ph .nx { opacity: 0; pointer-events: none; }
-.dm-con .ph .st { inset: 0; display: grid; place-items: center; }
-.dm-con.form .ph .st, .dm-con.tab .ph .st { opacity: 0; }
-.dm-con.form .ph .fm, .dm-con.form .ph .nx { opacity: 1; } .dm-con.tab .ph .fm, .dm-con.tab .ph .nx { opacity: 0; } .dm-con.tab .ph .tb { opacity: 1; }
-.dm-con .nb { width: 250px; height: 112px; border-radius: 16px; background: var(--violet); color: #fff; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 24px; font-weight: 800; line-height: 1.25; letter-spacing: -.02em; box-shadow: 0 14px 28px -12px rgba(109,74,255,.7); transition: transform .12s; }
-.dm-con .nb.p { transform: scale(.94); }
-.dm-con .nb svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round; }
+.dm-con .ph .tb, .dm-con .ph .ft { opacity: 0; pointer-events: none; }
+.dm-con.s2 .ph .fm, .dm-con.s2 .ph .nx, .dm-con.tab .ph .fm, .dm-con.tab .ph .nx { opacity: 0; }
+.dm-con.s2 .ph .tb, .dm-con.s2 .ph .ft, .dm-con.tab .ph .tb { opacity: 1; } .dm-con.tab .ph .ft { opacity: 0; }
 .dm-con .fm { inset: 0 0 auto 0; }
 .dm-con .row { display: flex; align-items: center; height: 56px; margin-bottom: 12px; }
 .dm-con .row label { width: 188px; flex: none; font-size: 17px; font-weight: 500; }
@@ -226,13 +224,16 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm-con .fld.dd svg { width: 18px; height: 18px; stroke-width: 2.6; }
 .dm-con .sep { margin: 0 9px; color: var(--mut); font-size: 16px; }
 .dm-con .nx { right: 0; top: 296px; height: 48px; padding: 0 30px; border-radius: 10px; background: var(--violet); color: #fff; font-weight: 700; font-size: 17px; display: grid; place-items: center; transition: transform .12s, opacity .5s; }
-.dm-con .nx.p { transform: scale(.94); }
+.dm-con .nx.p, .dm-con .sv.p { transform: scale(.94); }
+.dm-con .ft { right: 0; top: 296px; display: flex; gap: 10px; }
+.dm-con .ft span { height: 48px; padding: 0 28px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; font-size: 17px; transition: transform .12s; }
+.dm-con .ft .gh { border: 1.5px solid var(--line); } .dm-con .ft .sv { background: var(--violet); color: #fff; }
 .dm-con .tb { inset: 0 0 auto 0; }
 .dm-con .dts { display: flex; gap: 14px; margin-top: 4px; }
-.dm-con .dc { flex: 1; background: #f4f4f9; border-radius: 10px; padding: 10px 10px 12px; }
+.dm-con .dc { flex: none; width: 144px; background: #f4f4f9; border-radius: 10px; padding: 10px 10px 12px; }
 .dm-con .dc h4 { margin: 0 0 8px 2px; font-size: 16px; font-weight: 700; }
 .dm-con .sl { height: 44px; margin-top: 6px; border-radius: 8px; background: #fff; color: var(--violet); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 16px; font-weight: 600; transition: background-color .3s, color .3s; }
-.dm-con .sl small { font-size: 12.5px; font-weight: 500; opacity: 0; transition: opacity .3s; }
+.dm-con .sl small { font-size: 12px; font-weight: 500; opacity: 0; transition: opacity .3s; }
 .dm-con .sl.f { background: var(--violet); color: #fff; } .dm-con .sl.f small { opacity: .9; }
 
 /* 소개 페이지 전체: 드래그·오른쪽 클릭 금지 */
@@ -244,12 +245,13 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
 <div class="wrap">
 
   <div class="hero">
-    <h1>중·고등학교 담임 선생님을 위한<span class="l2"><span class="ins"><b>간편한</b><svg viewBox="0 0 85 85" fill="none" stroke="#6d4aff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 28 26 62 81 14.4"/></svg></span>캘린더</span></h1>
+    <h1>중·고 담임 선생님을 위한<span class="ins"><b>간편한</b><svg viewBox="0 0 85 85" fill="none" stroke="#6d4aff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 28 26 62 81 14.4"/></svg></span>캘린더</h1>
     <p class="name"><img src="app/icons/icon.svg" alt="">Hagisiro</p>
     <div class="cta">
       <a class="btn pri" href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Windows용 다운로드</a>
       <a class="btn alt" href="app/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>모바일에서 사용하기</a>
     </div>
+    <p class="dl2"><a href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro.exe">설치 없이 실행하는 파일</a></p>
     <div class="desk" role="img" aria-label="바탕화면 한쪽에 반투명하게 떠 있는 Hagisiro 캘린더">
       <div class="dicons" aria-hidden="true">
         <div class="dicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5h11l-1 12.2a1.5 1.5 0 0 1-1.5 1.3H9a1.5 1.5 0 0 1-1.5-1.3z" fill="#dfe6f2"/><path d="M5.5 6.5h13" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M10 4.5h4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M10.3 10.5v7.5M13.7 10.5v7.5" stroke="#9aa6bb" stroke-width="1.2" stroke-linecap="round"/></svg>휴지통</div>
@@ -273,7 +275,7 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
 <main class="wrap">
   <section>
     <h2>종이 달력에 쓰듯 간단하게</h2>
-    <p class="lede">날짜 선택하고 할 일 입력, 다 한 일은 완료 체크하면 끝</p>
+    <p class="lede">날짜를 선택해 할 일을 입력하고, 다 한 일은 체크합니다.</p>
     <div class="dm dm-tdo" id="dmtdo" role="img" aria-label="달력에서 날짜를 눌러 할 일을 쓰고, 다 한 일은 체크하는 모습">
       <div class="in">
         <div class="cal" id="dmcal"></div>
@@ -289,7 +291,7 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
   <section>
     <h2>출결은 문장 한 줄</h2>
     <p class="lede">출결 사항을 한 문장으로 입력하면<br class="mbr"> 표에 자동으로 기록됩니다.</p>
-    <p class="fine">(NEIS와 연동되지 않으며, 기록을 보조해주는 기능입니다.)</p>
+    <p class="fine">(NEIS와 연동되지 않으며, 기록을 보조하는 기능입니다.)</p>
     <div class="dm dm-att" id="dmatt" role="img" aria-label="출결 문장을 입력하면 출결표에 바로 기록되는 모습">
       <div class="in">
         <div class="sr"><div class="inp"><span id="dmtx"></span><i></i></div><div class="go" id="dmgo"><svg viewBox="0 0 24 24"><path d="M19 6v4a3 3 0 0 1-3 3H5m0 0 4-4m-4 4 4 4"/></svg></div></div>
@@ -305,33 +307,31 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
 
   <section>
     <h2>상담 신청은 링크 하나로</h2>
-    <p class="lede">신청표를 만들고 링크를 공유하세요.<br class="mbr"> 신청 현황은 캘린더에서 바로 확인하세요.</p>
-    <div class="cstage">
+    <p class="lede">신청표를 만들고 링크를 공유합니다.<br class="mbr"> 신청 현황은 캘린더에서 바로 확인합니다.</p>
       <div class="dm dm-con" id="dmcon" role="img" aria-label="제목과 날짜, 시간을 골라 상담 신청표를 만들고 링크를 공유하면 신청 현황이 채워지는 모습">
         <div class="in">
-          <div class="hd"><b id="dmct"></b><span class="cp"><svg class="ci" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.160) translate(-12.00 -12.00)" stroke-width="1.853"><path stroke-width="1.853" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/></g></svg></span></div>
+          <div class="hd"><svg class="ci bk" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><b id="dmct">새 테이블 만들기 (1/2)</b><span class="cp"><svg class="ci" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.160) translate(-12.00 -12.00)" stroke-width="1.853"><path stroke-width="1.853" d="M9.1 11.1l5.8-3.3M9.1 12.9l5.8 3.3"/><circle cx="7.2" cy="12" r="2.2" fill="currentColor"/><circle cx="16.8" cy="7.2" r="2.2" fill="currentColor"/><circle cx="16.8" cy="16.8" r="2.2" fill="currentColor"/></g></svg></span></div>
           <div class="ph">
-            <div class="st"><div class="nb" id="dmnb"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>새 테이블<br>만들기</span></div></div>
             <div class="fm">
-              <div class="row"><label>제목</label><div class="fld w" id="dmtt"><span></span></div></div>
-              <div class="row"><label>기간</label><div class="fld dt" id="dms"><span>2026. 05. 13.</span><svg class="ci" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/></svg></div><span class="sep">~</span><div class="fld dt" id="dme"><span>2026. 05. 13.</span><svg class="ci" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/></svg></div></div>
-              <div class="row"><label>시간</label><div class="fld dd" id="dmsh"><span>16</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="sep">:</span><div class="fld dd" id="dmsn"><span>00</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="sep">~</span><div class="fld dd" id="dmeh"><span>17</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="sep">:</span><div class="fld dd" id="dmen"><span>00</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
-              <div class="row"><label>간격</label><div class="fld dd" id="dmiv"><span>1시간</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+              <div class="row"><label>제목</label><div class="fld w" id="dmtt"><span>1학기 진학 상담</span></div></div>
+              <div class="row"><label>기간</label><div class="fld dt" id="dms"><span>2026. 05. 18.</span><svg class="ci" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/></svg></div><span class="sep">~</span><div class="fld dt" id="dme"><span>2026. 05. 20.</span><svg class="ci" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/></svg></div></div>
+              <div class="row"><label>시간</label><div class="fld dd" id="dmsh"><span>15</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="sep">:</span><div class="fld dd" id="dmsn"><span>30</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="sep">~</span><div class="fld dd" id="dmeh"><span>16</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="sep">:</span><div class="fld dd" id="dmen"><span>50</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+              <div class="row"><label>간격</label><div class="fld dd" id="dmiv"><span>20분</span><svg class="ci" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
             </div>
             <div class="nx" id="dmnx">다음</div>
-            <div class="tb"><div class="dts"><div class="dc"><h4>5.18. (월)</h4><div class="sl" data-t="15:30">15:30<small></small></div><div class="sl" data-t="15:50">15:50<small></small></div><div class="sl" data-t="16:10">16:10<small></small></div><div class="sl" data-t="16:30">16:30<small></small></div></div><div class="dc"><h4>5.19. (화)</h4><div class="sl" data-t="15:30">15:30<small></small></div><div class="sl" data-t="15:50">15:50<small></small></div><div class="sl" data-t="16:10">16:10<small></small></div><div class="sl" data-t="16:30">16:30<small></small></div></div><div class="dc"><h4>5.20. (수)</h4><div class="sl" data-t="15:30">15:30<small></small></div><div class="sl" data-t="15:50">15:50<small></small></div><div class="sl" data-t="16:10">16:10<small></small></div><div class="sl" data-t="16:30">16:30<small></small></div></div></div></div>
+            <div class="tb"><div class="dts"><div class="dc"><h4>5.18. (월)</h4><div class="sl" data-t="15:30">15:30<small></small></div><div class="sl" data-t="15:50">15:50<small></small></div><div class="sl" data-t="16:10">16:10<small></small></div><div class="sl" data-t="16:30">16:30<small></small></div></div><div class="dc"><h4>5.19. (화)</h4><div class="sl" data-t="15:30">15:30<small></small></div><div class="sl" data-t="15:50">15:50<small></small></div><div class="sl" data-t="16:10">16:10<small></small></div><div class="sl" data-t="16:30">16:30<small></small></div></div></div></div>
+            <div class="ft"><span class="gh">이전</span><span class="sv" id="dmsv">저장</span></div>
           </div>
+          <div class="p3d hid"><div class="phone"><i><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2280"></i></div></div>
         </div>
       </div>
-      <div class="p3d hid"><div class="phone"><i><img src="site/book.webp" alt="학생이 휴대폰에서 빈 상담 시간을 고르는 화면" width="1170" height="2280"></i></div></div>
-    </div>
   </section>
 
   <section class="more">
     <h2>캘린더의 기본 기능도 충실</h2>
     <div class="mandala">
       <img src="site/cal.webp" alt="Hagisiro 캘린더 화면" width="1600" height="1240">
-      <svg class="pen" viewBox="0 0 1000 720" aria-hidden="true">
+      <div class="penbox"><svg class="pen" viewBox="0 0 1000 720" aria-hidden="true">
         <g class="ln" fill="none" stroke="#6d4aff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="635,123 635,36 540,36"/>
           <polyline points="700,137 760,137 760,170 798,170"/>
@@ -340,7 +340,7 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
         </g>
         <g class="dot" fill="none" stroke="#6d4aff" stroke-width="1.8"><circle cx="635" cy="137" r="14"/><circle cx="686" cy="137" r="14"/><rect x="302" y="412" width="77" height="58" rx="6"/><rect x="227" y="531" width="84" height="22" rx="6"/></g>
         <g class="num"><g fill="#6d4aff"><circle cx="635" cy="163" r="9"/><circle cx="686" cy="163" r="9"/><circle cx="379" cy="412" r="9"/><circle cx="311" cy="531" r="9"/></g><g fill="#fff" font-size="11" font-weight="800" text-anchor="middle" dominant-baseline="central"><text x="635" y="163">1</text><text x="686" y="163">2</text><text x="379" y="412">3</text><text x="311" y="531">4</text></g></g>
-      </svg>
+      </svg></div>
       <div class="note" style="left:25.4%;top:.4%;text-align:right;width:28%"><b>급식 확인</b>주간 급식표를 바로 확인합니다.</div>
       <div class="note" style="left:80.5%;top:21.5%;width:19.5%"><b>시간표와 진도 확인</b>내 시간표를 확인하고 진도표에서 수업 진도를 기록합니다.</div>
       <div class="note" style="left:0;top:59.2%;width:20%;text-align:right"><b>할 일 알림</b>할 일을 정한 시각에 알림으로 알려줍니다.</div>
@@ -357,9 +357,8 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
 <script>
 /* 소개 페이지 전체: 드래그·오른쪽 클릭·글자 선택 금지 */
 ['contextmenu', 'dragstart', 'selectstart'].forEach((t) => document.addEventListener(t, (e) => e.preventDefault()));
-/* 출결·상담 예시 움직임: 화면에 보일 때만 돌고, 움직임 줄이기를 켠 사람에게는 마지막 모습만 보여요 */
+/* 출결·상담 예시 움직임: 화면에 보일 때만 돌아요 */
 (() => {
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   function fit(box) { // 안쪽은 정해진 너비로 만들고, 칸 너비에 맞춰 비율만 줄여요. 바깥 모서리는 위젯 그림과 같은 비율(원본 794px에 6px)
@@ -369,7 +368,6 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
   function loop(box, play, last) { // 보이는 동안만 반복
     let on = false, tok = 0;
     const run = async () => { const my = ++tok; while (on && my === tok) await play(() => !on || my !== tok); };
-    if (still) { last(); return; }
     new IntersectionObserver((es) => { const v = es[0].isIntersecting; if (v === on) return; on = v; if (v) run(); else tok++; }, { threshold: 0.35 }).observe(box);
   }
   async function type(el, text, ms, stop) { for (let i = 1; i <= text.length; i++) { if (stop()) return; el.textContent = text.slice(0, i); await wait(ms); } }
@@ -381,13 +379,13 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
     fit(tdo);
     const cal = $('#dmcal'), ul = $('#dmtl'), dn = $('#dmdone'), W = ['일', '월', '화', '수', '목', '금', '토'];
     W.forEach((w, i) => { const e = document.createElement('div'); e.className = 'w' + (i === 0 ? ' su' : i === 6 ? ' sa' : ''); e.textContent = w; cal.append(e); });
-    const d0 = new Date(2026, 3, 26), cells = [];
-    for (let i = 0; i < 42; i++) {
+    const d0 = new Date(2026, 4, 3), cells = [];
+    for (let i = 0; i < 35; i++) {
       const d = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + i), e = document.createElement('div');
       e.className = 'c' + (d.getMonth() !== 4 ? ' o' : '') + (d.getDay() === 0 ? ' su' : d.getDay() === 6 ? ' sa' : '');
       e.textContent = d.getDate(); cal.append(e); cells.push(e);
     }
-    const cell = cells[17], items = ['수행평가 채점', '진로 상담 자료 준비'];
+    const cell = cells[10], items = ['수행평가 채점', '진로 상담 자료 준비'];
     const li = (t, d) => { const e = document.createElement('li'); if (d) e.className = 'd'; const sp = document.createElement('span'); sp.textContent = t || ''; e.append(sp); return e; };
     const showCell = (doneIdx) => { cell.querySelector('ul')?.remove(); const u = document.createElement('ul'); items.forEach((t, i) => u.append(li(t, i === doneIdx))); cell.append(u); };
     const reset = () => { tdo.classList.remove('open'); ul.replaceChildren(); dn.className = ''; cell.className = 'c'; cell.querySelector('ul')?.remove(); };
@@ -420,38 +418,33 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
     const chip = (t, cls) => { const e = document.createElement('div'); e.className = 'chip ' + cls; e.textContent = t; ch.append(e); requestAnimationFrame(() => requestAnimationFrame(() => e.classList.add('on'))); };
     const summary = (a) => { sm.replaceChildren(...a.map(([t, c], i) => { const f = document.createDocumentFragment(); if (i) f.append(' · '); const e = document.createElement('em'); e.className = c; e.textContent = t; f.append(e); return f; })); };
     const input = async (text, stop) => { ch.replaceChildren(); await type(tx, text, 80, stop); await wait(650); await tap(go); tx.textContent = ''; };
-    const A = () => { setRow('이세모', '질병조퇴', 't-ea', 3, 7, '감기'); summary([['조퇴 1', 't-ea']]); };
-    const B = () => { setRow('최별이', '출석인정결석', 't-ab', 1, 7, '체험학습'); summary([['조퇴 1', 't-ea'], ['결석 1', 't-ab']]); };
-    const last = () => { resetRows(); A(); B(); chip('최별이 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab'); };
+    const A = () => { setRow('김네모', '질병조퇴', 't-ea', 3, 7, '감기'); summary([['조퇴 1', 't-ea']]); };
+    const B = () => { setRow('이세모', '출석인정결석', 't-ab', 1, 7, '체험학습'); summary([['조퇴 1', 't-ea'], ['결석 1', 't-ab']]); };
+    const last = () => { resetRows(); A(); B(); chip('이세모 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab'); };
     loop(att, async (stop) => {
       resetRows(); await wait(900); if (stop()) return;
-      await input('이세모 감기로 3교시부터 조퇴', stop); if (stop()) return;
-      A(); chip('이세모 · 5.13. (수) · 질병조퇴 3교시~ · 감기', 't-ea');
+      await input('김네모 감기로 3교시부터 조퇴', stop); if (stop()) return;
+      A(); chip('김네모 · 5.13. (수) · 질병조퇴 3교시~ · 감기', 't-ea');
       await wait(2200); if (stop()) return;
-      await input('최별이 오늘부터 3일간 체험학습', stop); if (stop()) return;
-      B(); chip('최별이 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab');
+      await input('이세모 오늘부터 3일간 체험학습', stop); if (stop()) return;
+      B(); chip('이세모 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab');
       await wait(4200);
     }, last);
   }
 
-  /* 상담: 앱의 새 테이블 입력 그대로. 제목은 쓰고, 날짜·시각·간격은 골라요 */
+  /* 상담: 앱의 '새 테이블 만들기' 1/2·2/2 화면 그대로. 입력은 미리 채워 두고, 다음 → 저장 → 링크·학생 신청 순서로 보여줘요 */
   const con = $('#dmcon'), ph = $('.p3d');
   if (con) {
     fit(con);
-    const ct = $('#dmct'), tt = $('#dmtt'), tts = $('span', tt), nb = $('#dmnb'), nx = $('#dmnx'), sl = $$('.sl', con);
+    const ct = $('#dmct'), nx = $('#dmnx'), sv = $('#dmsv'), sl = $$('.sl', con);
     const names = [['김네모', 0], ['박동글', 2], ['최별이', 5], ['윤꽃잎', 7]];
-    const picks = [['dms', '2026. 05. 18.'], ['dme', '2026. 05. 20.'], ['dmsh', '15'], ['dmsn', '30'], ['dmeh', '16'], ['dmen', '50'], ['dmiv', '20분']];
-    const dflt = { dms: '2026. 05. 13.', dme: '2026. 05. 13.', dmsh: '16', dmsn: '00', dmeh: '17', dmen: '00', dmiv: '1시간' };
-    const fld = (id) => $('#' + id + ' span');
-    const reset = () => { con.classList.remove('form', 'tab', 'link'); ct.textContent = ''; tts.textContent = ''; tt.classList.remove('ty', 'cur'); $$('.fld', con).forEach((x) => x.classList.remove('cur')); for (const k in dflt) fld(k).textContent = dflt[k]; sl.forEach((s) => { s.classList.remove('f'); $('small', s).textContent = ''; }); if (ph) ph.classList.add('hid'); };
-    const last = () => { reset(); ct.textContent = '1학기 진학 상담'; con.classList.add('tab', 'link'); names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); if (ph) ph.classList.remove('hid'); };
+    const T = '1학기 진학 상담';
+    const reset = () => { con.classList.remove('s2', 'tab', 'link'); ct.textContent = '새 테이블 만들기 (1/2)'; sl.forEach((s) => { s.classList.remove('f'); $('small', s).textContent = ''; }); if (ph) ph.classList.add('hid'); };
+    const last = () => { reset(); ct.textContent = T; con.classList.add('tab', 'link'); names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); if (ph) ph.classList.remove('hid'); };
     loop(con, async (stop) => {
-      reset(); await wait(1500); if (stop()) return;
-      await tap(nb); con.classList.add('form'); await wait(600);
-      tt.classList.add('cur', 'ty'); await type(tts, '1학기 진학 상담', 90, stop); if (stop()) return; tt.classList.remove('cur', 'ty'); await wait(350);
-      for (const [id, v] of picks) { const f = $('#' + id); f.classList.add('cur'); await wait(380); fld(id).textContent = v; await wait(380); f.classList.remove('cur'); if (stop()) return; }
-      await wait(300); await tap(nx); await wait(250);
-      ct.textContent = tts.textContent; con.classList.add('tab'); await wait(1900); if (stop()) return;
+      reset(); await wait(2400); if (stop()) return;
+      await tap(nx); con.classList.add('s2'); ct.textContent = '새 테이블 만들기 (2/2)'; await wait(2400); if (stop()) return;
+      await tap(sv); con.classList.add('tab'); ct.textContent = T; await wait(1700); if (stop()) return;
       con.classList.add('link'); if (ph) ph.classList.remove('hid'); await wait(2200); if (stop()) return;
       for (const [n, i] of names) { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; await wait(850); if (stop()) return; }
       await wait(3800);
