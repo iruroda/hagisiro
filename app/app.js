@@ -1829,6 +1829,7 @@
       ['compositionupdate', 'compositionend', 'keyup'].forEach((t) => inp.addEventListener(t, () => requestAnimationFrame(fit))); // 모바일 한글 입력: 조합 중인 마지막 글자까지 넓혀요
       row.addEventListener('mousedown', (e) => { if (e.target === row) { e.preventDefault(); inp.focus(); const n = inp.value.length; inp.setSelectionRange(n, n); } });
       inp.addEventListener('input', () => { it.text = inp.value; fit(); });
+      inp.addEventListener('scroll', () => { if (inp.scrollLeft && inp.scrollWidth - inp.clientWidth <= 4) inp.scrollLeft = 0; }); // 글자가 다 들어가는데 브라우저가 늦게 옆으로 밀면 그 순간 되돌림
       onEnter(inp, () => {
         if (inp.value.trim() === '' && row === rows().at(-1)) return; // 빈 줄에서 엔터는 아무 일도 안 해요 (닫기는 Esc · 바깥 클릭 · X)
         const nr = mkRow({ text: '', done: false });
