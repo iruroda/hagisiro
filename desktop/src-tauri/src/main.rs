@@ -112,15 +112,11 @@ fn initial_bounds(saved: &Saved, s: f64) -> Rect {
     if vis { keep_inside(b, s, 300.0) } else { mid(b.width, b.height) }
 }
 
-/* 창이 화면(작업 영역) 밖으로 삐져나가지 않게: 모니터들의 작업 영역을 합친 사각형 안으로 크기·위치를 맞춤 */
-fn work_of(_b: Rect, s: f64) -> Option<Rect> {
-    let was: Vec<Rect> = w32::monitors().iter().map(|m| lrect(&m.work, s)).collect();
-    if was.is_empty() { return None; }
-    let x0 = was.iter().map(|w| w.x).fold(f64::MAX, f64::min);
-    let y0 = was.iter().map(|w| w.y).fold(f64::MAX, f64::min);
-    let x1 = was.iter().map(|w| w.x + w.width).fold(f64::MIN, f64::max);
-    let y1 = was.iter().map(|w| w.y + w.height).fold(f64::MIN, f64::max);
-    Some(Rect { x: x0, y: y0, width: x1 - x0, height: y1 - y0 })
+/* 창이 화면(작업 영역) 밖으로 삐져나가지 않게: 창이 가장 많이 걸친 모니터 하나 안으로 크기·위치를 맞춤
+   (모니터를 합친 큰 사각형은 배치에 따라 실제 화면이 아닌 빈 곳이 생겨서 안 써요) */
+fn work_of(b: Rect, s: f64) -> Option<Rect> {
+    let ov = |w: &Rect| ((b.x + b.width).min(w.x + w.width) - b.x.max(w.x)).max(0.0) * ((b.y + b.height).min(w.y + w.height) - b.y.max(w.y)).max(0.0);
+    w32::monitors().iter().map(|m| lrect(&m.work, s)).max_by(|a, c| ov(a).partial_cmp(&ov(c)).unwrap_or(std::cmp::Ordering::Equal))
 }
 fn keep_inside(b: Rect, s: f64, minw: f64) -> Rect {
     let Some(w) = work_of(b, s) else { return b };
