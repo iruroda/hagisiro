@@ -6,7 +6,7 @@ use std::{fs, path::{Path, PathBuf}, sync::Mutex, time::Duration};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::webview::PageLoadEvent;
-use tauri::{AppHandle, LogicalPosition, LogicalSize, Manager, State, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent, Wry};
+use tauri::{AppHandle, LogicalPosition, LogicalSize, Manager, PhysicalPosition, PhysicalSize, State, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent, Wry};
 use tauri_plugin_notification::NotificationExt;
 
 const URL: &str = "https://iruroda.github.io/hagisiro/app/?widget=1";
@@ -125,6 +125,23 @@ fn keep_inside(b: Rect, s: f64, minw: f64) -> Rect {
     let x = b.x.min(w.x + w.width - width).max(w.x);
     let y = b.y.min(w.y + w.height - height).max(w.y);
     Rect { x: x.round(), y: y.round(), width: width.round(), height: height.round() }
+}
+
+/* 마지막 보정: 실제 화면 픽셀 기준으로, 창이 가장 많이 걸친 모니터의 작업 영역 안에 완전히 들어오게.
+   (모니터마다 배율이 다르면 논리 좌표 계산이 어긋나서 두 화면에 걸칠 수 있어요) */
+fn fit_phys(w: &WebviewWindow) {
+    let (Ok(p), Ok(z)) = (w.outer_position(), w.outer_size()) else { return };
+    let (l, t, r, b) = (p.x as i64, p.y as i64, p.x as i64 + z.width as i64, p.y as i64 + z.height as i64);
+    let mons = w32::monitors();
+    let ov = |m: &w32::Mon| ((r.min(m.work.right as i64) - l.max(m.work.left as i64)).max(0)) * ((b.min(m.work.bottom as i64) - t.max(m.work.top as i64)).max(0));
+    let Some(m) = mons.iter().max_by_key(|m| ov(m)) else { return };
+    let (wl, wt, wr, wb) = (m.work.left as i64, m.work.top as i64, m.work.right as i64, m.work.bottom as i64);
+    let width = (z.width as i64).min(wr - wl);
+    let height = (z.height as i64).min(wb - wt);
+    let x = (p.x as i64).min(wr - width).max(wl);
+    let y = (p.y as i64).min(wb - height).max(wt);
+    if width != z.width as i64 || height != z.height as i64 { let _ = w.set_size(PhysicalSize::new(width as u32, height as u32)); }
+    if x != p.x as i64 || y != p.y as i64 { let _ = w.set_position(PhysicalPosition::new(x as i32, y as i32)); }
 }
 
 /* 이동·크기 변경: 화면(작업 영역) 가장자리에 자석처럼 붙임 */
@@ -258,6 +275,7 @@ fn wb_set(window: WebviewWindow, st: State<Shared>, b: Rect, mode: String) {
 }
 #[tauri::command]
 fn wb_done(window: WebviewWindow, st: State<Shared>) {
+    if !st.lock().unwrap().in_login { fit_phys(&window); } // 잠금을 푼 채로 창을 옮겨요 (Moved 이벤트가 같은 상태를 잠그려 해서)
     let mut s = st.lock().unwrap();
     if !s.in_login { s.saved.bounds = Some(get_rect(&window)); s.save(); }
 }
@@ -406,6 +424,7 @@ fn main() {
 
             // 문제 확인용: 파일 이름에 debug가 들어간 exe로 실행하면 개발자 도구를 열어요
             if std::env::current_exe().ok().and_then(|p| p.file_name().map(|n| n.to_string_lossy().to_lowercase().contains("debug"))).unwrap_or(false) { win.open_devtools(); }
+            fit_phys(&win);
             let _ = win.show();
             let _ = win.set_focus(); // 처음 켰을 때 투명 창이 그려지지 않고 안 보이던 것 방지
             let h2 = h.clone();
