@@ -24,6 +24,7 @@
       "nsis": {
         "installMode": "currentUser",
         "languages": ["Korean"],
+        "customLanguageFiles": { "Korean": "Korean.nsh" },
         "displayLanguageSelector": false,
         "installerIcon": "icons/icon.ico",
         "installerHooks": "hooks.nsh"
