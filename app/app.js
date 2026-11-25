@@ -3917,7 +3917,7 @@
     const api = window.hagisiroWidget;
     let layer = null;
     function toggle() {
-      if (layer) { layer.remove(); layer = null; document.body.classList.remove('wedit'); return; }
+      if (layer) { layer._off && layer._off(); layer.remove(); layer = null; document.body.classList.remove('wedit'); return; }
       document.body.classList.add('wedit');
       const done = el('button', { class: 'pri sm wdone', type: 'button', onclick: (ev) => { ev.stopPropagation(); toggle(); } }, '확인');
       done.addEventListener('pointerdown', (ev) => ev.stopPropagation());
@@ -3962,6 +3962,11 @@
       const end = () => { if (drag && api) api.done(); drag = null; layer.style.cursor = ''; };
       layer.addEventListener('pointerup', end); layer.addEventListener('pointercancel', end);
       document.body.append(layer); fit();
+      /* 앱 바깥을 누르거나 다른 창으로 넘어가면 이동·크기 변경이 끝나요 */
+      const outside = (ev) => { if (layer && !layer.contains(ev.target)) toggle(); };
+      const lost = () => { if (layer) toggle(); };
+      document.addEventListener('pointerdown', outside, true); window.addEventListener('blur', lost);
+      layer._off = () => { document.removeEventListener('pointerdown', outside, true); window.removeEventListener('blur', lost); };
     }
     S.winEdit = toggle;
     document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && layer) toggle(); });
