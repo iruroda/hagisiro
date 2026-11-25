@@ -2554,7 +2554,7 @@
   const chipText = (it) => `${it.no} ${it.name} · ${md(it.date)} · ${it.cat}${it.type} ${P.rangeLabel(it.from, it.to)}${it.reason ? ' · ' + it.reason : ''}`;
 
   /* 처음 쓰는 사람에게: 대상만 밝게, 나머지는 어둡게 하고 말풍선으로 안내 ('다시 열지 않음'을 고르면 다시 안 떠요) */
-  function showTour(target, key, lines) {
+  function showTour(target, key, lines, passDbl) {
     const r = target.getBoundingClientRect();
     const hole = el('div', { class: 'tour-hole' });
     const never = el('input', { type: 'checkbox' });
@@ -2562,6 +2562,13 @@
     const tip = el('div', { class: 'tour-tip' }, lines,
       el('div', { class: 'tour-f' }, el('label', { class: 'rchk' }, never, '다시 열지 않음'), el('button', { class: 'pri sm', type: 'button', onclick: close }, '닫기')));
     const box = el('div', { class: 'tour' }, hole, tip);
+    if (passDbl) box.addEventListener('dblclick', (e) => { // 안내하는 칸을 바로 더블클릭하면 안내를 닫고, 그 칸에서 더블클릭한 것으로 이어가요
+      const b = target.getBoundingClientRect();
+      if (e.clientX < b.left || e.clientX > b.right || e.clientY < b.top || e.clientY > b.bottom) return;
+      close();
+      const t = document.elementFromPoint(e.clientX, e.clientY);
+      if (t) t.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, clientX: e.clientX, clientY: e.clientY }));
+    });
     document.body.append(box);
     const cr = box.getBoundingClientRect(); // 위젯 모드에선 위젯 안쪽만 덮어요
     const rl = r.left - cr.left, rt = r.top - cr.top;
@@ -2589,7 +2596,7 @@
     const cell = $(`#cal .cell[data-date="${ymd(new Date())}"]`);
     if (!cell || !cell.offsetWidth) return;
     S.todoTourShown = true;
-    showTour(cell, 'hagisiro:tourTodo', [el('div', {}, '날짜 칸을 더블클릭해서 할 일을 입력해 보세요.')]);
+    showTour(cell, 'hagisiro:tourTodo', [el('div', {}, '날짜 칸을 더블클릭해서 할 일을 입력해 보세요.')], true);
   }
   function preview() {
     const q = $('#q'), pv = $('#pv');
