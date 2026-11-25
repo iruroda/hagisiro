@@ -1035,7 +1035,7 @@
     let ord = 'near';
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('dday', 'D-day 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      sortBar([['near', '가까운 순'], ['far', '먼 순'], ['az', '가나다순'], ['za', '가나다 역순']], 'near', (v) => { ord = v; draw(); }),
+      sortBar([['near', '가까운 순'], ['far', '먼 순'], ['az', '오름차순'], ['za', '내림차순']], 'near', (v) => { ord = v; draw(); }),
       list);
     m.append(el('div', { class: 'back', onclick: close }), dlg);
     const draw = () => {
@@ -1094,7 +1094,7 @@
     let ord = 'near';
     m.append(el('div', { class: 'back', onclick: close }), el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('bell', '알림 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      sortBar([['near', '가까운 순'], ['far', '먼 순'], ['az', '가나다순'], ['za', '가나다 역순']], 'near', (v) => { ord = v; draw(); }), list));
+      sortBar([['near', '가까운 순'], ['far', '먼 순'], ['az', '오름차순'], ['za', '내림차순']], 'near', (v) => { ord = v; draw(); }), list));
     const draw = () => {
       const nowS = ymd(new Date()) + ' ' + String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0');
       const k = (t) => t.date + ' ' + t.al;
@@ -2179,7 +2179,7 @@
     }
     function showList() {
       const list = S.repeats.slice().sort((a, b) => ord === 'old' ? (a.created || 0) - (b.created || 0) : ord === 'az' ? kcmp(a.text, b.text) : ord === 'za' ? kcmp(b.text, a.text) : (b.created || 0) - (a.created || 0));
-      body.append(sortBar([['new', '최신순'], ['old', '오래된순'], ['az', '가나다순'], ['za', '가나다 역순']], ord, (v) => { ord = v; show(); },
+      body.append(sortBar([['new', '최신순'], ['old', '오래된순'], ['az', '오름차순'], ['za', '내림차순']], ord, (v) => { ord = v; show(); },
         el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = null; showForm(); } }, icon('plus'), '반복 추가')));
       if (!list.length) body.append(el('div', { class: 'mut small sempty' }, '반복 없음'));
       list.forEach((r) => {
