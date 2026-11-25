@@ -1471,8 +1471,6 @@ button:disabled { pointer-events: none; }
 #sheet .panel .sbody { scrollbar-gutter: auto; }
 
 /* 로그인 진행 중: 다른 선택지는 숨기고 버튼은 흐리게 */
-.login.busy .link { visibility: hidden; }
-.login.busy .pri { opacity: .6; cursor: default; }
 
 /* 표 틀의 아래선은 맨 끝까지 내렸거나 자료가 다 보일 때만 (일별·주별·월별 모두 같게, 넘어가는 애니메이션 중에도 안 생기게) */
 .mwrap:not(.atend) > .mfr > i { border-bottom-color: transparent; }
