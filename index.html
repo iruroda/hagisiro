@@ -79,6 +79,7 @@ section > h2, section > .lede, section > .fine { max-width: 640px; margin-inline
 h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03em; margin: 0; font-weight: 800; text-wrap: balance; }
 .lede { color: var(--mut); margin: 12px 0 0; font-size: 18px; }
 .mbr { display: none; }
+.fine.sync { text-align: center; margin-top: 14px; text-wrap: balance; }
 .fine { color: var(--mut); margin: 6px 0 0; font-size: 14.5px; opacity: .85; }
 /*steps*/ .steps { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 12px; counter-reset: s; }
 .steps li { counter-increment: s; display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
@@ -257,6 +258,7 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
       <a class="btn alt" href="https://github.com/iruroda/hagisiro/releases/download/widget-latest/Hagisiro.exe">무설치(포터블 버전) 다운로드</a>
       <a class="btn alt m" href="app/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>모바일에서 사용하기</a>
     </div>
+    <p class="fine sync">Google 로그인을 통해 여러 기기에서 동기화하여 사용할 수 있습니다.</p>
         <div class="desk" role="img" aria-label="바탕화면 한쪽에 반투명하게 떠 있는 Hagisiro 캘린더">
       <div class="dicons" aria-hidden="true">
         <div class="dicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5h11l-1 12.2a1.5 1.5 0 0 1-1.5 1.3H9a1.5 1.5 0 0 1-1.5-1.3z" fill="#dfe6f2"/><path d="M5.5 6.5h13" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M10 4.5h4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M10.3 10.5v7.5M13.7 10.5v7.5" stroke="#9aa6bb" stroke-width="1.2" stroke-linecap="round"/></svg>휴지통</div>
