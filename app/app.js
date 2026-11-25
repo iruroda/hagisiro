@@ -2258,7 +2258,7 @@
       const ds = dsOf(d); const w = new Date(S.y, S.m, d).getDay();
       head.append(el('th', { class: 'd go' + (w === 0 || w === 6 ? ' we' : '') + (w === 0 || holName(ds, new Date(S.y, S.m, d)) ? ' sun' : w === 6 ? ' sat' : '') + (ds === todayS ? ' tdy' : ''), 'data-d': ds }, el('div', {}, d), el('div', { class: 'dw' }, DOW[w])));
     }
-    TYPES.forEach((t) => head.append(el('th', { class: 'sum t-' + t, title: t }, SHORT[t])));
+    TYPES.forEach((t) => head.append(el('th', { class: 'sum t-' + t }, SHORT[t])));
     const tbody = el('tbody');
     cls.students.slice().sort((a, b) => a.no - b.no).forEach((s) => {
       const tr = el('tr', {}, el('td', { class: 'c1' }, s.no), el('td', { class: 'c2' }, s.name));
