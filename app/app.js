@@ -362,6 +362,7 @@
   function watchConsults() {
     const bw = new Map(); // 상담표 id → { c, books, un }
     const calc = () => {
+      for (const v of bw.values()) if (!v.books) return; // 신청 목록이 다 올 때까지는 기존 숫자를 그대로 둬요
       const m = {};
       bw.forEach(({ c, books }) => (books || []).filter((b) => !b.cancelled).forEach((b) => {
         const k = String(b.id).slice(0, 8), ds = `${k.slice(0, 4)}-${k.slice(4, 6)}-${k.slice(6, 8)}`;
@@ -377,13 +378,13 @@
       rows.forEach((r) => {
         const v = bw.get(r.id);
         if (v) { v.c = r; return; }
-        const x = { c: r, books: [], un: null };
+        const x = { c: r, books: null, un: null };
         x.un = S.cloud.consultWatchBooks(r.id, (books) => { x.books = books; calc(); }, () => {});
         bw.set(r.id, x);
       });
       calc();
     }, () => {});
-    S.unsubStatic.push(() => { un(); bw.forEach((v) => v.un()); bw.clear(); S.cbk = {}; });
+    S.unsubStatic.push(() => { un(); bw.forEach((v) => v.un()); bw.clear(); }); // S.cbk는 비우지 않아요(새로고침 때 상담 버튼이 잠깐 사라졌다 나타나지 않게)
   }
   function watchStatic() {
     S.unsubStatic.forEach((f) => f()); S.unsubStatic = [];
@@ -399,7 +400,7 @@
 
   /* ================= 부팅 / 로그인 ================= */
   function enterLocal() {
-    stopWatches(); S.cloud = null; S.user = null; S.clsLoaded = true;
+    stopWatches(); S.cbk = {}; S.cloud = null; S.user = null; S.clsLoaded = true;
     Data.loadLocal(); render();
   }
   /* 위젯: 로그인 화면을 거치지 않고(이 기기에만 저장 → 메뉴에서 로그인) 로그인하면 구글 로그인 창이 안 닫히고 남아서, 끝났을 때 닫아요 */
@@ -439,7 +440,7 @@
           if (u) enterCloud(u);
           else {
             if (S.user) { S.lgOut = true; S.lgFaded = 0; } // 로그인해 쓰던 중에 로그아웃: 로그인 화면은 처음 애니메이션 없이 부드럽게 나타나요
-            S.user = null; S.cloud = null; stopWatches();
+            S.user = null; S.cloud = null; stopWatches(); S.cbk = {};
             if (S.guest) enterLocal();
             else { COLS.forEach((c) => { S[c] = []; }); S.clsLoaded = true; render(); }
           }
