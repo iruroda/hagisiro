@@ -159,7 +159,7 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm-tdo.open .pop { transform: none; }
 .dm-tdo .pt { display: flex; align-items: center; justify-content: space-between; font-size: 24px; font-weight: 700; }
 .dm-tdo .pt svg { width: 22px; height: 22px; }
-.dm-tdo .pop ul { list-style: none; margin: 12px 0 4px; padding: 0; min-height: 124px; }
+.dm-tdo .pop ul { list-style: none; margin: 12px 0 4px; padding: 0; height: 62px; transition: height .25s; }
 .dm-tdo .pop li { display: flex; align-items: center; gap: 12px; height: 62px; font-size: 24px; font-weight: 500; margin: 0; }
 .dm-tdo .pop li::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #c3c1d1; flex: none; }
 .dm-tdo li.d { color: var(--mut); text-decoration: line-through; text-decoration-thickness: 2px; }
@@ -411,13 +411,15 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
     const cell = cells[10], items = ['수행평가 채점', '진로 상담 자료 준비'];
     const li = (t, d) => { const e = document.createElement('li'); if (d) e.className = 'd'; const sp = document.createElement('span'); sp.textContent = t || ''; e.append(sp); return e; };
     const showCell = (doneIdx) => { cell.querySelector('ul')?.remove(); const u = document.createElement('ul'); items.forEach((t, i) => u.append(li(t, i === doneIdx))); cell.append(u); };
-    const reset = () => { tdo.classList.remove('open'); ul.replaceChildren(); dn.className = ''; cell.className = 'c'; cell.querySelector('ul')?.remove(); };
-    const last = () => { reset(); items.forEach((t, i) => ul.append(li(t, i === 1))); showCell(1); cell.classList.add('sel'); };
+    const reset = () => { tdo.classList.remove('open'); ul.style.transition = 'none'; ul.style.height = '62px'; ul.replaceChildren(); void ul.offsetHeight; ul.style.transition = ''; dn.className = ''; cell.className = 'c'; cell.querySelector('ul')?.remove(); };
+    const last = () => { reset(); ul.style.height = '124px'; items.forEach((t, i) => ul.append(li(t, i === 1))); showCell(1); cell.classList.add('sel'); };
     loop(tdo, async (stop) => {
       reset(); await wait(900); if (stop()) return;
       cell.classList.add('p'); await wait(180); cell.classList.remove('p'); cell.classList.add('sel'); await wait(350);
-      tdo.classList.add('open'); await wait(700); if (stop()) return;
-      const a = li(), cur = document.createElement('i'); ul.append(a); a.append(cur); await type(a.firstChild, items[0], 90, stop); if (stop()) return; await wait(450); cur.remove();
+      const a = li(), cur = document.createElement('i'); ul.append(a); a.append(cur); ul.style.height = '62px';
+      tdo.classList.add('open'); await wait(900); if (stop()) return;
+      await type(a.firstChild, items[0], 90, stop); if (stop()) return; await wait(450); cur.remove();
+      ul.style.height = '124px'; await wait(250); if (stop()) return; // 엔터를 치면 한 줄 더 쓸 칸이 생겨요
       const b = li(); ul.append(b); b.append(cur); await type(b.firstChild, items[1], 90, stop); if (stop()) return; await wait(700); cur.remove();
       dn.className = 'on p'; await wait(160); dn.className = 'on'; b.classList.add('d'); await wait(1300); if (stop()) return;
       tdo.classList.remove('open'); await wait(350); showCell(1); await wait(3200); if (stop()) return;
