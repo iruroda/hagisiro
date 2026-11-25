@@ -3934,7 +3934,7 @@
             el('div', { class: 'cdh ' + dcol(d) }, el('b', { class: 'cday' }, `${d.getMonth() + 1}.${d.getDate()}.`), el('span', { class: 'mut' }, `(${DOW[d.getDay()]})`)),
             days[k].map((sid) => {
               const b = by[sid];
-              return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'), title: b ? `${b.name}${b.info ? ' (' + b.info + ')' : ''}` : null,
+              return el('button', { type: 'button', class: 'cchip' + (b ? ' bk' : ' ro'),
                 onclick: b ? async () => {
                   if (!(await ask(`${b.name}${b.info ? ' (' + b.info + ')' : ''}의 신청을 삭제할까요?`, '삭제'))) return;
                   try { await S.cloud.consultRemoveBooking(c.id, sid); } catch (e) { console.error(e); }
