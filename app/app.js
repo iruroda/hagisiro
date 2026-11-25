@@ -353,6 +353,8 @@
       S.unsubs.push(S.cloud.watch('todos', rg, (d) => { S.todos = d; render(); }, cloudErr));
       S.unsubs.push(S.cloud.watch('att', rg, (d) => { S.att = d.map(normRec); render(); }, cloudErr));
       S.unsubs.push(S.cloud.watch('days', rg, (d) => { S.days = d; render(); }, cloudErr));
+      // Google 일정 사본(연동할 때 가져와 저장해 둔 것) — 토큰이 만료돼도 체크를 풀 때까지 보여요
+      S.unsubs.push(S.cloud.watch('gcal', rg, (d) => { S.gcal = gcalWanted() ? Object.fromEntries(d.map((x) => [x.date, x.items || []])) : {}; render(); }, cloudErr));
     }
     loadGcal(); loadGhol(); loadMeal();
   }
@@ -3129,7 +3131,7 @@
             el('input', { type: 'checkbox', checked: gcalWanted(), onchange: (e) => {
               const cb = e.target;
               if (cb.checked) connectGcal().finally(() => { cb.checked = gcalWanted(); });
-              else { ls.set('hagisiro:gcal', '0'); S.gcal = {}; render(); }
+              else { ls.set('hagisiro:gcal', '0'); S.gcal = {}; S.cloud.clearAll('gcal').catch(cloudErr); render(); }
             } }), el('span', {}, 'Google 캘린더 일정')) : null,
           el('div', { class: 'pfs' }, '미니 버튼'),
           tog('ab', '출결', '', 'render'),
@@ -3338,7 +3340,7 @@
   async function loadGcal() {
     if (!gcalWanted()) return;
     const tok = gtoken();
-    if (!tok) { S.gcal = {}; render(); return; }
+    if (!tok) return; // 토큰이 없어도 저장해 둔 일정은 그대로 보여요
     const r = range();
     const end = parseYmd(r.to); end.setDate(end.getDate() + 1);
     const url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?' + new URLSearchParams({
@@ -3348,7 +3350,6 @@
       const res = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
       if (res.status === 401 || res.status === 403) {
         try { sessionStorage.removeItem(GK); } catch (e) { /* noop */ }
-        S.gcal = {}; render();
         return;
       }
       const j = await res.json();
@@ -3364,7 +3365,15 @@
           (g[ds] = g[ds] || []).push({ s, t: ev.start.dateTime.slice(11, 16) });
         }
       });
-      S.gcal = g; render();
+      // 가져온 일정을 내 계정에 저장해 둬요(바뀐 날짜만) — 토큰이 만료돼도 체크를 풀 때까지 남아요
+      const next = { ...S.gcal };
+      for (let d = parseYmd(r.from); ymd(d) <= r.to; d.setDate(d.getDate() + 1)) {
+        const ds = ymd(d), n = g[ds], c = S.gcal[ds];
+        if (JSON.stringify(n || null) === JSON.stringify(c || null)) continue;
+        if (n) { next[ds] = n; S.cloud.save('gcal', { id: ds, date: ds, items: n }).then(saveOk, cloudErr); }
+        else { delete next[ds]; S.cloud.remove('gcal', ds).then(saveOk, cloudErr); }
+      }
+      S.gcal = next; render();
     } catch (e) { console.error(e); }
   }
 
