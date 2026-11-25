@@ -2554,15 +2554,16 @@
   const chipText = (it) => `${it.no} ${it.name} · ${md(it.date)} · ${it.cat}${it.type} ${P.rangeLabel(it.from, it.to)}${it.reason ? ' · ' + it.reason : ''}`;
 
   /* 처음 쓰는 사람에게: 대상만 밝게, 나머지는 어둡게 하고 말풍선으로 안내 ('다시 열지 않음'을 고르면 다시 안 떠요) */
-  function showTour(target, key, lines, passDbl) {
+  function showTour(target, key, lines, mode) {
     const r = target.getBoundingClientRect();
     const hole = el('div', { class: 'tour-hole' });
     const never = el('input', { type: 'checkbox' });
-    const close = () => { if (never.checked) ls.set(key, '1'); box.classList.add('out'); setTimeout(() => box.remove(), 230); };
+    const tourEnter = (e) => { if (e.key === 'Enter' && target.contains(e.target)) close(); };
+    const close = () => { if (never.checked) ls.set(key, '1'); document.removeEventListener('keydown', tourEnter, true); box.classList.add('out'); setTimeout(() => box.remove(), 230); };
     const tip = el('div', { class: 'tour-tip' }, lines,
       el('div', { class: 'tour-f' }, el('label', { class: 'rchk' }, never, '다시 열지 않음'), el('button', { class: 'pri sm', type: 'button', onclick: close }, '닫기')));
     const box = el('div', { class: 'tour' }, hole, tip);
-    if (passDbl) box.addEventListener('dblclick', (e) => { // 안내하는 칸을 바로 더블클릭하면 안내를 닫고, 그 칸에서 더블클릭한 것으로 이어가요
+    if (mode === 'dbl') box.addEventListener('dblclick', (e) => { // 안내하는 칸을 바로 더블클릭하면 안내를 닫고, 그 칸에서 더블클릭한 것으로 이어가요
       const b = target.getBoundingClientRect();
       if (e.clientX < b.left || e.clientX > b.right || e.clientY < b.top || e.clientY > b.bottom) return;
       close();
@@ -2573,6 +2574,13 @@
     const cr = box.getBoundingClientRect(); // 위젯 모드에선 위젯 안쪽만 덮어요
     const rl = r.left - cr.left, rt = r.top - cr.top;
     Object.assign(hole.style, { left: rl - 4 + 'px', top: rt - 4 + 'px', width: r.width + 8 + 'px', height: r.height + 8 + 'px' });
+    if (mode === 'live') { // 안내된 칸은 그대로 쓸 수 있고(입력 가능), 그 밖은 막아요. 닫기를 누르거나 안내된 칸에서 엔터를 치면 닫혀요
+      box.classList.add('live');
+      const hl = rl - 4, ht = rt - 4, hw = r.width + 8, hh = r.height + 8;
+      [[0, 0, '100%', ht], [0, ht + hh, '100%', cr.height - ht - hh], [0, ht, hl, hh], [hl + hw, ht, cr.width - hl - hw, hh]].forEach(([l, t, w2, h2]) =>
+        box.append(el('div', { class: 'tour-bl', style: `left:${l}px;top:${t}px;width:${typeof w2 === 'number' ? w2 + 'px' : w2};height:${h2}px` })));
+      document.addEventListener('keydown', tourEnter, true);
+    }
     const w = Math.min(300, cr.width - 16);
     tip.style.width = w + 'px';
     tip.style.left = Math.max(8, Math.min(rl, cr.width - w - 8)) + 'px';
@@ -2585,10 +2593,10 @@
     const row = $('#main .qrow');
     if (!row || !row.offsetWidth) return;
     S.tourShown = true;
-    showTour(row, 'hagisiro:tourAtt', [
+    showTour(row.parentElement, 'hagisiro:tourAtt', [
       el('div', {}, '출결은 문장으로도 입력할 수 있어요.'),
       el('div', { class: 'mut' }, '예) 김네모 감기로 12일 4교시에 조퇴 /'),
-      el('div', { class: 'mut' }, '내일부터 3일간 이세모 가족여행 체험학습')]);
+      el('div', { class: 'mut' }, '내일부터 3일간 이세모 가족여행 체험학습')], 'live');
   }
   /* 캘린더를 처음 열면: 오늘 칸 (두 번 클릭은 화면에 안 보이는 동작이라서. 한 번 터치로 여는 모바일은 안내 없음) */
   function maybeTodoTour() {
@@ -2596,7 +2604,7 @@
     const cell = $(`#cal .cell[data-date="${ymd(new Date())}"]`);
     if (!cell || !cell.offsetWidth) return;
     S.todoTourShown = true;
-    showTour(cell, 'hagisiro:tourTodo', [el('div', {}, '날짜 칸을 더블클릭해서 할 일을 입력해 보세요.')], true);
+    showTour(cell, 'hagisiro:tourTodo', [el('div', {}, '날짜 칸을 더블클릭해서 할 일을 입력해 보세요.')], 'dbl');
   }
   function preview() {
     const q = $('#q'), pv = $('#pv');
