@@ -1292,9 +1292,23 @@
   function loginView() {
     const logo = el('div', { class: 'logo' });
     const ui = [el('h1', {}, 'Hagisiro'),
-      el('button', { class: 'pri', onclick: () => { // 기다리는 동안은 버튼 대신 슬라임(불러오는 중)을 보여요
-        const hid = [...v.querySelectorAll('.pri,.link')], w = loading(); hid.forEach((x) => { x.style.display = 'none'; }); v.append(w);
-        S.cloudMod.login().catch(loginErr).finally(() => { w.remove(); hid.forEach((x) => { x.style.display = ''; }); });
+      el('button', { class: 'pri', onclick: () => { // 기다리는 동안은 로고·버튼 대신 제목 + 슬라임만. 제목은 제자리로 순간이동하지 않고 부드럽게 올라가요
+        const hid = [...v.querySelectorAll('.pri,.link')], w = loading(), h = ui[0], ease = { duration: 380, easing: 'cubic-bezier(.3,.7,.3,1)' };
+        const swap = (fn, fadeLogo) => {
+          const y0 = h.getBoundingClientRect().top; let ghost = null;
+          if (!noAnim() && fadeLogo === 'out' && logo.firstElementChild) { // 사라지는 로고는 있던 자리에서 흐려지게
+            const r = logo.getBoundingClientRect(), c = v.getBoundingClientRect(); ghost = logo.cloneNode(true);
+            ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;pointer-events:none;margin:0`; (v.closest('#main') || v).append(ghost);
+            ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out', fill: 'forwards' }).onfinish = () => ghost.remove(); }
+          fn();
+          if (noAnim()) return;
+          const y1 = h.getBoundingClientRect().top;
+          if (Math.abs(y0 - y1) > 1) h.animate([{ transform: `translateY(${y0 - y1}px)` }, { transform: 'none' }], ease);
+          if (fadeLogo === 'in') logo.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' });
+          if (fadeLogo === 'out') w.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 120, easing: 'ease-out', fill: 'backwards' });
+        };
+        swap(() => { hid.forEach((x) => { x.style.display = 'none'; }); logo.style.display = 'none'; v.append(w); }, 'out');
+        S.cloudMod.login().catch(loginErr).finally(() => { if (v.isConnected) swap(() => { w.remove(); hid.forEach((x) => { x.style.display = ''; }); logo.style.display = ''; }, 'in'); else w.remove(); });
       } }, 'Google 로그인'),
       el('button', { class: 'link', onclick: () => { S.guest = true; ls.set('hagisiro:guest', '1'); enterLocal(); } }, '이 기기에만 저장')];
     const v = el('div', { class: 'login' }, logo, ...ui);
