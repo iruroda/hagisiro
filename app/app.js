@@ -542,7 +542,7 @@
       if (!upBg) clip.style.background = 'var(--wbg, var(--bg-s))'; // 출결처럼 위에 이미 바탕이 있는 화면 안이면 또 깔지 않아요(겹쳐서 더 진해져요)
       if (S.view === 'cal' && Math.abs(clip.getBoundingClientRect().bottom - main.getBoundingClientRect().bottom) < 3) clip.style.borderRadius = '0 0 var(--r) var(--r)'; // 창의 맨 아래 모서리에 닿을 때만 (D-day 줄이 아래에 있으면 칸 중간이 둥글게 깎이지 않게)
       t.style.cssText = `${saved};flex:none;width:100%;height:100%;min-width:0;position:relative;z-index:1`;
-      node.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none';
+      node.style.cssText += ';position:absolute;left:0;top:0;width:100%;height:100%;min-width:0;z-index:0;pointer-events:none'; // 덧붙여서 옛 화면에 이미 있던 칸 크기(픽셀로 맞춘 줄·칸 너비)가 지워지지 않게 (지우면 옆으로 밀릴 때 칸 높이가 잠깐 달라져 보여요)
       flatOff(); t.classList.add('tflat'); node.classList.add('tflat');
       const D = 22, fo = { ...opt, duration: SL.dur, easing: SL.ease, fill: 'both' };
       an = t.animate([{ transform: `translateX(${dir * D}%)`, boxShadow: SL.shadow(dir) }, { transform: 'none', boxShadow: SL.none }], fo);
@@ -2331,7 +2331,9 @@
   function mkWrap(tbl) {
     const box = el('div', { class: 'mbox' }, tbl);
     const w = el('div', { class: 'mwrap' }, el('div', { class: 'mfr' }, el('i')), box);
-    const fit = () => { const pb = parseFloat(getComputedStyle(w).paddingBottom) || 0; w.style.setProperty('--mh', Math.max(0, w.clientHeight - pb) + 'px'); };
+    const fit = () => { const pb = parseFloat(getComputedStyle(w).paddingBottom) || 0; w.style.setProperty('--mh', Math.max(0, w.clientHeight - pb) + 'px'); end(); };
+    const end = () => w.classList.toggle('atend', w.scrollTop + w.clientHeight >= w.scrollHeight - 1); // 아래에 더 이어지는 자료가 있으면 틀 아래선을 숨겨서, 잘린 줄이 닫힌 표처럼 보이지 않게
+    w.addEventListener('scroll', end, { passive: true });
     if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ro.observe(w); ro.observe(box); }
     requestAnimationFrame(() => { fit(); requestAnimationFrame(fit); }); setTimeout(fit, 350); // 크기 변화가 없어 관찰자가 안 울리는 경우(주말 등)에도 틀 높이를 확정
     return w;
