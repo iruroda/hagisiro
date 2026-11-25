@@ -1020,14 +1020,22 @@
     S.view = 'cal'; ls.set('hagisiro:view', 'cal');
     watchRange(); render();
   }
+  /* 목록 정렬 드롭다운(반복·D-day·알림 관리 공통): 날짜 기준 두 가지 + 가나다순 두 가지 */
+  const kcmp = (a, b) => String(a || '').localeCompare(String(b || ''), 'ko');
+  function sortBar(opts, cur, onPick, lead) {
+    const sel = el('select', { class: 'srt', 'aria-label': '정렬', onchange: () => onPick(sel.value) }, opts.map(([v, l]) => el('option', { value: v, selected: v === cur }, l)));
+    return el('div', { class: 'abar sbar' }, lead || null, sel);
+  }
   /* ---------- D-day 관리 ---------- */
   function openDdays() {
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const list = el('div', { class: 'srl' });
+    let ord = 'near';
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('dday', 'D-day 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      sortBar([['near', '가까운 순'], ['far', '먼 순'], ['az', '가나다순'], ['za', '가나다 역순']], 'near', (v) => { ord = v; draw(); }),
       list);
     m.append(el('div', { class: 'back', onclick: close }), dlg);
     const draw = () => {
@@ -1035,6 +1043,7 @@
       const all = (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && t.text && t.date)
         .map((t) => ({ t, n: dayNum(t.date) - today }))
         .sort((a, b) => (a.n >= 0) !== (b.n >= 0) ? (a.n >= 0 ? -1 : 1) : (a.n >= 0 ? a.n - b.n : b.n - a.n));
+      if (ord === 'far') all.reverse(); else if (ord === 'az' || ord === 'za') all.sort((a, b) => (ord === 'az' ? 1 : -1) * (kcmp(a.t.text, b.t.text) || a.n - b.n));
       list.replaceChildren();
       if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, 'D-day 없음')); return; }
       all.forEach(({ t, n }) => {
@@ -1082,12 +1091,15 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const list = el('div', { class: 'srl' });
+    let ord = 'near';
     m.append(el('div', { class: 'back', onclick: close }), el('div', { class: 'dlg sdlg' },
-      el('div', { class: 'shead' }, hb('bell', '알림 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))), list));
+      el('div', { class: 'shead' }, hb('bell', '알림 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
+      sortBar([['near', '가까운 순'], ['far', '먼 순'], ['az', '가나다순'], ['za', '가나다 역순']], 'near', (v) => { ord = v; draw(); }), list));
     const draw = () => {
       const nowS = ymd(new Date()) + ' ' + String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0');
       const k = (t) => t.date + ' ' + t.al;
       const all = alList().sort((a, b) => (k(a) >= nowS) !== (k(b) >= nowS) ? (k(a) >= nowS ? -1 : 1) : (k(a) >= nowS ? k(a).localeCompare(k(b)) : k(b).localeCompare(k(a))));
+      if (ord === 'far') all.reverse(); else if (ord === 'az' || ord === 'za') all.sort((a, b) => (ord === 'az' ? 1 : -1) * (kcmp(a.text, b.text) || k(a).localeCompare(k(b))));
       list.replaceChildren();
       if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, '알림 없음')); return; }
       all.forEach((t) => {
@@ -2154,7 +2166,7 @@
     const m = $('#modal');
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
-    let editing = null, mode = 'list';
+    let editing = null, mode = 'list', ord = 'new';
     const body = el('div', { class: 'rbody' });
     const dlg = el('div', { class: 'dlg rdlg' },
       el('div', { class: 'shead' }, hb('repeat', '반복 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
@@ -2166,8 +2178,9 @@
       if (mode === 'form') showForm(); else showList();
     }
     function showList() {
-      const list = S.repeats.slice().sort((a, b) => (a.created || 0) - (b.created || 0));
-      body.append(el('div', { class: 'abar' }, el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = null; showForm(); } }, icon('plus'), '반복 추가')));
+      const list = S.repeats.slice().sort((a, b) => ord === 'old' ? (a.created || 0) - (b.created || 0) : ord === 'az' ? kcmp(a.text, b.text) : ord === 'za' ? kcmp(b.text, a.text) : (b.created || 0) - (a.created || 0));
+      body.append(sortBar([['new', '최신순'], ['old', '오래된순'], ['az', '가나다순'], ['za', '가나다 역순']], ord, (v) => { ord = v; show(); },
+        el('button', { class: 'ghost sm', type: 'button', onclick: () => { editing = null; showForm(); } }, icon('plus'), '반복 추가')));
       if (!list.length) body.append(el('div', { class: 'mut small sempty' }, '반복 없음'));
       list.forEach((r) => {
         const per = r.start + (r.end ? ` ~ ${r.end}` : ' ~ 계속');
