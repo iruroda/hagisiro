@@ -954,7 +954,6 @@
   /* ---------- 바로가기: 메뉴의 모든 항목을 상단 아이콘으로 꺼낼 수 있어요 ---------- */
   function shortcutDefs() {
     const api = window.hagisiroWidget || {};
-    const gc = gcalWanted() && !gtoken();
     return [
       S.user ? { k: 'logout', label: '로그아웃', ic: 'logout', run: () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); } } : null,
       !S.user && S.cloudAvail ? { k: 'login', label: 'Google 로그인', ic: 'google', run: () => { S.fromLocal = S.guest; S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); } } : null,
@@ -967,7 +966,6 @@
       { k: 'prog', label: '진도 확인', ic: 'progress', pop: true, run: openProgress },
       { k: 'sync', label: '새로고침', ic: 'refresh', def: true, run: forceSync },
       { k: 'prefs', label: '설정', ic: 'gear', pop: true, run: openPrefs },
-      gc ? { k: 'gc', label: 'Google 캘린더 다시 연결', ic: 'google', def: true, run: () => connectGcal() } : null,
       !S.cloud ? { k: 'backup', label: '백업 저장', ic: 'download', run: exportJson } : null,
       IS_WIDGET ? { k: 'move', label: '이동·크기 변경', ic: 'move', def: true, run: () => S.winEdit && S.winEdit() } : null,
       api.hide ? { k: 'hide', label: '숨기기', ic: 'minimize', run: () => api.hide() } : null,
