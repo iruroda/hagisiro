@@ -1463,3 +1463,8 @@ button:disabled { pointer-events: none; }
   .mealdlg .mopts > .grow { flex: 1 1 100%; height: 0; }
   .mealdlg .mopts .rchk { white-space: nowrap; }
 }
+
+/* 메뉴 스크롤바: 오른쪽 테두리·둥근 모서리에 붙지 않게 안쪽으로 띄우기 */
+.menu::-webkit-scrollbar { width: 14px; }
+.menu::-webkit-scrollbar-track:vertical { margin: 8px 0; }
+.menu::-webkit-scrollbar-thumb:vertical { --w: 8px; }
