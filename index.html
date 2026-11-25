@@ -180,10 +180,11 @@ h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.25; letter-spacing: -.03e
 .dm .go { width: 58px; height: 58px; border-radius: 12px; background: var(--violet); display: grid; place-items: center; transition: transform .12s; }
 .dm .go.p { transform: scale(.93); }
 .dm .go svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 2.15; stroke-linecap: round; stroke-linejoin: round; }
-.dm .chips { height: 32px; margin-top: 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.dm .chips { height: 32px; margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.dm .chips .mut { font-size: 14px; color: var(--mut); }
 .dm .chip { padding: 4px 14px; border-radius: 99px; font-size: 15px; color: var(--tc); background: color-mix(in srgb, var(--tc) 13%, #fff); opacity: 0; transform: translateY(4px); transition: opacity .35s, transform .35s; }
 .dm .chip.on { opacity: 1; transform: none; }
-.t-ab { --tc: var(--yel); } .t-la { --tc: var(--sat); } .t-ea { --tc: var(--violet); }
+.t-ab { --tc: var(--yel); } .t-re { --tc: var(--teal); } .t-la { --tc: var(--sat); } .t-ea { --tc: var(--violet); }
 .dm .dh { display: flex; align-items: baseline; gap: 14px; margin: 6px 4px 12px; }
 .dm .dh b { font-size: 21px; font-weight: 700; }
 .dm .dh span { font-size: 14.5px; font-weight: 600; min-height: 1.4em; }
@@ -419,21 +420,29 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
       c.slice(2, 9).forEach((td, i) => { const on = i + 1 >= from && i + 1 <= to; td.className = on ? 'pr ' + cls : ''; });
       c[9].textContent = why || '';
     };
-    const resetRows = () => { rows.forEach((r) => setRow(r.dataset.n, '출석', '', 0, 0, '')); ch.replaceChildren(); sm.replaceChildren(); tx.textContent = ''; };
-    const chip = (t, cls) => { const e = document.createElement('div'); e.className = 'chip ' + cls; e.textContent = t; ch.append(e); requestAnimationFrame(() => requestAnimationFrame(() => e.classList.add('on'))); };
+    const resetRows = () => { rows.forEach((r) => setRow(r.dataset.n, '출석', '', 0, 0, '')); sm.replaceChildren(); tx.textContent = ''; status(); };
+    /* 상태줄: 앱 입력칸 아래 안내줄과 같아요. 쓰는 동안 바뀌고, 입력을 마치면 처음 안내로 돌아가요 */
+    const ASK = '이름, 날짜, 사유 등을 입력해 주세요.', KIND = '출결 종류(결석/지각/조퇴/결과)를 입력해 주세요.', NODATE = '날짜가 없으면 오늘로 등록돼요.';
+    const status = (chipText, cls, note) => {
+      const mk = (t, c) => { const e = document.createElement(c ? 'div' : 'span'); e.className = c ? 'chip on ' + c : 'mut'; e.textContent = t; return e; };
+      ch.replaceChildren(...(chipText ? [mk(chipText, cls), ...(note ? [mk(note)] : [])] : [mk(note || ASK)]));
+    };
     const summary = (a) => { sm.replaceChildren(...a.map(([t, c], i) => { const f = document.createDocumentFragment(); if (i) f.append(' · '); const e = document.createElement('em'); e.className = c; e.textContent = t; f.append(e); return f; })); };
-    const input = async (text, stop) => { ch.replaceChildren(); await type(tx, text, 80, stop); await wait(650); await tap(go); tx.textContent = ''; };
+    const input = async (text, marks, stop) => {
+      tx.textContent = ''; status();
+      for (let i = 1; i <= text.length; i++) { if (stop()) return; tx.textContent = text.slice(0, i); if (marks[i]) status(...marks[i]); await wait(80); }
+      await wait(900); await tap(go); tx.textContent = ''; status();
+    };
     const A = () => { setRow('김네모', '질병조퇴', 't-ea', 3, 7, '감기'); summary([['조퇴 1', 't-ea']]); };
     const B = () => { setRow('이세모', '출석인정결석', 't-ab', 1, 7, '체험학습'); summary([['조퇴 1', 't-ea'], ['결석 1', 't-ab']]); };
-    const last = () => { resetRows(); A(); B(); chip('이세모 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab'); };
+    const last = () => { resetRows(); A(); B(); };
+    const T1 = '김네모 감기로 3교시부터 조퇴', T2 = '이세모 오늘부터 3일간 체험학습';
     loop(att, async (stop) => {
       resetRows(); await wait(900); if (stop()) return;
-      await input('김네모 감기로 3교시부터 조퇴', stop); if (stop()) return;
-      A(); chip('김네모 · 5.13. (수) · 질병조퇴 3교시~ · 감기', 't-ea');
-      await wait(2200); if (stop()) return;
-      await input('이세모 오늘부터 3일간 체험학습', stop); if (stop()) return;
-      B(); chip('이세모 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab');
-      await wait(4200);
+      await input(T1, { 3: [null, null, KIND], 11: ['김네모 · 5.13. (수) · 질병결과 3교시 · 감기', 't-re', NODATE], [T1.length]: ['김네모 · 5.13. (수) · 질병조퇴 3교시~종례 · 감기', 't-ea', NODATE] }, stop); if (stop()) return;
+      A(); await wait(2200); if (stop()) return;
+      await input(T2, { 3: [null, null, KIND], [T2.length]: ['이세모 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab'] }, stop); if (stop()) return;
+      B(); await wait(4200);
     }, last);
   }
 
