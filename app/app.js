@@ -1378,7 +1378,7 @@
       grid.append(el('div', { class: cls, 'data-date': ds, 'data-rk': rk, style: `grid-row:${gapIdx[ri]}` },
         el('div', { class: 'ct' },
           el('span', { class: 'dn' }, d.getDate() === 1 ? `${d.getMonth() + 1}.1.` : d.getDate()),
-          hn || tm || lu ? el('span', { class: 'sb', title: [hn, tm, lu].filter(Boolean).join(' · ') },
+          hn || tm || lu ? el('span', { class: 'sb' },
             hn ? el('i', { class: 'hn' }, hn) : null, tm ? el('i', { class: 'tm' }, tm) : null, lu ? el('i', { class: 'lu' }, lu) : null) : null,
           ),
         el('div', { class: 'tl' }, gl.map(gev), list.map(todoRow)),
@@ -1414,7 +1414,7 @@
     wrap.append(grid);
     const dd = ddayList();
     if (dd.length) {
-      const bar = el('div', { class: 'ddbar' + (PF.ddtop ? ' top' : ''), title: dd.map((x) => `${x.label} ${x.t.text}`).join('\n') },
+      const bar = el('div', { class: 'ddbar' + (PF.ddtop ? ' top' : '') },
         dd.map((x) => el('button', { type: 'button', class: 'ddc', style: colorVars(x.t) || null, onclick: () => gotoDate(x.t.date) }, el('b', {}, x.label), ' ', el('span', { class: 'ddt' }, x.t.text))));
       if (PF.ddtop) wrap.prepend(bar); else { wrap.classList.add('hasdd'); wrap.append(bar); }
     }
@@ -1440,7 +1440,7 @@
   }
 
   function gev(ev) {
-    return el('div', { class: 'gev', title: ev.s }, (ev.t ? ev.t + ' ' : '') + ev.s);
+    return el('div', { class: 'gev' }, (ev.t ? ev.t + ' ' : '') + ev.s);
   }
 
   /* ================= 반복 규칙 =================
@@ -1549,10 +1549,10 @@
   const blSpan = (k) => { const b = el('span', { class: 'bl' }); setBullet(b, k); return b; };
   function todoRow(t) {
     return el('div', { class: 'td' + (t.done ? ' done' : '') + (t.rid ? ' rep' : ''), 'data-id': t.id, 'data-sz': t.sz || null, style: colorVars(t) || null },
-      blSpan(t.bl), el('span', { class: 'tt', title: t.text }, t.text),
-      t.dday ? el('span', { class: 'ddm', title: 'D-day' }, icon('dday')) : null,
-      t.al ? el('span', { class: 'ddm', title: '알림 ' + t.al }, icon('bell')) : null,
-      t.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null);
+      blSpan(t.bl), el('span', { class: 'tt' }, t.text),
+      t.dday ? el('span', { class: 'ddm' }, icon('dday')) : null,
+      t.al ? el('span', { class: 'ddm' }, icon('bell')) : null,
+      t.rid ? el('span', { class: 'rpt' }, icon('repeat')) : null);
   }
 
   /* ---------- 글자색 · 배경색 팔레트 ---------- */
@@ -1852,9 +1852,9 @@
     function mkRow(it) {
       const inp = el('input', { type: 'text', value: it.text, spellcheck: 'false', autocomplete: 'off', enterkeyhint: 'next', 'aria-label': '할 일' });
       const bl = el('span', { class: 'bl' });
-      const ddm = el('span', { class: 'ddm', title: 'D-day' }, icon('dday'));
-      const alm = el('span', { class: 'ddm', title: '알림' }, icon('bell'));
-      const row = el('div', { class: 'td' }, bl, inp, it.rid ? el('span', { class: 'rpt', title: '반복' }, icon('repeat')) : null, ddm, alm);
+      const ddm = el('span', { class: 'ddm' }, icon('dday'));
+      const alm = el('span', { class: 'ddm' }, icon('bell'));
+      const row = el('div', { class: 'td' }, bl, inp, it.rid ? el('span', { class: 'rpt' }, icon('repeat')) : null, ddm, alm);
       row._it = it; row._bl = bl; row._dd = ddm; row._al = alm;
       paint(row);
       bl.addEventListener('mousedown', (e) => e.preventDefault()); // 입력창 포커스 유지
@@ -2483,7 +2483,7 @@
         cells.push(el('td', { class: 'rs' }, el('div', { class: 'rsw' }, rin)));
       } else if (rec) {
         const on = new Set(recCols(rec, last));
-        for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc tg' + (on.has(i) ? ' sl t-' + rec.type : ''), title: on.has(i) ? kindLabel(rec) : null, onclick: () => toggleSlot(s, rec, i, ds, cls) }, on.has(i) ? icon('slash') : ''));
+        for (let i = 0; i < slotN; i++) cells.push(el('td', { class: 'slc tg' + (on.has(i) ? ' sl t-' + rec.type : ''), onclick: () => toggleSlot(s, rec, i, ds, cls) }, on.has(i) ? icon('slash') : ''));
         const rin = el('input', { type: 'text', class: 'rin', value: rec.reason || '', 'aria-label': `${s.name} 사유`, spellcheck: 'false' });
         rin.addEventListener('change', () => Data.put('att', { ...rec, reason: rin.value.trim() }));
         rin.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) rin.blur(); });
@@ -3817,7 +3817,7 @@
         const addDate = el('input', { type: 'date' });
         const aEmp = () => addDate.classList.toggle('empty', !addDate.value); /* 비어 있는 날짜(연도-월-일)는 회색 */
         addDate.addEventListener('input', aEmp); addDate.addEventListener('change', aEmp); aEmp();
-        const dPlus = el('button', { class: 'pri cplus', type: 'button', title: '날짜 추가', 'aria-label': '날짜 추가', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; addDate.value = ''; draw(); } }, icon('plus'));
+        const dPlus = el('button', { class: 'pri cplus', type: 'button', 'aria-label': '날짜 추가', onclick: () => { if (!addDate.value) return; const k = addDate.value.replace(/-/g, ''); dr.days[k] = dr.days[k] || {}; addDate.value = ''; draw(); } }, icon('plus'));
         const dChk = () => { dPlus.disabled = addDate.value.replace(/-/g, '') in dr.days; }; /* 이미 있는 날짜면 추가 불가 */
         addDate.addEventListener('input', dChk); addDate.addEventListener('change', dChk); dChk();
         const dayCard = (k) => {
@@ -3827,7 +3827,7 @@
           const stepM = (() => { const m = ts.map((t) => +t.slice(0, 2) * 60 + +t.slice(2)); return m.length > 1 ? (m[m.length - 1] - m[m.length - 2]) || dr.step || 20 : dr.step || 20; })();
           const nextM = ts.length ? Math.min(+ts[ts.length - 1].slice(0, 2) * 60 + +ts[ts.length - 1].slice(2) + stepM, 23 * 60 + 55) : 16 * 60;
           const tm = timeSel(`${pad(Math.floor(nextM / 60))}:${pad(nextM % 60 - (nextM % 5))}`);
-          const tPlus = el('button', { class: 'pri cplus', type: 'button', title: '시각 추가', 'aria-label': '시각 추가', onclick: () => {
+          const tPlus = el('button', { class: 'pri cplus', type: 'button', 'aria-label': '시각 추가', onclick: () => {
             const t = tm.value.replace(':', ''); if (!(t in o)) o[t] = true; draw();
           } }, icon('plus'));
           const tChk = () => { tPlus.disabled = tm.value.replace(':', '') in o; }; /* 이미 있는 시각이면 추가 불가 */
