@@ -297,7 +297,7 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
         <div class="dh"><b>5월 13일 (수)</b><span id="dmsm"></span></div>
         <table id="dmtb"><colgroup><col style="width:88px"><col style="width:150px"><col span="7" style="width:40px"><col></colgroup>
           <tr><th>이름</th><th>종류</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>사유</th></tr>
-          <tr data-n="김네모"><td class="nm">김네모</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="박동글"><td class="nm">박동글</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="이세모"><td class="nm">이세모</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="최반달"><td class="nm">최반달</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr>
+          <tr data-n="김네모"><td class="nm">김네모</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="박동글"><td class="nm">박동글</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="이세모"><td class="nm">이세모</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr><tr data-n="최별이"><td class="nm">최별이</td><td><span class="kd">출석</span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rs"></td></tr>
         </table>
       </div>
     </div>
@@ -421,15 +421,15 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
     const summary = (a) => { sm.replaceChildren(...a.map(([t, c], i) => { const f = document.createDocumentFragment(); if (i) f.append(' · '); const e = document.createElement('em'); e.className = c; e.textContent = t; f.append(e); return f; })); };
     const input = async (text, stop) => { ch.replaceChildren(); await type(tx, text, 80, stop); await wait(650); await tap(go); tx.textContent = ''; };
     const A = () => { setRow('이세모', '질병조퇴', 't-ea', 3, 7, '감기'); summary([['조퇴 1', 't-ea']]); };
-    const B = () => { setRow('최반달', '출석인정결석', 't-ab', 1, 7, '체험학습'); summary([['조퇴 1', 't-ea'], ['결석 1', 't-ab']]); };
-    const last = () => { resetRows(); A(); B(); chip('최반달 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab'); };
+    const B = () => { setRow('최별이', '출석인정결석', 't-ab', 1, 7, '체험학습'); summary([['조퇴 1', 't-ea'], ['결석 1', 't-ab']]); };
+    const last = () => { resetRows(); A(); B(); chip('최별이 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab'); };
     loop(att, async (stop) => {
       resetRows(); await wait(900); if (stop()) return;
       await input('이세모 감기로 3교시부터 조퇴', stop); if (stop()) return;
       A(); chip('이세모 · 5.13. (수) · 질병조퇴 3교시~ · 감기', 't-ea');
       await wait(2200); if (stop()) return;
-      await input('최반달 오늘부터 3일간 체험학습', stop); if (stop()) return;
-      B(); chip('최반달 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab');
+      await input('최별이 오늘부터 3일간 체험학습', stop); if (stop()) return;
+      B(); chip('최별이 · 5.13. (수) ~ 5.15. (금) · 출석인정결석 3일 · 체험학습', 't-ab');
       await wait(4200);
     }, last);
   }
@@ -439,7 +439,7 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
   if (con) {
     fit(con);
     const ct = $('#dmct'), tt = $('#dmtt'), tts = $('span', tt), nb = $('#dmnb'), nx = $('#dmnx'), sl = $$('.sl', con);
-    const names = [['김네모', 0], ['박동글', 2], ['장별이', 5], ['윤꽃잎', 7]];
+    const names = [['김네모', 0], ['박동글', 2], ['최별이', 5], ['윤꽃잎', 7]];
     const picks = [['dms', '2026. 05. 18.'], ['dme', '2026. 05. 20.'], ['dmsh', '15'], ['dmsn', '30'], ['dmeh', '16'], ['dmen', '50'], ['dmiv', '20분']];
     const dflt = { dms: '2026. 05. 13.', dme: '2026. 05. 13.', dmsh: '16', dmsn: '00', dmeh: '17', dmen: '00', dmiv: '1시간' };
     const fld = (id) => $('#' + id + ' span');
