@@ -1191,7 +1191,18 @@
     if (!on) { S.lgT0 = null; S.lgOut = false; S.lgFaded = 0; } // 로그인 화면을 벗어나면 다음에 다시 처음부터
     const api = window.hagisiroWidget;
     if (api && api.loginMode && on !== loginWinOn) {
-      if (!on && !noAnim()) { const ap = document.getElementById('app'); if (ap) ap.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, delay: 140, easing: 'ease-out', fill: 'both' }); } // 로그인 창 → 위젯 크기로 바뀌는 동안은 비워뒀다가 부드럽게 켜져요
+      if (!on && !noAnim()) { // 로그인 창 → 위젯 크기로 바뀌는 동안은 비워뒀다가 부드럽게 켜져요
+        // 창이 먼저 옮겨지면 직전 화면(로그인 카드)이 새 자리에 한 프레임 남아 보여서, 먼저 화면을 비우고 그려진 뒤에 창을 옮겨요
+        const ap = document.getElementById('app'); loginWinOn = on;
+        if (ap) ap.style.opacity = '0';
+        requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => {
+          api.loginMode(false);
+          if (!ap) return;
+          const a = ap.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, delay: 140, easing: 'ease-out', fill: 'both' });
+          a.onfinish = () => { ap.style.opacity = ''; a.cancel(); };
+        }, 90)));
+        return;
+      }
       loginWinOn = on; api.loginMode(on);
     }
   }
