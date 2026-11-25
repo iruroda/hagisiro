@@ -332,7 +332,7 @@ fn login_mode(window: WebviewWindow, st: State<Shared>, v: bool) {
             }))
         } else if !v && s.in_login {
             s.in_login = false;
-            let r = s.login_saved.take().unwrap_or_else(|| initial_bounds(&s.saved, k));
+            let r = keep_inside(s.login_saved.take().unwrap_or_else(|| initial_bounds(&s.saved, k)), k, s.minw); // 돌아갈 크기가 최소 너비보다 좁거나 화면 밖이면 맞춰서
             Some((Some(s.minw), r))
         } else { None }
     };
