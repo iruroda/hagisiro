@@ -1212,11 +1212,13 @@
   const lgClamp = (x) => Math.max(0, Math.min(1, x));
   const lgLerp = (a, b, k) => a + (b - a) * k;
   const LG_SVG = '<svg width="64" height="64" viewBox="0 0 64 64" style="overflow:visible" aria-label="Hagisiro"><defs><linearGradient id="lgxg" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#6d4aff"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#12c9b3"/></linearGradient>'
+    + '<linearGradient id="lgxp" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop offset="0" stop-color="#a58fff"/><stop offset=".5" stop-color="#7ea5fa"/><stop offset="1" stop-color="#6cded0"/></linearGradient>'
     + '<linearGradient id="lgxo" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="62" y2="62"><stop id="lgxo0" offset="0" stop-color="#2f6df6"/><stop offset=".5" stop-color="#2f6df6"/><stop offset="1" stop-color="#2f6df6"/></linearGradient>'
     + '<filter id="lgxf" filterUnits="userSpaceOnUse" x="-12" y="-12" width="88" height="88" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="1.6" result="b"/><feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -12"/></filter></defs>'
     + '<g id="lgxG" filter="url(#lgxf)" fill="url(#lgxg)"><rect id="lgxTL" width="30" height="30" rx="9"/><rect id="lgxTR" width="30" height="30" rx="9"/><rect id="lgxBL" width="30" height="30" rx="9"/><rect id="lgxBR" x="34" width="30" height="30" rx="9"/></g>'
     + '<rect id="lgxOV" width="30" height="30" rx="9" fill="url(#lgxo)"/>'
     + '<g fill="url(#lgxg)"><rect id="lgxsTL" width="30" height="30" rx="9" opacity="0"/><rect id="lgxsTR" x="34" width="30" height="30" rx="9" opacity="0"/><rect id="lgxsBL" y="34" width="30" height="30" rx="9" opacity="0"/><rect id="lgxsBR" x="34" y="34" width="30" height="30" rx="9" opacity="0"/></g>'
+    + '<g fill="url(#lgxp)"><rect id="lgxpTR" x="34" width="30" height="30" rx="9" opacity="0"/><rect id="lgxpBL" y="34" width="30" height="30" rx="9" opacity="0"/></g>'
     + '<path id="lgxH" opacity="0" d="M8.7 6.5v17M21.3 6.5v17M8.7 15h12.6" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round"/>'
     + '<path id="lgxC" d="M40 49.5l6.4 6.6 12-14.2" fill="none" stroke="#fff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round" style="opacity:0"/></svg>';
   function loginAnim(login, box, ui) {
@@ -1237,7 +1239,7 @@
     const skip = S.lgSkip || 0;
     box.innerHTML = LG_SVG;
     const $$ = (id) => box.querySelector('#lgx' + id);
-    const q = {}; ['G', 'TL', 'TR', 'BL', 'BR', 'OV', 'sTL', 'sTR', 'sBL', 'sBR', 'H', 'C', 'o0'].forEach((k) => { q[k] = $$(k); });
+    const q = {}; ['G', 'TL', 'TR', 'BL', 'BR', 'OV', 'sTL', 'sTR', 'sBL', 'sBR', 'pTR', 'pBL', 'H', 'C', 'o0'].forEach((k) => { q[k] = $$(k); });
     const R = (e, x, y, w, h) => { e.setAttribute('x', x); e.setAttribute('y', y); e.setAttribute('width', w); e.setAttribute('height', h); };
     const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
     const mix = (a, b, k) => '#' + hex(a).map((v, i) => Math.round(lgLerp(v, hex(b)[i], k)).toString(16).padStart(2, '0')).join('');
@@ -1261,8 +1263,8 @@
       slide(q.TR, true, pr); slide(q.BL, false, pd);
       q.BR.style.display = pd > 0 ? '' : 'none'; q.BL.style.display = pd > 0 && pd < 1 ? '' : 'none'; q.TR.style.display = pd >= 1 ? 'none' : '';
       { const head = 30 + 34 * lgLead(pd), tail = 34 * lgFollow(lgClamp((pd - .14) / .86)), len = head - tail, thin = 30 - Math.max(0, len - 30) * .16; R(q.BR, 34 + (30 - thin) / 2, tail, thin, len); }
-      q.sTR.setAttribute('opacity', pr >= 1 ? (pd >= 1 ? 1 - .38 * lgInOut(rest) : 1) : 0);
-      q.sBL.setAttribute('opacity', pd >= 1 ? 1 - .38 * lgInOut(rest) : 0);
+      q.sTR.setAttribute('opacity', pr >= 1 ? 1 : 0); q.pTR.setAttribute('opacity', pr >= 1 && pd >= 1 ? lgInOut(rest) : 0); // 옅은 두 칸은 투명도가 아니라 앱 아이콘과 같은 옅은 색으로 (비치지 않게)
+      q.sBL.setAttribute('opacity', pd >= 1 ? 1 : 0); q.pBL.setAttribute('opacity', pd >= 1 ? lgInOut(rest) : 0);
       q.sBR.setAttribute('opacity', pd >= 1 ? 1 : 0);
       const pc = lgClamp((t - tc) / LGX.check);
       q.C.style.strokeDasharray = LGX.CK; q.C.style.strokeDashoffset = LGX.CK * (1 - lgInOut(pc)); q.C.style.opacity = pc > 0 ? 1 : 0;
