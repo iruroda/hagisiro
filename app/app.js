@@ -400,14 +400,18 @@
     stopWatches(); S.cloud = null; S.user = null; S.clsLoaded = true;
     Data.loadLocal(); S.gcal = {}; render();
   }
+  /* 위젯: 로그인 화면을 거치지 않고(이 기기에만 저장 → 메뉴에서 로그인) 로그인하면 구글 로그인 창이 안 닫히고 남아서, 끝났을 때 닫아요 */
+  const closeLoginWin = () => { const w = window.hagisiroWidget; if (w && w.loginMode && !loginWinOn) w.loginMode(false); };
   function enterCloud(u) {
+    closeLoginWin();
     S.user = u; S.wasIn = true; S.cloud = S.cloudMod; // wasIn: 이 실행에서 로그인한 적이 있으면 로그인 화면에 처음 애니메이션을 다시 보여주지 않아요
     COLS.forEach((c) => { S[c] = []; });
     watchStatic(); watchRange(); maybeMigrate(); render();
   }
   function maybeMigrate() {
     const key = 'hagisiro:migrated:' + S.user.uid;
-    if (ls.get(key)) return;
+    const fromLocal = S.fromLocal; S.fromLocal = false; // 이 기기에만 저장하다가 메뉴에서 로그인한 경우
+    if (ls.get(key) && !fromLocal) return;
     let d = {};
     try { d = JSON.parse(ls.get(LSK) || '{}'); } catch (e) { d = {}; }
     const n = COLS.reduce((a, c) => a + (d[c] || []).length, 0);
@@ -953,7 +957,7 @@
     const gc = gcalWanted() && !gtoken();
     return [
       S.user ? { k: 'logout', label: '로그아웃', ic: 'logout', run: () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); } } : null,
-      !S.user && S.cloudAvail ? { k: 'login', label: 'Google 로그인', ic: 'google', run: () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); } } : null,
+      !S.user && S.cloudAvail ? { k: 'login', label: 'Google 로그인', ic: 'google', run: () => { S.fromLocal = S.guest; S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); } } : null,
       { k: 'search', label: '할 일 검색', ic: 'search', pop: true, run: openSearch },
       { k: 'repeat', label: '반복 관리', ic: 'repeat', pop: true, run: () => openRepeatManage() },
       { k: 'dday', label: 'D-day 관리', ic: 'dday', pop: true, run: openDdays },
@@ -987,7 +991,7 @@
     const m = el('div', { class: 'menu', id: 'menu' });
     const sep = () => m.append(el('div', { class: 'msep' }));
     if (S.user) { m.append(el('div', { class: 'mh' }, S.user.email || '')); m.append(item('로그아웃', () => { ls.set('hagisiro:guest', '0'); S.guest = false; S.cloudMod.logout(); }, 'logout')); sep(); }
-    else if (S.cloudAvail) { m.append(item('Google 로그인', () => { S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }, 'google')); sep(); }
+    else if (S.cloudAvail) { m.append(item('Google 로그인', () => { S.fromLocal = S.guest; S.guest = false; ls.set('hagisiro:guest', '0'); S.cloudMod.login().catch(loginErr); }, 'google')); sep(); }
     else { m.append(el('div', { class: 'mh' }, '이 기기에만 저장')); sep(); }
     m.append(item('할 일 검색', openSearch, 'search'));
     m.append(item('반복 관리', () => openRepeatManage(), 'repeat'));
@@ -3283,6 +3287,7 @@
   async function connectGcal() {
     try {
       const t = await S.cloud.calendarToken();
+      closeLoginWin();
       if (!t) return;
       try { sessionStorage.setItem(GK, JSON.stringify({ t, exp: Date.now() + 50 * 60e3 })); } catch (e) { /* noop */ }
       ls.set('hagisiro:gcal', '1');
