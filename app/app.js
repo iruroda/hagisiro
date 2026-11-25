@@ -1032,18 +1032,17 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const list = el('div', { class: 'srl' });
-    let ord = 'near';
+    let ord = 'early';
     const dlg = el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('dday', 'D-day 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      sortBar([['near', '가까운 순'], ['far', '먼 순'], ['az', '오름차순'], ['za', '내림차순']], 'near', (v) => { ord = v; draw(); }),
+      sortBar([['early', '빠른 순'], ['late', '늦은 순'], ['az', '오름차순'], ['za', '내림차순']], 'early', (v) => { ord = v; draw(); }),
       list);
     m.append(el('div', { class: 'back', onclick: close }), dlg);
     const draw = () => {
       const today = dayNum(ymd(new Date()));
       const all = (S.cloud ? S.ddays : S.todos).filter((t) => t.dday && !t.skip && t.text && t.date)
         .map((t) => ({ t, n: dayNum(t.date) - today }))
-        .sort((a, b) => (a.n >= 0) !== (b.n >= 0) ? (a.n >= 0 ? -1 : 1) : (a.n >= 0 ? a.n - b.n : b.n - a.n));
-      if (ord === 'far') all.reverse(); else if (ord === 'az' || ord === 'za') all.sort((a, b) => (ord === 'az' ? 1 : -1) * (kcmp(a.t.text, b.t.text) || a.n - b.n));
+        .sort((a, b) => ord === 'az' ? kcmp(a.t.text, b.t.text) || a.n - b.n : ord === 'za' ? kcmp(b.t.text, a.t.text) || a.n - b.n : ord === 'late' ? b.n - a.n : a.n - b.n); // 지난 것·앞으로 올 것 구분 없이 날짜순
       list.replaceChildren();
       if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, 'D-day 없음')); return; }
       all.forEach(({ t, n }) => {
@@ -1091,15 +1090,13 @@
     m.hidden = false; m.replaceChildren();
     const close = () => { m.hidden = true; m.replaceChildren(); };
     const list = el('div', { class: 'srl' });
-    let ord = 'near';
+    let ord = 'early';
     m.append(el('div', { class: 'back', onclick: close }), el('div', { class: 'dlg sdlg' },
       el('div', { class: 'shead' }, hb('bell', '알림 관리'), el('button', { class: 'ib', type: 'button', onclick: close, 'aria-label': '닫기' }, icon('close'))),
-      sortBar([['near', '가까운 순'], ['far', '먼 순'], ['az', '오름차순'], ['za', '내림차순']], 'near', (v) => { ord = v; draw(); }), list));
+      sortBar([['early', '빠른 순'], ['late', '늦은 순'], ['az', '오름차순'], ['za', '내림차순']], 'early', (v) => { ord = v; draw(); }), list));
     const draw = () => {
-      const nowS = ymd(new Date()) + ' ' + String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0');
       const k = (t) => t.date + ' ' + t.al;
-      const all = alList().sort((a, b) => (k(a) >= nowS) !== (k(b) >= nowS) ? (k(a) >= nowS ? -1 : 1) : (k(a) >= nowS ? k(a).localeCompare(k(b)) : k(b).localeCompare(k(a))));
-      if (ord === 'far') all.reverse(); else if (ord === 'az' || ord === 'za') all.sort((a, b) => (ord === 'az' ? 1 : -1) * (kcmp(a.text, b.text) || k(a).localeCompare(k(b))));
+      const all = alList().sort((a, b) => ord === 'az' ? kcmp(a.text, b.text) || k(a).localeCompare(k(b)) : ord === 'za' ? kcmp(b.text, a.text) || k(a).localeCompare(k(b)) : ord === 'late' ? k(b).localeCompare(k(a)) : k(a).localeCompare(k(b)));
       list.replaceChildren();
       if (!all.length) { list.append(el('div', { class: 'mut small sempty' }, '알림 없음')); return; }
       all.forEach((t) => {
