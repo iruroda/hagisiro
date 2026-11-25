@@ -28,18 +28,19 @@ jobs:
           Copy-Item $exe.FullName out/Hagisiro.exe
           Get-ChildItem out | Format-Table Name, Length
         working-directory: desktop
-      # 새(Tauri) 위젯은 확인이 끝날 때까지 시험판(widget-test)으로만 올려요. 소개 페이지의 다운로드(widget-latest)는 그대로
-      - name: 이전 시험판 지우기
-        run: gh release delete widget-test --yes --cleanup-tag
+      # 소개 페이지의 다운로드(widget-latest)가 항상 최신 빌드를 가리키도록 같은 이름으로 다시 올려요
+      - name: 이전 배포 지우기
+        run: gh release delete widget-latest --yes --cleanup-tag
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         working-directory: desktop
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: widget-test
-          name: Hagisiro 위젯 시험판 (Tauri)
-          prerelease: true
+          tag_name: widget-latest
+          name: Hagisiro 위젯
+          prerelease: false
+          make_latest: true
           files: |
             desktop/out/Hagisiro-Setup.exe
             desktop/out/Hagisiro.exe
