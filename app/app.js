@@ -2554,7 +2554,7 @@
   const chipText = (it) => `${it.no} ${it.name} · ${md(it.date)} · ${it.cat}${it.type} ${P.rangeLabel(it.from, it.to)}${it.reason ? ' · ' + it.reason : ''}`;
 
   /* 처음 쓰는 사람에게: 대상만 밝게, 나머지는 어둡게 하고 말풍선으로 안내 ('다시 열지 않음'을 고르면 다시 안 떠요) */
-  function showTour(target, key, lines, mode) {
+  function showTour(target, key, lines, mode, below) {
     const r = target.getBoundingClientRect();
     const hole = el('div', { class: 'tour-hole' });
     const never = el('input', { type: 'checkbox' });
@@ -2585,7 +2585,8 @@
     tip.style.width = w + 'px';
     tip.style.left = Math.max(8, Math.min(rl, cr.width - w - 8)) + 'px';
     const th = tip.offsetHeight;
-    tip.style.top = (rt + r.height + 12 + th < cr.height ? rt + r.height + 12 : Math.max(8, rt - th - 12)) + 'px';
+    const bt = (below || target).getBoundingClientRect().bottom - cr.top; // 말풍선은 안내 대상(또는 그 아래 줄) 밑에
+    tip.style.top = (bt + 12 + th < cr.height ? bt + 12 : Math.max(8, rt - th - 12)) + 'px';
   }
   /* 출결 화면에 처음 들어오면: 입력칸 */
   function maybeTour() {
@@ -2593,10 +2594,10 @@
     const row = $('#main .qrow');
     if (!row || !row.offsetWidth) return;
     S.tourShown = true;
-    showTour(row.parentElement, 'hagisiro:tourAtt', [
+    showTour(row, 'hagisiro:tourAtt', [
       el('div', {}, '출결은 문장으로도 입력할 수 있어요.'),
       el('div', { class: 'mut' }, '예) 김네모 감기로 12일 4교시에 조퇴 /'),
-      el('div', { class: 'mut' }, '내일부터 3일간 이세모 가족여행 체험학습')], 'live');
+      el('div', { class: 'mut' }, '내일부터 3일간 이세모 가족여행 체험학습')], 'live', row.parentElement);
   }
   /* 캘린더를 처음 열면: 오늘 칸 (두 번 클릭은 화면에 안 보이는 동작이라서. 한 번 터치로 여는 모바일은 안내 없음) */
   function maybeTodoTour() {
