@@ -590,7 +590,7 @@ body { -webkit-tap-highlight-color: transparent; font-variant-numeric: tabular-n
 /* 스크롤바는 둥근 박스 '안쪽 칸'이 아니라 박스 바깥/안쪽 여백에서만 움직여요 (전체 공통) */
 .dtw { border: 0 !important; border-radius: 0 !important; }
 #sheet .panel { overflow: hidden !important; display: flex; flex-direction: column; }
-#sheet .panel .sbody { flex: 1; min-height: 0; overflow-y: auto; }
+#sheet .panel .sbody { flex: 1; min-height: 0; overflow-y: auto; margin-left: -3px; padding-left: 3px; } /* 스크롤 영역 왼쪽 끝에 닿는 글머리 기호(하트)가 잘리지 않게 안쪽 위치는 그대로 두고 영역만 3px 넓힘 */
 .dtxt, .dimg, .schres, .meals, .cgrid, .rbody, .dbody, .clist, .cform, .cdet { padding-right: 8px; }
 
 /* 출결 일별 표: 사유 칸이 남는 폭만큼 늘고 줄어요 (최소 5글자) → 가로 스크롤 최소화 */

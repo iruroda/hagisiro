@@ -114,14 +114,14 @@
     excel: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M15.3 4v16M15.3 9.3h5.2M15.3 14.7h5.2"/><path class="f" d="M6.5 8h1.95L12.3 16h-1.95zM10.35 8h1.95L8.45 16H6.5z"/>',
     today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.6" r="1.95" class="f"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
-    spade: '<path fill="currentColor" stroke-width="2.6" d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/>',
+    spade: '<g transform="translate(12 12) scale(0.94) translate(-12 -12)" fill="currentColor" stroke-width="2.77"><path d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/></g>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
     b_ring: '<circle cx="12" cy="12" r="4.6" stroke-width="2.2"/>',
     b_dash: '<path d="M7 12h10" stroke-width="2.6"/>',
-    b_spade: '<path fill="currentColor" stroke-width="2.6" d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/>',
-    b_club: '<g fill="currentColor" stroke-width="2.6"><circle cx="12" cy="8.3" r="2.4"/><circle cx="8.2" cy="13.3" r="2.4"/><circle cx="15.8" cy="13.3" r="2.4"/><path d="M12 12.4c0 2.4-.4 4.2-1.5 6.8h3c-1.1-2.6-1.5-4.4-1.5-6.8z"/></g>',
-    b_diamond: '<path fill="currentColor" stroke-width="2.6" d="M12 4.6L17.6 12 12 19.4 6.4 12z"/>',
-    b_heart: '<path fill="currentColor" stroke-width="2.6" d="M12 18.4L5.8 12.2A3.5 3.5 0 0 1 10.6 7.1L12 8.5l1.4-1.4a3.5 3.5 0 0 1 4.8 5.1z"/>',
+    b_spade: '<g transform="translate(12 12) scale(0.96) translate(-12 -12)" fill="currentColor" stroke-width="2.71"><path d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/></g>',
+    b_club: '<g transform="translate(12 12) scale(1.01) translate(-12 -12.55)" fill="currentColor" stroke-width="2.57"><circle cx="12" cy="8.3" r="2.4"/><circle cx="8.2" cy="13.3" r="2.4"/><circle cx="15.8" cy="13.3" r="2.4"/><path d="M12 12.4c0 2.4-.4 4.2-1.5 6.8h3c-1.1-2.6-1.5-4.4-1.5-6.8z"/></g>',
+    b_diamond: '<g transform="translate(12 12) scale(1.05) translate(-12 -12)" fill="currentColor" stroke-width="2.48"><path d="M12 4.6L17.6 12 12 19.4 6.4 12z"/></g>',
+    b_heart: '<g transform="translate(12 12) scale(0.92) translate(-12 -12.25)" fill="currentColor" stroke-width="2.83"><path d="M12 18.4L5.8 12.2A3.5 3.5 0 0 1 10.6 7.1L12 8.5l1.4-1.4a3.5 3.5 0 0 1 4.8 5.1z"/></g>',
   };
   /* 글머리 기호 8종 (정사각형~줄표는 기본색, 나머지는 글씨 팔레트에서 뽑은 색) */
   const BUL = [['sq', '사각형'], ['ring', '원'], ['dot', '점'], ['dash', '줄표'], ['spade', '스페이드'], ['club', '클로버'], ['diamond', '다이아몬드'], ['heart', '하트']];
