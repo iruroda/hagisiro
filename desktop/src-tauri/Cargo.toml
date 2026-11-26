@@ -1,6 +1,6 @@
 [package]
 name = "hagisiro"
-version = "2.0.0"
+version = "2.0.1"
 description = "Hagisiro 바탕화면 위젯"
 authors = ["Iruroda"]
 edition = "2021"
