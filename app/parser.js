@@ -110,17 +110,18 @@
     const pool = (opt.students || []).slice().sort((a, b) => b.name.length - a.name.length);
     const found = [];
     for (const s of pool) {
-      let from = 0;
-      for (;;) {
-        const idx = t.indexOf(s.name, from);
-        if (idx < 0) break;
+      // 대소문자는 구분하지 않고, 이름 속 띄어쓰기는 몇 칸이든 같게 봄 (외국인 이름)
+      const re = new RegExp(s.name.trim().split(/\s+/).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+'), 'gi');
+      let m;
+      while ((m = re.exec(t))) {
+        const idx = m.index, len = m[0].length;
         const prev = t[idx - 1];
         if (!prev || !/[가-힣]/.test(prev)) {
           if (!found.includes(s)) found.push(s);
-          t = t.slice(0, idx) + ' '.repeat(s.name.length) + t.slice(idx + s.name.length);
+          t = t.slice(0, idx) + ' '.repeat(len) + t.slice(idx + len);
           break;
         }
-        from = idx + 1;
+        re.lastIndex = idx + 1;
       }
     }
     const numRe = /(?<![\d.])(\d{1,2})\s*번(?=[이가은는도을를\s,]|$)/g;
