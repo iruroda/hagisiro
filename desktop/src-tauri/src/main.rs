@@ -3,7 +3,8 @@
 
 use serde::{Deserialize, Serialize};
 use std::{fs, path::{Path, PathBuf}, sync::Mutex, time::Duration};
-use tauri::menu::{Menu, MenuItem};
+use tauri::image::Image;
+use tauri::menu::{IconMenuItem, Menu};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::webview::PageLoadEvent;
 use tauri::{AppHandle, LogicalPosition, LogicalSize, Manager, PhysicalPosition, PhysicalSize, State, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent, Wry};
@@ -203,11 +204,29 @@ fn reveal(app: &AppHandle) {
     let _ = w.set_always_on_top(true);
     let _ = w.set_focus();
 }
+/* 메뉴 아이콘: 앱 안 메뉴와 같은 모양. 화면 배율에 맞는 크기(16~32px)와 밝은/어두운 메뉴 색에 맞는 아이콘을 골라요 */
+macro_rules! menu_icon {
+    ($name:literal, $dark:expr, $size:expr) => {{
+        let (l, d): (&'static [u8], &'static [u8]) = match $size {
+            16 => (&include_bytes!(concat!("../icons/menu/", $name, "-l-16.png"))[..], &include_bytes!(concat!("../icons/menu/", $name, "-d-16.png"))[..]),
+            20 => (&include_bytes!(concat!("../icons/menu/", $name, "-l-20.png"))[..], &include_bytes!(concat!("../icons/menu/", $name, "-d-20.png"))[..]),
+            24 => (&include_bytes!(concat!("../icons/menu/", $name, "-l-24.png"))[..], &include_bytes!(concat!("../icons/menu/", $name, "-d-24.png"))[..]),
+            28 => (&include_bytes!(concat!("../icons/menu/", $name, "-l-28.png"))[..], &include_bytes!(concat!("../icons/menu/", $name, "-d-28.png"))[..]),
+            _ => (&include_bytes!(concat!("../icons/menu/", $name, "-l-32.png"))[..], &include_bytes!(concat!("../icons/menu/", $name, "-d-32.png"))[..]),
+        };
+        Image::from_bytes(if $dark { d } else { l }).ok()
+    }};
+}
 fn menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
     // 글자를 상태에 따라 바꾸지 않고 고정: 클릭하는 순간 메뉴를 갈아끼우면 빈 작은 상자만 뜨던 문제
-    let o = MenuItem::with_id(app, "open", "열기", true, None::<&str>)?;
-    let h = MenuItem::with_id(app, "hide", "숨기기", true, None::<&str>)?;
-    let q = MenuItem::with_id(app, "quit", "종료", true, None::<&str>)?;
+    let (scale, dark) = app.get_webview_window("main")
+        .map(|w| (w.scale_factor().unwrap_or(1.0), matches!(w.theme(), Ok(tauri::Theme::Dark))))
+        .unwrap_or((1.0, false));
+    let want = (16.0 * scale).round() as u32;
+    let size = [16u32, 20, 24, 28, 32].into_iter().min_by_key(|s| s.abs_diff(want)).unwrap_or(16);
+    let o = IconMenuItem::with_id(app, "open", "열기", true, menu_icon!("open", dark, size), None::<&str>)?;
+    let h = IconMenuItem::with_id(app, "hide", "숨기기", true, menu_icon!("hide", dark, size), None::<&str>)?;
+    let q = IconMenuItem::with_id(app, "quit", "종료", true, menu_icon!("quit", dark, size), None::<&str>)?;
     Menu::with_items(app, &[&o, &h, &q])
 }
 
