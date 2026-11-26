@@ -3283,10 +3283,16 @@
       const list = [];
       let auto = 0;
       ta.value.split(/\r?\n/).forEach((line) => {
-        const tk = line.trim().split(/[\s,\t]+/).filter(Boolean);
-        if (!tk.length) return;
+        // 탭(엑셀·한글 표)으로 나뉘면 칸 단위로, 아니면 첫 덩어리가 번호일 때 나머지를 이름으로 (외국인 이름처럼 이름 중간의 띄어쓰기는 그대로 둠)
+        const L = line.trim();
+        if (!L) return;
+        const cells = /\t/.test(L) ? L.split(/\t+/).map((x) => x.trim()).filter(Boolean) : null;
         let no, nm;
-        if (/^\d+$/.test(tk[0])) { if (!tk[1]) return; no = +tk[0]; nm = tk[1]; } else { nm = tk[0]; no = auto + 1; }
+        const head = cells ? cells[0] : L.split(/[\s,]+/)[0];
+        if (/^\d+$/.test(head)) {
+          nm = (cells ? cells[1] || '' : L.slice(head.length).replace(/^[\s,]+/, '')).replace(/\s+/g, ' ');
+          if (!nm) return; no = +head;
+        } else { nm = (cells ? cells[0] : L).replace(/\s+/g, ' '); no = auto + 1; }
         auto = no;
         list.push({ no, name: nm });
       });
