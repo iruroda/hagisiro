@@ -204,7 +204,7 @@
   const LSK = 'hagisiro:v1';
   const COLS = ['todos', 'classes', 'att', 'settings', 'days', 'repeats', 'docs'];
   const S = {
-    view: ls.get('hagisiro:view') === 'att' ? 'att' : 'cal',
+    view: 'cal',
     sub: ['month', 'week'].includes(ls.get('hagisiro:sub')) ? ls.get('hagisiro:sub') : 'day',
     y: now.getFullYear(), m: now.getMonth(), sel: ymd(now),
     ddays: [], alms: [], todos: [], classes: [], att: [], settings: [], days: [], repeats: [], docs: [],
@@ -860,7 +860,7 @@
     setTimeout(() => document.addEventListener('click', onDocClick, true), 0);
   }
 
-  function setView(v) { S.view = v; ls.set('hagisiro:view', v); if (PF.cal === 'week') watchRange(); render(); }
+  function setView(v) { S.view = v; if (PF.cal === 'week') watchRange(); render(); }
   function setSub(v) { S.sub = v; ls.set('hagisiro:sub', v); render(); }
   /* 날짜를 고르면 달도 같이 맞춤 */
   function setSel(ds) {
@@ -1022,7 +1022,7 @@
   function gotoDate(ds) {
     const d = parseYmd(ds);
     S.y = d.getFullYear(); S.m = d.getMonth(); S.sel = ds; S.anchor = ds; S.extra = {};
-    S.view = 'cal'; ls.set('hagisiro:view', 'cal');
+    S.view = 'cal';
     watchRange(); render();
   }
   /* 목록 정렬 드롭다운(반복·D-day·알림 관리 공통): 날짜 기준 두 가지 + 가나다순 두 가지 */
