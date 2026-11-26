@@ -203,6 +203,20 @@ fn reveal(app: &AppHandle) {
     let _ = w.show();
     let _ = w.set_always_on_top(true);
     let _ = w.set_focus();
+    sync_tray(app);
+}
+/* 창이 지금 보이는 상태인가 (숨김·최소화면 false) */
+fn win_open(app: &AppHandle) -> bool {
+    app.get_webview_window("main").map(|w| w.is_visible().unwrap_or(true) && !w.is_minimized().unwrap_or(false)).unwrap_or(true)
+}
+/* 트레이 메뉴의 '열기'·'숨기기' 항목: 메뉴를 갈아끼우지 않고 눌림 여부(회색)만 바꿔요 */
+struct TrayItems(IconMenuItem<Wry>, IconMenuItem<Wry>);
+fn sync_tray(app: &AppHandle) {
+    if let Some(t) = app.try_state::<TrayItems>() {
+        let open = win_open(app);
+        let _ = t.0.set_enabled(!open);
+        let _ = t.1.set_enabled(open);
+    }
 }
 /* 메뉴 아이콘: 앱 안 메뉴와 같은 모양. 화면 배율에 맞는 크기(20~40px)와 밝은/어두운 메뉴 색에 맞는 아이콘을 골라요 */
 macro_rules! menu_icon {
@@ -217,17 +231,19 @@ macro_rules! menu_icon {
         Image::from_bytes(if $dark { d } else { l }).ok()
     }};
 }
-fn menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
+fn menu(app: &AppHandle) -> tauri::Result<(Menu<Wry>, IconMenuItem<Wry>, IconMenuItem<Wry>)> {
     // 글자를 상태에 따라 바꾸지 않고 고정: 클릭하는 순간 메뉴를 갈아끼우면 빈 작은 상자만 뜨던 문제
     let (scale, dark) = app.get_webview_window("main")
         .map(|w| (w.scale_factor().unwrap_or(1.0), matches!(w.theme(), Ok(tauri::Theme::Dark))))
         .unwrap_or((1.0, false));
     let want = (20.0 * scale).round() as u32;
     let size = [20u32, 24, 28, 32, 40].into_iter().min_by_key(|s| s.abs_diff(want)).unwrap_or(20);
-    let o = IconMenuItem::with_id(app, "open", "열기", true, menu_icon!("open", dark, size), None::<&str>)?;
-    let h = IconMenuItem::with_id(app, "hide", "숨기기", true, menu_icon!("hide", dark, size), None::<&str>)?;
+    let vis = win_open(app); // 이미 보이면 열기는, 숨겨져 있으면 숨기기는 회색(누를 수 없게)
+    let o = IconMenuItem::with_id(app, "open", "열기", !vis, menu_icon!("open", dark, size), None::<&str>)?;
+    let h = IconMenuItem::with_id(app, "hide", "숨기기", vis, menu_icon!("hide", dark, size), None::<&str>)?;
     let q = IconMenuItem::with_id(app, "quit", "종료", true, menu_icon!("quit", dark, size), None::<&str>)?;
-    Menu::with_items(app, &[&o, &h, &q])
+    let m = Menu::with_items(app, &[&o, &h, &q])?;
+    Ok((m, o, h))
 }
 
 /* ---------- 시작 프로그램 (Windows 시작 시 실행) ---------- */
@@ -328,7 +344,7 @@ fn z_set(app: AppHandle, window: WebviewWindow, st: State<Shared>, z: String) ->
 #[tauri::command]
 fn quit(app: AppHandle) { app.exit(0); }
 #[tauri::command]
-fn hide(window: WebviewWindow) { let _ = window.hide(); }
+fn hide(window: WebviewWindow) { let _ = window.hide(); sync_tray(window.app_handle()); }
 /* 로그인 화면: 저장된 위치와 상관없이 작은 창을 화면 가운데에 띄우고, 끝나면 원래 자리로 */
 #[tauri::command]
 fn login_mode(window: WebviewWindow, st: State<Shared>, v: bool) {
@@ -371,7 +387,7 @@ fn notify(app: AppHandle, title: String, body: String) {
 }
 #[tauri::command]
 fn ctx_menu(app: AppHandle, window: WebviewWindow) {
-    if let Ok(m) = menu(&app) { let _ = window.popup_menu(&m); }
+    if let Ok((m, _, _)) = menu(&app) { let _ = window.popup_menu(&m); }
 }
 
 fn main() {
@@ -381,7 +397,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![wb_get, wb_set, wb_done, installed, as_get, as_set, min_w, z_get, z_set, quit, hide, login_mode, notify, ctx_menu])
         .on_menu_event(|app, e| match e.id().as_ref() {
             "open" => reveal(app),
-            "hide" => { if let Some(w) = app.get_webview_window("main") { let _ = w.hide(); } }
+            "hide" => { if let Some(w) = app.get_webview_window("main") { let _ = w.hide(); } sync_tray(app); }
             "quit" => app.exit(0),
             _ => {}
         })
@@ -468,6 +484,7 @@ fn main() {
                     let mut s = st.lock().unwrap();
                     if s.raised { s.raised = false; let top = s.z() == "top"; drop(s); let _ = w2.set_always_on_top(top); } else { drop(s); }
                     send_bottom(&h2);
+                    sync_tray(&h2);
                 }
                 WindowEvent::Moved(_) => {
                     let st = h2.state::<Shared>();
@@ -476,7 +493,8 @@ fn main() {
                 _ => {}
             });
 
-            let tray_menu = menu(&h)?;
+            let (tray_menu, mi_open, mi_hide) = menu(&h)?;
+            app.manage(TrayItems(mi_open, mi_hide));
             TrayIconBuilder::with_id("tray")
                 .icon(app.default_window_icon().unwrap().clone())
                 .tooltip("Hagisiro")
