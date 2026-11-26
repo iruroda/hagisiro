@@ -2631,7 +2631,7 @@
     if (note) pv.append(el('span', { class: 'mut' }, note));
   }
 
-  function submitQuick() {
+  async function submitQuick() {
     const q = $('#q');
     if (!q) return;
     const v = q.value.trim();
@@ -2640,6 +2640,11 @@
     if (r.errors.length) {
       preview(); q.classList.add('shake'); setTimeout(() => q.classList.remove('shake'), 350);
       return;
+    }
+    const dups = [...new Map(r.items.map((it) => [it.studentId + '|' + it.date, S.att.find((a) => a.studentId === it.studentId && a.date === it.date)]).filter(([, d]) => d)).values()];
+    if (dups.length) { // 하루 1건이라 덮어쓰게 되니 먼저 확인해요 (취소하면 입력한 문장은 그대로 남아요)
+      const msg = dups.length === 1 ? `${dups[0].name}의 ${md(dups[0].date)} 기록이 이미 있어요.\n덮어쓸까요?` : `이미 있는 기록 ${dups.length}건이 있어요.\n덮어쓸까요?`;
+      if (!(await ask(msg, '확인', false))) { q.focus(); return; }
     }
     q.value = ''; // 저장하면서 화면이 다시 그려져도 입력한 문장이 남지 않게 먼저 비워요
     const created = [], replaced = [];
