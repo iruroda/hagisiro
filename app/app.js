@@ -3214,6 +3214,7 @@
           ['cal', 'weeks', 'past', 'mgap', 'lunar', 'terms', 'hol', 'ab', 'cons', 'meal', 'pastdd', 'ddtop', 'tsz', 'tfg', 'tbg', 'tlh', 'tbl', 'autoDel', 'sortDone', 'theme', 'anim', 'hide', 'show', 'opacity']
             .forEach((k) => { if (k in PF_DEF) PF[k] = JSON.parse(JSON.stringify(PF_DEF[k])); else delete PF[k]; });
           if (W && W.setZ) { try { S.zmode = await W.setZ('normal'); } catch (e) { /* 창 순서는 그대로 */ } }
+          if (W && W.setAutoStart && S.autoStart) { try { S.autoStart = await W.setAutoStart(false); } catch (e) { /* 시작 설정은 그대로 */ } } // 기본값은 꺼짐
           commit('range'); draw();
         } }, icon('uturn'), '기본으로 되돌리기');
     m.replaceChildren(el('div', { class: 'back', onclick: close }),
