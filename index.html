@@ -382,7 +382,7 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
     new IntersectionObserver((es) => { const v = es[0].isIntersecting; if (v === on) return; on = v; if (v) run(); else tok++; }, { threshold: 0.35 }).observe(box);
   }
   async function type(el, text, ms, stop) { for (let i = 1; i <= text.length; i++) { if (stop()) return; el.textContent = text.slice(0, i); await wait(ms); } }
-  const tap = async (el, cls = 'p') => { el.classList.add(cls); await wait(160); el.classList.remove(cls); };
+  const tap = async (el, cls = 'p', hold = 160) => { el.classList.add(cls); await wait(hold); el.classList.remove(cls); };
 
   /* 할 일: 달력에서 날짜 칸을 누르면 그 날의 창이 열려요 */
   const tdo = $('#dmtdo');
@@ -465,8 +465,8 @@ img, svg { -webkit-user-drag: none; user-drag: none; }
     loop(con, async (stop) => {
       reset(); tt.textContent = ''; await wait(900); if (stop()) return;
       await type(tt, T, 90, stop); if (stop()) return; await wait(1500); if (stop()) return;
-      await tap(nx); con.classList.add('s2'); ct.textContent = '새 테이블 만들기 (2/2)'; await wait(2400); if (stop()) return;
-      await tap(sv); ct.textContent = T; names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); con.classList.add('tab', 'link'); if (ph) ph.classList.remove('hid'); await wait(6200);
+      await tap(nx, 'p', 450); await wait(300); con.classList.add('s2'); ct.textContent = '새 테이블 만들기 (2/2)'; await wait(2400); if (stop()) return;
+      await tap(sv, 'p', 450); await wait(300); ct.textContent = T; names.forEach(([n, i]) => { sl[i].classList.add('f'); $('small', sl[i]).textContent = n; }); con.classList.add('tab', 'link'); if (ph) ph.classList.remove('hid'); await wait(6200);
     }, last);
   }
 })();
