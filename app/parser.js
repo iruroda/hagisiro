@@ -201,14 +201,14 @@
     let type = null;
     let forcedCat = null;
     let saenggyeol = false;
-    let impliedReason = null; // 줄임말이 뜻하는 사유 (생결 → 생리)
+    let impliedReason = null; // 줄임말이 뜻하는 사유 (생결 → 생리통)
     let arrive = null; // "N교시 등교" → 조회~(N-1)교시 지각
     if (/출석\s*인정/.test(t)) { forcedCat = '출석인정'; t = t.replace(/출석\s*인정/g, ' '); }
     const em = /조퇴|지각|결과|결석|병결|생결/.exec(t);
     if (em) {
       type = { 조퇴: '조퇴', 지각: '지각', 결과: '결과', 결석: '결석', 병결: '결석', 생결: null }[em[0]]; // 생결은 아래에서 문장으로 종류를 정해요
       if (em[0] === '병결') forcedCat = forcedCat || '질병';
-      if (em[0] === '생결') { forcedCat = forcedCat || '출석인정'; impliedReason = '생리'; saenggyeol = true; } // 생리로 빠지는 것 전반 (결석·지각·조퇴·결과)
+      if (em[0] === '생결') { forcedCat = forcedCat || '출석인정'; impliedReason = '생리통'; saenggyeol = true; } // 생리로 빠지는 것 전반 (결석·지각·조퇴·결과)
       let cut = em.index;
       const pre = /(질병|미인정|기타)\s*$/.exec(t.slice(0, em.index)); // '기타결석', '질병 조퇴' 처럼 붙은 사유구분
       if (pre) { forcedCat = forcedCat || pre[1]; cut = pre.index; }
