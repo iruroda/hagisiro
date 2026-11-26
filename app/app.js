@@ -114,7 +114,7 @@
     excel: '<rect x="3.5" y="4" width="17" height="16" rx="3.2"/><path d="M15.3 4v16M15.3 9.3h5.2M15.3 14.7h5.2"/><path class="f" d="M6.5 8h1.95L12.3 16h-1.95zM10.35 8h1.95L8.45 16H6.5z"/>',
     today: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/><circle cx="12" cy="15.6" r="1.95" class="f"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3.2"/><path d="M3.5 10.5h17M8 3v4M16 3v4"/>',
-    spade: '<g transform="translate(12 12) scale(0.94) translate(-12 -12)" fill="currentColor" stroke-width="2.77"><path d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/></g>',
+    spade: '<g transform="translate(12 12) scale(0.98) translate(-12 -12)" fill="currentColor" stroke-width="2.65"><path d="M12 4.8C15 8 18 10 18 12.8a3 3 0 0 1-5.4 1.8c.1 1.4.4 2.7 1.2 4.6h-3.6c.8-1.9 1.1-3.2 1.2-4.6A3 3 0 0 1 6 12.8C6 10 9 8 12 4.8z"/></g>',
     b_sq: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" class="f"/>',
     b_ring: '<circle cx="12" cy="12" r="4.6" stroke-width="2.2"/>',
     b_dash: '<path d="M7 12h10" stroke-width="2.6"/>',
