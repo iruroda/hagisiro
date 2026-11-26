@@ -724,6 +724,7 @@ button:disabled, input:disabled, select:disabled, label:has(input:disabled), .pr
 body.widget .tour { inset: 3px; border-radius: var(--r); }
 .tour.live { pointer-events: none; }
 .tour.live .tour-tip, .tour-bl { pointer-events: auto; }
+.tour-tip { z-index: 2; }
 .tour-bl { position: absolute; }
 .tour-hole { position: absolute; border-radius: var(--r-lg); box-shadow: 0 0 0 9999px rgba(0,0,0,.55); pointer-events: none; }
 .tour-tip { position: absolute; background: var(--bg-s, var(--bg)); color: var(--text); border-radius: var(--r-lg); padding: 12px 14px; box-shadow: 0 8px 26px rgba(0,0,0,.25); font-size: 13px; line-height: 1.6; }
