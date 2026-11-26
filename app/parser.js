@@ -115,8 +115,10 @@
       let m;
       while ((m = re.exec(t))) {
         const idx = m.index, len = m[0].length;
-        const prev = t[idx - 1];
-        if (!prev || !/[가-힣]/.test(prev)) {
+        const prev = t[idx - 1], next = t[idx + len];
+        const LAT = /[A-Za-z\u00C0-\u024F]/; // 영문 이름은 더 긴 영어 단어 안에서는 찾지 않음 (Jo ↔ Joanna)
+        const edgeOk = !(LAT.test(s.name[0]) && prev && LAT.test(prev)) && !(LAT.test(s.name[s.name.length - 1]) && next && LAT.test(next));
+        if ((!prev || !/[가-힣]/.test(prev)) && edgeOk) {
           if (!found.includes(s)) found.push(s);
           t = t.slice(0, idx) + ' '.repeat(len) + t.slice(idx + len);
           break;
